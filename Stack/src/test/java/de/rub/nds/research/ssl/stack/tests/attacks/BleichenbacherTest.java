@@ -26,7 +26,7 @@ import java.util.ArrayList;
 import java.util.Observable;
 import java.util.Observer;
 import javax.crypto.BadPaddingException;
-import junit.framework.Assert;
+import org.testng.Assert;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -105,21 +105,27 @@ public class BleichenbacherTest implements Observer {
     @DataProvider(name = "bleichenbacher")
     public Object[][] createData1() {
         return new Object[][]{
-//                      ok case
-                    {new byte[]{0x00, 0x02}, new byte[]{0x00}, protocolVersion,false, 0}, 
-//                    wrong protocol version in PreMasterSecret
-//                    {new byte[]{0x00, 0x02}, new byte[]{0x00},EProtocolVersion.SSL_3_0, false, 0},
-//                    seperate byte is not 0x00
-//                    {new byte[]{0x00,0x02},new byte[]{0x01},protocolVersion,false,0},
-//                    mode changed
-//                    {new byte[]{0x00,0x01},new byte[]{0x00},protocolVersion,false,0},
-//                    zero byte at the first position of the padding
-//                    {new byte[]{0x00,0x02},new byte[]{0x00},protocolVersion,true,0},
-//                    zero byte in the middle of the padding string
-//                    {new byte[]{0x00,0x02},new byte[]{0x00},protocolVersion,true,1},
-//                    zero byte at the end of the padding string
-//                    {new byte[]{0x00,0x02},new byte[]{0x00},protocolVersion,true,2},
-                };
+                    // ok case
+                    {new byte[]{0x00, 0x02}, new byte[]{0x00}, protocolVersion,
+                        false, 0},
+                    // wrong protocol version in PreMasterSecret
+                    {new byte[]{0x00, 0x02}, new byte[]{0x00},
+                        EProtocolVersion.SSL_3_0, false, 0}, 
+                    // seperate byte is not 0x00
+                    {new byte[]{0x00, 0x02}, new byte[]{0x01}, protocolVersion,
+                        false, 0},
+                    //  mode changed
+                    {new byte[]{0x00, 0x01}, new byte[]{0x00}, protocolVersion,
+                        false, 0},
+                    // zero byte at the first position of the padding
+                    {new byte[]{0x00, 0x02}, new byte[]{0x00}, protocolVersion,
+                        true, 0},
+                    // zero byte in the middle of the padding string
+                    {new byte[]{0x00, 0x02}, new byte[]{0x00}, protocolVersion,
+                        true, 1},
+                    // zero byte at the end of the padding string
+                    {new byte[]{0x00, 0x02}, new byte[]{0x00}, protocolVersion,
+                        true, 2},};
     }
 
     /**
@@ -157,15 +163,16 @@ public class BleichenbacherTest implements Observer {
         this.position = position;
 
         workflow.start();
-        
+
         ArrayList<Trace> traceList = workflow.getTraceList();
-        ARecordFrame frame = traceList.get(traceList.size()-1).getCurrentRecord();
-        if(frame instanceof Alert) {
-			Alert alert = (Alert) frame;
-//			Assert.fail("Test failed with an SSL-Alert: "+alert.getAlertLevel()+" "+alert.getAlertDescription());
-		} 
-        if((frame instanceof TLSCiphertext) == false){
-//        	Assert.fail("Last message not Encrypted finished message");
+        ARecordFrame frame = traceList.get(traceList.size() - 1).
+                getCurrentRecord();
+        if (frame instanceof Alert) {
+            Alert alert = (Alert) frame;
+			Assert.fail("Test failed with an SSL-Alert: "+alert.getAlertLevel()+" "+alert.getAlertDescription());
+        }
+        if ((frame instanceof TLSCiphertext) == false) {
+        	Assert.fail("Last message not Encrypted finished message");
         }
     }
 
@@ -200,7 +207,8 @@ public class BleichenbacherTest implements Observer {
                 byte[] encodedPMS = pms.encode(false);
 
                 //encrypt the PreMasterSecret
-                EncryptedPreMasterSecret encPMS = new EncryptedPreMasterSecret(pk);
+                EncryptedPreMasterSecret encPMS = new EncryptedPreMasterSecret(
+                        pk);
                 BigInteger mod = null;
                 RSAPublicKey rsaPK = null;
                 if (pk instanceof RSAPublicKey) {
@@ -220,9 +228,9 @@ public class BleichenbacherTest implements Observer {
                 byte[] padding = utils.createPaddingString(utils.
                         getPaddingLength());
                 if (this.changePadding) {
-//                    Assert.assertFalse("Position to large - padding length is "
-//                            + utils.getPaddingLength(), this.position > utils.
-//                            getPaddingLength());
+                    Assert.assertFalse(this.position > utils.getPaddingLength(),
+                            "Position to large - padding length is "
+                            + utils.getPaddingLength());
                     utils.changePadding(padding, this.position);
                 }
                 //put the PKCS#1 pieces together
@@ -231,10 +239,10 @@ public class BleichenbacherTest implements Observer {
                 //compute c = m^e mod n (RSA encryption)
                 byte[] ciphertext = null;
                 try {
-                	ciphertext = RSACore.rsa(clear, rsaPK);
+                    ciphertext = RSACore.rsa(clear, rsaPK);
                 } catch (BadPaddingException e) {
-                	// TODO Auto-generated catch block
-                	e.printStackTrace();
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
                 }
 
                 encPMS.setEncryptedPreMasterSecret(ciphertext);

@@ -1,23 +1,5 @@
 package de.rub.nds.research.ssl.stack.tests.attacks;
 
-import java.io.IOException;
-import java.security.InvalidKeyException;
-import java.util.ArrayList;
-import java.util.Observable;
-import java.util.Observer;
-
-import javax.crypto.BadPaddingException;
-import javax.crypto.Cipher;
-import javax.crypto.IllegalBlockSizeException;
-import javax.crypto.SecretKey;
-import javax.crypto.spec.SecretKeySpec;
-
-import junit.framework.Assert;
-
-import org.testng.annotations.AfterMethod;
-import org.testng.annotations.DataProvider;
-import org.testng.annotations.Test;
-
 import de.rub.nds.research.ssl.stack.protocols.ARecordFrame;
 import de.rub.nds.research.ssl.stack.protocols.alert.Alert;
 import de.rub.nds.research.ssl.stack.protocols.commons.EConnectionEnd;
@@ -29,10 +11,24 @@ import de.rub.nds.research.ssl.stack.protocols.msgs.TLSCiphertext;
 import de.rub.nds.research.ssl.stack.protocols.msgs.datatypes.GenericBlockCipher;
 import de.rub.nds.research.ssl.stack.tests.common.KeyMaterial;
 import de.rub.nds.research.ssl.stack.tests.common.SSLHandshakeWorkflow;
-import de.rub.nds.research.ssl.stack.tests.common.SSLTestUtils;
 import de.rub.nds.research.ssl.stack.tests.common.SSLHandshakeWorkflow.States;
+import de.rub.nds.research.ssl.stack.tests.common.SSLTestUtils;
 import de.rub.nds.research.ssl.stack.tests.trace.Trace;
 import de.rub.nds.research.ssl.stack.tests.workflows.ObservableBridge;
+import java.io.IOException;
+import java.security.InvalidKeyException;
+import java.util.ArrayList;
+import java.util.Observable;
+import java.util.Observer;
+import javax.crypto.BadPaddingException;
+import javax.crypto.Cipher;
+import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.SecretKey;
+import javax.crypto.spec.SecretKeySpec;
+import org.testng.Assert;
+import org.testng.annotations.AfterMethod;
+import org.testng.annotations.DataProvider;
+import org.testng.annotations.Test;
 
 /**
  * Test for Vaudenay attack.
@@ -72,7 +68,7 @@ public class VaudenayTest implements Observer {
     public final Object[][] createData1() {
         return new Object[][]{
                     {protocolVersion, false}, //ok case
-//                				{protocolVersion, true}		//wrong padding
+                    {protocolVersion, true} //wrong padding
                 };
     }
     /**
@@ -99,16 +95,18 @@ public class VaudenayTest implements Observer {
         pVersion = version;
         this.changePadding = changePadding;
         workflow.start();
-        
+
         ArrayList<Trace> traceList = workflow.getTraceList();
-        ARecordFrame frame = traceList.get(traceList.size()-1).getCurrentRecord();
-        if(frame instanceof Alert) {
-			Alert alert = (Alert) frame;
-//			Assert.fail("Test failed with an SSL-Alert: "+alert.getAlertLevel()+" "+alert.getAlertDescription());
-		} 
-        if((frame instanceof TLSCiphertext) == false){
-//        	Assert.fail("Last message not Encrypted finished message");
-        } 
+        ARecordFrame frame = traceList.get(traceList.size() - 1).
+                getCurrentRecord();
+        if (frame instanceof Alert) {
+            Alert alert = (Alert) frame;
+            Assert.fail("Test failed with an SSL-Alert: " + alert.getAlertLevel() + " " + alert.
+                    getAlertDescription());
+        }
+        if ((frame instanceof TLSCiphertext) == false) {
+            Assert.fail("Last message not Encrypted finished message");
+        }
     }
 
     /**
