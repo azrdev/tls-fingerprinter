@@ -27,7 +27,7 @@ import java.util.ArrayList;
 import java.util.Observable;
 import java.util.Observer;
 import javax.crypto.BadPaddingException;
-import junit.framework.Assert;
+import org.testng.Assert;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.DataProvider;
@@ -254,9 +254,9 @@ public class BleichenbacherTimingTest implements Observer {
                 byte[] padding = utils.createPaddingString(utils.
                         getPaddingLength());
                 if (this.changePadding) {
-                    Assert.assertFalse("Position to large - padding length is "
-                            + utils.getPaddingLength(), this.position > utils.
-                            getPaddingLength());
+                    Assert.assertFalse(this.position > utils.getPaddingLength(), 
+                            "Position to large - padding length is "
+                            + utils.getPaddingLength());
                     utils.changePadding(padding, this.position);
                 }
                 //put the PKCS#1 pieces together
