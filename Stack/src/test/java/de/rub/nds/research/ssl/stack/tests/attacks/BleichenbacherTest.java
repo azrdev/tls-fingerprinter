@@ -220,9 +220,9 @@ public class BleichenbacherTest implements Observer {
                 byte[] padding = utils.createPaddingString(utils.
                         getPaddingLength());
                 if (this.changePadding) {
-                    Assert.assertFalse("Position to large - padding length is "
-                            + utils.getPaddingLength(), this.position > utils.
-                            getPaddingLength());
+//                    Assert.assertFalse("Position to large - padding length is "
+//                            + utils.getPaddingLength(), this.position > utils.
+//                            getPaddingLength());
                     utils.changePadding(padding, this.position);
                 }
                 //put the PKCS#1 pieces together
