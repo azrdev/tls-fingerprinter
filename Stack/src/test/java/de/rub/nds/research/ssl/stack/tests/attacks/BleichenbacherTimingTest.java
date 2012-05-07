@@ -131,23 +131,24 @@ public class BleichenbacherTimingTest implements Observer {
                     {new byte[]{0x00, 0x02}, new byte[]{0x00}, protocolVersion,
                         false, 0},
                     //                    wrong protocol version in PreMasterSecret
-                    {new byte[]{0x00, 0x02}, new byte[]{0x00},
-                        EProtocolVersion.SSL_3_0, false, 0},
-                    //                    seperate byte is not 0x00
-                    {new byte[]{0x00, 0x02}, new byte[]{0x01}, protocolVersion,
-                        false, 0},
-                    //                    mode changed
-                    {new byte[]{0x00, 0x01}, new byte[]{0x00}, protocolVersion,
-                        false, 0},
-                    //                    zero byte at the first position of the padding
-                    {new byte[]{0x00, 0x02}, new byte[]{0x00}, protocolVersion,
-                        true, 0},
-                    //                    zero byte in the middle of the padding string
-                    {new byte[]{0x00, 0x02}, new byte[]{0x00}, protocolVersion,
-                        true, 1},
-                    //                    zero byte at the end of the padding string
-                    {new byte[]{0x00, 0x02}, new byte[]{0x00}, protocolVersion,
-                        true, 2},};
+//                    {new byte[]{0x00, 0x02}, new byte[]{0x00},
+//                        EProtocolVersion.SSL_3_0, false, 0},
+//                    //                    seperate byte is not 0x00
+//                    {new byte[]{0x00, 0x02}, new byte[]{0x01}, protocolVersion,
+//                        false, 0},
+//                    //                    mode changed
+//                    {new byte[]{0x00, 0x01}, new byte[]{0x00}, protocolVersion,
+//                        false, 0},
+//                    //                    zero byte at the first position of the padding
+//                    {new byte[]{0x00, 0x02}, new byte[]{0x00}, protocolVersion,
+//                        true, 0},
+//                    //                    zero byte in the middle of the padding string
+//                    {new byte[]{0x00, 0x02}, new byte[]{0x00}, protocolVersion,
+//                        true, 1},
+//                    //                    zero byte at the end of the padding string
+//                    {new byte[]{0x00, 0x02}, new byte[]{0x00}, protocolVersion,
+//                        true, 2}
+        };
     }
 
     /**
