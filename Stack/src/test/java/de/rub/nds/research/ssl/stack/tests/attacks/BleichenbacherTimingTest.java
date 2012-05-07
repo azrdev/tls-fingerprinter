@@ -148,7 +148,7 @@ public class BleichenbacherTimingTest implements Observer {
                     //                    zero byte at the end of the padding string
                     {new byte[]{0x00, 0x02}, new byte[]{0x00}, protocolVersion,
                         true, 2}
-        };
+                };
     }
 
     /**
@@ -294,7 +294,7 @@ public class BleichenbacherTimingTest implements Observer {
             sslServer = null;
             sslServerThread.interrupt();
             sslServerThread = null;
-            
+
             Thread.currentThread().sleep(5000);
         } catch (Exception e) {
             e.printStackTrace();
