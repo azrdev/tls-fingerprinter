@@ -1,22 +1,14 @@
 package de.rub.nds.research.ssl.stack.protocols.commons;
 
+import de.rub.nds.research.ssl.stack.crypto.MACComputation;
+import de.rub.nds.research.ssl.stack.protocols.ARecordFrame;
 import java.security.AlgorithmParameters;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidParameterSpecException;
-
-import javax.crypto.BadPaddingException;
-import javax.crypto.Cipher;
-import javax.crypto.IllegalBlockSizeException;
-import javax.crypto.Mac;
-import javax.crypto.NoSuchPaddingException;
-import javax.crypto.SecretKey;
+import javax.crypto.*;
 import javax.crypto.spec.IvParameterSpec;
-
-import de.rub.nds.research.ssl.stack.Utility;
-import de.rub.nds.research.ssl.stack.crypto.MACComputation;
-import de.rub.nds.research.ssl.stack.protocols.ARecordFrame;
 
 /**
  * Encrypted data record

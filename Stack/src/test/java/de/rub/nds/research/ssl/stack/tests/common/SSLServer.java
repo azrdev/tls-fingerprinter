@@ -34,6 +34,7 @@ import javax.net.ssl.SSLServerSocketFactory;
  * May 7, 2012
  */
 public class SSLServer extends Thread {
+
     private final byte[] MESSAGE = "Welcome to the SSL Test Server".getBytes();
     private int port;
     private SSLContext sslContext;
@@ -61,17 +62,20 @@ public class SSLServer extends Thread {
         sslContext.init(keyManagers, null, null);
 
         this.port = port;
-        System.out.println("SSL Server successfully initialized!");
+        System.out.println("|| SSL Server successfully initialized!");
     }
 
     public void run() {
         Socket socket = null;
         try {
             preSetup();
-
             while (!shutdown) {
                 try {
+                    System.out.println(
+                            "|| waiting for connections...");
                     socket = serverSocket.accept();
+                    System.out.println(
+                            "|| connection available");
                     DataRecord applicationResponse =
                             new DataRecord(EProtocolVersion.TLS_1_0,
                             MESSAGE);
@@ -82,15 +86,7 @@ public class SSLServer extends Thread {
                 } catch (SocketTimeoutException e) {
                     // ignore
                     continue;
-                } finally {
-//                    try {
-//                        if (socket != null) {
-//                            socket.close();
-//                        }
-//                    } catch (IOException e) {
-//                        // silently ignore
-//                    }
-                }
+                } 
             }
         } catch (SocketException e) {
             e.printStackTrace();
@@ -109,6 +105,7 @@ public class SSLServer extends Thread {
             } catch (IOException e) {
                 // silently ignore
             }
+            System.out.println("|| shutdown complete");
         }
     }
 
@@ -117,9 +114,11 @@ public class SSLServer extends Thread {
                 getServerSocketFactory();
         serverSocket = serverSocketFactory.createServerSocket(port);
         serverSocket.setSoTimeout(5000);
+        System.out.println("|| presetup successful");
     }
 
     public void shutdown() {
-        this.shutdown = false;
+        this.shutdown = true;
+        System.out.println("|| shutdown signal received");
     }
 }
