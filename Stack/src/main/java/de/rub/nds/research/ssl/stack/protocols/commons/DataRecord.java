@@ -269,7 +269,7 @@ public class DataRecord extends ARecordFrame {
      * @param blockSize Block size of the cipher
      * @return Padded data which is a multiple of the block size
      */
-    public byte [] addPadding(byte [] data, int blockSize) {
+    public static byte [] addPadding(byte [] data, int blockSize) {
     	int padLength = 0;
     	if ((data.length%blockSize) != 0) {
     		padLength = blockSize - (data.length%blockSize);
