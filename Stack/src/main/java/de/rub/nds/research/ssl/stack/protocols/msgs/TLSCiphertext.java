@@ -27,7 +27,6 @@ public class TLSCiphertext extends ARecordFrame {
 	/**
      * Initializes an encrypted data record
      * @param message SSL data record in encrypted form
-     * @param param Security parameters of this handshake
      * @param chained Decode single or chained with underlying frames
      */
     public TLSCiphertext(final byte[] message, final boolean chained) {
@@ -39,7 +38,6 @@ public class TLSCiphertext extends ARecordFrame {
     /**
      * Initializes a data record with a specific content type
      * @param version Protocol version
-     * @param message Bytes of the message
      * @param type The content type
      */
 	public TLSCiphertext(final EProtocolVersion version,
@@ -50,7 +48,6 @@ public class TLSCiphertext extends ARecordFrame {
 	/**
 	 * Initializes a application data record
 	 * @param version Protocol version
-	 * @param param The security parameters
 	 */
 	public TLSCiphertext(final EProtocolVersion version) {
 		super(EContentType.APPLICATION, version);
@@ -137,7 +134,7 @@ public class TLSCiphertext extends ARecordFrame {
         // payload already deep copied
         payloadCopy = getPayload();
 
-        // 1. extract verify data
+        // 1. extract ciphertext
         tmpBytes = new byte[payloadCopy.length];
         System.arraycopy(payloadCopy, 0, tmpBytes, 0, tmpBytes.length);
         setGenericCipher(tmpBytes);
