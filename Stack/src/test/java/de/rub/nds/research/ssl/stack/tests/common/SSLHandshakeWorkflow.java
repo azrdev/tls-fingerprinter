@@ -72,7 +72,23 @@ public class SSLHandshakeWorkflow extends AWorkflow {
         CLIENT_FINISHED,
         SERVER_CHANGE_CIPHER_SPEC,
         SERVER_FINISHED;
-
+/**
+ * TODO: this workflow fails!
+        CLIENT_HELLO,
+        SERVER_HELLO,
+        SERVER_CERTIFICATE,
+        SERVER_KEY_EXCHANGE,
+        SERVER_CERTIFICATE_REQUEST,
+        SERVER_HELLO_DONE,
+        CLIENT_CERTIFICATE,
+        CLIENT_KEY_EXCHANGE,
+        CLIENT_CERTIFICATE_VERIFY,
+        CLIENT_CHANGE_CIPHER_SPEC,
+        CLIENT_FINISHED,
+        SERVER_CHANGE_CIPHER_SPEC,
+        SERVER_FINISHED,
+        ALERT;
+ */
         @Override
         public int getID() {
             return this.ordinal();

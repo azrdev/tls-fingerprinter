@@ -11,7 +11,6 @@
  */
 package de.rub.nds.research.ssl.stack.tests.common;
 
-import de.rub.nds.research.ssl.stack.protocols.commons.DataRecord;
 import de.rub.nds.research.ssl.stack.protocols.commons.EProtocolVersion;
 import de.rub.nds.research.ssl.stack.protocols.msgs.TLSPlaintext;
 import java.io.FileInputStream;

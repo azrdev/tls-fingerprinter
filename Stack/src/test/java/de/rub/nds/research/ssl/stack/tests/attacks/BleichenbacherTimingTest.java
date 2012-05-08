@@ -125,7 +125,7 @@ public class BleichenbacherTimingTest implements Observer {
     /**
      * Number of repetitions
      */
-    private static final int NUMBER_OF_REPETIIONS = 1000;
+    private static final int NUMBER_OF_REPETIIONS = 1;
 
     /**
      * Test parameters for the Bleichenbacher Tests.
@@ -136,8 +136,8 @@ public class BleichenbacherTimingTest implements Observer {
     public Object[][] createData1() {
         return new Object[][]{
                     //                      ok case
-                    {new byte[]{0x00, 0x02}, new byte[]{0x00}, protocolVersion,
-                        false, 0}, //                    //                    wrong protocol version in PreMasterSecret
+                    //                    {new byte[]{0x00, 0x02}, new byte[]{0x00}, protocolVersion,
+                    //                        false, 0}, //                    //                    wrong protocol version in PreMasterSecret
                     //                    {new byte[]{0x00, 0x02}, new byte[]{0x00},
                     //                        EProtocolVersion.SSL_3_0, false, 0},
                     //                    //                    seperate byte is not 0x00
@@ -344,8 +344,10 @@ public class BleichenbacherTimingTest implements Observer {
 //        System.out.printf("%50s", "===> Test duration <===\n");
 
         for (Trace trace : traces) {
-//            System.out.printf("%-25s ", trace.getState().name());
+            if(trace.getState() != null) {
+            System.out.printf("%-25s ", trace.getState().name() + "\n");
             timestamp = trace.getNanoTime();
+            EStates currentState = trace.getState();
             switch (trace.getState()) {
                 case CLIENT_KEY_EXCHANGE:
                     delay = timestamp;
@@ -353,6 +355,7 @@ public class BleichenbacherTimingTest implements Observer {
                 case SERVER_CHANGE_CIPHER_SPEC:
                     delay = timestamp - delay;
                     break;
+            }
             }
 //            System.out.println(": " + timestamp + "ns");
         }
