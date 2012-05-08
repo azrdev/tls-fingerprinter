@@ -59,19 +59,18 @@ public class SSLHandshakeWorkflow extends AWorkflow {
      */
     public enum EStates implements WorkflowState {
 
-        CLIENT_HELLO,
-        SERVER_HELLO,
-        CLIENT_CERTIFICATE,
-        SERVER_CERTIFICATE,
-        SERVER_KEY_EXCHANGE,
-        SERVER_HELLO_DONE,
-        CLIENT_KEY_EXCHANGE,
-        CLIENT_CHANGE_CIPHER_SPEC,
-        CLIENT_FINISHED,
-        SERVER_CHANGE_CIPHER_SPEC,
-        SERVER_FINISHED;
-/**
- * TODO: this workflow fails!
+//        CLIENT_HELLO,
+//        SERVER_HELLO,
+//        CLIENT_CERTIFICATE,
+//        SERVER_CERTIFICATE,
+//        SERVER_KEY_EXCHANGE,
+//        SERVER_HELLO_DONE,
+//        CLIENT_KEY_EXCHANGE,
+//        CLIENT_CHANGE_CIPHER_SPEC,
+//        CLIENT_FINISHED,
+//        SERVER_CHANGE_CIPHER_SPEC,
+//        SERVER_FINISHED;
+
         CLIENT_HELLO,
         SERVER_HELLO,
         SERVER_CERTIFICATE,
@@ -86,7 +85,7 @@ public class SSLHandshakeWorkflow extends AWorkflow {
         SERVER_CHANGE_CIPHER_SPEC,
         SERVER_FINISHED,
         ALERT;
- */
+        
         @Override
         public int getID() {
             return this.ordinal();
@@ -120,7 +119,6 @@ public class SSLHandshakeWorkflow extends AWorkflow {
         } catch (NoSuchAlgorithmException e) {
             e.printStackTrace();
         }
-        
         //create the Client Hello message
         ClientHello clientHello = msgBuilder.createClientHello(protocolVersion);
 
@@ -145,24 +143,16 @@ public class SSLHandshakeWorkflow extends AWorkflow {
         utils.sendMessage(out, msg);
         //hash current record
         hashBuilder.updateHash(msg, 5, msg.length - 5);
+        
         //add trace to ArrayList
         addToList(new Trace(EStates.CLIENT_HELLO, trace.getCurrentRecord(),
                 trace.getOldRecord(), false));
-
-        //wait until input bytes are available
-        this.waitForResponse();
 
         //fetch the response(s)
         getResponses(hashBuilder, trace);
 
         if (getCurrentState() != EStates.SERVER_HELLO_DONE.getID()) {
-            this.waitForResponse();
             getResponses(hashBuilder, trace);
-        }
-
-        //cancel handshake processing if alert occurs
-        if (traceList.get(traceList.size() - 1).getCurrentRecord() instanceof Alert) {
-            return;
         }
         
         trace = new Trace();
@@ -180,7 +170,7 @@ public class SSLHandshakeWorkflow extends AWorkflow {
         }
 
         //change status and notify observers
-        switchToNextState(trace);
+        switchToState(trace,EStates.CLIENT_KEY_EXCHANGE);
 
         cke = (ClientKeyExchange) trace.getCurrentRecord();
         msg = cke.encode(true);
@@ -200,7 +190,7 @@ public class SSLHandshakeWorkflow extends AWorkflow {
         ChangeCipherSpec ccs = new ChangeCipherSpec(protocolVersion);
         ccs.encode(true);
         trace.setCurrentRecord(ccs);
-        switchToNextState(trace);
+        switchToState(trace, EStates.CLIENT_CHANGE_CIPHER_SPEC);
 
         if (countObservers(EStates.CLIENT_CHANGE_CIPHER_SPEC) > 0) {
             trace.setOldRecord(ccs);
@@ -233,32 +223,13 @@ public class SSLHandshakeWorkflow extends AWorkflow {
         }
         param.setMasterSecret(masterSec);
 
-        //create the key material
-        KeyMaterial keyMat = new KeyMaterial();
-
         //create Finished message
         Finished finished = msgBuilder.createFinished(protocolVersion,
                 EConnectionEnd.CLIENT, handshakeHashes, masterSec);
-
-        //encrypt Finished message
-        String cipherName = param.getBulkCipherAlgorithm().toString();
-        String macName = param.getMacAlgorithm().toString();
-        SecretKey macKey = new SecretKeySpec(keyMat.getClientMACSecret(),
-                macName);
-        SecretKey symmKey = new SecretKeySpec(keyMat.getClientKey(), cipherName);
-        TLSCiphertext rec = new TLSCiphertext(protocolVersion,
-                EContentType.HANDSHAKE);
-        if (param.getCipherType() == ECipherType.BLOCK) {
-            GenericBlockCipher blockCipher = new GenericBlockCipher(finished);
-            blockCipher.computePayloadMAC(macKey, macName);
-            blockCipher.encryptData(symmKey, cipherName, keyMat.getClientIV());
-            rec.setGenericCipher(blockCipher);
-        } else if (param.getCipherType() == ECipherType.STREAM) {
-            GenericStreamCipher streamCipher = new GenericStreamCipher(finished);
-            streamCipher.computePayloadMAC(macKey, macName);
-            streamCipher.encryptData(symmKey, cipherName);
-            rec.setGenericCipher(streamCipher);
-        }
+        
+        //encrypt finished message
+        TLSCiphertext rec = msgBuilder.encryptRecord(protocolVersion, finished);
+        
         rec.encode(true);
 
         trace.setCurrentRecord(rec);
@@ -279,32 +250,11 @@ public class SSLHandshakeWorkflow extends AWorkflow {
         addToList(new Trace(EStates.CLIENT_FINISHED, trace.getCurrentRecord(), trace.
                 getOldRecord(), false));
 
-        //wait until input bytes are available
-        this.waitForResponse();
-
         getResponses(hashBuilder, trace);
 
-        //cancel handshake processing if alert occurs
-        if (traceList.get(traceList.size() - 1).getCurrentRecord() instanceof Alert) {
-            return;
-        }
-
         if (getCurrentState() == EStates.SERVER_CHANGE_CIPHER_SPEC.getID()) {
-            this.waitForResponse();
             getResponses(hashBuilder, trace);
         }
-
-//		OutputStream fileOutStream = null;
-//		try {
-//			fileOutStream = new FileOutputStream("eugenTest.ser");
-//			ObjectOutputStream oStream = new ObjectOutputStream(fileOutStream);
-//			oStream.writeObject(this.traceList);
-//			fileOutStream.close();
-//		} catch (FileNotFoundException e) {
-//			e.printStackTrace();
-//		} catch (IOException e) {
-//			e.printStackTrace();
-//		}
 
     }
 
@@ -344,6 +294,8 @@ public class SSLHandshakeWorkflow extends AWorkflow {
      * @param trace Trace
      */
     private void getResponses(HandshakeHashBuilder hashBuilder, Trace trace) {
+    	//wait until response bytes are available
+    	waitForResponse();
         byte[] responseBytes = null;
         try {
             while (in.available() != 0) {
@@ -362,6 +314,23 @@ public class SSLHandshakeWorkflow extends AWorkflow {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+    
+    /**
+     * Serialize traceList and write it to file.
+     */
+    public void saveSerializedTraceList() {
+//		OutputStream fileOutStream = null;
+//		try {
+//			fileOutStream = new FileOutputStream("eugenTest.ser");
+//			ObjectOutputStream oStream = new ObjectOutputStream(fileOutStream);
+//			oStream.writeObject(this.traceList);
+//			fileOutStream.close();
+//		} catch (FileNotFoundException e) {
+//			e.printStackTrace();
+//		} catch (IOException e) {
+//			e.printStackTrace();
+//		}
     }
 
     /**
