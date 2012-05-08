@@ -8,15 +8,36 @@ import de.rub.nds.research.ssl.stack.protocols.handshake.ServerKeyExchange;
 import de.rub.nds.research.ssl.stack.tests.common.SSLHandshakeWorkflow;
 import de.rub.nds.research.ssl.stack.tests.common.SSLHandshakeWorkflow.EStates;
 import de.rub.nds.research.ssl.stack.tests.trace.Trace;
-import de.rub.nds.research.ssl.stack.tests.workflows.ObservableBridge;
 
+/**
+ * Determine the handshake record in response and
+ * invoke the appropriate handler.
+ * @author Eugen Weiss - eugen.weiss@ruhr-uni-bochum.de
+ * Apr 15, 2012
+ */
 public class HandshakeResponse {
 	
+	/**
+	 * Server hello state.
+	 */
 	IHandshakeStates serverHello;
+	/**
+	 * Certificate state.
+	 */
 	IHandshakeStates certificate;
+	/**
+	 * ServerKeyExchange state.
+	 */
 	IHandshakeStates serverKeyExchange;
 	
-	public HandshakeResponse(AHandshakeRecord handRecord, Trace trace, SSLHandshakeWorkflow workflow) {
+	/**
+	 * Constructor to invoke message handlers
+	 * @param handRecord Handshake record
+	 * @param trace Holds the trace object
+	 * @param workflow Handshake workflow
+	 */
+	public HandshakeResponse(AHandshakeRecord handRecord,
+			Trace trace, SSLHandshakeWorkflow workflow) {
 		if (handRecord instanceof ServerHello) {
 			serverHello = new ServerHelloHandler();
 			serverHello.handleResponse(handRecord);
@@ -40,6 +61,5 @@ public class HandshakeResponse {
 			trace.setCurrentRecord((ServerHelloDone) handRecord);
 		}
 	}
-	
 
 }
