@@ -62,21 +62,21 @@ public class SSLResponse extends ARecordFrame implements Observer {
             case CHANGE_CIPHER_SPEC:
                 ChangeCipherSpec ccs = new ChangeCipherSpec(response, true);
                 trace.setCurrentRecord(ccs);
-                workflow.statusChanged(trace);
+                workflow.switchToNextState(trace);
                 trace.setState(EStates.getStateById(workflow.getCurrentState()));
                 workflow.addToList(trace);
                 break;
             case ALERT:
                 Alert alert = new Alert(response, true);
                 trace.setCurrentRecord(alert);
-                workflow.statusChanged(trace);
+                workflow.switchToNextState(trace);
                 workflow.addToList(trace);
                 break;
             case HANDSHAKE:
                 if (workflow.isEncrypted()) {
                     TLSCiphertext ciphertext = new TLSCiphertext(response, true);
                     trace.setCurrentRecord(ciphertext);
-                    workflow.statusChanged(trace);
+                    workflow.switchToNextState(trace);
                     trace.setState(EStates.getStateById(
                             workflow.getCurrentState()));
                     workflow.addToList(trace);
