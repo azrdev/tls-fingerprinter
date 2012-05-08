@@ -190,4 +190,33 @@ public class MessageBuilder {
         }
     	return rec;
     }
+    
+    /**
+     * Create master secret part.
+     * @param workflow Handshake workflow
+     * @return Computed MasterSecret
+     */
+    public MasterSecret createMasterSecret(SSLHandshakeWorkflow workflow) {
+    	 KeyExchangeParams keyParams = KeyExchangeParams.getInstance();
+    	PreMasterSecret pms = workflow.getPreMasterSecret();
+    	//set pre_master_secret
+        byte[] pre_master_secret;
+        if (keyParams.getKeyExchangeAlgorithm() == EKeyExchangeAlgorithm.RSA) {
+            pre_master_secret = pms.encode(false);
+        } else {
+            pre_master_secret = pms.getDHKey();
+        }
+        
+    	SecurityParameters param = SecurityParameters.getInstance();
+    	MasterSecret masterSec = null;
+    	try {
+    		masterSec = new MasterSecret(param.getClientRandom(), param.
+    				getServerRandom(), pre_master_secret);
+    	} catch (InvalidKeyException e) {
+    		e.printStackTrace();
+    	}
+    	param.setMasterSecret(masterSec);
+		return masterSec;
+    }
+    
 }
