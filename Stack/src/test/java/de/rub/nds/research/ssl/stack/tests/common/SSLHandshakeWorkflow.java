@@ -17,7 +17,6 @@ import de.rub.nds.research.ssl.stack.tests.workflows.WorkflowState;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.math.BigInteger;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.SocketAddress;
@@ -45,7 +44,6 @@ public class SSLHandshakeWorkflow extends AWorkflow {
         super(workflowStates);
     }
     private EProtocolVersion protocolVersion = EProtocolVersion.TLS_1_0;
-    private PublicKey pk = null;
     private Socket so = new Socket();
     private InputStream in = null;
     private OutputStream out = null;
@@ -122,16 +120,9 @@ public class SSLHandshakeWorkflow extends AWorkflow {
         } catch (NoSuchAlgorithmException e) {
             e.printStackTrace();
         }
-
-        //create ClientHello message
-        ClientHello clientHello = new ClientHello(protocolVersion);
-
-        //set the cipher suites
-        CipherSuites suites = new CipherSuites();
-        suites.setSuites(new ECipherSuite[]{
-                    ECipherSuite.TLS_RSA_WITH_AES_128_CBC_SHA});
-        clientHello.setCipherSuites(suites);
-        clientHello.encode(true);
+        
+        //create the Client Hello message
+        ClientHello clientHello = msgBuilder.createClientHello(protocolVersion);
 
         //add the newly created message to the trace list
         trace.setCurrentRecord(clientHello);
@@ -142,9 +133,8 @@ public class SSLHandshakeWorkflow extends AWorkflow {
             trace.setOldRecord(null);
         }
 
-        //invoke the observers
-        previousState();
-        notifyCurrentObservers(trace);
+        //switch the state of the handshake
+        switchToPreviousState(trace);
 
         //set the probably changed message
         clientHello = (ClientHello) trace.getCurrentRecord();
@@ -174,57 +164,12 @@ public class SSLHandshakeWorkflow extends AWorkflow {
         if (traceList.get(traceList.size() - 1).getCurrentRecord() instanceof Alert) {
             return;
         }
-
-        /*
-         * Not all states might be run through in the server response. It has to
-         * be assured that after server response ServerHelloDone state is
-         * reached.
-         */
-        this.keyExAlg = keyParams.getKeyExchangeAlgorithm();
-        this.pk = keyParams.getPublicKey();
+        
         trace = new Trace();
+        
         //create ClientKeyExchange
-        ClientKeyExchange cke = new ClientKeyExchange(protocolVersion, keyExAlg);
-        if (keyExAlg == EKeyExchangeAlgorithm.RSA) {
-            pms = new PreMasterSecret(protocolVersion);
-            //create encoded PMS
-            byte[] encodedPMS = pms.encode(false);
-            //encrypted PreMasterSecret
-            EncryptedPreMasterSecret encPMS = new EncryptedPreMasterSecret(
-                    encodedPMS, pk);
-            cke.setExchangeKeys(encPMS);
-        } else {
-            ClientDHPublic clientDHPublic = new ClientDHPublic();
-            byte[] generator = keyParams.getDHGenerator();
-            byte[] primeModulus = keyParams.getDHPrime();
-            byte[] privateValue = new byte[20];
-            byte[] clientPublic = new byte[primeModulus.length];
-            /*
-             * generate a random private value
-             */
-            SecureRandom random = new SecureRandom();
-            random.nextBytes(privateValue);
-
-            BigInteger gen = new BigInteger(1, generator);
-            BigInteger primeMod = new BigInteger(1, primeModulus);
-            BigInteger priv = new BigInteger(1, privateValue);
-
-            /*
-             * compute clients DH public value g^x mod p
-             */
-            clientPublic = gen.modPow(priv, primeMod).toByteArray();
-
-            byte[] tmp = new byte[primeModulus.length];
-
-            if (clientPublic.length > primeModulus.length) {
-                System.arraycopy(clientPublic, 1, tmp, 0, primeModulus.length);
-                clientPublic = tmp;
-            }
-            clientDHPublic.setDhyc(clientPublic);
-            cke.setExchangeKeys(clientDHPublic);
-            pms = new PreMasterSecret(privateValue, keyParams.getDhPublic(),
-                    primeModulus);
-        }
+        ClientKeyExchange cke = msgBuilder.createClientKeyExchange(protocolVersion, this);
+        
         cke.encode(true);
         trace.setCurrentRecord(cke);
 
@@ -235,7 +180,7 @@ public class SSLHandshakeWorkflow extends AWorkflow {
         }
 
         //change status and notify observers
-        statusChanged(trace);
+        switchToNextState(trace);
 
         cke = (ClientKeyExchange) trace.getCurrentRecord();
         msg = cke.encode(true);
@@ -255,7 +200,7 @@ public class SSLHandshakeWorkflow extends AWorkflow {
         ChangeCipherSpec ccs = new ChangeCipherSpec(protocolVersion);
         ccs.encode(true);
         trace.setCurrentRecord(ccs);
-        statusChanged(trace);
+        switchToNextState(trace);
 
         if (countObservers(EStates.CLIENT_CHANGE_CIPHER_SPEC) > 0) {
             trace.setOldRecord(ccs);
@@ -324,7 +269,7 @@ public class SSLHandshakeWorkflow extends AWorkflow {
             trace.setOldRecord(null);
         }
 
-        statusChanged(trace);
+        switchToNextState(trace);
 
         rec = (TLSCiphertext) trace.getCurrentRecord();
         //send Finished message
@@ -365,11 +310,30 @@ public class SSLHandshakeWorkflow extends AWorkflow {
 
     /**
      * Switches to the next state and notifies the observers.
-     *
      * @param trace Holds the tracing data
      */
-    public void statusChanged(Trace trace) {
+    public void switchToNextState(Trace trace) {
         nextState();
+        notifyCurrentObservers(trace);
+    }
+    
+    /**
+     * Sets a new state and notifies the observers.
+     * @param trace Holds the tracing data
+     * @param state The new state
+     */
+    public void switchToState(Trace trace, EStates state) {
+        setCurrentState(state.getID());
+        notifyCurrentObservers(trace);
+    }
+    
+    /**
+     * Switches to the previous state or holds current state if 
+     * it is the first state.
+     * @param trace Holds the tracing data
+     */
+    public void switchToPreviousState(Trace trace) {
+    	previousState();
         notifyCurrentObservers(trace);
     }
 
