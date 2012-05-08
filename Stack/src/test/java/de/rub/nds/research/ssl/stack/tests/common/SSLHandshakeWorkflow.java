@@ -1,5 +1,6 @@
 package de.rub.nds.research.ssl.stack.tests.common;
 
+import de.rub.nds.research.ssl.stack.protocols.ARecordFrame;
 import de.rub.nds.research.ssl.stack.protocols.commons.*;
 import de.rub.nds.research.ssl.stack.protocols.handshake.ClientHello;
 import de.rub.nds.research.ssl.stack.protocols.handshake.ClientKeyExchange;
@@ -43,7 +44,6 @@ public class SSLHandshakeWorkflow extends AWorkflow {
     private InputStream in = null;
     private OutputStream out = null;
     private SSLTestUtils utils = new SSLTestUtils();
-    private EKeyExchangeAlgorithm keyExAlg;
     private ArrayList<Trace> traceList = new ArrayList<Trace>();
     private PreMasterSecret pms = null;
     private byte[] handshakeHashes = null;
@@ -104,8 +104,6 @@ public class SSLHandshakeWorkflow extends AWorkflow {
      */
     @Override
     public void start() {
-        SecurityParameters param = SecurityParameters.getInstance();
-        KeyExchangeParams keyParams = KeyExchangeParams.getInstance();
         MessageBuilder msgBuilder = new MessageBuilder();
         Trace trace = new Trace();
         HandshakeHashBuilder hashBuilder = null;
@@ -115,16 +113,8 @@ public class SSLHandshakeWorkflow extends AWorkflow {
             e.printStackTrace();
         }
         //create the Client Hello message
-        ClientHello clientHello = msgBuilder.createClientHello(protocolVersion);
-
-        //add the newly created message to the trace list
-        trace.setCurrentRecord(clientHello);
-
-        if (countObservers(EStates.CLIENT_HELLO) > 0) {
-            trace.setOldRecord(clientHello);
-        } else {
-            trace.setOldRecord(null);
-        }
+        ClientHello clientHello = msgBuilder.createClientHello(protocolVersion); 
+        setRecordTrace(trace, clientHello, EStates.CLIENT_HELLO);
 
         //switch the state of the handshake
         switchToPreviousState(trace);
@@ -154,15 +144,8 @@ public class SSLHandshakeWorkflow extends AWorkflow {
         
         //create ClientKeyExchange
         ClientKeyExchange cke = msgBuilder.createClientKeyExchange(protocolVersion, this);
-        
         cke.encode(true);
-        trace.setCurrentRecord(cke);
-
-        if (countObservers(EStates.CLIENT_KEY_EXCHANGE) > 0) {
-            trace.setOldRecord(cke);
-        } else {
-            trace.setOldRecord(null);
-        }
+        setRecordTrace(trace, cke, EStates.CLIENT_KEY_EXCHANGE);
 
         //change status and notify observers
         switchToState(trace,EStates.CLIENT_KEY_EXCHANGE);
@@ -184,14 +167,10 @@ public class SSLHandshakeWorkflow extends AWorkflow {
 
         ChangeCipherSpec ccs = new ChangeCipherSpec(protocolVersion);
         ccs.encode(true);
-        trace.setCurrentRecord(ccs);
+        
+        setRecordTrace(trace, ccs, EStates.CLIENT_CHANGE_CIPHER_SPEC);
+        
         switchToState(trace, EStates.CLIENT_CHANGE_CIPHER_SPEC);
-
-        if (countObservers(EStates.CLIENT_CHANGE_CIPHER_SPEC) > 0) {
-            trace.setOldRecord(ccs);
-        } else {
-            trace.setOldRecord(null);
-        }
 
         ccs = (ChangeCipherSpec) trace.getCurrentRecord();
         msg = ccs.encode(true);
@@ -200,23 +179,8 @@ public class SSLHandshakeWorkflow extends AWorkflow {
         addToList(new Trace(EStates.CLIENT_CHANGE_CIPHER_SPEC, trace.getCurrentRecord(),
                 trace.getOldRecord(), false));
 
-        //set pre_master_secret
-        byte[] pre_master_secret;
-        if (keyParams.getKeyExchangeAlgorithm() == EKeyExchangeAlgorithm.RSA) {
-            pre_master_secret = pms.encode(false);
-        } else {
-            pre_master_secret = pms.getDHKey();
-        }
-
         //create the master secret
-        MasterSecret masterSec = null;
-        try {
-            masterSec = new MasterSecret(param.getClientRandom(), param.
-                    getServerRandom(), pre_master_secret);
-        } catch (InvalidKeyException e) {
-            e.printStackTrace();
-        }
-        param.setMasterSecret(masterSec);
+        MasterSecret masterSec = msgBuilder.createMasterSecret(this);
 
         //create Finished message
         Finished finished = msgBuilder.createFinished(protocolVersion,
@@ -224,16 +188,9 @@ public class SSLHandshakeWorkflow extends AWorkflow {
         
         //encrypt finished message
         TLSCiphertext rec = msgBuilder.encryptRecord(protocolVersion, finished);
-        
         rec.encode(true);
 
-        trace.setCurrentRecord(rec);
-
-        if (countObservers(EStates.CLIENT_FINISHED) > 0) {
-            trace.setOldRecord(rec);
-        } else {
-            trace.setOldRecord(null);
-        }
+        setRecordTrace(trace, rec, EStates.CLIENT_FINISHED);
 
         switchToNextState(trace);
 
@@ -281,6 +238,19 @@ public class SSLHandshakeWorkflow extends AWorkflow {
     	previousState();
         notifyCurrentObservers(trace);
     }
+    
+    private void setRecordTrace(Trace trace,
+    		ARecordFrame record, EStates state) {
+    	//add the newly created message to the trace list
+        trace.setCurrentRecord(record);
+
+        if (countObservers(state) > 0) {
+            trace.setOldRecord(record);
+        } else {
+            trace.setOldRecord(null);
+        }
+    }
+    
 
     /**
      * Process the response bytes
@@ -370,15 +340,6 @@ public class SSLHandshakeWorkflow extends AWorkflow {
      */
     public Socket getSocket() {
         return so;
-    }
-
-    /**
-     * Get the negotiated key exchange algorithm.
-     *
-     * @return
-     */
-    public EKeyExchangeAlgorithm getKeyExAlgorithm() {
-        return keyExAlg;
     }
 
     /**
