@@ -65,7 +65,8 @@ public class ServerHelloHandler implements IHandshakeStates {
 	}
 
 	/**
-	 * Extract parameters from ServerHello.
+	 * Extract the server random and the security
+	 * parameters from Server Hello.
 	 * @param handRecord Handshake record
 	 */
 	@Override
