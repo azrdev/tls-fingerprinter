@@ -344,7 +344,7 @@ public class BleichenbacherTimingTest implements Observer {
 //        System.out.printf("%50s", "===> Test duration <===\n");
 
         for (Trace trace : traces) {
-            System.out.printf("%-25s ", trace.getState().name());
+//            System.out.printf("%-25s ", trace.getState().name());
             timestamp = trace.getNanoTime();
             switch (trace.getState()) {
                 case CLIENT_KEY_EXCHANGE:
