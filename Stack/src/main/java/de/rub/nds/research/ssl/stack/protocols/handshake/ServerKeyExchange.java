@@ -25,6 +25,8 @@ public class ServerKeyExchange extends AHandshakeRecord {
     private EKeyExchangeAlgorithm keyExchangeAlgorithm;
     /**Exchange keys.*/
     private IExchangeKeys exchangeKeys;
+    /**Signature of the parameters.*/
+    private TLSSignature signature;
 
 	/**
      * Initializes a ServerKeyExchange message as defined in RFC 2246.
@@ -98,9 +100,11 @@ public class ServerKeyExchange extends AHandshakeRecord {
         switch (keyExchangeAlgorithm) {
             case DIFFIE_HELLMAN:
                 exchangeKeys = new ServerDHParams(payloadCopy);
+                signature = new TLSSignature(payloadCopy);
                 break;
             case RSA:
                 exchangeKeys = new ServerRSAParams(payloadCopy);
+                signature = new TLSSignature(payloadCopy);
                 break;
             default:
                 break;
