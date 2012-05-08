@@ -1,9 +1,13 @@
 package de.rub.nds.research.ssl.stack.tests.common;
 
+import de.rub.nds.research.ssl.stack.protocols.ARecordFrame;
 import de.rub.nds.research.ssl.stack.protocols.commons.ECipherSuite;
+import de.rub.nds.research.ssl.stack.protocols.commons.ECipherType;
 import de.rub.nds.research.ssl.stack.protocols.commons.EConnectionEnd;
+import de.rub.nds.research.ssl.stack.protocols.commons.EContentType;
 import de.rub.nds.research.ssl.stack.protocols.commons.EProtocolVersion;
 import de.rub.nds.research.ssl.stack.protocols.commons.KeyExchangeParams;
+import de.rub.nds.research.ssl.stack.protocols.commons.SecurityParameters;
 import de.rub.nds.research.ssl.stack.protocols.handshake.ClientHello;
 import de.rub.nds.research.ssl.stack.protocols.handshake.ClientKeyExchange;
 import de.rub.nds.research.ssl.stack.protocols.handshake.Finished;
@@ -13,11 +17,17 @@ import de.rub.nds.research.ssl.stack.protocols.handshake.datatypes.EKeyExchangeA
 import de.rub.nds.research.ssl.stack.protocols.handshake.datatypes.EncryptedPreMasterSecret;
 import de.rub.nds.research.ssl.stack.protocols.handshake.datatypes.MasterSecret;
 import de.rub.nds.research.ssl.stack.protocols.handshake.datatypes.PreMasterSecret;
+import de.rub.nds.research.ssl.stack.protocols.msgs.TLSCiphertext;
+import de.rub.nds.research.ssl.stack.protocols.msgs.datatypes.GenericBlockCipher;
+import de.rub.nds.research.ssl.stack.protocols.msgs.datatypes.GenericStreamCipher;
 
 import java.math.BigInteger;
 import java.security.InvalidKeyException;
 import java.security.PublicKey;
 import java.security.SecureRandom;
+
+import javax.crypto.SecretKey;
+import javax.crypto.spec.SecretKeySpec;
 
 /**
  * Builder for SSL handshake messages.
@@ -146,5 +156,38 @@ public class MessageBuilder {
         }
         finished.encode(true);
         return finished;
+    }
+    
+    /**
+     * Encrypt a record frame depend on the cipher
+     * @param protocolVersion Protocol version
+     * @param record Record frame
+     * @return Encrypted record
+     */
+    public final TLSCiphertext encryptRecord(final EProtocolVersion protocolVersion,
+    		ARecordFrame record) {
+    	SecurityParameters param = SecurityParameters.getInstance();
+    	//create the key material
+        KeyMaterial keyMat = new KeyMaterial();
+    	//encrypt message
+        String cipherName = param.getBulkCipherAlgorithm().toString();
+        String macName = param.getMacAlgorithm().toString();
+        SecretKey macKey = new SecretKeySpec(keyMat.getClientMACSecret(),
+                macName);
+        SecretKey symmKey = new SecretKeySpec(keyMat.getClientKey(), cipherName);
+        TLSCiphertext rec = new TLSCiphertext(protocolVersion,
+                EContentType.HANDSHAKE);
+        if (param.getCipherType() == ECipherType.BLOCK) {
+            GenericBlockCipher blockCipher = new GenericBlockCipher(record);
+            blockCipher.computePayloadMAC(macKey, macName);
+            blockCipher.encryptData(symmKey, cipherName, keyMat.getClientIV());
+            rec.setGenericCipher(blockCipher);
+        } else if (param.getCipherType() == ECipherType.STREAM) {
+            GenericStreamCipher streamCipher = new GenericStreamCipher(record);
+            streamCipher.computePayloadMAC(macKey, macName);
+            streamCipher.encryptData(symmKey, cipherName);
+            rec.setGenericCipher(streamCipher);
+        }
+    	return rec;
     }
 }
