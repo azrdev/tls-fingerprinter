@@ -3,6 +3,8 @@ package de.rub.nds.research.ssl.stack.tests.response;
 import java.util.Observable;
 import java.util.Observer;
 
+import org.testng.Assert;
+
 
 import de.rub.nds.research.ssl.stack.protocols.ARecordFrame;
 import de.rub.nds.research.ssl.stack.protocols.alert.Alert;
@@ -69,8 +71,9 @@ public class SSLResponse extends ARecordFrame implements Observer {
             case ALERT:
                 Alert alert = new Alert(response, true);
                 trace.setCurrentRecord(alert);
-                workflow.switchToNextState(trace);
+                workflow.switchToState(trace, EStates.ALERT);
                 workflow.addToList(trace);
+                Assert.fail("Test failed with an SSL-Alert: "+alert.getAlertLevel()+" "+alert.getAlertDescription());
                 break;
             case HANDSHAKE:
                 if (workflow.isEncrypted()) {
