@@ -11,7 +11,7 @@ import de.rub.nds.research.ssl.stack.protocols.msgs.TLSCiphertext;
 import de.rub.nds.research.ssl.stack.protocols.msgs.datatypes.GenericBlockCipher;
 import de.rub.nds.research.ssl.stack.tests.common.KeyMaterial;
 import de.rub.nds.research.ssl.stack.tests.common.SSLHandshakeWorkflow;
-import de.rub.nds.research.ssl.stack.tests.common.SSLHandshakeWorkflow.States;
+import de.rub.nds.research.ssl.stack.tests.common.SSLHandshakeWorkflow.EStates;
 import de.rub.nds.research.ssl.stack.tests.common.SSLTestUtils;
 import de.rub.nds.research.ssl.stack.tests.trace.Trace;
 import de.rub.nds.research.ssl.stack.tests.workflows.ObservableBridge;
@@ -91,7 +91,7 @@ public class VaudenayTest implements Observer {
             boolean changePadding) {
         workflow = new SSLHandshakeWorkflow();
         workflow.connectToTestServer(HOST, PORT);
-        workflow.addObserver(this, States.FINISHED);
+        workflow.addObserver(this, EStates.CLIENT_FINISHED);
         pVersion = version;
         this.changePadding = changePadding;
         workflow.start();
@@ -118,15 +118,15 @@ public class VaudenayTest implements Observer {
     @Override
     public final void update(final Observable o, final Object arg) {
         Trace trace = null;
-        States states = null;
+        EStates states = null;
         ObservableBridge obs;
         if (o instanceof ObservableBridge) {
             obs = (ObservableBridge) o;
-            states = (States) obs.getState();
+            states = (EStates) obs.getState();
             trace = (Trace) arg;
         }
         switch (states) {
-            case FINISHED:
+            case CLIENT_FINISHED:
                 SecurityParameters param = SecurityParameters.getInstance();
                 byte[] handshakeHashes = workflow.getHash();
 

@@ -14,7 +14,7 @@ import de.rub.nds.research.ssl.stack.protocols.handshake.MessageObservable;
 import de.rub.nds.research.ssl.stack.protocols.msgs.ChangeCipherSpec;
 import de.rub.nds.research.ssl.stack.protocols.msgs.TLSCiphertext;
 import de.rub.nds.research.ssl.stack.tests.common.SSLHandshakeWorkflow;
-import de.rub.nds.research.ssl.stack.tests.common.SSLHandshakeWorkflow.States;
+import de.rub.nds.research.ssl.stack.tests.common.SSLHandshakeWorkflow.EStates;
 import de.rub.nds.research.ssl.stack.tests.trace.Trace;
 
 /** A response during the SSL protocol processing.
@@ -55,7 +55,7 @@ public class SSLResponse extends ARecordFrame implements Observer {
 			ChangeCipherSpec ccs = new ChangeCipherSpec(response, true);
 			trace.setCurrentRecord(ccs);
 			workflow.statusChanged(trace);
-			trace.setState(States.getStateById(workflow.getCurrentState()));
+			trace.setState(EStates.getStateById(workflow.getCurrentState()));
 			workflow.addToList(trace);
 			break;
 		case ALERT:
@@ -69,7 +69,7 @@ public class SSLResponse extends ARecordFrame implements Observer {
 				TLSCiphertext ciphertext = new TLSCiphertext(response, true);
 				trace.setCurrentRecord(ciphertext);
 				workflow.statusChanged(trace);
-				trace.setState(States.getStateById(workflow.getCurrentState()));
+				trace.setState(EStates.getStateById(workflow.getCurrentState()));
 				workflow.addToList(trace);
 			}
 			else {
@@ -102,7 +102,7 @@ public class SSLResponse extends ARecordFrame implements Observer {
 			 new HandshakeResponse(handRecord, trace, workflow);	 
 			 setTrace(trace);
 		}
-		trace.setState(States.getStateById(workflow.getCurrentState()));
+		trace.setState(EStates.getStateById(workflow.getCurrentState()));
 		workflow.addToList(trace);
 	}
 

@@ -16,7 +16,7 @@ import de.rub.nds.research.ssl.stack.protocols.handshake.datatypes.PreMasterSecr
 import de.rub.nds.research.ssl.stack.protocols.msgs.ChangeCipherSpec;
 import de.rub.nds.research.ssl.stack.tests.common.SSLHandshakeWorkflow;
 import de.rub.nds.research.ssl.stack.tests.common.SSLTestUtils;
-import de.rub.nds.research.ssl.stack.tests.common.SSLHandshakeWorkflow.States;
+import de.rub.nds.research.ssl.stack.tests.common.SSLHandshakeWorkflow.EStates;
 import de.rub.nds.research.ssl.stack.tests.trace.Trace;
 import de.rub.nds.research.ssl.stack.tests.workflows.ObservableBridge;
 
@@ -58,7 +58,7 @@ public class FingerprintChangeCipherSpec implements Observer{
 			 byte[] payload){
 		 workflow = new SSLHandshakeWorkflow();
 		 workflow.connectToTestServer(HOST, PORT);
-		 workflow.addObserver(this, States.CHANGE_CIPHER_SPEC);
+		 workflow.addObserver(this, EStates.CLIENT_CHANGE_CIPHER_SPEC);
 		 this.pVersion=protocolVersion;
 		 this.payload=payload;
 		 workflow.start();
@@ -72,14 +72,14 @@ public class FingerprintChangeCipherSpec implements Observer{
 	 @Override
 	 public void update(Observable o, Object arg) {
 		 Trace trace = null;
-		 States states = null;
+		 EStates states = null;
 		 ObservableBridge obs;
 		 if (o instanceof ObservableBridge) {
 			 obs = (ObservableBridge) o;
-			 states = (States) obs.getState();
+			 states = (EStates) obs.getState();
 			 trace = (Trace) arg;
 		 }
-		 if (states == States.CHANGE_CIPHER_SPEC) {
+		 if (states == EStates.CLIENT_CHANGE_CIPHER_SPEC) {
 			 ChangeCipherSpec ccs = new ChangeCipherSpec(pVersion);
 			 ccs.setContent(payload);
 			 trace.setCurrentRecord(ccs);

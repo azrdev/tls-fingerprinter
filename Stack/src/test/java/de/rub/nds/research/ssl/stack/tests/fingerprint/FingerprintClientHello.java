@@ -15,7 +15,7 @@ import de.rub.nds.research.ssl.stack.protocols.handshake.datatypes.CipherSuites;
 import de.rub.nds.research.ssl.stack.protocols.handshake.datatypes.RandomValue;
 import de.rub.nds.research.ssl.stack.tests.common.MessageBuilder;
 import de.rub.nds.research.ssl.stack.tests.common.SSLHandshakeWorkflow;
-import de.rub.nds.research.ssl.stack.tests.common.SSLHandshakeWorkflow.States;
+import de.rub.nds.research.ssl.stack.tests.common.SSLHandshakeWorkflow.EStates;
 import de.rub.nds.research.ssl.stack.tests.common.SSLTestUtils;
 import de.rub.nds.research.ssl.stack.tests.trace.Trace;
 import de.rub.nds.research.ssl.stack.tests.workflows.ObservableBridge;
@@ -83,7 +83,7 @@ public class FingerprintClientHello implements Observer {
 				byte [] random, ECipherSuite [] suites, byte [] compMethod){
 		 workflow = new SSLHandshakeWorkflow();
 		 workflow.connectToTestServer(HOST, PORT);
-		 workflow.addObserver(this, States.CLIENT_HELLO);
+		 workflow.addObserver(this, EStates.CLIENT_HELLO);
 		 CipherSuites cipherSuites = new CipherSuites();
 		 cipherSuites.setSuites(suites);
 		 this.protVersion=protocolVersion;
@@ -102,14 +102,14 @@ public class FingerprintClientHello implements Observer {
 	 public void update(Observable o, Object arg) {
 		 MessageBuilder msgBuilder = new MessageBuilder();
 		 Trace trace = null;
-		 States states = null;
+		 EStates states = null;
 		 ObservableBridge obs;
 		 if (o instanceof ObservableBridge) {
 			 obs = (ObservableBridge) o;
-			 states = (States) obs.getState();
+			 states = (EStates) obs.getState();
 			 trace = (Trace) arg;
 		 }
-		 if (states == States.CLIENT_HELLO ){
+		 if (states == EStates.CLIENT_HELLO ){
 			 ClientHello clientHello = msgBuilder.createClientHello(protVersion, random, cipherSuites, compMethod);
 			 trace.setCurrentRecord(clientHello);
 		 }

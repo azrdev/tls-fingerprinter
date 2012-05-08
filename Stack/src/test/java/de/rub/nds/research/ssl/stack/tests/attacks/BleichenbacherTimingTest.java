@@ -14,16 +14,16 @@ import de.rub.nds.research.ssl.stack.protocols.handshake.datatypes.RandomValue;
 import de.rub.nds.research.ssl.stack.protocols.msgs.TLSCiphertext;
 import de.rub.nds.research.ssl.stack.tests.common.MessageBuilder;
 import de.rub.nds.research.ssl.stack.tests.common.SSLHandshakeWorkflow;
-import de.rub.nds.research.ssl.stack.tests.common.SSLHandshakeWorkflow.States;
+import de.rub.nds.research.ssl.stack.tests.common.SSLHandshakeWorkflow.EStates;
 import de.rub.nds.research.ssl.stack.tests.common.SSLServer;
 import de.rub.nds.research.ssl.stack.tests.common.SSLTestUtils;
 import de.rub.nds.research.ssl.stack.tests.trace.Trace;
 import de.rub.nds.research.ssl.stack.tests.workflows.ObservableBridge;
-import java.io.IOException;
 import java.math.BigInteger;
 import java.security.PublicKey;
 import java.security.interfaces.RSAPublicKey;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Observable;
 import java.util.Observer;
 import javax.crypto.BadPaddingException;
@@ -118,6 +118,14 @@ public class BleichenbacherTimingTest implements Observer {
      * Pass word for server key store.
      */
     private static final String JKS_PASSWORD = "server";
+    /**
+     * Overall delays
+     */
+    private final long[] delays = new long[NUMBER_OF_REPETIIONS];
+    /**
+     * Number of repetitions
+     */
+    private static final int NUMBER_OF_REPETIIONS = 1000;
 
     /**
      * Test parameters for the Bleichenbacher Tests.
@@ -129,25 +137,23 @@ public class BleichenbacherTimingTest implements Observer {
         return new Object[][]{
                     //                      ok case
                     {new byte[]{0x00, 0x02}, new byte[]{0x00}, protocolVersion,
-                        false, 0},
-                    //                    wrong protocol version in PreMasterSecret
-                    {new byte[]{0x00, 0x02}, new byte[]{0x00},
-                        EProtocolVersion.SSL_3_0, false, 0},
-                    //                    seperate byte is not 0x00
-                    {new byte[]{0x00, 0x02}, new byte[]{0x01}, protocolVersion,
-                        false, 0},
-                    //                    mode changed
-                    {new byte[]{0x00, 0x01}, new byte[]{0x00}, protocolVersion,
-                        false, 0},
-                    //                    zero byte at the first position of the padding
-                    {new byte[]{0x00, 0x02}, new byte[]{0x00}, protocolVersion,
-                        true, 0},
+                        false, 0}, //                    //                    wrong protocol version in PreMasterSecret
+                    //                    {new byte[]{0x00, 0x02}, new byte[]{0x00},
+                    //                        EProtocolVersion.SSL_3_0, false, 0},
+                    //                    //                    seperate byte is not 0x00
+                    //                    {new byte[]{0x00, 0x02}, new byte[]{0x01}, protocolVersion,
+                    //                        false, 0},
+                    //                    //                    mode changed
+                    //                    {new byte[]{0x00, 0x01}, new byte[]{0x00}, protocolVersion,
+                    //                        false, 0},
+                    //                    //                    zero byte at the first position of the padding
+                    //                    {new byte[]{0x00, 0x02}, new byte[]{0x00}, protocolVersion,
+                    //                        true, 0},
                     //                    zero byte in the middle of the padding string
                     {new byte[]{0x00, 0x02}, new byte[]{0x00}, protocolVersion,
-                        true, 1},
-                    //                    zero byte at the end of the padding string
-                    {new byte[]{0x00, 0x02}, new byte[]{0x00}, protocolVersion,
-                        true, 2}
+                        true, 1}, //                    zero byte at the end of the padding string
+                //                    {new byte[]{0x00, 0x02}, new byte[]{0x00}, protocolVersion,
+                //                        true, 2}
                 };
     }
 
@@ -159,37 +165,51 @@ public class BleichenbacherTimingTest implements Observer {
      * @param version Protocol version
      * @param changePadding True if padding should be changed
      * @param position Position where padding is changed
-     * @throws IOException
      */
     @Test(enabled = true, dataProvider = "bleichenbacher")
     public final void testBleichenbacherPossible(final byte[] mode,
             final byte[] separate, final EProtocolVersion version,
-            final boolean changePadding, final int position)
-            throws IOException {
-        workflow = new SSLHandshakeWorkflow();
-        workflow.connectToTestServer(HOST, PORT);
-        workflow.addObserver(this, States.CLIENT_HELLO);
-        workflow.addObserver(this, States.CLIENT_KEY_EXCHANGE);
-
+            final boolean changePadding, final int position) {
         this.mode = mode;
         this.separate = separate;
         this.version = version;
         this.changePadding = changePadding;
         this.position = position;
 
-        workflow.start();
+        System.out.printf("\n%50s", "Test repeated "
+                + NUMBER_OF_REPETIIONS + " times\n");
+        System.out.println("Times during CLIENT_KEY_EXCHANGE "
+                + "and SERVER_CHANGE_CIPHER_SPEC below");
+        try {
+            for (int i = 0; i < NUMBER_OF_REPETIIONS; i++) {
+                workflow = new SSLHandshakeWorkflow();
+                workflow.connectToTestServer(HOST, PORT);
+                workflow.addObserver(this, EStates.CLIENT_HELLO);
+                workflow.addObserver(this, EStates.CLIENT_KEY_EXCHANGE);
+                workflow.start();
 
-        ArrayList<Trace> traceList = workflow.getTraceList();
-        ARecordFrame frame = traceList.get(traceList.size() - 1).
-                getCurrentRecord();
-        if (frame instanceof Alert) {
-            Alert alert = (Alert) frame;
-            Assert.fail("Test failed with an SSL-Alert: " + alert.getAlertLevel() + " " + alert.
-                    getAlertDescription());
+                ArrayList<Trace> traceList = workflow.getTraceList();
+                ARecordFrame frame = traceList.get(traceList.size() - 1).
+                        getCurrentRecord();
+                if (frame instanceof Alert) {
+                    Alert alert = (Alert) frame;
+//                Assert.fail("Test failed with an SSL-Alert: "
+//                        + alert.getAlertLevel() + " "
+//                        + alert.getAlertDescription());
+                }
+                if ((frame instanceof TLSCiphertext) == false) {
+//                Assert.fail("Last message not Encrypted finished message");
+                }
+
+                delays[i] = analyzeTrace(workflow.getTraceList());
+//            System.out.printf("%10d ns\n",delays[i]);
+                workflow.getSocket().close();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
-        if ((frame instanceof TLSCiphertext) == false) {
-            Assert.fail("Last message not Encrypted finished message");
-        }
+
+        System.out.println("Averaged time: " + doStatistics(delays) + " ns");
     }
 
     /**
@@ -200,12 +220,12 @@ public class BleichenbacherTimingTest implements Observer {
      */
     @Override
     public void update(final Observable o, final Object arg) {
+        EStates states = null;
         Trace trace = null;
-        States states = null;
         ObservableBridge obs;
         if (o instanceof ObservableBridge) {
             obs = (ObservableBridge) o;
-            states = (States) obs.getState();
+            states = (EStates) obs.getState();
             trace = (Trace) arg;
         }
         switch (states) {
@@ -254,9 +274,9 @@ public class BleichenbacherTimingTest implements Observer {
                 byte[] padding = utils.createPaddingString(utils.
                         getPaddingLength());
                 if (this.changePadding) {
-                    Assert.assertFalse(this.position > utils.getPaddingLength(), 
-                            "Position to large - padding length is "
-                            + utils.getPaddingLength());
+//                    Assert.assertFalse(this.position > utils.getPaddingLength(),
+//                            "Position to large - padding length is "
+//                            + utils.getPaddingLength());
                     utils.changePadding(padding, this.position);
                 }
                 //put the PKCS#1 pieces together
@@ -288,8 +308,7 @@ public class BleichenbacherTimingTest implements Observer {
     @AfterMethod
     public void tearDown() {
         try {
-            System.out.println("sslServer shutdown: " + sslServer);
-            workflow.getSocket().close();
+//            System.out.println("sslServer shutdown: " + sslServer);
             sslServer.shutdown();
             sslServer = null;
             sslServerThread.interrupt();
@@ -307,15 +326,46 @@ public class BleichenbacherTimingTest implements Observer {
     @BeforeMethod
     public void setUp() {
         try {
-            System.setProperty("javax.net.debug", "ssl");
+            //System.setProperty("javax.net.debug", "ssl");
             sslServer = new SSLServer(PATH_TO_JKS, JKS_PASSWORD,
                     protocolShortName, PORT);
             sslServerThread = new Thread(sslServer);
             sslServerThread.start();
-            System.out.println("sslServer startup: " + sslServer);
+//            System.out.println("sslServer startup: " + sslServer);
             Thread.currentThread().sleep(2000);
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    private static final long analyzeTrace(final List<Trace> traces) {
+        Long delay = 0L;
+        Long timestamp = 0L;
+//        System.out.printf("%50s", "===> Test duration <===\n");
+
+        for (Trace trace : traces) {
+            System.out.printf("%-25s ", trace.getState().name());
+            timestamp = trace.getNanoTime();
+            switch (trace.getState()) {
+                case CLIENT_KEY_EXCHANGE:
+                    delay = timestamp;
+                    break;
+                case SERVER_CHANGE_CIPHER_SPEC:
+                    delay = timestamp - delay;
+                    break;
+            }
+//            System.out.println(": " + timestamp + "ns");
+        }
+        return delay;
+    }
+
+    private static final long doStatistics(long[] delayValues) {
+        long overall = 0L;
+        for (long delay : delayValues) {
+            overall += delay;
+        }
+        overall /= delayValues.length;
+
+        return overall;
     }
 }

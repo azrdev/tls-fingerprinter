@@ -11,6 +11,7 @@
  */
 package de.rub.nds.research.ssl.stack.tests.common;
 
+import de.rub.nds.research.ssl.stack.protocols.commons.DataRecord;
 import de.rub.nds.research.ssl.stack.protocols.commons.EProtocolVersion;
 import de.rub.nds.research.ssl.stack.protocols.msgs.TLSPlaintext;
 import java.io.FileInputStream;
@@ -71,11 +72,9 @@ public class SSLServer extends Thread {
             preSetup();
             while (!shutdown) {
                 try {
-                    System.out.println(
-                            "|| waiting for connections...");
+//                    System.out.println("|| waiting for connections...");
                     socket = serverSocket.accept();
-                    System.out.println(
-                            "|| connection available");
+//                    System.out.println("|| connection available");
                     TLSPlaintext applicationResponse = new TLSPlaintext(
                             EProtocolVersion.TLS_1_0);
                     applicationResponse.setFragment(MESSAGE);
@@ -84,7 +83,9 @@ public class SSLServer extends Thread {
                 } catch (SocketTimeoutException e) {
                     // ignore
                     continue;
-                } 
+                } catch (Exception e) {
+                    // keep on going after any errors!
+                }
             }
         } catch (SocketException e) {
             e.printStackTrace();

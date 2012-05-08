@@ -16,7 +16,7 @@ import de.rub.nds.research.ssl.stack.protocols.handshake.datatypes.EncryptedPreM
 import de.rub.nds.research.ssl.stack.protocols.handshake.datatypes.PreMasterSecret;
 import de.rub.nds.research.ssl.stack.tests.common.SSLHandshakeWorkflow;
 import de.rub.nds.research.ssl.stack.tests.common.SSLTestUtils;
-import de.rub.nds.research.ssl.stack.tests.common.SSLHandshakeWorkflow.States;
+import de.rub.nds.research.ssl.stack.tests.common.SSLHandshakeWorkflow.EStates;
 import de.rub.nds.research.ssl.stack.tests.trace.Trace;
 import de.rub.nds.research.ssl.stack.tests.workflows.ObservableBridge;
 
@@ -56,7 +56,7 @@ public class FingerprintClientKeyExchange implements Observer {
 			 EProtocolVersion preMasterVersion){
 		 workflow = new SSLHandshakeWorkflow();
 		 workflow.connectToTestServer(HOST, PORT);
-		 workflow.addObserver(this, States.CLIENT_KEY_EXCHANGE);
+		 workflow.addObserver(this, EStates.CLIENT_KEY_EXCHANGE);
 		 this.pVersion=protocolVersion;
 		 this.preMasterVersion=preMasterVersion;
 		 workflow.start();
@@ -70,14 +70,14 @@ public class FingerprintClientKeyExchange implements Observer {
 	 @Override
 	 public void update(Observable o, Object arg) {
 		 Trace trace = null;
-		 States states = null;
+		 EStates states = null;
 		 ObservableBridge obs;
 		 if (o instanceof ObservableBridge) {
 			 obs = (ObservableBridge) o;
-			 states = (States) obs.getState();
+			 states = (EStates) obs.getState();
 			 trace = (Trace) arg;
 		 }
-		 if (states == States.CLIENT_KEY_EXCHANGE){
+		 if (states == EStates.CLIENT_KEY_EXCHANGE){
 			 KeyExchangeParams keyParams = KeyExchangeParams.getInstance();
              PublicKey pk = keyParams.getPublicKey();
 			 ClientKeyExchange cke = new ClientKeyExchange(pVersion,

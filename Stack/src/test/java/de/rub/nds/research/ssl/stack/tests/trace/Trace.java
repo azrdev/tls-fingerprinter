@@ -4,7 +4,7 @@ import java.io.Serializable;
 import java.sql.Timestamp;
 
 import de.rub.nds.research.ssl.stack.protocols.ARecordFrame;
-import de.rub.nds.research.ssl.stack.tests.common.SSLHandshakeWorkflow.States;
+import de.rub.nds.research.ssl.stack.tests.common.SSLHandshakeWorkflow.EStates;
 
 /**Trace information about the SSL handshake processing.
  * @author Eugen Weiss - eugen.weiss@ruhr-uni-bochum.de
@@ -25,7 +25,7 @@ public class Trace extends ATrace implements Serializable {
 	/**Handshake enumeration was used for this record.*/
 	private boolean isContinued = false;
 	/**Current state in handshake.*/
-	private States state;
+	private EStates state;
 
 	/**Empty constructor.*/
 	public Trace() {
@@ -36,7 +36,7 @@ public class Trace extends ATrace implements Serializable {
 	 * @param oldRecord Original SSL record before manipulation
 	 * @param isContinued Handshake enumeration was used for this record
 	 */
-	public Trace(States state, final ARecordFrame currentRecord, ARecordFrame oldRecord,
+	public Trace(EStates state, final ARecordFrame currentRecord, ARecordFrame oldRecord,
 			final boolean isContinued) {
 		super();
 		this.setState(state);
@@ -52,7 +52,7 @@ public class Trace extends ATrace implements Serializable {
 	 * @param isContinued Handshake enumeration was used for this record
 	 * @param nanoTime Current time in nano precision
 	 */
-	public Trace(States state, final ARecordFrame currentRecord, final Timestamp timestamp,
+	public Trace(EStates state, final ARecordFrame currentRecord, final Timestamp timestamp,
 		final ARecordFrame oldRecord, boolean isContinued, final Long nanoTime) {
 		this.setState(state);
 		this.setCurrentRecord(currentRecord);
@@ -66,7 +66,7 @@ public class Trace extends ATrace implements Serializable {
 	 * Get the current state in handshake.
 	 * @return Current state in handshake
 	 */
-	public States getState() {
+	public EStates getState() {
 		return this.state;
 	}
 	
@@ -74,7 +74,7 @@ public class Trace extends ATrace implements Serializable {
 	 * Set the current state.
 	 * @param state Current state in handshake.
 	 */
-	public void setState(States state) {
+	public void setState(EStates state) {
 		this.state = state;
 	}
 

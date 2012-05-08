@@ -59,16 +59,17 @@ public class SSLHandshakeWorkflow extends AWorkflow {
     /**
      * Define the workflow states.
      */
-    public enum States implements WorkflowState {
+    public enum EStates implements WorkflowState {
 
         CLIENT_HELLO,
         SERVER_HELLO,
-        CERTIFICATE,
+        CLIENT_CERTIFICATE,
+        SERVER_CERTIFICATE,
         SERVER_KEY_EXCHANGE,
         SERVER_HELLO_DONE,
         CLIENT_KEY_EXCHANGE,
-        CHANGE_CIPHER_SPEC,
-        FINISHED,
+        CLIENT_CHANGE_CIPHER_SPEC,
+        CLIENT_FINISHED,
         SERVER_CHANGE_CIPHER_SPEC,
         SERVER_FINISHED;
 
@@ -77,8 +78,8 @@ public class SSLHandshakeWorkflow extends AWorkflow {
             return this.ordinal();
         }
 
-        public static States getStateById(int id) {
-            States[] states = States.values();
+        public static EStates getStateById(int id) {
+            EStates[] states = EStates.values();
             return states[id];
         }
     }
@@ -87,7 +88,7 @@ public class SSLHandshakeWorkflow extends AWorkflow {
      * Initialize the handshake workflow with the state values
      */
     public SSLHandshakeWorkflow() {
-        this(States.values());
+        this(EStates.values());
     }
 
     /**
@@ -119,7 +120,7 @@ public class SSLHandshakeWorkflow extends AWorkflow {
         //add the newly created message to the trace list
         trace.setCurrentRecord(clientHello);
 
-        if (countObservers(States.CLIENT_HELLO) > 0) {
+        if (countObservers(EStates.CLIENT_HELLO) > 0) {
             trace.setOldRecord(clientHello);
         } else {
             trace.setOldRecord(null);
@@ -139,7 +140,7 @@ public class SSLHandshakeWorkflow extends AWorkflow {
         //hash current record
         hashBuilder.updateHash(msg, 5, msg.length - 5);
         //add trace to ArrayList
-        addToList(new Trace(States.CLIENT_HELLO, trace.getCurrentRecord(),
+        addToList(new Trace(EStates.CLIENT_HELLO, trace.getCurrentRecord(),
                 trace.getOldRecord(), false));
 
         //wait until input bytes are available
@@ -148,7 +149,7 @@ public class SSLHandshakeWorkflow extends AWorkflow {
         //fetch the response(s)
         getResponses(hashBuilder, trace);
 
-        if (getCurrentState() != States.SERVER_HELLO_DONE.getID()) {
+        if (getCurrentState() != EStates.SERVER_HELLO_DONE.getID()) {
             this.waitForResponse();
             getResponses(hashBuilder, trace);
         }
@@ -211,7 +212,7 @@ public class SSLHandshakeWorkflow extends AWorkflow {
         cke.encode(true);
         trace.setCurrentRecord(cke);
 
-        if (countObservers(States.CLIENT_KEY_EXCHANGE) > 0) {
+        if (countObservers(EStates.CLIENT_KEY_EXCHANGE) > 0) {
             trace.setOldRecord(cke);
         } else {
             trace.setOldRecord(null);
@@ -226,7 +227,7 @@ public class SSLHandshakeWorkflow extends AWorkflow {
         //hash current record
         hashBuilder.updateHash(msg, 5, msg.length - 5);
         //add trace to ArrayList
-        addToList(new Trace(States.CLIENT_KEY_EXCHANGE, trace.getCurrentRecord(),
+        addToList(new Trace(EStates.CLIENT_KEY_EXCHANGE, trace.getCurrentRecord(),
                 trace.getOldRecord(), false));
 
         try {
@@ -240,7 +241,7 @@ public class SSLHandshakeWorkflow extends AWorkflow {
         trace.setCurrentRecord(ccs);
         statusChanged(trace);
 
-        if (countObservers(States.CHANGE_CIPHER_SPEC) > 0) {
+        if (countObservers(EStates.CLIENT_CHANGE_CIPHER_SPEC) > 0) {
             trace.setOldRecord(ccs);
         } else {
             trace.setOldRecord(null);
@@ -250,7 +251,7 @@ public class SSLHandshakeWorkflow extends AWorkflow {
         msg = ccs.encode(true);
         utils.sendMessage(out, msg);
         encrypted = true;
-        addToList(new Trace(States.CHANGE_CIPHER_SPEC, trace.getCurrentRecord(),
+        addToList(new Trace(EStates.CLIENT_CHANGE_CIPHER_SPEC, trace.getCurrentRecord(),
                 trace.getOldRecord(), false));
 
         //set pre_master_secret
@@ -301,7 +302,7 @@ public class SSLHandshakeWorkflow extends AWorkflow {
 
         trace.setCurrentRecord(rec);
 
-        if (countObservers(States.FINISHED) > 0) {
+        if (countObservers(EStates.CLIENT_FINISHED) > 0) {
             trace.setOldRecord(rec);
         } else {
             trace.setOldRecord(null);
@@ -314,7 +315,7 @@ public class SSLHandshakeWorkflow extends AWorkflow {
         msg = rec.encode(true);
         utils.sendMessage(out, msg);
 
-        addToList(new Trace(States.FINISHED, trace.getCurrentRecord(), trace.
+        addToList(new Trace(EStates.CLIENT_FINISHED, trace.getCurrentRecord(), trace.
                 getOldRecord(), false));
 
         //wait until input bytes are available
@@ -327,7 +328,7 @@ public class SSLHandshakeWorkflow extends AWorkflow {
             return;
         }
 
-        if (getCurrentState() == States.SERVER_CHANGE_CIPHER_SPEC.getID()) {
+        if (getCurrentState() == EStates.SERVER_CHANGE_CIPHER_SPEC.getID()) {
             this.waitForResponse();
             getResponses(hashBuilder, trace);
         }
