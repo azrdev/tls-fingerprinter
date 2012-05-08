@@ -20,27 +20,23 @@ public class HandshakeResponse {
 		if (handRecord instanceof ServerHello) {
 			serverHello = new ServerHelloHandler();
 			serverHello.handleResponse(handRecord);
-			workflow.setCurrentState(EStates.SERVER_HELLO.getID());
-			workflow.notifyCurrentObservers(trace);
+			workflow.switchToState(trace, EStates.SERVER_HELLO);
 			trace.setCurrentRecord((ServerHello) handRecord);
 		}
 		if (handRecord instanceof Certificate) {
 			certificate = new CertificateHandler();
 			certificate.handleResponse(handRecord);
-			workflow.setCurrentState(EStates.CLIENT_CERTIFICATE.getID());
-			workflow.notifyCurrentObservers(trace);
+			workflow.switchToState(trace, EStates.SERVER_CERTIFICATE);
 			trace.setCurrentRecord((Certificate) handRecord);
 		}
 		if (handRecord instanceof ServerKeyExchange) {
 			serverKeyExchange = new ServerKeyExchangeHandler();
 			serverKeyExchange.handleResponse(handRecord);
-			workflow.setCurrentState(EStates.SERVER_KEY_EXCHANGE.getID());
-			workflow.notifyCurrentObservers(trace);
+			workflow.switchToState(trace, EStates.SERVER_KEY_EXCHANGE);
 			trace.setCurrentRecord((ServerKeyExchange) handRecord);
 		}
 		if (handRecord instanceof ServerHelloDone) {
-			workflow.setCurrentState(EStates.SERVER_HELLO_DONE.getID());
-			workflow.notifyCurrentObservers(trace);
+			workflow.switchToState(trace, EStates.SERVER_HELLO_DONE);
 			trace.setCurrentRecord((ServerHelloDone) handRecord);
 		}
 	}
