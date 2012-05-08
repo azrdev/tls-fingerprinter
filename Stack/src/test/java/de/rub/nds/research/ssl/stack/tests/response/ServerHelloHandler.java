@@ -15,19 +15,61 @@ import de.rub.nds.research.ssl.stack.protocols.handshake.ServerHello;
 import de.rub.nds.research.ssl.stack.protocols.handshake.datatypes.EKeyExchangeAlgorithm;
 import de.rub.nds.research.ssl.stack.protocols.handshake.datatypes.ESignatureAlgorithm;
 
+/**
+ * Handles a Server Hello message. The handler
+ * extract parameters from the message which are
+ * used in the following handshake processing.
+ * @author Eugen Weiss - eugen.weiss@ruhr-uni-bochum.de
+ * May 02, 2012
+ */
 public class ServerHelloHandler implements IHandshakeStates {
 	
+	/**
+	 * Server hello message.
+	 */
 	private ServerHello serverHello;
-	
+	/**
+	 * Length of initialization vector in AES.
+	 */
 	private static final int IV_LENGTH_AES = 16;
+	/**
+	 * Length of initialization vector
+	 */
+	private static final int IV_LENGTH = 8;
+	/**
+	 * SHA1 hash length.
+	 */
+	private static final int LENGTH_SHA1 = 20;
+	/**
+	 * MD5 hash length.
+	 */
+	private static final int LENGTH_MD5 = 16;
+	/**
+	 * Key size DES40.
+	 */
+	private static final int KEY_SIZE_DES40 = 5;
+	/**
+	 * Key size 3DES.
+	 */
+	private static final int KEY_SIZE_3DES = 24;
+	/**
+	 * Key size DES.
+	 */
+	private static final int KEY_SIZE_DES = 8;
 	
-	private static final int IV_LENGTH = 16;
 	
+	/**
+	 * Empty constructor
+	 */
 	public ServerHelloHandler() {
 	}
 
+	/**
+	 * Extract parameters from ServerHello.
+	 * @param handRecord Handshake record
+	 */
 	@Override
-	public void handleResponse(AHandshakeRecord handRecord) {
+	public final void handleResponse(final AHandshakeRecord handRecord) {
 		serverHello = (ServerHello) handRecord;
 		this.setServerRandom();
 		this.setSecurityParameters(serverHello.getCipherSuite());
@@ -35,7 +77,7 @@ public class ServerHelloHandler implements IHandshakeStates {
 	
 	/**Extracts the server random from the ServerHello.
 	 */
-	public void setServerRandom() {
+	public final void setServerRandom() {
 		SecurityParameters param = SecurityParameters.getInstance();
 		byte [] serverRandom = null;
 		byte [] serverTime = serverHello.getRandom().getUnixTimestamp();
@@ -43,9 +85,11 @@ public class ServerHelloHandler implements IHandshakeStates {
 		serverRandom = new byte[serverTime.length + serverValue.length];
 		int pointer = 0;
 		//copy the client random to the array
-		System.arraycopy(serverTime, 0, serverRandom, pointer, serverTime.length);
+		System.arraycopy(serverTime, 0, serverRandom,
+				pointer, serverTime.length);
 		pointer += serverTime.length;
-		System.arraycopy(serverValue, 0, serverRandom, pointer, serverValue.length);
+		System.arraycopy(serverValue, 0, serverRandom,
+				pointer, serverValue.length);
 		
 		param.setServerRandom(serverRandom);
 	}
@@ -53,7 +97,7 @@ public class ServerHelloHandler implements IHandshakeStates {
 	/**Sets necessary security parameters using the cipher suite.
 	 * @param cipher Cipher suite from the ServerHello message
 	 */
-    public void setSecurityParameters(final ECipherSuite cipher) {
+    public final void setSecurityParameters(final ECipherSuite cipher) {
     	SecurityParameters param = SecurityParameters.getInstance();
     	String suiteString = cipher.toString();
     	String [] suiteParams = suiteString.split("_");
@@ -66,11 +110,13 @@ public class ServerHelloHandler implements IHandshakeStates {
     	setExportable(suiteList);
     	setBulkCipher(suiteList);
     	setMACAlgorithm(suiteList);
-    	if (param.getBulkCipherAlgorithm().equals("AES")){
-    		param.setKeyMaterialLength((param.getHashSize()*2)+(param.getKeySize()*2)+IV_LENGTH_AES*2);
+    	if (param.getBulkCipherAlgorithm().equals("AES")) {
+    		param.setKeyMaterialLength((param.getHashSize() * 2)
+    				+ (param.getKeySize() * 2) + IV_LENGTH_AES * 2);
     	}
     	else {
-    		param.setKeyMaterialLength((param.getHashSize()*2)+(param.getKeySize()*2)+IV_LENGTH*2);
+    		param.setKeyMaterialLength((param.getHashSize() * 2)
+    				+ (param.getKeySize() * 2) + IV_LENGTH * 2);
     	}
     	
     	
@@ -79,16 +125,20 @@ public class ServerHelloHandler implements IHandshakeStates {
     /**Sets key exchange algorithm.
      * @param suiteList List of cipher cuite parameters
      */
-    private final void setKeyExchangeAlgorithm(List<String> suiteList) {
+    private final void setKeyExchangeAlgorithm(final List<String> suiteList) {
     	KeyExchangeParams keyParams = KeyExchangeParams.getInstance();
     	if (suiteList.get(0).equals("RSA")) {
-    		keyParams.setKeyExchangeAlgorithm(EKeyExchangeAlgorithm.valueOf("RSA"));
+    		keyParams.setKeyExchangeAlgorithm(
+    				EKeyExchangeAlgorithm.valueOf("RSA"));
     		suiteList.remove(0);
     		}
-    	else if (suiteList.get(0).equals("DH") || suiteList.get(0).equals("DHE")) {
-    		keyParams.setKeyExchangeAlgorithm(EKeyExchangeAlgorithm.valueOf("DIFFIE_HELLMAN"));
+    	else if (suiteList.get(0).equals("DH") ||
+    			suiteList.get(0).equals("DHE")) {
+    		keyParams.setKeyExchangeAlgorithm(
+    				EKeyExchangeAlgorithm.valueOf("DIFFIE_HELLMAN"));
     		suiteList.remove(0);
-    		keyParams.setSignatureAlgorithm(ESignatureAlgorithm.valueOf(suiteList.get(0)));
+    		keyParams.setSignatureAlgorithm(
+    				ESignatureAlgorithm.valueOf(suiteList.get(0)));
     		suiteList.remove(0);
     		}
     }
@@ -97,71 +147,81 @@ public class ServerHelloHandler implements IHandshakeStates {
      * Set the flag for exportable cipher suites.
      * @param suiteList List of cipher cuite parameters
      */
-    private final void setExportable(List<String> suiteList) {
+    private final void setExportable(final List<String> suiteList) {
     	SecurityParameters param = SecurityParameters.getInstance();
     	if (suiteList.get(0).equals("EXPORT")) {
     		param.setExportable(true);
     		suiteList.remove(0);
     		suiteList.remove(0);
-    	}
-    	else
-    		suiteList.remove(0);
+    	} else {
+			suiteList.remove(0);
+		}
     }
     
     /**
      * Set the bulk cipher
      * @param suiteList List of cipher cuite parameters
      */
-    private final void setBulkCipher(List<String> suiteList) {  
+    private final void setBulkCipher(final List<String> suiteList) {  
     	SecurityParameters param = SecurityParameters.getInstance();
     	EBulkCipherAlgorithm algorithm = EBulkCipherAlgorithm.NULL;
-    	if (suiteList.get(0).equals("RC4")){
+    	if (suiteList.get(0).equals("RC4")) {
     		param.setCipherType(ECipherType.STREAM);
     	}
     	else {
     		param.setCipherType(ECipherType.BLOCK);
     	}
-    	switch (algorithm.getBulkCipher(suiteList.get(0))){
+    	switch (algorithm.getBulkCipher(suiteList.get(0))) {
     	case NULL: 	param.setBulkCipherAlgorithm(EBulkCipherAlgorithm.NULL);
     				suiteList.remove(0);
     				break;
     	case RC4:	param.setBulkCipherAlgorithm(EBulkCipherAlgorithm.RC4);
 					suiteList.remove(0);
-					param.setKeySize(Integer.valueOf(suiteList.get(0))/8);
+					param.setKeySize(
+							Integer.valueOf(suiteList.get(0)) / 8);
 					suiteList.remove(0);
 					break;
     	case RC2:	param.setBulkCipherAlgorithm(EBulkCipherAlgorithm.RC2);
     				suiteList.remove(0);
-    				param.setModeOfOperation(EModeOfOperation.valueOf(suiteList.get(0)));
+    				param.setModeOfOperation(
+    						EModeOfOperation.valueOf(suiteList.get(0)));
     				suiteList.remove(0);
-    				param.setKeySize(Integer.valueOf(suiteList.get(0))/8);
+    				param.setKeySize(
+    						Integer.valueOf(suiteList.get(0)) / 8);
 					suiteList.remove(0);
 					break;
     	case DES:	param.setBulkCipherAlgorithm(EBulkCipherAlgorithm.DES);
-    				param.setKeySize(8);
+    				param.setKeySize(KEY_SIZE_DES);
     				suiteList.remove(0);
-    				param.setModeOfOperation(EModeOfOperation.valueOf(suiteList.get(0)));
+    				param.setModeOfOperation(
+    						EModeOfOperation.valueOf(suiteList.get(0)));
     				suiteList.remove(0);
     				break;
-    	case DES40:	param.setBulkCipherAlgorithm(EBulkCipherAlgorithm.DES40);
-    				param.setKeySize(5);
+    	case DES40:	param.setBulkCipherAlgorithm(
+    					EBulkCipherAlgorithm.DES40);
+    				param.setKeySize(KEY_SIZE_DES40);
     				suiteList.remove(0);
-    				param.setModeOfOperation(EModeOfOperation.valueOf(suiteList.get(0)));
+    				param.setModeOfOperation(
+    						EModeOfOperation.valueOf(suiteList.get(0)));
     				suiteList.remove(0);
     				break;
     	case TRIPLE_DES: 
-    				param.setBulkCipherAlgorithm(EBulkCipherAlgorithm.TRIPLE_DES);
-    				param.setKeySize(24);
+    				param.setBulkCipherAlgorithm(
+    						EBulkCipherAlgorithm.TRIPLE_DES);
+    				param.setKeySize(KEY_SIZE_3DES);
     				suiteList.remove(0);
     				suiteList.remove(0);
-    				param.setModeOfOperation(EModeOfOperation.valueOf(suiteList.get(0)));
+    				param.setModeOfOperation(
+    						EModeOfOperation.valueOf(suiteList.get(0)));
     				suiteList.remove(0);
     				break;
     	case AES:	param.setBulkCipherAlgorithm(EBulkCipherAlgorithm.AES);
     				suiteList.remove(0);
-					param.setKeySize(Integer.valueOf(suiteList.get(0))/8);
+					param.setKeySize(
+							Integer.valueOf(suiteList.get(0)) / 8);
 					suiteList.remove(0);
-					param.setModeOfOperation(EModeOfOperation.valueOf(suiteList.get(0)));
+					param.setModeOfOperation(
+							EModeOfOperation.valueOf(suiteList.get(0)));
 					suiteList.remove(0);
 					break;
 		default: 	break;		
@@ -170,17 +230,17 @@ public class ServerHelloHandler implements IHandshakeStates {
     
     /**
      * Set the MAC Algorithm
-     * @param suiteList List of cipher cuite parameters
+     * @param suiteList List of cipher suite parameters
      */
-    private final void setMACAlgorithm(List<String> suiteList) {
+    private final void setMACAlgorithm(final List<String> suiteList) {
     	SecurityParameters param = SecurityParameters.getInstance();
     	if (suiteList.get(0).equals("SHA")) {
     		param.setMacAlgorithm(EMACAlgorithm.valueOf("SHA1"));
-    		param.setHashSize(20);
+    		param.setHashSize(LENGTH_SHA1);
     	}
     	else {
     		param.setMacAlgorithm(EMACAlgorithm.valueOf("MD5"));
-    		param.setHashSize(16);
+    		param.setHashSize(LENGTH_MD5);
     	}
     }
 
