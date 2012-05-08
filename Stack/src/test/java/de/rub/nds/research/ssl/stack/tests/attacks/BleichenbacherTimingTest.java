@@ -209,7 +209,7 @@ public class BleichenbacherTimingTest implements Observer {
             e.printStackTrace();
         }
 
-        System.out.println("Averaged time: " + doStatistics(delays) + " ns");
+        System.out.println("Averaged time: " + doStatistics(delays) + " ns\n");
     }
 
     /**
