@@ -111,7 +111,7 @@ public class ServerHelloHandler implements IHandshakeStates {
     	setExportable(suiteList);
     	setBulkCipher(suiteList);
     	setMACAlgorithm(suiteList);
-    	if (param.getBulkCipherAlgorithm().equals("AES")) {
+    	if (param.getBulkCipherAlgorithm().name().equals("AES")) {
     		param.setKeyMaterialLength((param.getHashSize() * 2)
     				+ (param.getKeySize() * 2) + IV_LENGTH_AES * 2);
     	}
