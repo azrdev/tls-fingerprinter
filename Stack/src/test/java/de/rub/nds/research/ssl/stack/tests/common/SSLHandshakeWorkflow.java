@@ -1,6 +1,5 @@
 package de.rub.nds.research.ssl.stack.tests.common;
 
-import de.rub.nds.research.ssl.stack.protocols.alert.Alert;
 import de.rub.nds.research.ssl.stack.protocols.commons.*;
 import de.rub.nds.research.ssl.stack.protocols.handshake.ClientHello;
 import de.rub.nds.research.ssl.stack.protocols.handshake.ClientKeyExchange;
@@ -8,8 +7,6 @@ import de.rub.nds.research.ssl.stack.protocols.handshake.Finished;
 import de.rub.nds.research.ssl.stack.protocols.handshake.datatypes.*;
 import de.rub.nds.research.ssl.stack.protocols.msgs.ChangeCipherSpec;
 import de.rub.nds.research.ssl.stack.protocols.msgs.TLSCiphertext;
-import de.rub.nds.research.ssl.stack.protocols.msgs.datatypes.GenericBlockCipher;
-import de.rub.nds.research.ssl.stack.protocols.msgs.datatypes.GenericStreamCipher;
 import de.rub.nds.research.ssl.stack.tests.response.SSLResponse;
 import de.rub.nds.research.ssl.stack.tests.trace.Trace;
 import de.rub.nds.research.ssl.stack.tests.workflows.AWorkflow;
@@ -24,8 +21,6 @@ import java.net.SocketTimeoutException;
 import java.security.*;
 import java.sql.Timestamp;
 import java.util.ArrayList;
-import javax.crypto.SecretKey;
-import javax.crypto.spec.SecretKeySpec;
 
 /**
  * The complete SSL Handshake workflow.
