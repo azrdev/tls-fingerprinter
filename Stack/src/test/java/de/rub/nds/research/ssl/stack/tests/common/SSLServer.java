@@ -11,8 +11,8 @@
  */
 package de.rub.nds.research.ssl.stack.tests.common;
 
-import de.rub.nds.research.ssl.stack.protocols.commons.DataRecord;
 import de.rub.nds.research.ssl.stack.protocols.commons.EProtocolVersion;
+import de.rub.nds.research.ssl.stack.protocols.msgs.TLSPlaintext;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -76,11 +76,9 @@ public class SSLServer extends Thread {
                     socket = serverSocket.accept();
                     System.out.println(
                             "|| connection available");
-                    DataRecord applicationResponse =
-                            new DataRecord(EProtocolVersion.TLS_1_0,
-                            MESSAGE);
-                    // TODO it is necessary to be able to send unecrypted data!
-                    applicationResponse.setEncryptedData(MESSAGE);
+                    TLSPlaintext applicationResponse = new TLSPlaintext(
+                            EProtocolVersion.TLS_1_0);
+                    applicationResponse.setFragment(MESSAGE);
                     socket.getOutputStream().write(
                             applicationResponse.encode(false));
                 } catch (SocketTimeoutException e) {
