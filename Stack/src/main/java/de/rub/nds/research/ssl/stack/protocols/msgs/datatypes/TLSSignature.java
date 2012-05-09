@@ -114,7 +114,7 @@ public class TLSSignature extends APubliclySerializable {
         byte [] msg = null;
         if (pk instanceof RSAPublicKey) {
             RSAPublicKey rsaPK = (RSAPublicKey) pk;
-           	msg = RsaUtil.pubOp(msg, rsaPK);
+           	msg = RsaUtil.pubOp(signature, rsaPK);
         }
         byte [] recHash = new byte[36];
         System.arraycopy(msg, msg.length - recHash.length, recHash, 0, recHash.length);
