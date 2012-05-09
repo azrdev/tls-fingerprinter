@@ -1,7 +1,9 @@
 package de.rub.nds.research.ssl.stack.tests.common;
 
+import de.rub.nds.research.ssl.stack.Utility;
 import de.rub.nds.research.ssl.stack.protocols.ARecordFrame;
 import de.rub.nds.research.ssl.stack.protocols.commons.*;
+import de.rub.nds.research.ssl.stack.protocols.handshake.Certificate;
 import de.rub.nds.research.ssl.stack.protocols.handshake.ClientHello;
 import de.rub.nds.research.ssl.stack.protocols.handshake.ClientKeyExchange;
 import de.rub.nds.research.ssl.stack.protocols.handshake.Finished;
@@ -136,7 +138,7 @@ public class SSLHandshakeWorkflow extends AWorkflow {
         //fetch the response(s)
         getResponses(hashBuilder, trace);
 
-        if (getCurrentState() != EStates.SERVER_HELLO_DONE.getID()) {
+        while (getCurrentState() != EStates.SERVER_HELLO_DONE.getID()) {
             getResponses(hashBuilder, trace);
         }
         
