@@ -49,7 +49,7 @@ public class VaudenayTest implements Observer {
     /**
      * Test host.
      */
-    private static final String HOST = "www.rub.de";
+    private static final String HOST = "www.datenzone.de";
     /**
      * Test port.
      */
@@ -63,8 +63,8 @@ public class VaudenayTest implements Observer {
     @DataProvider(name = "vaudenay")
     public final Object[][] createData1() {
         return new Object[][]{
-                    {protocolVersion, false}, //ok case
-//                    {protocolVersion, true} //wrong padding
+//                    {protocolVersion, false}, //ok case
+                    {protocolVersion, true} //wrong padding
                 };
     }
     /**
