@@ -3,6 +3,8 @@ package de.rub.nds.research.ssl.stack.protocols.msgs.datatypes;
 import java.math.BigInteger;
 import java.security.interfaces.RSAPublicKey;
 
+import sun.security.rsa.RSACore;
+
 /**
  * Utility class for RSA Operations.
  * 
@@ -11,20 +13,22 @@ import java.security.interfaces.RSAPublicKey;
  */
 public class RsaUtil {
 
-	/*
+	/**
+	 * Wrapper for RSACore, until it has been replaced.
+	 * 
+	 * @param msg Message.
+	 * @param k RSA Public Key.
+	 * @return resulting message.
+	 */
 	public static byte[] pubOp(byte[] msg, RSAPublicKey k) {
 		try {
-			byte[] m1 = RSACore.rsa(msg, k);
-			byte[] m2 = myPubOp(msg, k);
-			System.err.println(Arrays.toString(m1));
-			System.err.println(Arrays.toString(m2));
-			return m1;
+			return RSACore.rsa(msg, k);
+			
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
 		
 	}
-	*/
 	
 	/**
 	 * Perform the RSA public key operation. Please be aware that this code
@@ -36,7 +40,7 @@ public class RsaUtil {
 	 *            The RSA public key.
 	 * @return msg^(k.e) mod k.n.
 	 */
-	public static byte[] pubOp(byte[] msg, RSAPublicKey k) {
+	public static byte[] myPubOp(byte[] msg, RSAPublicKey k) {
 		BigInteger e = k.getPublicExponent();
 		BigInteger n = k.getModulus();
 		BigInteger m = new BigInteger(1, msg);
