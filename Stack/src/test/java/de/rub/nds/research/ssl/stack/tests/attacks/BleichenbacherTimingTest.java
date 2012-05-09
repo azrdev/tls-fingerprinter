@@ -66,7 +66,7 @@ public class BleichenbacherTimingTest implements Observer {
     /**
      * Test host.
      */
-    private static final String HOST = "www.nds.rub.de";
+    private static final String HOST = "www.openssl.org";
     /**
      * Test port.
      */
