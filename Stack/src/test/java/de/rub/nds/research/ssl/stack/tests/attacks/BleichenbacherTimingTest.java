@@ -67,11 +67,11 @@ public class BleichenbacherTimingTest implements Observer {
     /**
      * Test host.
      */
-    private static final String HOST = "www.bild.de";
+    private static final String HOST = "localhost";
     /**
      * Test port.
      */
-    private static final int PORT = 443;
+    private static final int PORT = 10443;
     /**
      * Separate byte between padding and data in PKCS#1 message.
      */
@@ -346,10 +346,10 @@ public class BleichenbacherTimingTest implements Observer {
     public void tearDown() {
         try {
 //            System.out.println("sslServer shutdown: " + sslServer);
-//            sslServer.shutdown();
-//            sslServer = null;
-//            sslServerThread.interrupt();
-//            sslServerThread = null;
+            sslServer.shutdown();
+            sslServer = null;
+            sslServerThread.interrupt();
+            sslServerThread = null;
 
             Thread.currentThread().sleep(5000);
         } catch (Exception e) {
@@ -364,10 +364,10 @@ public class BleichenbacherTimingTest implements Observer {
     public void setUp() {
         try {
 //            System.setProperty("javax.net.debug", "ssl");
-//            sslServer = new SSLServer(PATH_TO_JKS, JKS_PASSWORD,
-//                    protocolShortName, PORT);
-//            sslServerThread = new Thread(sslServer);
-//            sslServerThread.start();
+            sslServer = new SSLServer(PATH_TO_JKS, JKS_PASSWORD,
+                    protocolShortName, PORT);
+            sslServerThread = new Thread(sslServer);
+            sslServerThread.start();
 //            System.out.println("sslServer startup: " + sslServer);
             Thread.currentThread().sleep(2000);
         } catch (Exception e) {
