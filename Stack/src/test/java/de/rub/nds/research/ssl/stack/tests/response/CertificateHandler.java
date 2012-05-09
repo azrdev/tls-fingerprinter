@@ -36,11 +36,12 @@ public class CertificateHandler implements IHandshakeStates {
 				CertificateFactory cf = CertificateFactory.getInstance("X.509");
 				java.security.cert.Certificate cert = cf.generateCertificate(inCert);
 				pk = cert.getPublicKey();
+				keyParams.setPublicKey(pk);
+				return;
 			} catch (CertificateException e) {
 				e.printStackTrace();
 			}
 		}
-		keyParams.setPublicKey(pk);
 	}
 
 }
