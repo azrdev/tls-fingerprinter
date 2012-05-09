@@ -9,10 +9,6 @@ import java.security.SignatureException;
 import java.security.interfaces.RSAPublicKey;
 import java.util.Arrays;
 
-import javax.crypto.BadPaddingException;
-
-import sun.security.rsa.RSACore;
-
 import de.rub.nds.research.ssl.stack.protocols.commons.APubliclySerializable;
 import de.rub.nds.research.ssl.stack.protocols.commons.KeyExchangeParams;
 import de.rub.nds.research.ssl.stack.protocols.commons.SecurityParameters;
@@ -118,11 +114,7 @@ public class TLSSignature extends APubliclySerializable {
         byte [] msg = null;
         if (pk instanceof RSAPublicKey) {
             RSAPublicKey rsaPK = (RSAPublicKey) pk;
-            try {
-            	msg = RSACore.rsa(signature, rsaPK);
-			} catch (BadPaddingException e) {
-				e.printStackTrace();
-			}
+           	msg = RsaUtil.pubOp(msg, rsaPK);
         }
         byte [] recHash = new byte[36];
         System.arraycopy(msg, msg.length - recHash.length, recHash, 0, recHash.length);

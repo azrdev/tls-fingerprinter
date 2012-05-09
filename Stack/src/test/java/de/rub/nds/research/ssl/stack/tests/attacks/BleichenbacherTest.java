@@ -9,6 +9,7 @@ import de.rub.nds.research.ssl.stack.protocols.handshake.datatypes.CipherSuites;
 import de.rub.nds.research.ssl.stack.protocols.handshake.datatypes.EncryptedPreMasterSecret;
 import de.rub.nds.research.ssl.stack.protocols.handshake.datatypes.PreMasterSecret;
 import de.rub.nds.research.ssl.stack.protocols.handshake.datatypes.RandomValue;
+import de.rub.nds.research.ssl.stack.protocols.msgs.datatypes.RsaUtil;
 import de.rub.nds.research.ssl.stack.tests.common.MessageBuilder;
 import de.rub.nds.research.ssl.stack.tests.common.SSLHandshakeWorkflow;
 import de.rub.nds.research.ssl.stack.tests.common.SSLHandshakeWorkflow.EStates;
@@ -21,12 +22,10 @@ import java.security.PublicKey;
 import java.security.interfaces.RSAPublicKey;
 import java.util.Observable;
 import java.util.Observer;
-import javax.crypto.BadPaddingException;
 import org.testng.Assert;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
-import sun.security.rsa.RSACore;
 
 /**
  * Test for Bleichenbacher attack.
@@ -223,14 +222,8 @@ public class BleichenbacherTest implements Observer {
                 byte[] clear = utils.buildPKCS1Msg(encodedPMS);
 
                 //compute c = m^e mod n (RSA encryption)
-                byte[] ciphertext = null;
-                try {
-                    ciphertext = RSACore.rsa(clear, rsaPK);
-                } catch (BadPaddingException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
-                }
-
+                byte[] ciphertext = RsaUtil.pubOp(clear, rsaPK);
+                
                 encPMS.setEncryptedPreMasterSecret(ciphertext);
                 cke.setExchangeKeys(encPMS);
 
