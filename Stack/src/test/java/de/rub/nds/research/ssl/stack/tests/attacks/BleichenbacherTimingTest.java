@@ -65,11 +65,11 @@ public class BleichenbacherTimingTest implements Observer {
     /**
      * Test host.
      */
-    private static final String HOST = "localhost";
+    private static final String HOST = "www.nds.rub.de";
     /**
      * Test port.
      */
-    private static final int PORT = 10443;
+    private static final int PORT = 443;
     /**
      * Separate byte between padding and data in PKCS#1 message.
      */
@@ -125,7 +125,7 @@ public class BleichenbacherTimingTest implements Observer {
     /**
      * Number of repetitions
      */
-    private static final int NUMBER_OF_REPETIIONS = 1;
+    private static final int NUMBER_OF_REPETIIONS = 1000;
 
     /**
      * Test parameters for the Bleichenbacher Tests.
@@ -135,25 +135,27 @@ public class BleichenbacherTimingTest implements Observer {
     @DataProvider(name = "bleichenbacher")
     public Object[][] createData1() {
         return new Object[][]{
-                    //                      ok case
-                    //                    {new byte[]{0x00, 0x02}, new byte[]{0x00}, protocolVersion,
-                    //                        false, 0}, //                    //                    wrong protocol version in PreMasterSecret
-                    //                    {new byte[]{0x00, 0x02}, new byte[]{0x00},
-                    //                        EProtocolVersion.SSL_3_0, false, 0},
-                    //                    //                    seperate byte is not 0x00
-                    //                    {new byte[]{0x00, 0x02}, new byte[]{0x01}, protocolVersion,
-                    //                        false, 0},
-                    //                    //                    mode changed
-                    //                    {new byte[]{0x00, 0x01}, new byte[]{0x00}, protocolVersion,
-                    //                        false, 0},
-                    //                    //                    zero byte at the first position of the padding
-                    //                    {new byte[]{0x00, 0x02}, new byte[]{0x00}, protocolVersion,
-                    //                        true, 0},
-                    //                    zero byte in the middle of the padding string
+                    // ok case
                     {new byte[]{0x00, 0x02}, new byte[]{0x00}, protocolVersion,
-                        true, 1}, //                    zero byte at the end of the padding string
-                //                    {new byte[]{0x00, 0x02}, new byte[]{0x00}, protocolVersion,
-                //                        true, 2}
+                        false, 0},
+                    // wrong protocol version in PreMasterSecret
+//                    {new byte[]{0x00, 0x02}, new byte[]{0x00},
+//                        EProtocolVersion.SSL_3_0, false, 0},
+                    // seperate byte is not 0x00
+//                    {new byte[]{0x00, 0x02}, new byte[]{0x01}, protocolVersion,
+//                        false, 0},
+                    // mode changed
+//                    {new byte[]{0x00, 0x01}, new byte[]{0x00}, protocolVersion,
+//                        false, 0},
+                    // zero byte at the first position of the padding
+//                    {new byte[]{0x00, 0x02}, new byte[]{0x00}, protocolVersion,
+//                        true, 0},
+                    // zero byte in the middle of the padding string
+                    {new byte[]{0x00, 0x02}, new byte[]{0x00}, protocolVersion,
+                        true, 1},
+                    // zero byte at the end of the padding string
+//                    {new byte[]{0x00, 0x02}, new byte[]{0x00}, protocolVersion,
+//                        true, 2}
                 };
     }
 
@@ -309,10 +311,10 @@ public class BleichenbacherTimingTest implements Observer {
     public void tearDown() {
         try {
 //            System.out.println("sslServer shutdown: " + sslServer);
-            sslServer.shutdown();
-            sslServer = null;
-            sslServerThread.interrupt();
-            sslServerThread = null;
+//            sslServer.shutdown();
+//            sslServer = null;
+//            sslServerThread.interrupt();
+//            sslServerThread = null;
 
             Thread.currentThread().sleep(5000);
         } catch (Exception e) {
@@ -327,10 +329,10 @@ public class BleichenbacherTimingTest implements Observer {
     public void setUp() {
         try {
             //System.setProperty("javax.net.debug", "ssl");
-            sslServer = new SSLServer(PATH_TO_JKS, JKS_PASSWORD,
-                    protocolShortName, PORT);
-            sslServerThread = new Thread(sslServer);
-            sslServerThread.start();
+//            sslServer = new SSLServer(PATH_TO_JKS, JKS_PASSWORD,
+//                    protocolShortName, PORT);
+//            sslServerThread = new Thread(sslServer);
+//            sslServerThread.start();
 //            System.out.println("sslServer startup: " + sslServer);
             Thread.currentThread().sleep(2000);
         } catch (Exception e) {
@@ -344,18 +346,25 @@ public class BleichenbacherTimingTest implements Observer {
 //        System.out.printf("%50s", "===> Test duration <===\n");
 
         for (Trace trace : traces) {
-            if(trace.getState() != null) {
-            System.out.printf("%-25s ", trace.getState().name() + "\n");
-            timestamp = trace.getNanoTime();
-            EStates currentState = trace.getState();
-            switch (trace.getState()) {
-                case CLIENT_KEY_EXCHANGE:
-                    delay = timestamp;
-                    break;
-                case SERVER_CHANGE_CIPHER_SPEC:
-                    delay = timestamp - delay;
-                    break;
-            }
+            if (trace.getState() != null) {
+//                System.out.printf("%40s", trace.getState().name() + "\n");
+                timestamp = trace.getNanoTime();
+                EStates currentState = trace.getState();
+                switch (trace.getState()) {
+                    case CLIENT_KEY_EXCHANGE:
+                        delay = timestamp;
+                        break;
+                    case SERVER_CHANGE_CIPHER_SPEC:
+                        delay = timestamp - delay;
+                        break;
+                    case ALERT:
+                        if (trace.getCurrentRecord() instanceof Alert) {
+//                            System.out.println("Alert reason: " 
+//                                    + ((Alert) trace.getCurrentRecord()).
+//                                    getAlertDescription());
+                        }
+                        break;
+                }
             }
 //            System.out.println(": " + timestamp + "ns");
         }

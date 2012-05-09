@@ -8,6 +8,7 @@ import org.testng.Assert;
 
 import de.rub.nds.research.ssl.stack.protocols.ARecordFrame;
 import de.rub.nds.research.ssl.stack.protocols.alert.Alert;
+import de.rub.nds.research.ssl.stack.protocols.alert.datatypes.EAlertLevel;
 import de.rub.nds.research.ssl.stack.protocols.commons.EContentType;
 import de.rub.nds.research.ssl.stack.protocols.commons.SecurityParameters;
 import de.rub.nds.research.ssl.stack.protocols.handshake.AHandshakeRecord;
@@ -71,9 +72,14 @@ public class SSLResponse extends ARecordFrame implements Observer {
             case ALERT:
                 Alert alert = new Alert(response, true);
                 trace.setCurrentRecord(alert);
-                workflow.switchToState(trace, EStates.ALERT);
+                if (EAlertLevel.FATAL.equals(alert.getAlertLevel())) {
+                    workflow.switchToState(trace, EStates.ALERT);
+                } else {
+                    workflow.switchToNextState(trace);
+                }
+                trace.setState(EStates.getStateById(workflow.getCurrentState()));
                 workflow.addToList(trace);
-                Assert.fail("Test failed with an SSL-Alert: "+alert.getAlertLevel()+" "+alert.getAlertDescription());
+//                Assert.fail("Test failed with an SSL-Alert: "+alert.getAlertLevel()+" "+alert.getAlertDescription());
                 break;
             case HANDSHAKE:
                 if (workflow.isEncrypted()) {
