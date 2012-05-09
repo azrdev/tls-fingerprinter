@@ -66,7 +66,7 @@ public class BleichenbacherTimingTest implements Observer {
     /**
      * Test host.
      */
-    private static final String HOST = "www.openssl.org";
+    private static final String HOST = "www.nds.rub.de";
     /**
      * Test port.
      */
@@ -184,7 +184,7 @@ public class BleichenbacherTimingTest implements Observer {
         this.changePadding = changePadding;
         this.position = position;
         boolean canceled = false;
-        
+
         System.out.printf("\n%-25s%-50s\n", "Test description:", description);
         System.out.printf("%-25s%-50s\n", "Test repeated:",
                 NUMBER_OF_REPETIIONS + " times");
@@ -205,10 +205,15 @@ public class BleichenbacherTimingTest implements Observer {
                     Alert alert = (Alert) frame;
                     if (EAlertLevel.FATAL.equals(alert.getAlertLevel())) {
                         canceled = true;
+                        System.out.printf("%-25s%-50s\n", "Test aborted:",
+                                alert.getAlertLevel() 
+                                + " " 
+                                + alert.getAlertDescription());
                         break;
                     } else {
                         continue;
                     }
+
 //                    Assert.fail("Test failed with an SSL-Alert: "
 //                            + alert.getAlertLevel() + " "
 //                            + alert.getAlertDescription());
@@ -226,11 +231,11 @@ public class BleichenbacherTimingTest implements Observer {
         }
 
         Long averagedTime = doStatistics(delays);
-        System.out.print("Averaged time: ");
+        System.out.printf("%-25s", "Averaged time (ns):");
         if (canceled) {
-            System.out.println("computation not possible due to FATAL Alert");
+            System.out.printf("%-50s\n", "computation not possible");
         } else {
-            System.out.println(averagedTime + " ns");
+            System.out.printf("%-50s\n", averagedTime);
         }
 
     }
@@ -370,7 +375,7 @@ public class BleichenbacherTimingTest implements Observer {
         for (Trace trace : traces) {
             if (trace.getState() != null) {
 //                System.out.printf("%40s", trace.getState().name() + "\n");
-                timestamp = trace.getNanoTime();        
+                timestamp = trace.getNanoTime();
                 EStates currentState = trace.getState();
                 switch (trace.getState()) {
                     case CLIENT_KEY_EXCHANGE:
