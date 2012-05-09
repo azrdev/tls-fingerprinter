@@ -79,7 +79,7 @@ public class SSLResponse extends ARecordFrame implements Observer {
                 }
                 trace.setState(EStates.getStateById(workflow.getCurrentState()));
                 workflow.addToList(trace);
-//                Assert.fail("Test failed with an SSL-Alert: "+alert.getAlertLevel()+" "+alert.getAlertDescription());
+                Assert.fail("Test failed with an SSL-Alert: "+alert.getAlertLevel()+" "+alert.getAlertDescription());
                 break;
             case HANDSHAKE:
                 if (workflow.isEncrypted()) {
