@@ -2,6 +2,7 @@ package de.rub.nds.research.ssl.stack.tests.attacks;
 
 import de.rub.nds.research.ssl.stack.protocols.ARecordFrame;
 import de.rub.nds.research.ssl.stack.protocols.alert.Alert;
+import de.rub.nds.research.ssl.stack.protocols.alert.datatypes.EAlertLevel;
 import de.rub.nds.research.ssl.stack.protocols.commons.ECipherSuite;
 import de.rub.nds.research.ssl.stack.protocols.commons.EProtocolVersion;
 import de.rub.nds.research.ssl.stack.protocols.commons.KeyExchangeParams;
@@ -65,7 +66,7 @@ public class BleichenbacherTimingTest implements Observer {
     /**
      * Test host.
      */
-    private static final String HOST = "www.nds.rub.de";
+    private static final String HOST = "www.heise.de";
     /**
      * Test port.
      */
@@ -125,7 +126,7 @@ public class BleichenbacherTimingTest implements Observer {
     /**
      * Number of repetitions
      */
-    private static final int NUMBER_OF_REPETIIONS = 1000;
+    private static final int NUMBER_OF_REPETIIONS = 10;
 
     /**
      * Test parameters for the Bleichenbacher Tests.
@@ -137,25 +138,28 @@ public class BleichenbacherTimingTest implements Observer {
         return new Object[][]{
                     // ok case
                     {new byte[]{0x00, 0x02}, new byte[]{0x00}, protocolVersion,
-                        false, 0},
+                        false, 0, "OK"},
                     // wrong protocol version in PreMasterSecret
-//                    {new byte[]{0x00, 0x02}, new byte[]{0x00},
-//                        EProtocolVersion.SSL_3_0, false, 0},
+                    {new byte[]{0x00, 0x02}, new byte[]{0x00},
+                        EProtocolVersion.SSL_3_0, false, 0,
+                        "Wrong protocol version in PreMasterSecret"},
                     // seperate byte is not 0x00
-//                    {new byte[]{0x00, 0x02}, new byte[]{0x01}, protocolVersion,
-//                        false, 0},
+                    {new byte[]{0x00, 0x02}, new byte[]{0x01}, protocolVersion,
+                        false, 0, "Seperate byte is not 0x00"},
                     // mode changed
-//                    {new byte[]{0x00, 0x01}, new byte[]{0x00}, protocolVersion,
-//                        false, 0},
+                    {new byte[]{0x00, 0x01}, new byte[]{0x00}, protocolVersion,
+                        false, 0, "Mode changed to 0x01"},
                     // zero byte at the first position of the padding
-//                    {new byte[]{0x00, 0x02}, new byte[]{0x00}, protocolVersion,
-//                        true, 0},
+                    {new byte[]{0x00, 0x02}, new byte[]{0x00}, protocolVersion,
+                        true, 0,
+                        "Zero byte at the first position of the padding"},
                     // zero byte in the middle of the padding string
                     {new byte[]{0x00, 0x02}, new byte[]{0x00}, protocolVersion,
-                        true, 1},
+                        true, 1,
+                        "Zero byte in the middle of the padding string"},
                     // zero byte at the end of the padding string
-//                    {new byte[]{0x00, 0x02}, new byte[]{0x00}, protocolVersion,
-//                        true, 2}
+                    {new byte[]{0x00, 0x02}, new byte[]{0x00}, protocolVersion,
+                        true, 2, "Zero byte at the end of the padding string"}
                 };
     }
 
@@ -167,21 +171,24 @@ public class BleichenbacherTimingTest implements Observer {
      * @param version Protocol version
      * @param changePadding True if padding should be changed
      * @param position Position where padding is changed
+     * @param description Test description
      */
     @Test(enabled = true, dataProvider = "bleichenbacher")
     public final void testBleichenbacherPossible(final byte[] mode,
             final byte[] separate, final EProtocolVersion version,
-            final boolean changePadding, final int position) {
+            final boolean changePadding, final int position,
+            final String description) {
         this.mode = mode;
         this.separate = separate;
         this.version = version;
         this.changePadding = changePadding;
         this.position = position;
 
-        System.out.printf("\n%50s", "Test repeated "
-                + NUMBER_OF_REPETIIONS + " times\n");
-        System.out.println("Times during CLIENT_KEY_EXCHANGE "
-                + "and SERVER_CHANGE_CIPHER_SPEC below");
+        System.out.printf("\n%-25s%-50s\n", "Test description:", description);
+        System.out.printf("%-25s%-50s\n", "Test repeated:",
+                NUMBER_OF_REPETIIONS + " times");
+        System.out.printf("%-25s%-50s\n", "Time measurement:",
+                "Time between CLIENT_KEY_EXCHANGE and SERVER_CHANGE_CIPHER_SPEC");
         try {
             for (int i = 0; i < NUMBER_OF_REPETIIONS; i++) {
                 workflow = new SSLHandshakeWorkflow();
@@ -195,9 +202,14 @@ public class BleichenbacherTimingTest implements Observer {
                         getCurrentRecord();
                 if (frame instanceof Alert) {
                     Alert alert = (Alert) frame;
-//                Assert.fail("Test failed with an SSL-Alert: "
-//                        + alert.getAlertLevel() + " "
-//                        + alert.getAlertDescription());
+                    if (EAlertLevel.FATAL.equals(alert.getAlertLevel())) {
+                        break;
+                    } else {
+                        continue;
+                    }
+//                    Assert.fail("Test failed with an SSL-Alert: "
+//                            + alert.getAlertLevel() + " "
+//                            + alert.getAlertDescription());
                 }
                 if ((frame instanceof TLSCiphertext) == false) {
 //                Assert.fail("Last message not Encrypted finished message");
@@ -211,7 +223,14 @@ public class BleichenbacherTimingTest implements Observer {
             e.printStackTrace();
         }
 
-        System.out.println("Averaged time: " + doStatistics(delays) + " ns\n");
+        Long averagedTime = doStatistics(delays);
+        System.out.print("Averaged time: ");
+        if (averagedTime <= 0) {
+            System.out.println("computation not possible...");
+        } else {
+            System.out.println(averagedTime + " ns");
+        }
+
     }
 
     /**
@@ -343,6 +362,7 @@ public class BleichenbacherTimingTest implements Observer {
     private static final long analyzeTrace(final List<Trace> traces) {
         Long delay = 0L;
         Long timestamp = 0L;
+        Long overall = -1L;
 //        System.out.printf("%50s", "===> Test duration <===\n");
 
         for (Trace trace : traces) {
@@ -355,7 +375,7 @@ public class BleichenbacherTimingTest implements Observer {
                         delay = timestamp;
                         break;
                     case SERVER_CHANGE_CIPHER_SPEC:
-                        delay = timestamp - delay;
+                        overall = timestamp - delay;
                         break;
                     case ALERT:
                         if (trace.getCurrentRecord() instanceof Alert) {
@@ -368,7 +388,7 @@ public class BleichenbacherTimingTest implements Observer {
             }
 //            System.out.println(": " + timestamp + "ns");
         }
-        return delay;
+        return overall;
     }
 
     private static final long doStatistics(long[] delayValues) {
