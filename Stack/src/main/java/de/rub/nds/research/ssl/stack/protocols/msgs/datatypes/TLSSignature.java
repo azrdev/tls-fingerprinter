@@ -1,8 +1,11 @@
 package de.rub.nds.research.ssl.stack.protocols.msgs.datatypes;
 
+import java.security.InvalidKeyException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.PublicKey;
+import java.security.Signature;
+import java.security.SignatureException;
 import java.security.interfaces.RSAPublicKey;
 import java.util.Arrays;
 
@@ -15,6 +18,13 @@ import de.rub.nds.research.ssl.stack.protocols.commons.KeyExchangeParams;
 import de.rub.nds.research.ssl.stack.protocols.commons.SecurityParameters;
 import de.rub.nds.research.ssl.stack.protocols.handshake.datatypes.ESignatureAlgorithm;
 
+/**
+ * TLS signature as defined in RFC 2246. The signature algorithms
+ * DSA and RSA are supported.
+ * @author Eugen Weiss - eugen.weiss@ruhr-uni-bochum.de
+ * @version 0.1
+ * May 03, 2012
+ */
 public class TLSSignature extends APubliclySerializable {
 	
 	private ESignatureAlgorithm sigAlgorithm;
@@ -27,14 +37,35 @@ public class TLSSignature extends APubliclySerializable {
 	 */
 	private byte[] serverParams;
 	/**
+	 * Length of a SHA1 hash.
+	 */
+	private static final int SHA1_LENGTH = 20;
+	/**
+	 * Length of a MD5 hash.
+	 */
+	private static final int MD5_LENGTH = 16;
+	/**
+	 * Length of concatenated MD5 and SHA1 hash.
+	 */
+	private static final int 
+		CONCAT_HASH_LENGTH = SHA1_LENGTH + MD5_LENGTH;
+	/**
 	 * Signature value
 	 */
 	private byte[] sigValue = null;
 	
+	/**
+	 * Initialize a TLS signature as defined in RFC 2246.
+	 * @param sigAlgorithm Signature algorithm
+	 */
 	public TLSSignature(ESignatureAlgorithm sigAlgorithm) {
 		this.sigAlgorithm=sigAlgorithm;
 	}
 	
+	/**
+	 * Initialize a TLS signature as defined in RFC 2246.  
+	 * @param message Handshake message bytes
+	 */
 	public TLSSignature(byte[] message){
 		KeyExchangeParams keyParams = KeyExchangeParams.getInstance();
 		this.sigAlgorithm = keyParams.getSignatureAlgorithm();
@@ -51,27 +82,29 @@ public class TLSSignature extends APubliclySerializable {
 	public boolean checkSignature(byte [] signature) {
 		KeyExchangeParams keyParams = KeyExchangeParams.getInstance();
 		boolean valid = false;
-		if (keyParams.getSignatureAlgorithm() == ESignatureAlgorithm.RSA){
+		if (this.sigAlgorithm == ESignatureAlgorithm.RSA){
 			valid = checkRSASignature(signature, keyParams.getPublicKey());
 		} else {
-			/*
-			 * DSA signature checking to be implemented
-			 */
+			valid = checkDSSSignature(signature, keyParams.getPublicKey());
 		}
 		return valid;
 	}
 	
 	/**
-	 * 
+	 * Check a RSA signed message. If RSA was used to sign a message,
+	 * the message is first hashed with MD5 and SHA1. Afterwards the 
+	 * signature is applied
+	 * @param signature Signature bytes
+	 * @param pk Public key
 	 */
 	public boolean checkRSASignature(byte[] signature, PublicKey pk) {
 		SecurityParameters params = SecurityParameters.getInstance();
 		byte[] clientRandom = params.getClientRandom();
 		byte[] serverRandom = params.getServerRandom();
 		byte[] serverParams = getServerParams();
-		byte[] md5Hash = new byte[16];
-		byte[] sha1Hash = new byte [20];
-		byte[] concat = new byte [36];
+		byte[] md5Hash = new byte[MD5_LENGTH];
+		byte[] sha1Hash = new byte [SHA1_LENGTH];
+		byte[] concat = new byte [CONCAT_HASH_LENGTH];
 		md5Hash = md5_hash(clientRandom, serverRandom,
 				serverParams);
 		sha1Hash = sha1_hash(clientRandom, serverRandom,
@@ -96,56 +129,93 @@ public class TLSSignature extends APubliclySerializable {
         return  Arrays.equals(recHash, concat);
 	}
 	
+	/**
+	 * Check a DSS signed message. If RSA was used to sign a message,
+	 * the message is first hashed with SHA1. Afterwards the 
+	 * signature is applied.
+	 * @param signature Signature bytes
+	 * @param pk Public key
+	 */
+	public boolean checkDSSSignature(byte[] signature, PublicKey pk) {
+		boolean valid = false;
+		SecurityParameters params = SecurityParameters.getInstance();
+		byte[] clientRandom = params.getClientRandom();
+		byte[] serverRandom = params.getServerRandom();
+		byte[] serverParams = getServerParams();
+		Signature sig;
+		try {
+			sig = Signature.getInstance("SHA1withDSA");
+			sig.initVerify(pk);
+			sig.update(clientRandom);
+			sig.update(serverRandom);
+			sig.update(serverParams);
+			valid = sig.verify(signature);
+		} catch (NoSuchAlgorithmException e) {
+			e.printStackTrace();
+		} catch (InvalidKeyException e) {
+			e.printStackTrace();
+		} catch (SignatureException e) {
+			e.printStackTrace();
+		}
+		return valid;
+	}
+	
+	/**
+	 * Generate a MD5 Hash for the signature.
+	 * @param clientRandom Client random parameter
+	 * @param serverRandom Server random parameter
+	 * @param serverParams Server parameters
+	 * @return MD5 hash
+	 */
 	public final byte[] md5_hash(byte [] clientRandom,
 			byte[] serverRandom, byte[] serverParams) {
 		MessageDigest md5 = null;
-		byte [] input = null;
 		try {
 			md5 = MessageDigest.getInstance("MD5");
 		} catch (NoSuchAlgorithmException e) {
 			e.printStackTrace();
 		}
-		input = concatenateParameter(clientRandom, serverRandom,
-				serverParams);
-		md5.update(input);
+		md5.update(clientRandom);
+		md5.update(serverRandom);
+		md5.update(serverParams);
 		return md5.digest();
 	}
 	
+	/**
+	 * Generate a SHA1 Hash for the signature.
+	 * @param clientRandom Client random parameter
+	 * @param serverRandom Server random parameter
+	 * @param serverParams Server parameters
+	 * @return SHA1 hash
+	 */
 	public final byte[] sha1_hash(byte [] clientRandom,
 			byte[] serverRandom, byte[] serverParams) {
 		MessageDigest sha1 = null;
-		byte [] input = null;
 		try {
 			sha1 = MessageDigest.getInstance("SHA");
 		} catch (NoSuchAlgorithmException e) {
 			e.printStackTrace();
 		}
-		input = concatenateParameter(clientRandom, serverRandom,
-				serverParams);
-		sha1.update(input);
+		sha1.update(clientRandom);
+		sha1.update(serverRandom);
+		sha1.update(serverParams);
 		return sha1.digest();
 	}
-	
-	private final byte [] concatenateParameter(byte [] clientRandom,
-			byte[] serverRandom, byte[] serverParams) {
-		//concatenate the passed parameters
-		int pointer = 0;
-		byte [] tmp = new byte [clientRandom.length +
-		                        serverRandom.length + serverParams.length];
-		System.arraycopy(clientRandom, 0, tmp, pointer, clientRandom.length);
-		pointer += clientRandom.length;
-		System.arraycopy(serverRandom, 0, tmp, pointer, serverRandom.length);
-		pointer += serverRandom.length;
-		System.arraycopy(serverParams, 0, tmp, pointer, serverParams.length);
-		return tmp;
-	}
 
+	/**
+     * {@inheritDoc}
+     */
 	@Override
 	public byte[] encode(boolean chained) {
-		// TODO Auto-generated method stub
+		/*
+		 * To be implemented.
+		 */
 		return null;
 	}
 
+	/**
+     * {@inheritDoc}
+     */
 	@Override
 	public void decode(byte[] message, boolean chained) {
 		int extractedLength;
@@ -189,19 +259,34 @@ public class TLSSignature extends APubliclySerializable {
         }
 	}
 	
+	/**
+	 * Get the transmitted server parameters.
+	 * @return Server parameters
+	 */
 	private byte[] getServerParams() {
 		return serverParams;
 	}
 	
+	/**
+	 * Set the server parameters
+	 * @param serverParams Server parameters
+	 */
 	private void setServerParams(byte[] serverParams) {
 		this.serverParams=serverParams;
 	}
 
-	
+	/**
+	 * Get the signature value.
+	 * @return Signature value
+	 */
 	public byte[] getSignatureValue() {
 		return sigValue;
 	}
 
+	/**
+	 * Set the signature value.
+	 * @return Signature value
+	 */
 	public void setSignatureValue(byte[] sigValue) {
 		this.sigValue = sigValue;
 	}
