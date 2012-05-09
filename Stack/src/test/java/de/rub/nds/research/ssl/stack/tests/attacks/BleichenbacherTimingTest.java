@@ -4,10 +4,12 @@ import de.rub.nds.research.ssl.stack.protocols.ARecordFrame;
 import de.rub.nds.research.ssl.stack.protocols.alert.Alert;
 import de.rub.nds.research.ssl.stack.protocols.alert.datatypes.EAlertLevel;
 import de.rub.nds.research.ssl.stack.protocols.commons.ECipherSuite;
+import de.rub.nds.research.ssl.stack.protocols.commons.EConnectionEnd;
 import de.rub.nds.research.ssl.stack.protocols.commons.EProtocolVersion;
 import de.rub.nds.research.ssl.stack.protocols.commons.KeyExchangeParams;
 import de.rub.nds.research.ssl.stack.protocols.handshake.ClientHello;
 import de.rub.nds.research.ssl.stack.protocols.handshake.ClientKeyExchange;
+import de.rub.nds.research.ssl.stack.protocols.handshake.Finished;
 import de.rub.nds.research.ssl.stack.protocols.handshake.datatypes.CipherSuites;
 import de.rub.nds.research.ssl.stack.protocols.handshake.datatypes.EncryptedPreMasterSecret;
 import de.rub.nds.research.ssl.stack.protocols.handshake.datatypes.PreMasterSecret;
@@ -66,11 +68,11 @@ public class BleichenbacherTimingTest implements Observer {
     /**
      * Test host.
      */
-    private static final String HOST = "www.openssl.org";
+    private static final String HOST = "localhost";
     /**
      * Test port.
      */
-    private static final int PORT = 443;
+    private static final int PORT = 10443;
     /**
      * Separate byte between padding and data in PKCS#1 message.
      */
@@ -126,7 +128,7 @@ public class BleichenbacherTimingTest implements Observer {
     /**
      * Number of repetitions
      */
-    private static final int NUMBER_OF_REPETIIONS = 10;
+    private static final int NUMBER_OF_REPETIIONS = 100;
 
     /**
      * Test parameters for the Bleichenbacher Tests.
@@ -143,23 +145,23 @@ public class BleichenbacherTimingTest implements Observer {
                     {new byte[]{0x00, 0x02}, new byte[]{0x00},
                         EProtocolVersion.SSL_3_0, false, 0,
                         "Wrong protocol version in PreMasterSecret"},
-                    // seperate byte is not 0x00
-                    {new byte[]{0x00, 0x02}, new byte[]{0x01}, protocolVersion,
-                        false, 0, "Seperate byte is not 0x00"},
-                    // mode changed
-                    {new byte[]{0x00, 0x01}, new byte[]{0x00}, protocolVersion,
-                        false, 0, "Mode changed to 0x01"},
-                    // zero byte at the first position of the padding
-                    {new byte[]{0x00, 0x02}, new byte[]{0x00}, protocolVersion,
-                        true, 0,
-                        "Zero byte at the first position of the padding"},
-                    // zero byte in the middle of the padding string
-                    {new byte[]{0x00, 0x02}, new byte[]{0x00}, protocolVersion,
-                        true, 1,
-                        "Zero byte in the middle of the padding string"},
-                    // zero byte at the end of the padding string
-                    {new byte[]{0x00, 0x02}, new byte[]{0x00}, protocolVersion,
-                        true, 2, "Zero byte at the end of the padding string"}
+//                    // seperate byte is not 0x00
+//                    {new byte[]{0x00, 0x02}, new byte[]{0x01}, protocolVersion,
+//                        false, 0, "Seperate byte is not 0x00"},
+//                    // mode changed
+//                    {new byte[]{0x00, 0x01}, new byte[]{0x00}, protocolVersion,
+//                        false, 0, "Mode changed to 0x01"},
+//                    // zero byte at the first position of the padding
+//                    {new byte[]{0x00, 0x02}, new byte[]{0x00}, protocolVersion,
+//                        true, 0,
+//                        "Zero byte at the first position of the padding"},
+//                    // zero byte in the middle of the padding string
+//                    {new byte[]{0x00, 0x02}, new byte[]{0x00}, protocolVersion,
+//                        true, 1,
+//                        "Zero byte in the middle of the padding string"},
+//                    // zero byte at the end of the padding string
+//                    {new byte[]{0x00, 0x02}, new byte[]{0x00}, protocolVersion,
+//                        true, 2, "Zero byte at the end of the padding string"}
                 };
     }
 
@@ -196,6 +198,7 @@ public class BleichenbacherTimingTest implements Observer {
                 workflow.connectToTestServer(HOST, PORT);
                 workflow.addObserver(this, EStates.CLIENT_HELLO);
                 workflow.addObserver(this, EStates.CLIENT_KEY_EXCHANGE);
+                workflow.addObserver(this, EStates.CLIENT_FINISHED);
                 workflow.start();
 
                 ArrayList<Trace> traceList = workflow.getTraceList();
@@ -203,16 +206,16 @@ public class BleichenbacherTimingTest implements Observer {
                         getCurrentRecord();
                 if (frame instanceof Alert) {
                     Alert alert = (Alert) frame;
-                    if (EAlertLevel.FATAL.equals(alert.getAlertLevel())) {
-                        canceled = true;
-                        System.out.printf("%-25s%-50s\n", "Test aborted:",
-                                alert.getAlertLevel() 
-                                + " " 
-                                + alert.getAlertDescription());
-                        break;
-                    } else {
-                        continue;
-                    }
+//                    if (EAlertLevel.FATAL.equals(alert.getAlertLevel())) {
+//                        canceled = true;
+//                        System.out.printf("%-25s%-50s\n", "Test aborted:",
+//                                alert.getAlertLevel() 
+//                                + " " 
+//                                + alert.getAlertDescription());
+//                        break;
+//                    } else {
+//                        continue;
+//                    }
 
 //                    Assert.fail("Test failed with an SSL-Alert: "
 //                            + alert.getAlertLevel() + " "
@@ -324,6 +327,13 @@ public class BleichenbacherTimingTest implements Observer {
 
                 trace.setCurrentRecord(cke);
                 break;
+                
+            case CLIENT_FINISHED:
+//                ARecordFrame frame = trace.getCurrentRecord();
+//                byte[] tmp = frame.encode(true);
+//                tmp[tmp.length-35] = 0x1;
+//                frame.decode(tmp, true);
+//                trace.setCurrentRecord(frame);
             default:
                 break;
         }
@@ -337,10 +347,10 @@ public class BleichenbacherTimingTest implements Observer {
     public void tearDown() {
         try {
 //            System.out.println("sslServer shutdown: " + sslServer);
-//            sslServer.shutdown();
-//            sslServer = null;
-//            sslServerThread.interrupt();
-//            sslServerThread = null;
+            sslServer.shutdown();
+            sslServer = null;
+            sslServerThread.interrupt();
+            sslServerThread = null;
 
             Thread.currentThread().sleep(5000);
         } catch (Exception e) {
@@ -354,11 +364,11 @@ public class BleichenbacherTimingTest implements Observer {
     @BeforeMethod
     public void setUp() {
         try {
-            //System.setProperty("javax.net.debug", "ssl");
-//            sslServer = new SSLServer(PATH_TO_JKS, JKS_PASSWORD,
-//                    protocolShortName, PORT);
-//            sslServerThread = new Thread(sslServer);
-//            sslServerThread.start();
+//            System.setProperty("javax.net.debug", "ssl");
+            sslServer = new SSLServer(PATH_TO_JKS, JKS_PASSWORD,
+                    protocolShortName, PORT);
+            sslServerThread = new Thread(sslServer);
+            sslServerThread.start();
 //            System.out.println("sslServer startup: " + sslServer);
             Thread.currentThread().sleep(2000);
         } catch (Exception e) {
@@ -385,11 +395,12 @@ public class BleichenbacherTimingTest implements Observer {
                         overall = timestamp - delay;
                         break;
                     case ALERT:
-                        if (trace.getCurrentRecord() instanceof Alert) {
+                        overall = timestamp - delay;
+//                        if (trace.getCurrentRecord() instanceof Alert) {
 //                            System.out.println("Alert reason: " 
 //                                    + ((Alert) trace.getCurrentRecord()).
 //                                    getAlertDescription());
-                        }
+//                        }
                         break;
                 }
             }
