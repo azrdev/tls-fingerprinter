@@ -67,7 +67,7 @@ public class BleichenbacherTimingTest implements Observer {
     /**
      * Test host.
      */
-    private static final String HOST = "www.nds.rub.de";
+    private static final String HOST = "www.bild.de";
     /**
      * Test port.
      */
@@ -215,7 +215,7 @@ public class BleichenbacherTimingTest implements Observer {
 //                    } else {
 //                        continue;
 //                    }
-                    System.out.println(alert.getAlertDescription());
+                    
 //                    Assert.fail("Test failed with an SSL-Alert: "
 //                            + alert.getAlertLevel() + " "
 //                            + alert.getAlertDescription());
