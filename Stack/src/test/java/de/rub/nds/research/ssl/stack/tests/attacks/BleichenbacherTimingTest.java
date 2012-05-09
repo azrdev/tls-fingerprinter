@@ -66,7 +66,7 @@ public class BleichenbacherTimingTest implements Observer {
     /**
      * Test host.
      */
-    private static final String HOST = "www.heise.de";
+    private static final String HOST = "www.openssl.org";
     /**
      * Test port.
      */
@@ -183,7 +183,8 @@ public class BleichenbacherTimingTest implements Observer {
         this.version = version;
         this.changePadding = changePadding;
         this.position = position;
-
+        boolean canceled = false;
+        
         System.out.printf("\n%-25s%-50s\n", "Test description:", description);
         System.out.printf("%-25s%-50s\n", "Test repeated:",
                 NUMBER_OF_REPETIIONS + " times");
@@ -203,6 +204,7 @@ public class BleichenbacherTimingTest implements Observer {
                 if (frame instanceof Alert) {
                     Alert alert = (Alert) frame;
                     if (EAlertLevel.FATAL.equals(alert.getAlertLevel())) {
+                        canceled = true;
                         break;
                     } else {
                         continue;
@@ -225,8 +227,8 @@ public class BleichenbacherTimingTest implements Observer {
 
         Long averagedTime = doStatistics(delays);
         System.out.print("Averaged time: ");
-        if (averagedTime <= 0) {
-            System.out.println("computation not possible...");
+        if (canceled) {
+            System.out.println("computation not possible due to FATAL Alert");
         } else {
             System.out.println(averagedTime + " ns");
         }
@@ -368,7 +370,7 @@ public class BleichenbacherTimingTest implements Observer {
         for (Trace trace : traces) {
             if (trace.getState() != null) {
 //                System.out.printf("%40s", trace.getState().name() + "\n");
-                timestamp = trace.getNanoTime();
+                timestamp = trace.getNanoTime();        
                 EStates currentState = trace.getState();
                 switch (trace.getState()) {
                     case CLIENT_KEY_EXCHANGE:

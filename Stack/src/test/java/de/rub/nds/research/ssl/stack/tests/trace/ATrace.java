@@ -51,7 +51,7 @@ public abstract class ATrace {
      * @return Time in nano-precision
      */
     public final Long getNanoTime() {
-        return nanoTime;
+        return this.nanoTime;
     }
 
     /**
