@@ -346,10 +346,16 @@ public class BleichenbacherTimingTest implements Observer {
     public void tearDown() {
         try {
 //            System.out.println("sslServer shutdown: " + sslServer);
-            sslServer.shutdown();
-            sslServer = null;
-            sslServerThread.interrupt();
-            sslServerThread = null;
+        	if (sslServer != null) {
+        		sslServer.shutdown();
+        		sslServer = null;
+        	}
+            
+            if (sslServerThread != null) {
+            	sslServerThread.interrupt();
+            	sslServerThread = null;
+            }
+            
 
             Thread.currentThread().sleep(5000);
         } catch (Exception e) {
