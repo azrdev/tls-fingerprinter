@@ -68,11 +68,11 @@ public class BleichenbacherTimingTest implements Observer {
     /**
      * Test host.
      */
-    private static final String HOST = "localhost";
+    private static final String HOST = "www.nds.rub.de";
     /**
      * Test port.
      */
-    private static final int PORT = 10443;
+    private static final int PORT = 443;
     /**
      * Separate byte between padding and data in PKCS#1 message.
      */
@@ -144,24 +144,23 @@ public class BleichenbacherTimingTest implements Observer {
                     // wrong protocol version in PreMasterSecret
                     {new byte[]{0x00, 0x02}, new byte[]{0x00},
                         EProtocolVersion.SSL_3_0, false, 0,
-                        "Wrong protocol version in PreMasterSecret"},
-//                    // seperate byte is not 0x00
-//                    {new byte[]{0x00, 0x02}, new byte[]{0x01}, protocolVersion,
-//                        false, 0, "Seperate byte is not 0x00"},
-//                    // mode changed
-//                    {new byte[]{0x00, 0x01}, new byte[]{0x00}, protocolVersion,
-//                        false, 0, "Mode changed to 0x01"},
-//                    // zero byte at the first position of the padding
-//                    {new byte[]{0x00, 0x02}, new byte[]{0x00}, protocolVersion,
-//                        true, 0,
-//                        "Zero byte at the first position of the padding"},
-//                    // zero byte in the middle of the padding string
-//                    {new byte[]{0x00, 0x02}, new byte[]{0x00}, protocolVersion,
-//                        true, 1,
-//                        "Zero byte in the middle of the padding string"},
-//                    // zero byte at the end of the padding string
-//                    {new byte[]{0x00, 0x02}, new byte[]{0x00}, protocolVersion,
-//                        true, 2, "Zero byte at the end of the padding string"}
+                        "Wrong protocol version in PreMasterSecret"}, //                    // seperate byte is not 0x00
+                //                    {new byte[]{0x00, 0x02}, new byte[]{0x01}, protocolVersion,
+                //                        false, 0, "Seperate byte is not 0x00"},
+                //                    // mode changed
+                //                    {new byte[]{0x00, 0x01}, new byte[]{0x00}, protocolVersion,
+                //                        false, 0, "Mode changed to 0x01"},
+                //                    // zero byte at the first position of the padding
+                //                    {new byte[]{0x00, 0x02}, new byte[]{0x00}, protocolVersion,
+                //                        true, 0,
+                //                        "Zero byte at the first position of the padding"},
+                //                    // zero byte in the middle of the padding string
+                //                    {new byte[]{0x00, 0x02}, new byte[]{0x00}, protocolVersion,
+                //                        true, 1,
+                //                        "Zero byte in the middle of the padding string"},
+                //                    // zero byte at the end of the padding string
+                //                    {new byte[]{0x00, 0x02}, new byte[]{0x00}, protocolVersion,
+                //                        true, 2, "Zero byte at the end of the padding string"}
                 };
     }
 
@@ -191,7 +190,8 @@ public class BleichenbacherTimingTest implements Observer {
         System.out.printf("%-25s%-50s\n", "Test repeated:",
                 NUMBER_OF_REPETIIONS + " times");
         System.out.printf("%-25s%-50s\n", "Time measurement:",
-                "Time between CLIENT_KEY_EXCHANGE and SERVER_CHANGE_CIPHER_SPEC");
+                "Time between CLIENT_KEY_EXCHANGE and SERVER_CHANGE_CIPHER_SPEC"
+                + " or ALERT");
         try {
             for (int i = 0; i < NUMBER_OF_REPETIIONS; i++) {
                 workflow = new SSLHandshakeWorkflow();
@@ -216,7 +216,7 @@ public class BleichenbacherTimingTest implements Observer {
 //                    } else {
 //                        continue;
 //                    }
-
+                    System.out.println(alert.getAlertDescription());
 //                    Assert.fail("Test failed with an SSL-Alert: "
 //                            + alert.getAlertLevel() + " "
 //                            + alert.getAlertDescription());
@@ -327,7 +327,7 @@ public class BleichenbacherTimingTest implements Observer {
 
                 trace.setCurrentRecord(cke);
                 break;
-                
+
             case CLIENT_FINISHED:
 //                ARecordFrame frame = trace.getCurrentRecord();
 //                byte[] tmp = frame.encode(true);
@@ -347,10 +347,10 @@ public class BleichenbacherTimingTest implements Observer {
     public void tearDown() {
         try {
 //            System.out.println("sslServer shutdown: " + sslServer);
-            sslServer.shutdown();
-            sslServer = null;
-            sslServerThread.interrupt();
-            sslServerThread = null;
+//            sslServer.shutdown();
+//            sslServer = null;
+//            sslServerThread.interrupt();
+//            sslServerThread = null;
 
             Thread.currentThread().sleep(5000);
         } catch (Exception e) {
@@ -365,10 +365,10 @@ public class BleichenbacherTimingTest implements Observer {
     public void setUp() {
         try {
 //            System.setProperty("javax.net.debug", "ssl");
-            sslServer = new SSLServer(PATH_TO_JKS, JKS_PASSWORD,
-                    protocolShortName, PORT);
-            sslServerThread = new Thread(sslServer);
-            sslServerThread.start();
+//            sslServer = new SSLServer(PATH_TO_JKS, JKS_PASSWORD,
+//                    protocolShortName, PORT);
+//            sslServerThread = new Thread(sslServer);
+//            sslServerThread.start();
 //            System.out.println("sslServer startup: " + sslServer);
             Thread.currentThread().sleep(2000);
         } catch (Exception e) {
