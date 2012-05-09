@@ -308,6 +308,7 @@ public class SSLHandshakeWorkflow extends AWorkflow {
             long startWait = System.currentTimeMillis();
             int timeout = 5000;
             while (in.available() == 0) {
+            	// TODO: Sehen wir hier irgendeine Möglichkeit, mehr CPU-Zeit zu verbrauchen?
                 if (System.currentTimeMillis() > (startWait + timeout)) {
                     throw new SocketTimeoutException("No response within 5 sec");
                 }
@@ -387,6 +388,7 @@ public class SSLHandshakeWorkflow extends AWorkflow {
         SocketAddress addr;
         addr = new InetSocketAddress(host, port);
         try {
+        	// TODO: Interessante werte für timeout...
             so.connect(addr, 10000);
             out = so.getOutputStream();
             in = so.getInputStream();
