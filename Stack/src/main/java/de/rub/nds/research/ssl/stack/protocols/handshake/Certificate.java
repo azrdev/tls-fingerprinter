@@ -50,6 +50,10 @@ public final class Certificate extends AHandshakeRecord {
     @Override
     public byte[] encode(final boolean chained) {
         byte[] encCertificates = certificates.encode(false);
+        
+        // TODO: Der Code hier sieht echt komisch aus, wieso wird der Payload hier 3 bytes länger???
+        
+        
         // putting the pieces together
         byte[] certificateMsg = new byte[LENGTH_MINIMUM_ENCODED +
                 encCertificates.length];
