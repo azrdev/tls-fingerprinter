@@ -47,6 +47,10 @@ public class SSLTestUtils {
     public final byte [] fetchResponse(final InputStream in) {
 		byte [] header = new byte[HEADER_LENGTH];
 		try {
+			// TODO: soll so nicht sein, read darf auch mal weniger als
+			// header.length zurück liefern. Rückgabewert muss geprüft werden.
+			// Und falls das weniger war, muss hier noch mal gelesen werden, mit
+			// entsprechender berücksichtigung von timeouts.
 			in.read(header);
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -55,6 +59,7 @@ public class SSLTestUtils {
 		int length = (header[3] & 0xff)<<8 | (header[4] & 0xff);
 		byte [] answer = new byte[length + header.length];
 		System.arraycopy(header, 0, answer, 0, header.length);
+		// TODO: Ineffizienter geht es nicht mehr!!!
 		for (int i = 0; i < length; i++) {
 			Integer byteAsInt;
 			try {
