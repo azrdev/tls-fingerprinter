@@ -7,6 +7,7 @@ import de.rub.nds.research.ssl.stack.protocols.commons.SecurityParameters;
 import de.rub.nds.research.ssl.stack.protocols.handshake.Finished;
 import de.rub.nds.research.ssl.stack.protocols.msgs.TLSCiphertext;
 import de.rub.nds.research.ssl.stack.protocols.msgs.datatypes.GenericBlockCipher;
+import de.rub.nds.research.ssl.stack.tests.analyzer.TraceListAnalyzer;
 import de.rub.nds.research.ssl.stack.tests.common.KeyMaterial;
 import de.rub.nds.research.ssl.stack.tests.common.SSLHandshakeWorkflow;
 import de.rub.nds.research.ssl.stack.tests.common.SSLHandshakeWorkflow.EStates;
@@ -49,11 +50,15 @@ public class VaudenayTest implements Observer {
     /**
      * Test host.
      */
-    private static final String HOST = "www.datenzone.de";
+    private static final String HOST = "localhost";
     /**
      * Test port.
      */
     private static final int PORT = 443;
+    /**
+     * Test counter.
+     */
+    private int counter = 1;
 
     /**
      * Test parameters for the Vaudenay Tests.
@@ -63,8 +68,8 @@ public class VaudenayTest implements Observer {
     @DataProvider(name = "vaudenay")
     public final Object[][] createData1() {
         return new Object[][]{
-                    {protocolVersion, false}, //ok case
-//                    {protocolVersion, true} //wrong padding
+                    {"OK case", protocolVersion, false},
+                    {"Wrong padding", protocolVersion, true}
                 };
     }
     /**
@@ -83,14 +88,20 @@ public class VaudenayTest implements Observer {
      * @param changePadding True if padding should be changed
      */
     @Test(enabled = true, dataProvider = "vaudenay")
-    public final void testVaudenay(EProtocolVersion version,
-            boolean changePadding) {
+    public final void testVaudenay(String desc, 
+    		EProtocolVersion version, boolean changePadding) {
         workflow = new SSLHandshakeWorkflow();
         workflow.connectToTestServer(HOST, PORT);
         workflow.addObserver(this, EStates.CLIENT_FINISHED);
         pVersion = version;
         this.changePadding = changePadding;
         workflow.start();
+        
+        System.out.println("Test No." + this.counter +" : " + desc);
+        TraceListAnalyzer analyze = new TraceListAnalyzer();
+        analyze.logOutput(workflow.getTraceList());
+        System.out.println("------------------------------");
+        this.counter++;
     }
 
     /**
