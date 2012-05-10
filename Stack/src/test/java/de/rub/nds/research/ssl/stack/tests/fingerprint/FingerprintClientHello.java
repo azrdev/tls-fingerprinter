@@ -1,18 +1,27 @@
 package de.rub.nds.research.ssl.stack.tests.fingerprint;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Observable;
 import java.util.Observer;
 
+import org.testng.Assert;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
+import de.rub.nds.research.ssl.stack.protocols.ARecordFrame;
+import de.rub.nds.research.ssl.stack.protocols.alert.Alert;
 import de.rub.nds.research.ssl.stack.protocols.commons.ECipherSuite;
 import de.rub.nds.research.ssl.stack.protocols.commons.EProtocolVersion;
+import de.rub.nds.research.ssl.stack.protocols.handshake.Certificate;
 import de.rub.nds.research.ssl.stack.protocols.handshake.ClientHello;
+import de.rub.nds.research.ssl.stack.protocols.handshake.ServerHello;
+import de.rub.nds.research.ssl.stack.protocols.handshake.ServerKeyExchange;
 import de.rub.nds.research.ssl.stack.protocols.handshake.datatypes.CipherSuites;
 import de.rub.nds.research.ssl.stack.protocols.handshake.datatypes.RandomValue;
+import de.rub.nds.research.ssl.stack.protocols.msgs.TLSCiphertext;
+import de.rub.nds.research.ssl.stack.tests.analyzer.TraceListAnalyzer;
 import de.rub.nds.research.ssl.stack.tests.common.MessageBuilder;
 import de.rub.nds.research.ssl.stack.tests.common.SSLHandshakeWorkflow;
 import de.rub.nds.research.ssl.stack.tests.common.SSLHandshakeWorkflow.EStates;
@@ -33,12 +42,17 @@ public class FingerprintClientHello implements Observer {
 	/**Help utilities for testing.*/
 	private SSLTestUtils utils = new SSLTestUtils();
 	/**Patterns to create suite batch.*/
-	private String [] patterns1 = {"TLS_DHE_DSS"};
+	private String [] patterns1 = {"TLS_DHE_DSS","TLS_DH_DSS"};
 	private String [] patterns2 = {"TLS_DH_anon"};
+	private String [] patterns3 = {"TLS"};
 	/**Test host.*/
     private static final String HOST = "localhost";
     /**Test port.*/
     private static final int PORT = 443;
+    /**
+     * Test counter.
+     */
+    private int counter = 1;
 	
 	/**Test parameters.*/
 	private byte [] protVersion;
@@ -47,29 +61,34 @@ public class FingerprintClientHello implements Observer {
 	private byte [] compMethod;
 	
 	/**Test constants*/
-	private final ECipherSuite[] suites1 = new ECipherSuite[]{ECipherSuite.TLS_DHE_RSA_WITH_AES_256_CBC_SHA};
+	private final ECipherSuite[] suites1 = new ECipherSuite[]{ECipherSuite.TLS_RSA_WITH_AES_128_CBC_SHA};
 	private final ECipherSuite[] suites2 = utils.constructSuiteBatch(patterns1);
 	private final ECipherSuite[] suites3 = utils.constructSuiteBatch(patterns2);
 	private final ECipherSuite[] suites4 = new ECipherSuite[]{};
-	private final ECipherSuite[] suites5 = new ECipherSuite[]{ECipherSuite.TLS_RSA_WITH_AES_128_CBC_SHA};
+	private final ECipherSuite[] suites5 = utils.constructSuiteBatch(patterns3);
 	
 	/** Test parameters for ClientHello fingerprinting.
 	 * @return List of parameters
 	 */
     @DataProvider(name = "clientHello")
     public Object[][] createData1() {
-    	byte [] random1 = new byte[]{0x00,0x00,0x00,0x00,0x00,0x00,0x00,
-    			0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
-    			0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
-    			0x00};
+    	byte [] random1 = new byte[]{0x00,0x00,0x00,0x00,0x00};
     	RandomValue random2 = new RandomValue();
         return new Object[][]{
-				{EProtocolVersion.TLS_1_0.getId(), random2.encode(false), suites5, new byte[]{(byte)0x00}}, //ok case
-//				{EProtocolVersion.SSL_3_0.getId(), random2.encode(false), suites1, new byte[]{(byte)0x00}}, //other protocol version
-//				{EProtocolVersion.TLS_1_0.getId(), random2.encode(false), suites1, new byte[]{(byte)0x01}}, //change compression method
-//				{EProtocolVersion.TLS_1_0.getId(), random2.encode(false), suites4, new byte[]{(byte)0x00}}, //no cipher suite defined
-//        		{EProtocolVersion.TLS_1_0.getId(), random2.encode(false), suites3, new byte[]{(byte)0x00}},
-//        		{EProtocolVersion.TLS_1_0.getId(), random2.encode(false), suites5, new byte[]{(byte)0x00}}
+				{"OK case",EProtocolVersion.TLS_1_0.getId(),
+					random2.encode(false), suites1, new byte[]{(byte)0x00}},
+				{"Protocol version SSL 3.0",EProtocolVersion.SSL_3_0.getId(),
+					random2.encode(false), suites1, new byte[]{(byte)0x00}},
+				{"Protocol version TLS 1.2",EProtocolVersion.TLS_1_2.getId(),
+					random2.encode(false), suites1, new byte[]{(byte)0x00}},
+				{"TLS_DHE_DSS and TLS_DH_DSS Cipher suites",EProtocolVersion.TLS_1_0.getId(),
+					random2.encode(false), suites2, new byte[]{(byte)0x00}},
+				{"Compression method 0x01",EProtocolVersion.TLS_1_0.getId(),
+					random2.encode(false), suites1, new byte[]{(byte)0x01}},
+				{"No cipher suites defined",EProtocolVersion.TLS_1_0.getId(),
+					random2.encode(false), suites4, new byte[]{(byte)0x00}},
+				{"No cipher but comp-method 0x01",EProtocolVersion.TLS_1_0.getId(),
+					random2.encode(false), suites4, new byte[]{(byte)0x01}},
         };
     }
 	
@@ -79,7 +98,7 @@ public class FingerprintClientHello implements Observer {
 	 * @throws IOException 
      */
 	 @Test(enabled = true, dataProvider = "clientHello")
-	 public void fingerprintClientHello(byte [] protocolVersion, 
+	 public void fingerprintClientHello(String desc, byte [] protocolVersion, 
 				byte [] random, ECipherSuite [] suites, byte [] compMethod){
 		 workflow = new SSLHandshakeWorkflow();
 		 workflow.connectToTestServer(HOST, PORT);
@@ -91,6 +110,11 @@ public class FingerprintClientHello implements Observer {
 		 this.random=random;
 		 this.compMethod=compMethod;
 		 workflow.start();
+		 System.out.println("Test No." + this.counter +" : " + desc);
+		 TraceListAnalyzer analyze = new TraceListAnalyzer();
+		 analyze.logOutput(workflow.getTraceList());
+		 System.out.println("------------------------------");
+		 this.counter++;
 	 }
 	 
 	 /**
