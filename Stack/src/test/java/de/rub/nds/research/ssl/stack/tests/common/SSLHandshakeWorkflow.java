@@ -142,6 +142,9 @@ public class SSLHandshakeWorkflow extends AWorkflow {
         if (getCurrentState() != EStates.ALERT.getID()) {
         	while (getCurrentState() != EStates.SERVER_HELLO_DONE.getID()) {
         		getResponses(hashBuilder, trace);
+        		if (getCurrentState() == EStates.ALERT.getID()) {
+        			return;
+        		}
         	}
         }
         else {
