@@ -138,8 +138,14 @@ public class SSLHandshakeWorkflow extends AWorkflow {
         //fetch the response(s)
         getResponses(hashBuilder, trace);
 
-        while (getCurrentState() != EStates.SERVER_HELLO_DONE.getID()) {
-            getResponses(hashBuilder, trace);
+
+        if (getCurrentState() != EStates.ALERT.getID()) {
+        	while (getCurrentState() != EStates.SERVER_HELLO_DONE.getID()) {
+        		getResponses(hashBuilder, trace);
+        	}
+        }
+        else {
+        	return;
         }
         
         trace = new Trace();
