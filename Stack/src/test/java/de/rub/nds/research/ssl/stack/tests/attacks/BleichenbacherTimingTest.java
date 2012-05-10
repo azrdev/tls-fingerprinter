@@ -374,7 +374,7 @@ public class BleichenbacherTimingTest implements Observer {
                     protocolShortName, PORT);
             sslServerThread = new Thread(sslServer);
             sslServerThread.start();
-//            System.out.println("sslServer startup: " + sslServer);
+            System.out.println("sslServer startup: " + sslServer);
             Thread.currentThread().sleep(2000);
         } catch (Exception e) {
             e.printStackTrace();
