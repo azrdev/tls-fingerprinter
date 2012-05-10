@@ -136,19 +136,25 @@ public class SSLHandshakeWorkflow extends AWorkflow {
                 trace.getOldRecord(), false));
 
         //fetch the response(s)
-        getResponses(hashBuilder, trace);
+        try {
+			getResponses(hashBuilder, trace);
+		} catch (IOException e) {
+			e.printStackTrace();
+			return;
+		}
 
-
-        if (getCurrentState() != EStates.ALERT.getID()) {
-        	while (getCurrentState() != EStates.SERVER_HELLO_DONE.getID()) {
-        		getResponses(hashBuilder, trace);
-        		if (getCurrentState() == EStates.ALERT.getID()) {
-        			return;
-        		}
+        while (getCurrentState() != EStates.SERVER_HELLO_DONE.getID()) {
+        	if (getCurrentState() == EStates.ALERT.getID()){
+        		return;
         	}
-        }
-        else {
-        	return;
+        	else {
+        		try {
+					getResponses(hashBuilder, trace);
+				} catch (IOException e) {
+					e.printStackTrace();
+					return;
+				}
+        	}
         }
         
         trace = new Trace();
@@ -213,10 +219,20 @@ public class SSLHandshakeWorkflow extends AWorkflow {
         addToList(new Trace(EStates.CLIENT_FINISHED, trace.getCurrentRecord(), trace.
                 getOldRecord(), false));
 
-        getResponses(hashBuilder, trace);
+        try {
+			getResponses(hashBuilder, trace);
+		} catch (IOException e1) {
+			e1.printStackTrace();
+			return;
+		}
 
         if (getCurrentState() == EStates.SERVER_CHANGE_CIPHER_SPEC.getID()) {
-            getResponses(hashBuilder, trace);
+            try {
+				getResponses(hashBuilder, trace);
+			} catch (IOException e) {
+				e.printStackTrace();
+				return;
+			}
         }
 
     }
@@ -268,28 +284,25 @@ public class SSLHandshakeWorkflow extends AWorkflow {
      *
      * @param hashBuilder Hash builder for hashing handshake messages
      * @param trace Trace
+     * @throws IOException 
      */
-    private void getResponses(HandshakeHashBuilder hashBuilder, Trace trace) {
+    private void getResponses(HandshakeHashBuilder hashBuilder, Trace trace) throws IOException {
     	//wait until response bytes are available
+    	byte[] responseBytes = null;
     	waitForResponse();
-        byte[] responseBytes = null;
-        try {
-            while (in.available() != 0) {
-                trace = new Trace();
-                //set the Timestamp and exact time of message arrival
-                trace.setTimestamp(new Timestamp(System.currentTimeMillis()));
-                trace.setNanoTime(System.nanoTime());
-                //fetch the input bytes
-                responseBytes = utils.fetchResponse(in);
-                SSLResponse response = new SSLResponse(responseBytes, this);
-                response.handleResponse(trace, responseBytes);
-                //hash current record
-                hashBuilder.updateHash(responseBytes, 5,
-                        responseBytes.length - 5);
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+    	while (in.available() != 0) {
+    		trace = new Trace();
+    		//set the Timestamp and exact time of message arrival
+    		trace.setTimestamp(new Timestamp(System.currentTimeMillis()));
+    		trace.setNanoTime(System.nanoTime());
+    		//fetch the input bytes
+    		responseBytes = utils.fetchResponse(in);
+    		SSLResponse response = new SSLResponse(responseBytes, this);
+    		response.handleResponse(trace, responseBytes);
+    		//hash current record
+    		hashBuilder.updateHash(responseBytes, 5,
+    				responseBytes.length - 5);
+    	}
     }
     
     /**
@@ -310,21 +323,18 @@ public class SSLHandshakeWorkflow extends AWorkflow {
     }
 
     /**
-     * Wait for response bytes (max. 5s).
+     * Wait for response bytes (max. 500ms).
+     * @throws IOException 
      */
-    public void waitForResponse() {
-        try {
-            long startWait = System.currentTimeMillis();
-            int timeout = 5000;
-            while (in.available() == 0) {
-            	// TODO: Sehen wir hier irgendeine Möglichkeit, mehr CPU-Zeit zu verbrauchen?
-                if (System.currentTimeMillis() > (startWait + timeout)) {
-                    throw new SocketTimeoutException("No response within 5 sec");
-                }
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+    public void waitForResponse() throws IOException {
+    	long startWait = System.currentTimeMillis();
+    	int timeout = 500;
+    	while (in.available() == 0) {
+    		// TODO: Sehen wir hier irgendeine Möglichkeit, mehr CPU-Zeit zu verbrauchen?
+    		if (System.currentTimeMillis() > (startWait + timeout)) {
+    			throw new SocketTimeoutException("No response within 500 ms");
+    		}
+    	}
     }
 
     /**
@@ -398,7 +408,8 @@ public class SSLHandshakeWorkflow extends AWorkflow {
         addr = new InetSocketAddress(host, port);
         try {
         	// TODO: Interessante werte für timeout...
-            so.connect(addr, 10000);
+            so.connect(addr, 100);
+            so.setSoTimeout(100);
             out = so.getOutputStream();
             in = so.getInputStream();
         } catch (IOException e) {
