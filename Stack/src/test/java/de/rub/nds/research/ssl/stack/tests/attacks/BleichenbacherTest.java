@@ -10,6 +10,7 @@ import de.rub.nds.research.ssl.stack.protocols.handshake.datatypes.EncryptedPreM
 import de.rub.nds.research.ssl.stack.protocols.handshake.datatypes.PreMasterSecret;
 import de.rub.nds.research.ssl.stack.protocols.handshake.datatypes.RandomValue;
 import de.rub.nds.research.ssl.stack.protocols.msgs.datatypes.RsaUtil;
+import de.rub.nds.research.ssl.stack.tests.analyzer.TraceListAnalyzer;
 import de.rub.nds.research.ssl.stack.tests.common.MessageBuilder;
 import de.rub.nds.research.ssl.stack.tests.common.SSLHandshakeWorkflow;
 import de.rub.nds.research.ssl.stack.tests.common.SSLHandshakeWorkflow.EStates;
@@ -54,7 +55,7 @@ public class BleichenbacherTest implements Observer {
     /**
      * Test host.
      */
-    private static final String HOST = "www.rub.de";
+    private static final String HOST = "localhost";
     /**
      * Test port.
      */
@@ -91,6 +92,10 @@ public class BleichenbacherTest implements Observer {
      * Last position of the padding string.
      */
     public static final int LAST_POSITION = 2;
+    /**
+     * Test counter.
+     */
+    private int counter = 1;
 
     /**
      * Test parameters for the Bleichenbacher Tests.
@@ -100,28 +105,23 @@ public class BleichenbacherTest implements Observer {
     @DataProvider(name = "bleichenbacher")
     public Object[][] createData1() {
         return new Object[][]{
-                    // ok case
-                    {new byte[]{0x00, 0x02}, new byte[]{0x00}, protocolVersion,
-                        false, 0},
-                    // wrong protocol version in PreMasterSecret
-//                    {new byte[]{0x00, 0x02}, new byte[]{0x00},
-//                        EProtocolVersion.SSL_3_0, false, 0}, 
-                    // seperate byte is not 0x00
-//                    {new byte[]{0x00, 0x02}, new byte[]{0x01}, protocolVersion,
-//                        false, 0},
-                    //  mode changed
-//                    {new byte[]{0x00, 0x01}, new byte[]{0x00}, protocolVersion,
-//                        false, 0},
-                    // zero byte at the first position of the padding
-//                    {new byte[]{0x00, 0x02}, new byte[]{0x00}, protocolVersion,
-//                        true, 0},
+                    {"OK case", new byte[]{0x00, 0x02}, new byte[]{0x00},
+                    	protocolVersion, false, 0},
+                    {"Wrong protocol version in PreMasterSecret", new byte[]{0x00, 0x02},
+                    	new byte[]{0x00}, EProtocolVersion.SSL_3_0, false, 0}, 
+                    {"Seperate byte not 0x00", new byte[]{0x00, 0x02},
+                    	new byte[]{0x01}, protocolVersion, false, 0},
+                    {"Mode changed (first two bytes)", new byte[]{0x00, 0x01},
+                    	new byte[]{0x00}, protocolVersion, false, 0},
+                    {"Zero byte at first position in padding", new byte[]{0x00, 0x02},
+                    	new byte[]{0x00}, protocolVersion,true, 0},
                     // zero byte in the middle of the padding string
-//                    {new byte[]{0x00, 0x02}, new byte[]{0x00}, protocolVersion,
-//                        true, 1},
+                    {"Zero byte in the middle of the padding string",
+                    	new byte[]{0x00, 0x02}, new byte[]{0x00}, protocolVersion,true, 1},
                     // zero byte at the end of the padding string
-//                    {new byte[]{0x00, 0x02}, new byte[]{0x00}, protocolVersion,
-//                        true, 2},
-                        };
+                    {"Zero byte at the end of the padding string", new byte[]{0x00, 0x02},
+                    		new byte[]{0x00}, protocolVersion, true, 2},
+                    };
     }
 
     /**
@@ -135,9 +135,10 @@ public class BleichenbacherTest implements Observer {
      * @throws IOException
      */
     @Test(enabled = true, dataProvider = "bleichenbacher", invocationCount=1)
-    public final void testBleichenbacherPossible(final byte[] mode,
-            final byte[] separate, final EProtocolVersion version,
-            final boolean changePadding, final int position)
+    public final void testBleichenbacherPossible(String desc,
+    		final byte[] mode, final byte[] separate,
+    		final EProtocolVersion version, final boolean changePadding,
+    		final int position)
             throws IOException {
         workflow = new SSLHandshakeWorkflow();
         workflow.connectToTestServer(HOST, PORT);
@@ -159,6 +160,12 @@ public class BleichenbacherTest implements Observer {
         this.position = position;
 
         workflow.start();
+        
+        System.out.println("Test No." + this.counter +" : " + desc);
+        TraceListAnalyzer analyze = new TraceListAnalyzer();
+        analyze.logOutput(workflow.getTraceList());
+        System.out.println("------------------------------");
+        this.counter++;
     }
 
     /**
