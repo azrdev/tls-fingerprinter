@@ -73,7 +73,7 @@ public class TLSPlaintext extends ARecordFrame {
      * @param fragment Data fragment
      */
     public void setFragment(byte[] fragment) {
-        this.fragment = fragment;
+        this.fragment = fragment.clone();
     }
 
     /**
@@ -82,6 +82,6 @@ public class TLSPlaintext extends ARecordFrame {
      * @return Data fragment
      */
     public byte[] getFragment() {
-        return this.fragment;
+        return this.fragment.clone();
     }
 }

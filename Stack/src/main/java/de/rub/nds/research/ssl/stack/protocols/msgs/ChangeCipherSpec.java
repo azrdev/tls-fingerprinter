@@ -81,7 +81,7 @@ public final class ChangeCipherSpec extends ARecordFrame {
      * @param oneByte The Payload
      */
     public void setContent(byte [] oneByte){
-    	this.oneByte=oneByte;
+    	this.oneByte=oneByte.clone();
     }
 	
 

@@ -13,7 +13,7 @@ public abstract class Utility {
     /**
      * Valid Hex Chars.
      */
-    public final static char[] HEXCHARS = {
+    private final static char[] HEXCHARS = {
         '0', '1', '2', '3', '4', '5', '6', '7',
         '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'
     };

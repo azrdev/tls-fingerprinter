@@ -23,10 +23,9 @@ public final class ClientKeyExchange extends AHandshakeRecord {
     public final static int LENGTH_MINIMUM_ENCODED = 0;
     private IExchangeKeys exchangeKeys;
     private EKeyExchangeAlgorithm keyExchangeAlgorithm = null;
-    
     /**
-	* Length bytes
-	*/
+     * Length bytes
+     */
     public final static int LENGTH_BYTES = 2;
 
     /**
@@ -64,7 +63,7 @@ public final class ClientKeyExchange extends AHandshakeRecord {
      *
      * @param algo Key exchange algorithm to be used.
      */
-    private void setKeyExchangeAlgorithm(EKeyExchangeAlgorithm algo) {
+    public void setKeyExchangeAlgorithm(final EKeyExchangeAlgorithm algo) {
         if (algo == null) {
             throw new IllegalArgumentException(
                     "Key exchange algorithm MUST NOT be NULL.");
@@ -121,7 +120,7 @@ public final class ClientKeyExchange extends AHandshakeRecord {
      *
      * @param keys Exchange keys of this message
      */
-    public void setExchangeKeys(IExchangeKeys keys) {
+    public void setExchangeKeys(final IExchangeKeys keys) {
         if (keys == null) {
             throw new IllegalArgumentException("Keys muste not be NULL!");
         }
@@ -134,7 +133,7 @@ public final class ClientKeyExchange extends AHandshakeRecord {
      *
      * @param keys Exchange keys of this message
      */
-    public void setExchangeKeys(byte[] keys) {
+    public void setExchangeKeys(final byte[] keys) {
         if (keys == null) {
             throw new IllegalArgumentException("Keys muste not be NULL!");
         }
@@ -205,5 +204,4 @@ public final class ClientKeyExchange extends AHandshakeRecord {
         }
 
     }
- 
 }

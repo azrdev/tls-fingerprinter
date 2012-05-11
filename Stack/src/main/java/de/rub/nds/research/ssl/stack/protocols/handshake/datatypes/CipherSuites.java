@@ -87,7 +87,7 @@ public final class CipherSuites extends APubliclySerializable {
         // length
         tmpID = buildLength(cipherSuitesBytes, LENGTH_LENGTH_FIELD);
         System.arraycopy(tmpID, 0, tmp, pointer, tmpID.length);
-        pointer += tmpID.length;
+        //pointer += tmpID.length;
         
         for (int i = 1; i-1 < suites.length; i++) {
             tmpID = suites[i-1].getId();
