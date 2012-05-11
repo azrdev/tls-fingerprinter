@@ -88,4 +88,13 @@ public class TimingSocketImpl extends SocketImpl {
     public Object getOption(int optID) throws SocketException {
         throw new UnsupportedOperationException("Not supported yet.");
     }
+    
+    public void startTimeMeasurement() {
+        // startet Timing vom nächsten write an bis zum ersten folgenden read
+    }
+    
+    public long getTiming() {
+        // Zeitmessung sobald verfügbar
+        return 0L;
+    }
 }
