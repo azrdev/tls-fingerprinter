@@ -3,15 +3,16 @@ package de.rub.nds.research.ssl.stack.protocols.handshake.datatypes;
 import de.rub.nds.research.ssl.stack.protocols.commons.APubliclySerializable;
 
 /**
- * Compression method message part - as defined in RFC-2246
- * @author  Christopher Meyer - christopher.meyer@rub.de
+ * Compression method message part - as defined in RFC-2246.
+ *
+ * @author Christopher Meyer - christopher.meyer@rub.de
  * @version 0.1
  *
  * Nov 15, 2011
  */
 public final class CompressionMethod extends APubliclySerializable {
 
-    /** 
+    /**
      * Length of the length field
      */
     private static final int LENGTH_LENGTH_FIELD = 1;
@@ -25,14 +26,15 @@ public final class CompressionMethod extends APubliclySerializable {
     private byte[] methods = new byte[]{0x0};
 
     /**
-     * Initializes a compression method object as defined in RFC-2246.
-     * Set by default to 0x0!
+     * Initializes a compression method object as defined in RFC-2246. Set by
+     * default to 0x0!
      */
     public CompressionMethod() {
     }
 
     /**
      * Initializes a compression method object as defined in RFC-2246.
+     *
      * @param message Compression method in encoded form
      */
     public CompressionMethod(final byte[] message) {
@@ -40,8 +42,8 @@ public final class CompressionMethod extends APubliclySerializable {
     }
 
     /**
-     * Get the compression method of this message. 
-     * 
+     * Get the compression method of this message.
+     *
      * @return The compression method of this message
      */
     public byte[] getMethods() {
@@ -54,8 +56,8 @@ public final class CompressionMethod extends APubliclySerializable {
 
     /**
      * Set the compression methods of this message.
-     * 
-     * @param methods  The compression methods to be used for this message
+     *
+     * @param methods The compression methods to be used for this message
      */
     public final void setMethods(final byte[] methods) {
         if (methods == null) {
@@ -70,7 +72,7 @@ public final class CompressionMethod extends APubliclySerializable {
 
     /**
      * {@inheritDoc}
-     * 
+     *
      * Method parameter will be ignored - no support for chained encoding
      */
     @Override
@@ -84,7 +86,7 @@ public final class CompressionMethod extends APubliclySerializable {
 
     /**
      * {@inheritDoc}
-     * 
+     *
      * Method parameter will be ignored - no support for chained decoding
      */
     public void decode(final byte[] message, final boolean chained) {

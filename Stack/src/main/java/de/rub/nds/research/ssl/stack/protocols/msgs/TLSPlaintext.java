@@ -5,7 +5,7 @@ import de.rub.nds.research.ssl.stack.protocols.commons.EContentType;
 import de.rub.nds.research.ssl.stack.protocols.commons.EProtocolVersion;
 
 /**
- * TLSPlaintext message as defined in Chapter 6.2.1 of RFC 2246
+ * TLSPlaintext message as defined in Chapter 6.2.1 of RFC 2246.
  *
  * @author Eugen Weiss - eugen.weiss@ruhr-uni-bochum.de
  * @version 0.1 May 07, 2012

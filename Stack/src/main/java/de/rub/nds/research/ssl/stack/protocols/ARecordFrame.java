@@ -1,19 +1,20 @@
 package de.rub.nds.research.ssl.stack.protocols;
 
+import de.rub.nds.research.ssl.stack.protocols.commons.APubliclySerializable;
 import de.rub.nds.research.ssl.stack.protocols.commons.EContentType;
 import de.rub.nds.research.ssl.stack.protocols.commons.EProtocolVersion;
-import de.rub.nds.research.ssl.stack.protocols.commons.APubliclySerializable;
 
 /**
  * Record Layer for the SSL/TLS Protocol
- * @author  Christopher Meyer - christopher.meyer@rub.de
+ *
+ * @author Christopher Meyer - christopher.meyer@rub.de
  * @version 0.1
  *
  * Nov 14, 2011
  */
 public abstract class ARecordFrame extends APubliclySerializable {
 
-    /** 
+    /**
      * Length of the length field
      */
     private static final int LENGTH_LENGTH_FIELD = 2;
@@ -49,12 +50,13 @@ public abstract class ARecordFrame extends APubliclySerializable {
 
     /**
      * Initializes record frame as defined in RFC 2246
-     * 
+     *
      * @param type Content type
      * @param version Protocol version
      * @param messageBytes Protocol payload
      */
-    protected ARecordFrame(final EContentType type, final EProtocolVersion version,
+    protected ARecordFrame(final EContentType type,
+            final EProtocolVersion version,
             final byte[] message) {
         this(type, version);
 
@@ -68,7 +70,7 @@ public abstract class ARecordFrame extends APubliclySerializable {
 
     /**
      * Initializes record frame as defined in RFC 2246
-     * 
+     *
      * @param message Record frame in encoded form
      */
     protected ARecordFrame(final byte[] message) {
@@ -77,11 +79,12 @@ public abstract class ARecordFrame extends APubliclySerializable {
 
     /**
      * Initializes record frame as defined in RFC 2246
-     * 
+     *
      * @param type Content type
      * @param version Protocol version
      */
-    protected ARecordFrame(final EContentType type, final EProtocolVersion version) {
+    protected ARecordFrame(final EContentType type,
+            final EProtocolVersion version) {
         // check arguments
         if (this.contentType == null || this.protocolVersion == null
                 || this.payload == null) {
@@ -95,12 +98,10 @@ public abstract class ARecordFrame extends APubliclySerializable {
 
     /**
      * @{inheritDoc}
-     * 
-     * ARecordFrame representation
-     *      1 byte  Content type
-     *      2 bytes Protocol version
-     *  2 + x bytes Payload
-     * 
+     *
+     * ARecordFrame representation 1 byte Content type 2 bytes Protocol version
+     * 2 + x bytes Payload
+     *
      * Method parameter will be ignored - no support for chained encoding
      */
     public byte[] encode(boolean chained) {
@@ -137,7 +138,7 @@ public abstract class ARecordFrame extends APubliclySerializable {
 
     /**
      * @{inheritDoc}
-     * 
+     *
      * Method parameter will be ignored - no support for chained decoding
      */
     public void decode(final byte[] message, final boolean chained) {
@@ -182,7 +183,7 @@ public abstract class ARecordFrame extends APubliclySerializable {
 
     /**
      * Get the content type of this record frame.
-     * 
+     *
      * @return The content type of this record frame.
      */
     public EContentType getContentType() {
@@ -192,7 +193,7 @@ public abstract class ARecordFrame extends APubliclySerializable {
 
     /**
      * Set the content type of this record frame.
-     * 
+     *
      * @param contentType The content type to be used for this record frame
      */
     protected final void setContentType(final EContentType contentType) {
@@ -206,7 +207,7 @@ public abstract class ARecordFrame extends APubliclySerializable {
 
     /**
      * Set the content type of this record frame.
-     * 
+     *
      * @param contentType The content type to be used for this record frame
      */
     protected final void setContentType(final byte contentType) {
@@ -216,7 +217,7 @@ public abstract class ARecordFrame extends APubliclySerializable {
 
     /**
      * Get the protocol version of this record frame.
-     * 
+     *
      * @return The protocol version of this record frame.
      */
     public EProtocolVersion getProtocolVersion() {
@@ -226,7 +227,7 @@ public abstract class ARecordFrame extends APubliclySerializable {
 
     /**
      * Set the protocol version of this record frame.
-     * 
+     *
      * @param version The protocol version to be used for this record frame
      */
     protected final void setProtocolVersion(final EProtocolVersion version) {
@@ -241,7 +242,7 @@ public abstract class ARecordFrame extends APubliclySerializable {
 
     /**
      * Set the protocol version of this record frame.
-     * 
+     *
      * @param version The protocol version to be used for this record frame
      */
     protected final void setProtocolVersion(final byte[] version) {
@@ -250,7 +251,7 @@ public abstract class ARecordFrame extends APubliclySerializable {
 
     /**
      * Get the payload of this record frame.
-     * 
+     *
      * @return The payload of this record frame.
      */
     public byte[] getPayload() {
@@ -263,7 +264,7 @@ public abstract class ARecordFrame extends APubliclySerializable {
 
     /**
      * Set the payload of this record frame.
-     * 
+     *
      * @param payload The payload to be used for this record frame
      */
     protected final void setPayload(final byte[] payload) {

@@ -3,9 +3,9 @@ package de.rub.nds.research.ssl.stack.protocols.handshake;
 import de.rub.nds.research.ssl.stack.protocols.commons.EProtocolVersion;
 
 /**
- * Defines the ServerHelloDone message of SSL/TLS as defined in RFC 2246
- * 
- * @author  Christopher Meyer - christopher.meyer@rub.de
+ * Defines the ServerHelloDone message of SSL/TLS as defined in RFC 2246.
+ *
+ * @author Christopher Meyer - christopher.meyer@rub.de
  * @version 0.1
  *
  * Dec 22, 2011
@@ -19,7 +19,7 @@ public final class ServerHelloDone extends AHandshakeRecord {
 
     /**
      * Initializes a ServerHelloDone message as defined in RFC 2246.
-     * 
+     *
      * @param message ServerHelloDone message in encoded form
      * @param chained Decode single or chained with underlying frames
      */
@@ -31,7 +31,7 @@ public final class ServerHelloDone extends AHandshakeRecord {
 
     /**
      * Initializes a ServerHelloDone message as defined in RFC 2246.
-     * 
+     *
      * @param protocolVersion Protocol version of this message
      */
     public ServerHelloDone(final EProtocolVersion protocolVersion) {
@@ -39,8 +39,8 @@ public final class ServerHelloDone extends AHandshakeRecord {
     }
 
     /**
-     * Set the protocol version at the record layer level. 
-     * 
+     * Set the protocol version at the record layer level.
+     *
      * @param version Protocol version for the record Layer
      */
     public void setRecordLayerProtocolVersion(final EProtocolVersion version) {
@@ -48,8 +48,8 @@ public final class ServerHelloDone extends AHandshakeRecord {
     }
 
     /**
-     * Set the protocol version at the record layer level. 
-     * 
+     * Set the protocol version at the record layer level.
+     *
      * @param version Protocol version for the record Layer
      */
     public void setRecordLayerProtocolVersion(final byte[] version) {
@@ -59,13 +59,12 @@ public final class ServerHelloDone extends AHandshakeRecord {
     /**
      * {@inheritDoc}
      *
-     * ServerHelloDone representation
-     *          0 bytes
+     * ServerHelloDone representation 0 bytes
      */
     @Override
     public byte[] encode(final boolean chained) {
         byte[] ServerHelloDone = new byte[0];
-        
+
         super.setPayload(ServerHelloDone);
         return chained ? super.encode(true) : ServerHelloDone;
     }
@@ -76,12 +75,12 @@ public final class ServerHelloDone extends AHandshakeRecord {
     public void decode(final byte[] message, final boolean chained) {
         byte[] payloadCopy;
 
-        if(chained) {
+        if (chained) {
             super.decode(message, true);
         } else {
             setPayload(message);
         }
-        
+
         // payload already deep copied
         payloadCopy = getPayload();
 

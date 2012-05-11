@@ -1,14 +1,3 @@
-/*
- * Copyright 2011 Sec2 Consortium
- * 
- * This source code is part of the "Sec2" project and as this remains property
- * of the project partners. Content and concepts have to be treated as
- * CONFIDENTIAL. Publication or partly disclosure without explicit written
- * permission is prohibited.
- * For details on "Sec2" and its contributors visit
- * 
- *        http://www.sec2.org
- */
 package de.rub.nds.research.ssl.stack.protocols.handshake;
 
 import de.rub.nds.research.ssl.stack.Utility;
@@ -20,7 +9,8 @@ import java.util.List;
 
 /**
  * Handshake Layer for multiple handshake messages
- * @author  Christopher Meyer - christopher.meyer@rub.de
+ *
+ * @author Christopher Meyer - christopher.meyer@rub.de
  * @version 0.1
  *
  * Dec 19, 2011
@@ -36,6 +26,7 @@ final public class HandshakeEnumeration extends ARecordFrame {
 
     /**
      * Slicer/Combiner for multiple handshake messages
+     *
      * @param message (Multiple) handshake messages in encoded form
      * @param chained Decode single or chained with underlying frames
      */
@@ -96,7 +87,7 @@ final public class HandshakeEnumeration extends ARecordFrame {
         }
         // payload already deep copied
         payloadCopy = getPayload();
-        
+
         //comment size check because ServerHelloDone is smaller than LENGTH_MINIMUM_ENCODED
         // check size
 //        if (payloadCopy.length < LENGTH_MINIMUM_ENCODED) {
@@ -124,7 +115,7 @@ final public class HandshakeEnumeration extends ARecordFrame {
             System.arraycopy(payloadCopy, pointer, tmpMessage, 0,
                     tmpMessage.length);
             pointer += tmpMessage.length;
-            
+
             // 4. add message to message list
             tmpHandshakeMsg = delegateDecoding(tmpMessageType, tmpMessage);
             msgObserve.statusChanged(tmpHandshakeMsg);
@@ -134,6 +125,7 @@ final public class HandshakeEnumeration extends ARecordFrame {
 
     /**
      * Delegates decoding process to the implementing message class
+     *
      * @param messageType Message type
      * @param message Message to decode
      * @return A decoded handshake record object

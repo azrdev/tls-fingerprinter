@@ -5,11 +5,12 @@ import java.util.Map;
 
 /**
  * Cipher Suites for SSL/TLS
- * @author  Christopher Meyer - christopher.meyer@rub.de
- * @version 0.1
- * Nov 11, 2011
+ *
+ * @author Christopher Meyer - christopher.meyer@rub.de
+ * @version 0.1 Nov 11, 2011
  */
 public enum ECipherSuite {
+
     TLS_NULL_WITH_NULL_NULL(new byte[]{(byte) 0x00, (byte) 0x00}),
     TLS_RSA_WITH_NULL_MD5(new byte[]{(byte) 0x00, (byte) 0x01}),
     TLS_RSA_WITH_NULL_SHA(new byte[]{(byte) 0x00, (byte) 0x02}),
@@ -119,7 +120,7 @@ public enum ECipherSuite {
     TLS_PSK_WITH_AES_128_GCM_SHA256(new byte[]{(byte) 0x00, (byte) 0xA8}),
     TLS_PSK_WITH_AES_256_GCM_SHA384(new byte[]{(byte) 0x00, (byte) 0xA9}),
     TLS_DHE_PSK_WITH_AES_128_GCM_SHA256(new byte[]{(byte) 0x00, (byte) 0xAA}),
-    TLS_DHE_PSK_WITH_AES_256_GCM_SHA384(new byte[]{(byte) 0x00, (byte)0xAB}),
+    TLS_DHE_PSK_WITH_AES_256_GCM_SHA384(new byte[]{(byte) 0x00, (byte) 0xAB}),
     TLS_RSA_PSK_WITH_AES_128_GCM_SHA256(new byte[]{(byte) 0x00, (byte) 0xAC}),
     TLS_RSA_PSK_WITH_AES_256_GCM_SHA384(new byte[]{(byte) 0x00, (byte) 0xAD}),
     TLS_PSK_WITH_AES_128_CBC_SHA256(new byte[]{(byte) 0x00, (byte) 0xAE}),
@@ -137,15 +138,21 @@ public enum ECipherSuite {
     TLS_RSA_WITH_CAMELLIA_128_CBC_SHA256(new byte[]{(byte) 0x00, (byte) 0xBA}),
     TLS_DH_DSS_WITH_CAMELLIA_128_CBC_SHA256(new byte[]{(byte) 0x00, (byte) 0xBB}),
     TLS_DH_RSA_WITH_CAMELLIA_128_CBC_SHA256(new byte[]{(byte) 0x00, (byte) 0xBC}),
-    TLS_DHE_DSS_WITH_CAMELLIA_128_CBC_SHA256(new byte[]{(byte) 0x00, (byte) 0xBD}),
-    TLS_DHE_RSA_WITH_CAMELLIA_128_CBC_SHA256(new byte[]{(byte) 0x00, (byte) 0xBE}),
-    TLS_DH_anon_WITH_CAMELLIA_128_CBC_SHA256(new byte[]{(byte) 0x00, (byte) 0xBF}),
+    TLS_DHE_DSS_WITH_CAMELLIA_128_CBC_SHA256(
+    new byte[]{(byte) 0x00, (byte) 0xBD}),
+    TLS_DHE_RSA_WITH_CAMELLIA_128_CBC_SHA256(
+    new byte[]{(byte) 0x00, (byte) 0xBE}),
+    TLS_DH_anon_WITH_CAMELLIA_128_CBC_SHA256(
+    new byte[]{(byte) 0x00, (byte) 0xBF}),
     TLS_RSA_WITH_CAMELLIA_256_CBC_SHA256(new byte[]{(byte) 0x00, (byte) 0xC0}),
     TLS_DH_DSS_WITH_CAMELLIA_256_CBC_SHA256(new byte[]{(byte) 0x00, (byte) 0xC1}),
     TLS_DH_RSA_WITH_CAMELLIA_256_CBC_SHA256(new byte[]{(byte) 0x00, (byte) 0xC2}),
-    TLS_DHE_DSS_WITH_CAMELLIA_256_CBC_SHA256(new byte[]{(byte) 0x00, (byte) 0xC3}),
-    TLS_DHE_RSA_WITH_CAMELLIA_256_CBC_SHA256(new byte[]{(byte) 0x00, (byte) 0xC4}),
-    TLS_DH_anon_WITH_CAMELLIA_256_CBC_SHA256(new byte[]{(byte) 0x00, (byte) 0xC5}),
+    TLS_DHE_DSS_WITH_CAMELLIA_256_CBC_SHA256(
+    new byte[]{(byte) 0x00, (byte) 0xC3}),
+    TLS_DHE_RSA_WITH_CAMELLIA_256_CBC_SHA256(
+    new byte[]{(byte) 0x00, (byte) 0xC4}),
+    TLS_DH_anon_WITH_CAMELLIA_256_CBC_SHA256(
+    new byte[]{(byte) 0x00, (byte) 0xC5}),
     TLS_EMPTY_RENEGOTIATION_INFO_SCSV(new byte[]{(byte) 0x00, (byte) 0xFF}),
     TLS_ECDH_ECDSA_WITH_NULL_SHA(new byte[]{(byte) 0xC0, (byte) 0x01}),
     TLS_ECDH_ECDSA_WITH_RC4_128_SHA(new byte[]{(byte) 0xC0, (byte) 0x02}),
@@ -218,8 +225,10 @@ public enum ECipherSuite {
     TLS_DHE_RSA_WITH_ARIA_256_CBC_SHA384(new byte[]{(byte) 0xC0, (byte) 0x45}),
     TLS_DH_anon_WITH_ARIA_128_CBC_SHA256(new byte[]{(byte) 0xC0, (byte) 0x46}),
     TLS_DH_anon_WITH_ARIA_256_CBC_SHA384(new byte[]{(byte) 0xC0, (byte) 0x47}),
-    TLS_ECDHE_ECDSA_WITH_ARIA_128_CBC_SHA256(new byte[]{(byte) 0xC0, (byte) 0x48}),
-    TLS_ECDHE_ECDSA_WITH_ARIA_256_CBC_SHA384(new byte[]{(byte) 0xC0, (byte) 0x49}),
+    TLS_ECDHE_ECDSA_WITH_ARIA_128_CBC_SHA256(
+    new byte[]{(byte) 0xC0, (byte) 0x48}),
+    TLS_ECDHE_ECDSA_WITH_ARIA_256_CBC_SHA384(
+    new byte[]{(byte) 0xC0, (byte) 0x49}),
     TLS_ECDH_ECDSA_WITH_ARIA_128_CBC_SHA256(new byte[]{(byte) 0xC0, (byte) 0x4A}),
     TLS_ECDH_ECDSA_WITH_ARIA_256_CBC_SHA384(new byte[]{(byte) 0xC0, (byte) 0x4B}),
     TLS_ECDHE_RSA_WITH_ARIA_128_CBC_SHA256(new byte[]{(byte) 0xC0, (byte) 0x4C}),
@@ -238,8 +247,10 @@ public enum ECipherSuite {
     TLS_DH_DSS_WITH_ARIA_256_GCM_SHA384(new byte[]{(byte) 0xC0, (byte) 0x59}),
     TLS_DH_anon_WITH_ARIA_128_GCM_SHA256(new byte[]{(byte) 0xC0, (byte) 0x5A}),
     TLS_DH_anon_WITH_ARIA_256_GCM_SHA384(new byte[]{(byte) 0xC0, (byte) 0x5B}),
-    TLS_ECDHE_ECDSA_WITH_ARIA_128_GCM_SHA256(new byte[]{(byte) 0xC0, (byte) 0x5C}),
-    TLS_ECDHE_ECDSA_WITH_ARIA_256_GCM_SHA384(new byte[]{(byte) 0xC0, (byte) 0x5D}),
+    TLS_ECDHE_ECDSA_WITH_ARIA_128_GCM_SHA256(
+    new byte[]{(byte) 0xC0, (byte) 0x5C}),
+    TLS_ECDHE_ECDSA_WITH_ARIA_256_GCM_SHA384(
+    new byte[]{(byte) 0xC0, (byte) 0x5D}),
     TLS_ECDH_ECDSA_WITH_ARIA_128_GCM_SHA256(new byte[]{(byte) 0xC0, (byte) 0x5E}),
     TLS_ECDH_ECDSA_WITH_ARIA_256_GCM_SHA384(new byte[]{(byte) 0xC0, (byte) 0x5F}),
     TLS_ECDHE_RSA_WITH_ARIA_128_GCM_SHA256(new byte[]{(byte) 0xC0, (byte) 0x60}),
@@ -260,50 +271,83 @@ public enum ECipherSuite {
     TLS_RSA_PSK_WITH_ARIA_256_GCM_SHA384(new byte[]{(byte) 0xC0, (byte) 0x6F}),
     TLS_ECDHE_PSK_WITH_ARIA_128_CBC_SHA256(new byte[]{(byte) 0xC0, (byte) 0x70}),
     TLS_ECDHE_PSK_WITH_ARIA_256_CBC_SHA384(new byte[]{(byte) 0xC0, (byte) 0x71}),
-    TLS_ECDHE_ECDSA_WITH_CAMELLIA_128_CBC_SHA256(new byte[]{(byte) 0xC0, (byte) 0x72}),
-    TLS_ECDHE_ECDSA_WITH_CAMELLIA_256_CBC_SHA384(new byte[]{(byte) 0xC0, (byte) 0x73}),
-    TLS_ECDH_ECDSA_WITH_CAMELLIA_128_CBC_SHA256(new byte[]{(byte) 0xC0, (byte) 0x74}),
-    TLS_ECDH_ECDSA_WITH_CAMELLIA_256_CBC_SHA384(new byte[]{(byte) 0xC0, (byte) 0x75}),
-    TLS_ECDHE_RSA_WITH_CAMELLIA_128_CBC_SHA256(new byte[]{(byte) 0xC0, (byte) 0x76}),
-    TLS_ECDHE_RSA_WITH_CAMELLIA_256_CBC_SHA384(new byte[]{(byte) 0xC0, (byte) 0x77}),
-    TLS_ECDH_RSA_WITH_CAMELLIA_128_CBC_SHA256(new byte[]{(byte) 0xC0, (byte) 0x78}),
-    TLS_ECDH_RSA_WITH_CAMELLIA_256_CBC_SHA384(new byte[]{(byte) 0xC0, (byte) 0x79}),
+    TLS_ECDHE_ECDSA_WITH_CAMELLIA_128_CBC_SHA256(new byte[]{(byte) 0xC0,
+(byte) 0x72}),
+    TLS_ECDHE_ECDSA_WITH_CAMELLIA_256_CBC_SHA384(new byte[]{(byte) 0xC0,
+(byte) 0x73}),
+    TLS_ECDH_ECDSA_WITH_CAMELLIA_128_CBC_SHA256(new byte[]{(byte) 0xC0,
+(byte) 0x74}),
+    TLS_ECDH_ECDSA_WITH_CAMELLIA_256_CBC_SHA384(new byte[]{(byte) 0xC0,
+(byte) 0x75}),
+    TLS_ECDHE_RSA_WITH_CAMELLIA_128_CBC_SHA256(new byte[]{(byte) 0xC0,
+(byte) 0x76}),
+    TLS_ECDHE_RSA_WITH_CAMELLIA_256_CBC_SHA384(new byte[]{(byte) 0xC0,
+(byte) 0x77}),
+    TLS_ECDH_RSA_WITH_CAMELLIA_128_CBC_SHA256(new byte[]{(byte) 0xC0,
+(byte) 0x78}),
+    TLS_ECDH_RSA_WITH_CAMELLIA_256_CBC_SHA384(new byte[]{(byte) 0xC0,
+(byte) 0x79}),
     TLS_RSA_WITH_CAMELLIA_128_GCM_SHA256(new byte[]{(byte) 0xC0, (byte) 0x7A}),
     TLS_RSA_WITH_CAMELLIA_256_GCM_SHA384(new byte[]{(byte) 0xC0, (byte) 0x7B}),
-    TLS_DHE_RSA_WITH_CAMELLIA_128_GCM_SHA256(new byte[]{(byte) 0xC0, (byte) 0x7C}),
-    TLS_DHE_RSA_WITH_CAMELLIA_256_GCM_SHA384(new byte[]{(byte) 0xC0, (byte) 0x7D}),
+    TLS_DHE_RSA_WITH_CAMELLIA_128_GCM_SHA256(
+    new byte[]{(byte) 0xC0, (byte) 0x7C}),
+    TLS_DHE_RSA_WITH_CAMELLIA_256_GCM_SHA384(
+    new byte[]{(byte) 0xC0, (byte) 0x7D}),
     TLS_DH_RSA_WITH_CAMELLIA_128_GCM_SHA256(new byte[]{(byte) 0xC0, (byte) 0x7E}),
     TLS_DH_RSA_WITH_CAMELLIA_256_GCM_SHA384(new byte[]{(byte) 0xC0, (byte) 0x7F}),
-    TLS_DHE_DSS_WITH_CAMELLIA_128_GCM_SHA256(new byte[]{(byte) 0xC0, (byte) 0x80}),
-    TLS_DHE_DSS_WITH_CAMELLIA_256_GCM_SHA384(new byte[]{(byte) 0xC0, (byte) 0x81}),
+    TLS_DHE_DSS_WITH_CAMELLIA_128_GCM_SHA256(
+    new byte[]{(byte) 0xC0, (byte) 0x80}),
+    TLS_DHE_DSS_WITH_CAMELLIA_256_GCM_SHA384(
+    new byte[]{(byte) 0xC0, (byte) 0x81}),
     TLS_DH_DSS_WITH_CAMELLIA_128_GCM_SHA256(new byte[]{(byte) 0xC0, (byte) 0x82}),
     TLS_DH_DSS_WITH_CAMELLIA_256_GCM_SHA384(new byte[]{(byte) 0xC0, (byte) 0x83}),
-    TLS_DH_anon_WITH_CAMELLIA_128_GCM_SHA256(new byte[]{(byte) 0xC0, (byte) 0x84}),
-    TLS_DH_anon_WITH_CAMELLIA_256_GCM_SHA384(new byte[]{(byte) 0xC0, (byte) 0x85}),
-    TLS_ECDHE_ECDSA_WITH_CAMELLIA_128_GCM_SHA256(new byte[]{(byte) 0xC0, (byte) 0x86}),
-    TLS_ECDHE_ECDSA_WITH_CAMELLIA_256_GCM_SHA384(new byte[]{(byte) 0xC0, (byte) 0x87}),
-    TLS_ECDH_ECDSA_WITH_CAMELLIA_128_GCM_SHA256(new byte[]{(byte) 0xC0, (byte) 0x88}),
-    TLS_ECDH_ECDSA_WITH_CAMELLIA_256_GCM_SHA384(new byte[]{(byte) 0xC0, (byte) 0x89}),
-    TLS_ECDHE_RSA_WITH_CAMELLIA_128_GCM_SHA256(new byte[]{(byte) 0xC0, (byte) 0x8A}),
-    TLS_ECDHE_RSA_WITH_CAMELLIA_256_GCM_SHA384(new byte[]{(byte) 0xC0, (byte) 0x8B}),
-    TLS_ECDH_RSA_WITH_CAMELLIA_128_GCM_SHA256(new byte[]{(byte) 0xC0, (byte) 0x8C}),
-    TLS_ECDH_RSA_WITH_CAMELLIA_256_GCM_SHA384(new byte[]{(byte) 0xC0, (byte) 0x8D}),
+    TLS_DH_anon_WITH_CAMELLIA_128_GCM_SHA256(
+    new byte[]{(byte) 0xC0, (byte) 0x84}),
+    TLS_DH_anon_WITH_CAMELLIA_256_GCM_SHA384(
+    new byte[]{(byte) 0xC0, (byte) 0x85}),
+    TLS_ECDHE_ECDSA_WITH_CAMELLIA_128_GCM_SHA256(new byte[]{(byte) 0xC0,
+(byte) 0x86}),
+    TLS_ECDHE_ECDSA_WITH_CAMELLIA_256_GCM_SHA384(new byte[]{(byte) 0xC0,
+(byte) 0x87}),
+    TLS_ECDH_ECDSA_WITH_CAMELLIA_128_GCM_SHA256(new byte[]{(byte) 0xC0,
+(byte) 0x88}),
+    TLS_ECDH_ECDSA_WITH_CAMELLIA_256_GCM_SHA384(new byte[]{(byte) 0xC0,
+(byte) 0x89}),
+    TLS_ECDHE_RSA_WITH_CAMELLIA_128_GCM_SHA256(new byte[]{(byte) 0xC0,
+(byte) 0x8A}),
+    TLS_ECDHE_RSA_WITH_CAMELLIA_256_GCM_SHA384(new byte[]{(byte) 0xC0,
+(byte) 0x8B}),
+    TLS_ECDH_RSA_WITH_CAMELLIA_128_GCM_SHA256(new byte[]{(byte) 0xC0,
+(byte) 0x8C}),
+    TLS_ECDH_RSA_WITH_CAMELLIA_256_GCM_SHA384(new byte[]{(byte) 0xC0,
+(byte) 0x8D}),
     TLS_PSK_WITH_CAMELLIA_128_GCM_SHA256(new byte[]{(byte) 0xC0, (byte) 0x8E}),
     TLS_PSK_WITH_CAMELLIA_256_GCM_SHA384(new byte[]{(byte) 0xC0, (byte) 0x8F}),
-    TLS_DHE_PSK_WITH_CAMELLIA_128_GCM_SHA256(new byte[]{(byte) 0xC0, (byte) 0x90}),
-    TLS_DHE_PSK_WITH_CAMELLIA_256_GCM_SHA384(new byte[]{(byte) 0xC0, (byte) 0x91}),
-    TLS_RSA_PSK_WITH_CAMELLIA_128_GCM_SHA256(new byte[]{(byte) 0xC0, (byte) 0x92}),
-    TLS_RSA_PSK_WITH_CAMELLIA_256_GCM_SHA384(new byte[]{(byte) 0xC0, (byte) 0x93}),
+    TLS_DHE_PSK_WITH_CAMELLIA_128_GCM_SHA256(
+    new byte[]{(byte) 0xC0, (byte) 0x90}),
+    TLS_DHE_PSK_WITH_CAMELLIA_256_GCM_SHA384(
+    new byte[]{(byte) 0xC0, (byte) 0x91}),
+    TLS_RSA_PSK_WITH_CAMELLIA_128_GCM_SHA256(
+    new byte[]{(byte) 0xC0, (byte) 0x92}),
+    TLS_RSA_PSK_WITH_CAMELLIA_256_GCM_SHA384(
+    new byte[]{(byte) 0xC0, (byte) 0x93}),
     TLS_PSK_WITH_CAMELLIA_128_CBC_SHA256(new byte[]{(byte) 0xC0, (byte) 0x94}),
     TLS_PSK_WITH_CAMELLIA_256_CBC_SHA384(new byte[]{(byte) 0xC0, (byte) 0x95}),
-    TLS_DHE_PSK_WITH_CAMELLIA_128_CBC_SHA256(new byte[]{(byte) 0xC0, (byte) 0x96}),
-    TLS_DHE_PSK_WITH_CAMELLIA_256_CBC_SHA384(new byte[]{(byte) 0xC0, (byte) 0x97}),
-    TLS_RSA_PSK_WITH_CAMELLIA_128_CBC_SHA256(new byte[]{(byte) 0xC0, (byte) 0x98}),
-    TLS_RSA_PSK_WITH_CAMELLIA_256_CBC_SHA384(new byte[]{(byte) 0xC0, (byte) 0x99}),
-    TLS_ECDHE_PSK_WITH_CAMELLIA_128_CBC_SHA256(new byte[]{(byte) 0xC0, (byte) 0x9A}),
-    TLS_ECDHE_PSK_WITH_CAMELLIA_256_CBC_SHA384(new byte[]{(byte) 0xC0, (byte) 0x9B});
-
-    /** * Length of the cipher suite id: 2 Bytes     */
+    TLS_DHE_PSK_WITH_CAMELLIA_128_CBC_SHA256(
+    new byte[]{(byte) 0xC0, (byte) 0x96}),
+    TLS_DHE_PSK_WITH_CAMELLIA_256_CBC_SHA384(
+    new byte[]{(byte) 0xC0, (byte) 0x97}),
+    TLS_RSA_PSK_WITH_CAMELLIA_128_CBC_SHA256(
+    new byte[]{(byte) 0xC0, (byte) 0x98}),
+    TLS_RSA_PSK_WITH_CAMELLIA_256_CBC_SHA384(
+    new byte[]{(byte) 0xC0, (byte) 0x99}),
+    TLS_ECDHE_PSK_WITH_CAMELLIA_128_CBC_SHA256(new byte[]{(byte) 0xC0,
+(byte) 0x9A}),
+    TLS_ECDHE_PSK_WITH_CAMELLIA_256_CBC_SHA384(new byte[]{(byte) 0xC0,
+(byte) 0x9B});
+    /**
+     * * Length of the cipher suite id: 2 Bytes
+     */
     final public static int LENGTH_ENCODED = 2;
     final private static Map<Integer, ECipherSuite> ID_MAP =
             new HashMap<Integer, ECipherSuite>(27);
@@ -319,6 +363,7 @@ public enum ECipherSuite {
 
     /**
      * Construct a cipher suite with the given id
+     *
      * @param idBytes Id of this cipher suite
      */
     ECipherSuite(final byte[] idBytes) {
@@ -326,7 +371,8 @@ public enum ECipherSuite {
     }
 
     /**
-     * Get the Id of this cipher suite 
+     * Get the Id of this cipher suite
+     *
      * @return Id as byte array
      */
     public byte[] getId() {
@@ -339,6 +385,7 @@ public enum ECipherSuite {
 
     /**
      * Get the cipher suite for a given id
+     *
      * @param id ID of the desired cipher suite
      * @return Associated cipher suite
      */
@@ -355,7 +402,7 @@ public enum ECipherSuite {
         if (!ID_MAP.containsKey(cipherSuite)) {
             throw new IllegalArgumentException("No such cipher suite.");
         }
-        
+
         return ID_MAP.get(cipherSuite);
     }
 }

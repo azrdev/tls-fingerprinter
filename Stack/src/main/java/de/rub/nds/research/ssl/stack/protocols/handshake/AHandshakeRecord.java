@@ -6,14 +6,15 @@ import de.rub.nds.research.ssl.stack.protocols.commons.EProtocolVersion;
 
 /**
  * Defines all Handshake Messages of SSL/TLS
- * @author  Christopher Meyer - christopher.meyer@rub.de
+ *
+ * @author Christopher Meyer - christopher.meyer@rub.de
  * @version 0.1
  *
  * Nov 14, 2011
  */
 abstract public class AHandshakeRecord extends ARecordFrame {
 
-    /** 
+    /**
      * Length of the length field
      */
     private static final int LENGTH_LENGTH_FIELD = 3;
@@ -36,7 +37,7 @@ abstract public class AHandshakeRecord extends ARecordFrame {
 
     /**
      * Initializes a handshake record as defined in RFC 2246
-     * 
+     *
      * @param version Protocol version of this handshake message
      * @param type Message type of this handshake message
      */
@@ -48,7 +49,7 @@ abstract public class AHandshakeRecord extends ARecordFrame {
 
     /**
      * Initializes a handshake record as defined in RFC 2246
-     * 
+     *
      * @param version Protocol version of this handshake message
      * @param chained Decode single or chained with underlying frames
      */
@@ -60,7 +61,7 @@ abstract public class AHandshakeRecord extends ARecordFrame {
 
     /**
      * Initializes a handshake record as defined in RFC 2246
-     * 
+     *
      * @param version Protocol version
      * @param type Message type
      */
@@ -72,10 +73,8 @@ abstract public class AHandshakeRecord extends ARecordFrame {
 
     /**
      * {@inheritDoc}
-     * 
-     * AHandshakeRecord representation
-     *      1 byte  Message type
-     *  3 + x bytes Payload
+     *
+     * AHandshakeRecord representation 1 byte Message type 3 + x bytes Payload
      */
     @Override
     public byte[] encode(final boolean chained) {
@@ -91,16 +90,16 @@ abstract public class AHandshakeRecord extends ARecordFrame {
         tmp = new byte[]{this.getMessageType().getId()};
         System.arraycopy(tmp, 0, handshakeRecord, pointer, tmp.length);
         pointer += tmp.length;
-        
+
         // 2. payload length
         tmp = buildLength(payloadCopy.length, LENGTH_LENGTH_FIELD);
         System.arraycopy(tmp, 0, handshakeRecord, pointer, tmp.length);
         pointer += tmp.length;
-        
+
         // 3. payload
         tmp = payloadCopy;
         System.arraycopy(tmp, 0, handshakeRecord, pointer, tmp.length);
-       
+
         super.setPayload(handshakeRecord);
         return chained ? super.encode(true) : handshakeRecord;
     }
@@ -114,12 +113,12 @@ abstract public class AHandshakeRecord extends ARecordFrame {
         int pointer;
         int extractedLength;
 
-        if(chained) {
+        if (chained) {
             super.decode(message, true);
         } else {
             setPayload(message);
         }
-        
+
         // payload already deep copied
         payloadCopy = getPayload();
 
@@ -134,12 +133,12 @@ abstract public class AHandshakeRecord extends ARecordFrame {
         System.arraycopy(payloadCopy, pointer, tmpBytes, 0, tmpBytes.length);
         setMessageType(tmpBytes[0]);
         pointer += tmpBytes.length;
-        
+
         // 2. payload 
-        extractedLength = 
+        extractedLength =
                 extractLength(payloadCopy, pointer, LENGTH_LENGTH_FIELD);
-         if (pointer + extractedLength + LENGTH_LENGTH_FIELD
-                 > payloadCopy.length) {
+        if (pointer + extractedLength + LENGTH_LENGTH_FIELD
+                > payloadCopy.length) {
             throw new IllegalArgumentException(
                     "Handshake record payload length invalid.");
         }
@@ -151,7 +150,7 @@ abstract public class AHandshakeRecord extends ARecordFrame {
 
     /**
      * Get the message type of this handshake record.
-     * 
+     *
      * @return The message type of this handshake record.
      */
     public EMessageType getMessageType() {
@@ -161,7 +160,7 @@ abstract public class AHandshakeRecord extends ARecordFrame {
 
     /**
      * Set the message Type of this handshake record.
-     * 
+     *
      * @param messageType The message type to be used for this handshake record
      */
     protected final void setMessageType(final EMessageType messageType) {
@@ -174,7 +173,7 @@ abstract public class AHandshakeRecord extends ARecordFrame {
 
     /**
      * Set the message Type of this handshake record.
-     * 
+     *
      * @param messageType The message type to be used for this handshake record
      */
     protected final void setMessageType(final byte messageType) {

@@ -5,14 +5,15 @@ import de.rub.nds.research.ssl.stack.protocols.commons.ECipherSuite;
 
 /**
  * Cipher suites part - as defined in RFC-2246
- * @author  Christopher Meyer - christopher.meyer@rub.de
+ *
+ * @author Christopher Meyer - christopher.meyer@rub.de
  * @version 0.1
  *
  * Nov 15, 2011
  */
 public final class CipherSuites extends APubliclySerializable {
 
-    /** 
+    /**
      * Length of the length field
      */
     private static final int LENGTH_LENGTH_FIELD = 2;
@@ -26,8 +27,8 @@ public final class CipherSuites extends APubliclySerializable {
     private ECipherSuite[] suites;
 
     /**
-     * Initializes a cipher suites object as defined in RFC-2246
-     * All supported cipher suites are added by default at construction time.
+     * Initializes a cipher suites object as defined in RFC-2246 All supported
+     * cipher suites are added by default at construction time.
      */
     public CipherSuites() {
         setSuites(ECipherSuite.values());
@@ -35,6 +36,7 @@ public final class CipherSuites extends APubliclySerializable {
 
     /**
      * Initializes a cipher suites object as defined in RFC-2246
+     *
      * @param message Cipher suites in encoded form
      */
     public CipherSuites(final byte[] message) {
@@ -43,7 +45,7 @@ public final class CipherSuites extends APubliclySerializable {
 
     /**
      * Get the cipher suites of this message.
-     * 
+     *
      * @return The cipher suites of this message
      */
     public ECipherSuite[] getSuites() {
@@ -56,14 +58,14 @@ public final class CipherSuites extends APubliclySerializable {
 
     /**
      * Set the cipher suites of this message.
-     * 
+     *
      * @param suites The cipher suites to be used for this message
      */
     public final void setSuites(final ECipherSuite[] suites) {
         if (suites == null) {
             throw new IllegalArgumentException("Suites must not be null!");
         }
-        
+
         // new objects keep the array clean and small, Mr. Proper will be proud!
         this.suites = new ECipherSuite[suites.length];
         // refill, deep copy
@@ -71,10 +73,9 @@ public final class CipherSuites extends APubliclySerializable {
     }
 
     /**
-     * {@inheritDoc}
-     * CipherSuites representation
-     * 2 + x*2 bytes for x cipher suites
-     * 
+     * {@inheritDoc} CipherSuites representation 2 + x*2 bytes for x cipher
+     * suites
+     *
      * Method parameter will be ignored - no support for chained encoding
      */
     @Override
@@ -83,24 +84,24 @@ public final class CipherSuites extends APubliclySerializable {
         Integer cipherSuitesBytes = suites.length * ECipherSuite.LENGTH_ENCODED;
         byte[] tmp = new byte[LENGTH_LENGTH_FIELD + cipherSuitesBytes];
         byte[] tmpID = null;
-        
+
         // length
         tmpID = buildLength(cipherSuitesBytes, LENGTH_LENGTH_FIELD);
         System.arraycopy(tmpID, 0, tmp, pointer, tmpID.length);
         //pointer += tmpID.length;
-        
-        for (int i = 1; i-1 < suites.length; i++) {
-            tmpID = suites[i-1].getId();
+
+        for (int i = 1; i - 1 < suites.length; i++) {
+            tmpID = suites[i - 1].getId();
             tmp[i * ECipherSuite.LENGTH_ENCODED] = tmpID[0];
             tmp[i * ECipherSuite.LENGTH_ENCODED + 1] = tmpID[1];
         }
-        
+
         return tmp;
     }
 
     /**
      * {@inheritDoc}
-     * 
+     *
      * Method parameter will be ignored - no support for chained decoding
      */
     public void decode(final byte[] message, final boolean chained) {
@@ -116,13 +117,13 @@ public final class CipherSuites extends APubliclySerializable {
         }
         cipherSuitesCount = (extractLength(tmpSuites, 0,
                 LENGTH_LENGTH_FIELD) >> 1) & 0xff;
-        
+
         if (tmpSuites.length - LENGTH_LENGTH_FIELD != cipherSuitesCount
                 * ECipherSuite.LENGTH_ENCODED) {
             throw new IllegalArgumentException(
                     "Cipher suites record length invalid.");
         }
-        
+
         // extract cipher suites
         ECipherSuite[] cipherSuites = new ECipherSuite[cipherSuitesCount];
         for (int j = 0, i = LENGTH_LENGTH_FIELD; j < cipherSuitesCount;

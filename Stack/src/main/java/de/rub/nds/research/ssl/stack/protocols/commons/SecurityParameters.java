@@ -2,7 +2,6 @@ package de.rub.nds.research.ssl.stack.protocols.commons;
 
 import de.rub.nds.research.ssl.stack.protocols.handshake.datatypes.CompressionMethod;
 import de.rub.nds.research.ssl.stack.protocols.handshake.datatypes.MasterSecret;
-import de.rub.nds.research.ssl.stack.protocols.handshake.datatypes.RandomValue;
 
 /**
  * Security parameters as defined in Chapter 6.1 of RFC2246

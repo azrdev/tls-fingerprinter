@@ -6,7 +6,8 @@ import java.util.List;
 
 /**
  * Certificates part - as defined in RFC-2246
- * @author  Christopher Meyer - christopher.meyer@rub.de
+ *
+ * @author Christopher Meyer - christopher.meyer@rub.de
  * @version 0.1
  *
  * Nov 25, 2011
@@ -17,7 +18,7 @@ public final class Certificates extends APubliclySerializable {
      * Default list size
      */
     private static final int DEFAULT_LIST_SIZE = 3;
-    /** 
+    /**
      * Length of the length field
      */
     private static final int LENGTH_LENGTH_FIELD = 3;
@@ -29,6 +30,7 @@ public final class Certificates extends APubliclySerializable {
      * List of all certificates of this object.
      */
     private ASN1Certificate[] certificates;
+
     /**
      * Initializes a Certificates object as defined in RFC-2246
      */
@@ -38,6 +40,7 @@ public final class Certificates extends APubliclySerializable {
 
     /**
      * Initializes a Certificates object as defined in RFC-2246
+     *
      * @param message Certificates in encoded form
      */
     public Certificates(final byte[] message) {
@@ -46,7 +49,7 @@ public final class Certificates extends APubliclySerializable {
 
     /**
      * Get the Certificates of this message.
-     * 
+     *
      * @return The Certificates of this message
      */
     public ASN1Certificate[] getCertificates() {
@@ -59,7 +62,7 @@ public final class Certificates extends APubliclySerializable {
 
     /**
      * Set the Certificates of this message.
-     * 
+     *
      * @param certificates The Certificates to be used for this message
      */
     public final void setCertificates(final ASN1Certificate[] certificates) {
@@ -72,26 +75,24 @@ public final class Certificates extends APubliclySerializable {
         System.arraycopy(certificates, 0, this.certificates, 0,
                 certificates.length);
     }
-    
+
     /**
      * Set the Certificates of this message.
-     * 
+     *
      * @param certificates The Certificates to be used for this message
      */
     public final void setCertificates(final List<ASN1Certificate> certificates) {
         if (certificates == null) {
             throw new IllegalArgumentException("Certificates must not be null!");
         }
-        
+
         setCertificates(
                 certificates.toArray(new ASN1Certificate[certificates.size()]));
     }
 
     /**
-     * {@inheritDoc}
-     * CipherSuites representation
-     *  3 + x bytes Certificate
-     * 
+     * {@inheritDoc} CipherSuites representation 3 + x bytes Certificate
+     *
      * Method parameter will be ignored - no support for chained encoding
      */
     @Override
@@ -132,19 +133,19 @@ public final class Certificates extends APubliclySerializable {
 
     /**
      * {@inheritDoc}
-     * 
+     *
      * Method parameter will be ignored - no support for chained decoding
      */
     public void decode(final byte[] message, final boolean chained) {
         int pointer = 0;
         int extractedLength = 0;
         byte[] tmpBytes;
-        final List<ASN1Certificate> tmpCerts = 
+        final List<ASN1Certificate> tmpCerts =
                 new ArrayList<ASN1Certificate>(DEFAULT_LIST_SIZE);
-        
+
         // deep copy
         final byte[] certificatesCopy = new byte[message.length];
-        System.arraycopy(message, 0, certificatesCopy, 0, 
+        System.arraycopy(message, 0, certificatesCopy, 0,
                 certificatesCopy.length);
 
         // check size
@@ -152,23 +153,23 @@ public final class Certificates extends APubliclySerializable {
             throw new IllegalArgumentException(
                     "Certificates record too short.");
         }
-        extractedLength = 
+        extractedLength =
                 extractLength(certificatesCopy, 0, LENGTH_LENGTH_FIELD);
         if (certificatesCopy.length - LENGTH_LENGTH_FIELD != extractedLength) {
             throw new IllegalArgumentException(
                     "Certificates record length invalid.");
         }
         pointer += LENGTH_LENGTH_FIELD;
-        
+
         // extract Certificates
-        while(pointer < certificatesCopy.length) {
-            extractedLength = extractLength(certificatesCopy, pointer, 
+        while (pointer < certificatesCopy.length) {
+            extractedLength = extractLength(certificatesCopy, pointer,
                     LENGTH_MINIMUM_ENCODED);
-            tmpBytes = new byte[extractedLength 
+            tmpBytes = new byte[extractedLength
                     + ASN1Certificate.LENGTH_MINIMUM_ENCODED];
-            System.arraycopy(certificatesCopy, pointer, tmpBytes, 0, 
+            System.arraycopy(certificatesCopy, pointer, tmpBytes, 0,
                     tmpBytes.length);
-            
+
             tmpCerts.add(new ASN1Certificate(tmpBytes));
             pointer += tmpBytes.length;
         }

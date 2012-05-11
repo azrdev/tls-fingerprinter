@@ -61,7 +61,7 @@ public final class Finished extends AHandshakeRecord {
      * @param handshakeHashes concatenated hashes of the handshake messages
      * @throws InvalidKeyException
      */
-    public final void createVerifyData(final MasterSecret secret,
+    public void createVerifyData(final MasterSecret secret,
             final byte[] handshakeHashes) throws InvalidKeyException {
         PseudoRandomFunction prf = new PseudoRandomFunction(VERIFY_DATA_LENGTH);
         verifyData = prf.generatePseudoRandomValue(secret.getMasterSecret(),

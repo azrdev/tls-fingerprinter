@@ -24,6 +24,9 @@ public class KeyExchangeParams {
      * Private constructor for singleton.
      */
     private KeyExchangeParams() {
+        dhGen = new byte[0];
+        dhPrime = new byte[0];
+        dhPublic = new byte[0];
     }
 
     /**

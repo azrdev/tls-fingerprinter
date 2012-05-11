@@ -5,8 +5,8 @@ import de.rub.nds.research.ssl.stack.protocols.handshake.datatypes.Certificates;
 
 /**
  * Defines the Certificate message of SSL/TLS as defined in RFC 2246
- * 
- * @author  Christopher Meyer - christopher.meyer@rub.de
+ *
+ * @author Christopher Meyer - christopher.meyer@rub.de
  * @version 0.1
  *
  * Nov 25, 2011
@@ -22,7 +22,7 @@ public final class Certificate extends AHandshakeRecord {
 
     /**
      * Initializes a Certificate message as defined in RFC 2246.
-     * 
+     *
      * @param message Certificate message in encoded form
      * @param chained Decode single or chained with underlying frames
      */
@@ -34,7 +34,7 @@ public final class Certificate extends AHandshakeRecord {
 
     /**
      * Initializes a Certificate message as defined in RFC 2246.
-     * 
+     *
      * @param protocolVersion Protocol version of this message
      */
     public Certificate(final EProtocolVersion protocolVersion) {
@@ -44,19 +44,18 @@ public final class Certificate extends AHandshakeRecord {
     /**
      * {@inheritDoc}
      *
-     * Certificate representation
-     *  3 + x bytes Certificates
+     * Certificate representation 3 + x bytes Certificates
      */
     @Override
     public byte[] encode(final boolean chained) {
         byte[] encCertificates = certificates.encode(false);
-        
+
         // TODO: Der Code hier sieht echt komisch aus, wieso wird der Payload hier 3 bytes länger???
-        
-        
+
+
         // putting the pieces together
-        byte[] certificateMsg = new byte[LENGTH_MINIMUM_ENCODED +
-                encCertificates.length];
+        byte[] certificateMsg = new byte[LENGTH_MINIMUM_ENCODED
+                + encCertificates.length];
 
         /*
          * Prepre Certificate message
@@ -64,9 +63,9 @@ public final class Certificate extends AHandshakeRecord {
         // add certificates
         System.arraycopy(encCertificates, 0, certificateMsg, 0,
                 encCertificates.length);
-        
+
         super.setPayload(certificateMsg);
-        return chained ? super.encode(true) : certificateMsg;        
+        return chained ? super.encode(true) : certificateMsg;
     }
 
     /**
@@ -77,12 +76,12 @@ public final class Certificate extends AHandshakeRecord {
         int pointer;
         int extractedLength;
 
-        if(chained) {
+        if (chained) {
             super.decode(message, true);
         } else {
             setPayload(message);
         }
-        
+
         // payload already deep copied
         payloadCopy = getPayload();
 
@@ -90,20 +89,22 @@ public final class Certificate extends AHandshakeRecord {
         if (payloadCopy.length < Certificates.LENGTH_MINIMUM_ENCODED) {
             throw new IllegalArgumentException("Certificate message too short.");
         }
-        
+
         certificates = new Certificates(payloadCopy);
     }
 
     /**
      * Get the certificates of this message
+     *
      * @return Certificates
      */
     public Certificates getCertificates() {
         return new Certificates(certificates.encode(false));
     }
-    
+
     /**
      * Set the certificates of this message
+     *
      * @param certificates Certificates to be set
      */
     public void setCertificates(final Certificates certificates) {

@@ -7,9 +7,9 @@ import de.rub.nds.research.ssl.stack.protocols.handshake.datatypes.RandomValue;
 import de.rub.nds.research.ssl.stack.protocols.handshake.datatypes.SessionId;
 
 /**
- * Defines the ServerHello message of SSL/TLS as defined in RFC 2246
- * 
- * @author  Christopher Meyer - christopher.meyer@rub.de
+ * Defines the ServerHello message of SSL/TLS as defined in RFC 2246.
+ *
+ * @author Christopher Meyer - christopher.meyer@rub.de
  * @version 0.1
  *
  * Nov 15, 2011
@@ -34,7 +34,7 @@ public final class ServerHello extends AHandshakeRecord {
 
     /**
      * Initializes a ServerHello message as defined in RFC 2246.
-     * 
+     *
      * @param protocolVersion Protocol version of this message
      */
     public ServerHello(final EProtocolVersion protocolVersion) {
@@ -43,7 +43,7 @@ public final class ServerHello extends AHandshakeRecord {
 
     /**
      * Initializes a ServerHello message as defined in RFC 2246.
-     * 
+     *
      * @param message ServerHello message in encoded form
      * @param chained Decode single or chained with underlying frames
      */
@@ -54,9 +54,9 @@ public final class ServerHello extends AHandshakeRecord {
     }
 
     /**
-     * Get the protocol version of this message. This can be but must not be 
+     * Get the protocol version of this message. This can be but must not be
      * equal to the one of the record layer.
-     * 
+     *
      * @return The protocol version of this message
      */
     public EProtocolVersion getMessageProtocolVersion() {
@@ -66,7 +66,7 @@ public final class ServerHello extends AHandshakeRecord {
 
     /**
      * Set the protocol version of this message.
-     * 
+     *
      * @param protocolVersion The protocol version to be used for this message
      */
     public void setMessageProtocolVersion(
@@ -82,8 +82,8 @@ public final class ServerHello extends AHandshakeRecord {
 
     /**
      * Set the protocol version of this message.
-     * 
-     * @param protocolVersion The protocol version object to be used for this 
+     *
+     * @param protocolVersion The protocol version object to be used for this
      * message in encoded form
      */
     public void setMessageProtocolVersion(final byte[] protocolVersion) {
@@ -92,8 +92,8 @@ public final class ServerHello extends AHandshakeRecord {
     }
 
     /**
-     * Get the random of this message. 
-     * 
+     * Get the random of this message.
+     *
      * @return The random of this message
      */
     public RandomValue getRandom() {
@@ -103,13 +103,12 @@ public final class ServerHello extends AHandshakeRecord {
 
     /**
      * Set the random of this message.
-     * 
+     *
      * @param randomValue The random value object of this message
      */
     public void setRandom(final RandomValue randomValue) {
         if (randomValue == null) {
-            throw new 
-                    IllegalArgumentException("Random value must not be null!");
+            throw new IllegalArgumentException("Random value must not be null!");
         }
         // deep copy
         this.random = new RandomValue(randomValue.encode(false));
@@ -117,14 +116,13 @@ public final class ServerHello extends AHandshakeRecord {
 
     /**
      * Set the random of this message.
-     * 
-     * @param randomValue The random value object of this message in encoded 
+     *
+     * @param randomValue The random value object of this message in encoded
      * form
      */
     public void setRandom(final byte[] randomValue) {
         if (randomValue == null) {
-            throw new 
-                    IllegalArgumentException("Random value must not be null!");
+            throw new IllegalArgumentException("Random value must not be null!");
         }
         // deep copy
         this.random = new RandomValue(randomValue);
@@ -132,7 +130,7 @@ public final class ServerHello extends AHandshakeRecord {
 
     /**
      * Get the session ID of this message.
-     * 
+     *
      * @return The session ID of this message
      */
     public SessionId getSessionID() {
@@ -142,8 +140,8 @@ public final class ServerHello extends AHandshakeRecord {
 
     /**
      * Set the session ID of this message.
-     * 
-     * @param sessionID  The session id object to be used for this message in 
+     *
+     * @param sessionID The session id object to be used for this message in
      * encoded form
      */
     public void setSessionID(final byte[] sessionID) {
@@ -156,8 +154,8 @@ public final class ServerHello extends AHandshakeRecord {
 
     /**
      * Set the session ID of this message.
-     * 
-     * @param sessionID  The session id to be used for this message
+     *
+     * @param sessionID The session id to be used for this message
      */
     public void setSessionID(final SessionId sessionID) {
         if (sessionID == null) {
@@ -169,8 +167,8 @@ public final class ServerHello extends AHandshakeRecord {
     }
 
     /**
-     * Get the compression method of this message. 
-     * 
+     * Get the compression method of this message.
+     *
      * @return The compression method of this message
      */
     public byte[] getCompressionMethod() {
@@ -179,8 +177,8 @@ public final class ServerHello extends AHandshakeRecord {
 
     /**
      * Set the compression method of this message.
-     * 
-     * @param compressionMethod  The compression method object to be used for 
+     *
+     * @param compressionMethod The compression method object to be used for
      * this message in encoded form
      */
     public void setCompressionMethod(final byte[] compressionMethod) {
@@ -189,8 +187,8 @@ public final class ServerHello extends AHandshakeRecord {
 
     /**
      * Set the compression method of this message.
-     * 
-     * @param compressionMethod  The compression method to be used for this 
+     *
+     * @param compressionMethod The compression method to be used for this
      * message
      */
     public void setCompressionMethod(final CompressionMethod compressionMethod) {
@@ -207,7 +205,7 @@ public final class ServerHello extends AHandshakeRecord {
     /**
      * Set the protocol version at the record layer level. This will NOT change
      * the protocol version of this message.
-     * 
+     *
      * @param version Protocol version for the record Layer
      */
     public void setRecordLayerProtocolVersion(final EProtocolVersion version) {
@@ -217,7 +215,7 @@ public final class ServerHello extends AHandshakeRecord {
     /**
      * Set the protocol version at the record layer level. This will NOT change
      * the protocol version of this message.
-     * 
+     *
      * @param version Protocol version for the record Layer
      */
     public void setRecordLayerProtocolVersion(final byte[] version) {
@@ -226,13 +224,10 @@ public final class ServerHello extends AHandshakeRecord {
 
     /**
      * {@inheritDoc}
-     * 
-     * ServerHello representation
-     *      2 bytes Protocol version
-     *     32 bytes Random value
-     *  1 + x bytes Session id
-     *      2 bytes Cipher suites
-     *  1 + x bytes Compression method
+     *
+     * ServerHello representation 2 bytes Protocol version 32 bytes Random value
+     * 1 + x bytes Session id 2 bytes Cipher suites 1 + x bytes Compression
+     * method
      */
     @Override
     public byte[] encode(final boolean chained) {
@@ -288,12 +283,12 @@ public final class ServerHello extends AHandshakeRecord {
         int pointer;
         int extractedLength;
 
-        if(chained) {
+        if (chained) {
             super.decode(message, true);
         } else {
             setPayload(message);
         }
-        
+
         // payload already deep copied
         payloadCopy = getPayload();
 
@@ -308,7 +303,7 @@ public final class ServerHello extends AHandshakeRecord {
         System.arraycopy(payloadCopy, pointer, tmpBytes, 0, tmpBytes.length);
         setProtocolVersion(tmpBytes);
         pointer += tmpBytes.length;
-        
+
         // 2. extract random value
         tmpBytes = new byte[RandomValue.LENGTH_ENCODED];
         System.arraycopy(payloadCopy, pointer, tmpBytes, 0, tmpBytes.length);
@@ -350,7 +345,7 @@ public final class ServerHello extends AHandshakeRecord {
 
     /**
      * Get the cipher suite of this message.
-     * 
+     *
      * @return The cipher suite of this message
      */
     public ECipherSuite getCipherSuite() {
@@ -359,7 +354,7 @@ public final class ServerHello extends AHandshakeRecord {
 
     /**
      * Set the cipher suite of this message.
-     * 
+     *
      * @param suite The cipher suite to be used for this message
      */
     public void setCipherSuite(final ECipherSuite suite) {
@@ -368,7 +363,7 @@ public final class ServerHello extends AHandshakeRecord {
 
     /**
      * Set the cipher suite of this message.
-     * 
+     *
      * @param suite The cipher suite to be used for this message
      */
     public void setCipherSuite(final byte[] suite) {

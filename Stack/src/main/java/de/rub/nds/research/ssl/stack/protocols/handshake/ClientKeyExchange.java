@@ -1,11 +1,7 @@
 package de.rub.nds.research.ssl.stack.protocols.handshake;
 
-import de.rub.nds.research.ssl.stack.protocols.handshake.datatypes.EKeyExchangeAlgorithm;
 import de.rub.nds.research.ssl.stack.protocols.commons.EProtocolVersion;
-import de.rub.nds.research.ssl.stack.protocols.handshake.datatypes.ClientDHPublic;
-import de.rub.nds.research.ssl.stack.protocols.handshake.datatypes.EncryptedPreMasterSecret;
-import de.rub.nds.research.ssl.stack.protocols.handshake.datatypes.IExchangeKeys;
-import de.rub.nds.research.ssl.stack.protocols.handshake.datatypes.PreMasterSecret;
+import de.rub.nds.research.ssl.stack.protocols.handshake.datatypes.*;
 
 /**
  * Defines the ClientKeyExchange message of SSL/TLS as defined in RFC 2246

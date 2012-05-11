@@ -1,18 +1,18 @@
 package de.rub.nds.research.ssl.stack.protocols.handshake.datatypes;
 
-import de.rub.nds.research.ssl.stack.Utility;
 import de.rub.nds.research.ssl.stack.protocols.commons.APubliclySerializable;
 
 /**
  * ASN.1 certificate message part - as defined in RFC-2246
- * @author  Christopher Meyer - christopher.meyer@rub.de
+ *
+ * @author Christopher Meyer - christopher.meyer@rub.de
  * @version 0.1
  *
  * Nov 25, 2011
  */
 public final class ASN1Certificate extends APubliclySerializable {
 
-    /** 
+    /**
      * Length of the length field
      */
     private static final int LENGTH_LENGTH_FIELD = 3;
@@ -26,14 +26,15 @@ public final class ASN1Certificate extends APubliclySerializable {
     private byte[] certificate = new byte[0];
 
     /**
-     * Initializes an ASN.1 certificate object as defined in RFC-2246.
-     * Set by default to 0x0!
+     * Initializes an ASN.1 certificate object as defined in RFC-2246. Set by
+     * default to 0x0!
      */
     public ASN1Certificate() {
     }
 
     /**
      * Initializes an ASN.1 certificate object as defined in RFC-2246.
+     *
      * @param message ASN.1 certificate in encoded form
      */
     public ASN1Certificate(final byte[] message) {
@@ -41,8 +42,8 @@ public final class ASN1Certificate extends APubliclySerializable {
     }
 
     /**
-     * Get the ASN.1 certificate of this message. 
-     * 
+     * Get the ASN.1 certificate of this message.
+     *
      * @return The ASN.1 certificate of this message
      */
     public byte[] getCertificate() {
@@ -55,8 +56,8 @@ public final class ASN1Certificate extends APubliclySerializable {
 
     /**
      * Set the ASN.1 certificate of this message.
-     * 
-     * @param certificate  The ASN.1 certificate to be used for this message
+     *
+     * @param certificate The ASN.1 certificate to be used for this message
      */
     public final void setCertificate(final byte[] certificate) {
         if (certificate == null) {
@@ -71,16 +72,16 @@ public final class ASN1Certificate extends APubliclySerializable {
 
     /**
      * {@inheritDoc}
-     * 
+     *
      * Method parameter will be ignored - no support for chained encoding
      */
     @Override
     public byte[] encode(boolean chained) {
-        final byte[] certificateBytes = 
+        final byte[] certificateBytes =
                 new byte[certificate.length + LENGTH_LENGTH_FIELD];
-        
+
         byte[] tmpBytes = buildLength(certificate.length, LENGTH_LENGTH_FIELD);
-        System.arraycopy(tmpBytes, 0, certificateBytes, 0,tmpBytes.length);
+        System.arraycopy(tmpBytes, 0, certificateBytes, 0, tmpBytes.length);
         System.arraycopy(certificate, 0, certificateBytes, LENGTH_LENGTH_FIELD,
                 certificate.length);
 
@@ -89,7 +90,7 @@ public final class ASN1Certificate extends APubliclySerializable {
 
     /**
      * {@inheritDoc}
-     * 
+     *
      * Method parameter will be ignored - no support for chained decoding
      */
     public void decode(final byte[] message, final boolean chained) {
@@ -104,7 +105,7 @@ public final class ASN1Certificate extends APubliclySerializable {
             throw new IllegalArgumentException(
                     "ASN.1 certificate record too short.");
         }
-        
+
         extractedLength = extractLength(certificateCopy, 0, LENGTH_LENGTH_FIELD);
         tmpBytes = new byte[extractedLength];
         System.arraycopy(certificateCopy, LENGTH_LENGTH_FIELD, tmpBytes, 0,

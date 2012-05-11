@@ -1,13 +1,14 @@
 package de.rub.nds.research.ssl.stack.protocols.handshake.datatypes;
 
+import de.rub.nds.research.ssl.stack.protocols.commons.APubliclySerializable;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.security.SecureRandom;
-import de.rub.nds.research.ssl.stack.protocols.commons.APubliclySerializable;
 
 /**
- * Random value message part - as defined in RFC-2246
- * @author  Christopher Meyer - christopher.meyer@rub.de
+ * Random value message part - as defined in RFC-2246.
+ *
+ * @author Christopher Meyer - christopher.meyer@rub.de
  * @version 0.1
  *
  * Nov 15, 2011
@@ -25,9 +26,8 @@ public final class RandomValue extends APubliclySerializable {
     /**
      * Length of the encoded form
      */
-    public final static int LENGTH_ENCODED = LENGTH_RANDOM_VALUE 
+    public final static int LENGTH_ENCODED = LENGTH_RANDOM_VALUE
             + LENGTH_UNIX_TIMESTAMP;
-    
     /**
      * Random value - 28 bytes secure random
      */
@@ -53,6 +53,7 @@ public final class RandomValue extends APubliclySerializable {
 
     /**
      * Initializes a random value object as defined in RFC-2246
+     *
      * @param message Random value in encoded form
      */
     public RandomValue(final byte[] message) {
@@ -60,8 +61,8 @@ public final class RandomValue extends APubliclySerializable {
     }
 
     /**
-     * Get the random value of this message. 
-     * 
+     * Get the random value of this message.
+     *
      * @return The random value of this message
      */
     public byte[] getValue() {
@@ -74,7 +75,7 @@ public final class RandomValue extends APubliclySerializable {
 
     /**
      * Set the random value of this message.
-     * 
+     *
      * @param randomValue The random value to be used for this message
      */
     public final void setValue(final byte[] randomValue) {
@@ -88,8 +89,8 @@ public final class RandomValue extends APubliclySerializable {
     }
 
     /**
-     * Get the UNIX timestamp of this message. 
-     * 
+     * Get the UNIX timestamp of this message.
+     *
      * @return The timestamp of this message
      */
     public byte[] getUnixTimestamp() {
@@ -102,7 +103,7 @@ public final class RandomValue extends APubliclySerializable {
 
     /**
      * Set the UNIX timestamp of this message.
-     * 
+     *
      * @param unixTimestamp The timestamp to be used for this message
      */
     public void setUnixTimestamp(final byte[] unixTimestamp) {
@@ -122,7 +123,7 @@ public final class RandomValue extends APubliclySerializable {
 
     /**
      * {@inheritDoc}
-     * 
+     *
      * Method parameter will be ignored - no support for chained encoding
      */
     @Override
@@ -137,7 +138,7 @@ public final class RandomValue extends APubliclySerializable {
 
     /**
      * {@inheritDoc}
-     * 
+     *
      * Method parameter will be ignored - no support for chained decoding
      */
     public void decode(final byte[] message, final boolean chained) {
