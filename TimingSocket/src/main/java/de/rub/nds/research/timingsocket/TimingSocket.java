@@ -1,43 +1,56 @@
 package de.rub.nds.research.timingsocket;
 
 import java.io.IOException;
-import java.net.InetAddress;
-import java.net.Proxy;
-import java.net.Socket;
-import java.net.SocketException;
+import java.net.*;
 
 /**
  * Timing socket for exact time measurement.
- * @author  Christopher Meyer - christopher.meyer@rub.de
+ *
+ * @author Christopher Meyer - christopher.meyer@rub.de
  * @version 0.1
  *
  * May 11, 2012
  */
 public class TimingSocket extends Socket {
-    
-    public TimingSocket() throws SocketException  {
+
+    public TimingSocket() throws SocketException {
         super(new TimingSocketImpl());
+
     }
-    
-    public TimingSocket(String host, int port) throws SocketException {
+
+    public TimingSocket(final String host, final int port)
+            throws SocketException, IOException {
         this();
-        // TODO
+        final SocketAddress socketAddress = new InetSocketAddress(host, port);
+        connect(socketAddress);
     }
-    
-    public TimingSocket(InetAddress address, int port) throws IOException {
+
+    public TimingSocket(final InetAddress address, final int port)
+            throws IOException {
         this();
-        // TODO
+        final SocketAddress socketAddress = new InetSocketAddress(address, port);
+        connect(socketAddress);
     }
-    
-    public TimingSocket(String host, int port, InetAddress localAddr,
-                  int localPort) throws IOException {
+
+    public TimingSocket(final String host, final int port,
+            final InetAddress localAddr, final int localPort)
+            throws IOException {
         this();
-        // TODO
+        final SocketAddress localSocketAddress = new InetSocketAddress(localAddr,
+                localPort);
+        bind(localSocketAddress);
+        final SocketAddress socketAddress = new InetSocketAddress(host, port);
+        connect(socketAddress);
     }
-    
-    public TimingSocket(InetAddress address, int port, InetAddress localAddr,
-                  int localPort) throws IOException {
+
+    public TimingSocket(final InetAddress address, final int port,
+            final InetAddress localAddr, final int localPort)
+            throws IOException {
         this();
-        // TODO
+        final SocketAddress localSocketAddress = new InetSocketAddress(localAddr,
+                localPort);
+        bind(localSocketAddress);
+        final SocketAddress socketAddress = new InetSocketAddress(address, port);
+        connect(socketAddress);
     }
 }
