@@ -1,20 +1,14 @@
 package de.rub.nds.research.ssl.stack.tests.attacks;
 
-import de.rub.nds.research.ssl.stack.protocols.ARecordFrame;
-import de.rub.nds.research.ssl.stack.protocols.alert.Alert;
-import de.rub.nds.research.ssl.stack.protocols.alert.datatypes.EAlertLevel;
 import de.rub.nds.research.ssl.stack.protocols.commons.ECipherSuite;
-import de.rub.nds.research.ssl.stack.protocols.commons.EConnectionEnd;
 import de.rub.nds.research.ssl.stack.protocols.commons.EProtocolVersion;
 import de.rub.nds.research.ssl.stack.protocols.commons.KeyExchangeParams;
 import de.rub.nds.research.ssl.stack.protocols.handshake.ClientHello;
 import de.rub.nds.research.ssl.stack.protocols.handshake.ClientKeyExchange;
-import de.rub.nds.research.ssl.stack.protocols.handshake.Finished;
 import de.rub.nds.research.ssl.stack.protocols.handshake.datatypes.CipherSuites;
 import de.rub.nds.research.ssl.stack.protocols.handshake.datatypes.EncryptedPreMasterSecret;
 import de.rub.nds.research.ssl.stack.protocols.handshake.datatypes.PreMasterSecret;
 import de.rub.nds.research.ssl.stack.protocols.handshake.datatypes.RandomValue;
-import de.rub.nds.research.ssl.stack.protocols.msgs.TLSCiphertext;
 import de.rub.nds.research.ssl.stack.tests.common.MessageBuilder;
 import de.rub.nds.research.ssl.stack.tests.common.SSLHandshakeWorkflow;
 import de.rub.nds.research.ssl.stack.tests.common.SSLHandshakeWorkflow.EStates;
@@ -25,7 +19,6 @@ import de.rub.nds.research.ssl.stack.tests.workflows.ObservableBridge;
 import java.math.BigInteger;
 import java.security.PublicKey;
 import java.security.interfaces.RSAPublicKey;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Observable;
 import java.util.Observer;
@@ -40,7 +33,9 @@ import sun.security.rsa.RSACore;
  * Test for Bleichenbacher attack.
  *
  * @author Eugen Weiss - eugen.weiss@ruhr-uni-bochum.de
- * @version 0.1 Apr 12, 2012
+ * @author Christopher Meyer - christopher.meyer@ruhr-uni-bochum.de
+ * @version 0.2
+ * Apr 12, 2012
  */
 public class BleichenbacherTimingTest implements Observer {
 
@@ -121,11 +116,11 @@ public class BleichenbacherTimingTest implements Observer {
      */
     private static final String JKS_PASSWORD = "server";
     /**
-     * Overall delays
+     * Overall delays.
      */
     private final long[] delays = new long[NUMBER_OF_REPETIIONS];
     /**
-     * Number of repetitions
+     * Number of repetitions.
      */
     private static final int NUMBER_OF_REPETIIONS = 1000;
 
@@ -143,23 +138,24 @@ public class BleichenbacherTimingTest implements Observer {
                     // wrong protocol version in PreMasterSecret
                     {new byte[]{0x00, 0x02}, new byte[]{0x00},
                         EProtocolVersion.SSL_3_0, false, 0,
-                        "Wrong protocol version in PreMasterSecret"}, //                    // seperate byte is not 0x00
-                //                    {new byte[]{0x00, 0x02}, new byte[]{0x01}, protocolVersion,
-                //                        false, 0, "Seperate byte is not 0x00"},
-                //                    // mode changed
-                //                    {new byte[]{0x00, 0x01}, new byte[]{0x00}, protocolVersion,
-                //                        false, 0, "Mode changed to 0x01"},
-                //                    // zero byte at the first position of the padding
-                //                    {new byte[]{0x00, 0x02}, new byte[]{0x00}, protocolVersion,
-                //                        true, 0,
-                //                        "Zero byte at the first position of the padding"},
-                //                    // zero byte in the middle of the padding string
-                //                    {new byte[]{0x00, 0x02}, new byte[]{0x00}, protocolVersion,
-                //                        true, 1,
-                //                        "Zero byte in the middle of the padding string"},
-                //                    // zero byte at the end of the padding string
-                //                    {new byte[]{0x00, 0x02}, new byte[]{0x00}, protocolVersion,
-                //                        true, 2, "Zero byte at the end of the padding string"}
+                        "Wrong protocol version in PreMasterSecret"}, 
+                    // seperate byte is not 0x00
+                    {new byte[]{0x00, 0x02}, new byte[]{0x01}, protocolVersion,
+                        false, 0, "Seperate byte is not 0x00"},
+                    // mode changed
+                    {new byte[]{0x00, 0x01}, new byte[]{0x00}, protocolVersion,
+                        false, 0, "Mode changed to 0x01"},
+                    // zero byte at the first position of the padding
+                    {new byte[]{0x00, 0x02}, new byte[]{0x00}, protocolVersion,
+                        true, 0,
+                        "Zero byte at the first position of the padding"},
+                    // zero byte in the middle of the padding string
+                    {new byte[]{0x00, 0x02}, new byte[]{0x00}, protocolVersion,
+                        true, 1,
+                        "Zero byte in the middle of the padding string"},
+                    // zero byte at the end of the padding string
+                    {new byte[]{0x00, 0x02}, new byte[]{0x00}, protocolVersion,
+                        true, 2, "Zero byte at the end of the padding string"}
                 };
     }
 
@@ -200,32 +196,7 @@ public class BleichenbacherTimingTest implements Observer {
                 workflow.addObserver(this, EStates.CLIENT_FINISHED);
                 workflow.start();
 
-                ArrayList<Trace> traceList = workflow.getTraceList();
-                ARecordFrame frame = traceList.get(traceList.size() - 1).
-                        getCurrentRecord();
-                if (frame instanceof Alert) {
-                    Alert alert = (Alert) frame;
-//                    if (EAlertLevel.FATAL.equals(alert.getAlertLevel())) {
-//                        canceled = true;
-//                        System.out.printf("%-25s%-50s\n", "Test aborted:",
-//                                alert.getAlertLevel() 
-//                                + " " 
-//                                + alert.getAlertDescription());
-//                        break;
-//                    } else {
-//                        continue;
-//                    }
-                    
-//                    Assert.fail("Test failed with an SSL-Alert: "
-//                            + alert.getAlertLevel() + " "
-//                            + alert.getAlertDescription());
-                }
-                if ((frame instanceof TLSCiphertext) == false) {
-//                Assert.fail("Last message not Encrypted finished message");
-                }
-
                 delays[i] = analyzeTrace(workflow.getTraceList());
-//            System.out.printf("%10d ns\n",delays[i]);
                 workflow.getSocket().close();
             }
         } catch (Exception e) {
@@ -304,9 +275,6 @@ public class BleichenbacherTimingTest implements Observer {
                 byte[] padding = utils.createPaddingString(utils.
                         getPaddingLength());
                 if (this.changePadding) {
-//                    Assert.assertFalse(this.position > utils.getPaddingLength(),
-//                            "Position to large - padding length is "
-//                            + utils.getPaddingLength());
                     utils.changePadding(padding, this.position);
                 }
                 //put the PKCS#1 pieces together
@@ -326,13 +294,6 @@ public class BleichenbacherTimingTest implements Observer {
 
                 trace.setCurrentRecord(cke);
                 break;
-
-            case CLIENT_FINISHED:
-//                ARecordFrame frame = trace.getCurrentRecord();
-//                byte[] tmp = frame.encode(true);
-//                tmp[tmp.length-35] = 0x1;
-//                frame.decode(tmp, true);
-//                trace.setCurrentRecord(frame);
             default:
                 break;
         }
@@ -346,16 +307,16 @@ public class BleichenbacherTimingTest implements Observer {
     public void tearDown() {
         try {
 //            System.out.println("sslServer shutdown: " + sslServer);
-        	if (sslServer != null) {
-        		sslServer.shutdown();
-        		sslServer = null;
-        	}
-            
-            if (sslServerThread != null) {
-            	sslServerThread.interrupt();
-            	sslServerThread = null;
+            if (sslServer != null) {
+                sslServer.shutdown();
+                sslServer = null;
             }
-            
+
+            if (sslServerThread != null) {
+                sslServerThread.interrupt();
+                sslServerThread = null;
+            }
+
             Thread.currentThread().sleep(5000);
         } catch (Exception e) {
             e.printStackTrace();
@@ -373,7 +334,6 @@ public class BleichenbacherTimingTest implements Observer {
                     protocolShortName, PORT);
             sslServerThread = new Thread(sslServer);
             sslServerThread.start();
-//            System.out.println("sslServer startup: " + sslServer);
             Thread.currentThread().sleep(2000);
         } catch (Exception e) {
             e.printStackTrace();
