@@ -123,7 +123,11 @@ public class BleichenbacherTimingTest implements Observer {
      * Number of repetitions.
      */
     private static final int NUMBER_OF_REPETIIONS = 1000;
-
+    /**
+     * Detailed Info print out.
+     */
+    private static final boolean PRINT_INFO = false;
+    
     /**
      * Test parameters for the Bleichenbacher Tests.
      *
@@ -331,7 +335,7 @@ public class BleichenbacherTimingTest implements Observer {
         try {
 //            System.setProperty("javax.net.debug", "ssl");
             sslServer = new SSLServer(PATH_TO_JKS, JKS_PASSWORD,
-                    protocolShortName, PORT);
+                    protocolShortName, PORT, PRINT_INFO);
             sslServerThread = new Thread(sslServer);
             sslServerThread.start();
             Thread.currentThread().sleep(2000);

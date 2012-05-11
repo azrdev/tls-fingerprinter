@@ -1,14 +1,3 @@
-/*
- * Copyright 2011 Sec2 Consortium
- * 
- * This source code is part of the "Sec2" project and as this remains property
- * of the project partners. Content and concepts have to be treated as
- * CONFIDENTIAL. Publication or partly disclosure without explicit written
- * permission is prohibited.
- * For details on "Sec2" and its contributors visit
- * 
- *        http://www.sec2.org
- */
 package de.rub.nds.research.ssl.stack.tests.common;
 
 import de.rub.nds.research.ssl.stack.protocols.commons.EProtocolVersion;
@@ -28,7 +17,9 @@ import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLServerSocketFactory;
 
 /**
- * <DESCRIPTION> @author Christopher Meyer - christopher.meyer@rub.de
+ * SSL Test Server.
+ *
+ * @author Christopher Meyer - christopher.meyer@rub.de
  * @version 0.1
  *
  * May 7, 2012
@@ -40,19 +31,18 @@ public class SSLServer extends Thread {
     private SSLContext sslContext;
     private ServerSocket serverSocket;
     private boolean shutdown;
+    private boolean printInfo;
+    private static final int TIMEOUT = 500;
 
-    public SSLServer(String path, String password, String protocol, int port)
-            throws FileNotFoundException,
-            KeyStoreException,
-            IOException,
-            NoSuchAlgorithmException,
-            CertificateException,
-            UnrecoverableKeyException,
-            KeyManagementException {
+    public SSLServer(String path, String password, String protocol, int port,
+            boolean printStateInfo)
+            throws FileNotFoundException, KeyStoreException, IOException,
+            NoSuchAlgorithmException, CertificateException,
+            UnrecoverableKeyException, KeyManagementException {
         FileInputStream fis = new FileInputStream(path);
         KeyStore keyStore = KeyStore.getInstance("JKS");
         keyStore.load(fis, password.toCharArray());
-
+        
         KeyManagerFactory keyManagerFactory = KeyManagerFactory.getInstance(
                 "SunX509");
         keyManagerFactory.init(keyStore, password.toCharArray());
@@ -62,7 +52,10 @@ public class SSLServer extends Thread {
         sslContext.init(keyManagers, null, null);
 
         this.port = port;
-        System.out.println("|| SSL Server successfully initialized!");
+        this.printInfo = printStateInfo;
+        if (printInfo) {
+            System.out.println("|| SSL Server successfully initialized!");
+        }
     }
 
     public void run() {
@@ -71,9 +64,13 @@ public class SSLServer extends Thread {
             preSetup();
             while (!shutdown) {
                 try {
-//                    System.out.println("|| waiting for connections...");
+                    if (printInfo) {
+                        System.out.println("|| waiting for connections...");
+                    }
                     socket = serverSocket.accept();
-//                    System.out.println("|| connection available");
+                    if (printInfo) {
+                        System.out.println("|| connection available");
+                    }
                     TLSPlaintext applicationResponse = new TLSPlaintext(
                             EProtocolVersion.TLS_1_0);
                     applicationResponse.setFragment(MESSAGE);
@@ -83,13 +80,15 @@ public class SSLServer extends Thread {
                     // ignore
                     continue;
                 } catch (Exception e) {
-                    // keep on going after any errors!
+                    // keep on going after any errors! 
+                    // dirrrrrty, don't do this at home!
                 }
             }
-        } catch (SocketException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
+        } catch (SocketException ex) {
+            ex.printStackTrace();
+        } catch (IOException ex) {
+            ex.printStackTrace();
+
         } finally {
             try {
                 if (socket != null) {
@@ -103,7 +102,9 @@ public class SSLServer extends Thread {
             } catch (IOException e) {
                 // silently ignore
             }
-            System.out.println("|| shutdown complete");
+            if (printInfo) {
+                System.out.println("|| shutdown complete");
+            }
         }
     }
 
@@ -111,12 +112,17 @@ public class SSLServer extends Thread {
         SSLServerSocketFactory serverSocketFactory = sslContext.
                 getServerSocketFactory();
         serverSocket = serverSocketFactory.createServerSocket(port);
-        serverSocket.setSoTimeout(5000);
-        System.out.println("|| presetup successful");
+
+        serverSocket.setSoTimeout(TIMEOUT);
+        if (printInfo) {
+            System.out.println("|| presetup successful");
+        }
     }
 
     public void shutdown() {
         this.shutdown = true;
-        System.out.println("|| shutdown signal received");
+        if (printInfo) {
+            System.out.println("|| shutdown signal received");
+        }
     }
 }

@@ -81,6 +81,11 @@ public class VaudenayTest implements Observer {
      * Pass word for server key store.
      */
     private static final String JKS_PASSWORD = "server";
+    /**
+     * Detailed Info print out.
+     */
+    private static final boolean PRINT_INFO = false;
+    
 
     /**
      * Test parameters for the Vaudenay Tests.
@@ -206,7 +211,7 @@ public class VaudenayTest implements Observer {
         try {
 //            System.setProperty("javax.net.debug", "ssl");
             sslServer = new SSLServer(PATH_TO_JKS, JKS_PASSWORD,
-                    protocolShortName, PORT);
+                    protocolShortName, PORT, PRINT_INFO);
             sslServerThread = new Thread(sslServer);
             sslServerThread.start();
             Thread.currentThread().sleep(2000);

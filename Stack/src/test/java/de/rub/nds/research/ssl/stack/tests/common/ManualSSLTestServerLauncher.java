@@ -1,14 +1,3 @@
-/*
- * Copyright 2011 Sec2 Consortium
- * 
- * This source code is part of the "Sec2" project and as this remains property
- * of the project partners. Content and concepts have to be treated as
- * CONFIDENTIAL. Publication or partly disclosure without explicit written
- * permission is prohibited.
- * For details on "Sec2" and its contributors visit
- * 
- *        http://www.sec2.org
- */
 package de.rub.nds.research.ssl.stack.tests.common;
 
 import java.io.FileNotFoundException;
@@ -20,7 +9,9 @@ import java.security.UnrecoverableKeyException;
 import java.security.cert.CertificateException;
 
 /**
- *  <DESCRIPTION> @author Christopher Meyer - christopher.meyer@rub.de
+ * Manual Launcher for SSL Testserver.
+ *
+ * @author Christopher Meyer - christopher.meyer@rub.de
  * @version 0.1
  *
  * May 8, 2012
@@ -47,7 +38,11 @@ public class ManualSSLTestServerLauncher {
      * Pass word for server key store.
      */
     private static final String JKS_PASSWORD = "server";
-
+    /**
+     * Detailed Info print out.
+     */
+    private static final boolean PRINT_INFO = false;
+    
     /**
      * @param args the command line arguments
      */
@@ -56,7 +51,7 @@ public class ManualSSLTestServerLauncher {
             CertificateException, UnrecoverableKeyException,
             KeyManagementException {
         SSLServer sslServer = new SSLServer(PATH_TO_JKS, JKS_PASSWORD,
-                protocolShortName, PORT);
+                protocolShortName, PORT, PRINT_INFO);
         Thread sslServerThread = new Thread(sslServer);
         sslServerThread.start();
     }
