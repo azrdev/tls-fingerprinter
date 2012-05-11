@@ -211,7 +211,7 @@ public class BleichenbacherTimingTest implements Observer {
         } else {
             System.out.printf("%-50s\n", averagedTime);
         }
-
+        System.out.println("------------------------------");
     }
 
     /**
