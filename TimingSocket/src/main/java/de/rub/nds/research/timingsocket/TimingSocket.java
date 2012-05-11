@@ -21,36 +21,36 @@ public class TimingSocket extends Socket {
     public TimingSocket(final String host, final int port)
             throws SocketException, IOException {
         this();
-        final SocketAddress socketAddress = new InetSocketAddress(host, port);
-        connect(socketAddress);
+        final SocketAddress socketAddr = new InetSocketAddress(host, port);
+        connect(socketAddr);
     }
 
     public TimingSocket(final InetAddress address, final int port)
             throws IOException {
         this();
-        final SocketAddress socketAddress = new InetSocketAddress(address, port);
-        connect(socketAddress);
+        final SocketAddress socketAddr = new InetSocketAddress(address, port);
+        connect(socketAddr);
     }
 
     public TimingSocket(final String host, final int port,
             final InetAddress localAddr, final int localPort)
             throws IOException {
         this();
-        final SocketAddress localSocketAddress = new InetSocketAddress(localAddr,
+        final SocketAddress loclaSocketAddr = new InetSocketAddress(localAddr,
                 localPort);
-        bind(localSocketAddress);
-        final SocketAddress socketAddress = new InetSocketAddress(host, port);
-        connect(socketAddress);
+        bind(loclaSocketAddr);
+        final SocketAddress socketAddr = new InetSocketAddress(host, port);
+        connect(socketAddr);
     }
 
     public TimingSocket(final InetAddress address, final int port,
             final InetAddress localAddr, final int localPort)
             throws IOException {
         this();
-        final SocketAddress localSocketAddress = new InetSocketAddress(localAddr,
+        final SocketAddress localSocketAddr = new InetSocketAddress(localAddr,
                 localPort);
-        bind(localSocketAddress);
-        final SocketAddress socketAddress = new InetSocketAddress(address, port);
-        connect(socketAddress);
+        bind(localSocketAddr);
+        final SocketAddress socketAddr = new InetSocketAddress(address, port);
+        connect(socketAddr);
     }
 }
