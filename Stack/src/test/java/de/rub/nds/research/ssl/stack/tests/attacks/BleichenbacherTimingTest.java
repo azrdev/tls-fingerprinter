@@ -16,6 +16,7 @@ import de.rub.nds.research.ssl.stack.tests.common.SSLServer;
 import de.rub.nds.research.ssl.stack.tests.common.SSLTestUtils;
 import de.rub.nds.research.ssl.stack.tests.trace.Trace;
 import de.rub.nds.research.ssl.stack.tests.workflows.ObservableBridge;
+import static java.lang.Thread.sleep;
 import java.math.BigInteger;
 import java.security.PublicKey;
 import java.security.interfaces.RSAPublicKey;
@@ -34,8 +35,7 @@ import sun.security.rsa.RSACore;
  *
  * @author Eugen Weiss - eugen.weiss@ruhr-uni-bochum.de
  * @author Christopher Meyer - christopher.meyer@ruhr-uni-bochum.de
- * @version 0.2
- * Apr 12, 2012
+ * @version 0.2 Apr 12, 2012
  */
 public class BleichenbacherTimingTest implements Observer {
 
@@ -70,23 +70,19 @@ public class BleichenbacherTimingTest implements Observer {
     /**
      * Separate byte between padding and data in PKCS#1 message.
      */
-    private byte[] separate;
-    /**
-     * Protocol version.
-     */
-    private EProtocolVersion version;
+    private byte[] separateByte;
     /**
      * First two bytes of PKCS#1 message which defines the op-mode.
      */
-    private byte[] mode;
+    private byte[] pkcsMode;
     /**
      * Signalizes if padding should be changed.
      */
-    private boolean changePadding;
+    private boolean chgPadding;
     /**
      * Position in padding to change.
      */
-    private int position;
+    private int positionOfPaddignChange;
     /**
      * First position in padding string.
      */
@@ -127,7 +123,7 @@ public class BleichenbacherTimingTest implements Observer {
      * Detailed Info print out.
      */
     private static final boolean PRINT_INFO = false;
-    
+
     /**
      * Test parameters for the Bleichenbacher Tests.
      *
@@ -142,7 +138,7 @@ public class BleichenbacherTimingTest implements Observer {
                     // wrong protocol version in PreMasterSecret
                     {new byte[]{0x00, 0x02}, new byte[]{0x00},
                         EProtocolVersion.SSL_3_0, false, 0,
-                        "Wrong protocol version in PreMasterSecret"}, 
+                        "Wrong protocol version in PreMasterSecret"},
                     // seperate byte is not 0x00
                     {new byte[]{0x00, 0x02}, new byte[]{0x01}, protocolVersion,
                         false, 0, "Seperate byte is not 0x00"},
@@ -178,13 +174,12 @@ public class BleichenbacherTimingTest implements Observer {
             final byte[] separate, final EProtocolVersion version,
             final boolean changePadding, final int position,
             final String description) {
-        this.mode = mode;
-        this.separate = separate;
-        this.version = version;
-        this.changePadding = changePadding;
-        this.position = position;
+        this.pkcsMode = mode.clone();
+        this.separateByte = separate.clone();
+        this.protocolVersion = version;
+        this.chgPadding = changePadding;
+        this.positionOfPaddignChange = position;
         boolean canceled = false;
-
         System.out.printf("\n%-25s%-50s\n", "Test description:", description);
         System.out.printf("%-25s%-50s\n", "Test repeated:",
                 NUMBER_OF_REPETIIONS + " times");
@@ -201,7 +196,9 @@ public class BleichenbacherTimingTest implements Observer {
                 workflow.start();
 
                 delays[i] = analyzeTrace(workflow.getTraceList());
-                workflow.getSocket().close();
+                if (workflow.getSocket() != null) {
+                    workflow.getSocket().close();
+                }
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -224,7 +221,7 @@ public class BleichenbacherTimingTest implements Observer {
      * @param arg Arguments
      */
     @Override
-    public void update(final Observable o, final Object arg) {
+    public final void update(final Observable o, final Object arg) {
         EStates states = null;
         Trace trace = null;
         ObservableBridge obs;
@@ -233,73 +230,77 @@ public class BleichenbacherTimingTest implements Observer {
             states = (EStates) obs.getState();
             trace = (Trace) arg;
         }
-        switch (states) {
-            case CLIENT_HELLO:
-                MessageBuilder builder = new MessageBuilder();
-                CipherSuites suites = new CipherSuites();
-                RandomValue random = new RandomValue();
-                suites.setSuites(new ECipherSuite[]{
-                            ECipherSuite.TLS_RSA_WITH_AES_128_CBC_SHA});
-                clientHello = builder.createClientHello(EProtocolVersion.TLS_1_0.
-                        getId(),
-                        random.encode(false),
-                        suites.encode(false), new byte[]{0x00});
+        if (states != null) {
+            switch (states) {
+                case CLIENT_HELLO:
+                    MessageBuilder builder = new MessageBuilder();
+                    CipherSuites suites = new CipherSuites();
+                    RandomValue random = new RandomValue();
+                    suites.setSuites(new ECipherSuite[]{
+                                ECipherSuite.TLS_RSA_WITH_AES_128_CBC_SHA});
+                    clientHello = builder.createClientHello(
+                            EProtocolVersion.TLS_1_0.getId(), random.encode(
+                            false),
+                            suites.encode(false), new byte[]{0x00});
 
-                trace.setCurrentRecord(clientHello);
-                break;
-            case CLIENT_KEY_EXCHANGE:
-                KeyExchangeParams keyParams = KeyExchangeParams.getInstance();
-                PublicKey pk = keyParams.getPublicKey();
-                ClientKeyExchange cke = new ClientKeyExchange(protocolVersion,
-                        keyParams.getKeyExchangeAlgorithm());
-                PreMasterSecret pms = new PreMasterSecret(protocolVersion);
-                workflow.setPreMasterSecret(pms);
-                pms.setProtocolVersion(this.version);
-                byte[] encodedPMS = pms.encode(false);
+                    trace.setCurrentRecord(clientHello);
+                    break;
+                case CLIENT_KEY_EXCHANGE:
+                    KeyExchangeParams keyParams =
+                            KeyExchangeParams.getInstance();
+                    PublicKey pk = keyParams.getPublicKey();
+                    ClientKeyExchange cke = new ClientKeyExchange(
+                            protocolVersion,
+                            keyParams.getKeyExchangeAlgorithm());
+                    PreMasterSecret pms = new PreMasterSecret(protocolVersion);
+                    workflow.setPreMasterSecret(pms);
+                    pms.setProtocolVersion(this.protocolVersion);
+                    byte[] encodedPMS = pms.encode(false);
 
-                //encrypt the PreMasterSecret
-                EncryptedPreMasterSecret encPMS = new EncryptedPreMasterSecret(
-                        pk);
-                BigInteger mod = null;
-                RSAPublicKey rsaPK = null;
-                if (pk instanceof RSAPublicKey) {
-                    rsaPK = (RSAPublicKey) pk;
-                    mod = rsaPK.getModulus();
-                }
-                int modLength = mod.bitLength() / 8;
+                    //encrypt the PreMasterSecret
+                    EncryptedPreMasterSecret encPMS =
+                            new EncryptedPreMasterSecret(pk);
+                    BigInteger mod = null;
+                    RSAPublicKey rsaPK = null;
+                    if (pk instanceof RSAPublicKey) {
+                        rsaPK = (RSAPublicKey) pk;
+                        mod = rsaPK.getModulus();
+                    }
+                    int modLength = mod.bitLength() / 8;
 
-                /*
-                 * set the padding length of the PKCS#1 padding string (it is
-                 * [<Modulus length> - <Data length> -3])
-                 */
-                utils.setPaddingLength((modLength - encodedPMS.length - 3));
-                utils.setSeperateByte(this.separate);
-                utils.setMode(this.mode);
-                //generate the PKCS#1 padding string
-                byte[] padding = utils.createPaddingString(utils.
-                        getPaddingLength());
-                if (this.changePadding) {
-                    utils.changePadding(padding, this.position);
-                }
-                //put the PKCS#1 pieces together
-                byte[] clear = utils.buildPKCS1Msg(encodedPMS);
+                    /*
+                     * set the padding length of the PKCS#1 padding string (it
+                     * is [<Modulus length> - <Data length> -3])
+                     */
+                    utils.setPaddingLength((modLength - encodedPMS.length - 3));
+                    utils.setSeperateByte(this.separateByte);
+                    utils.setMode(this.pkcsMode);
+                    //generate the PKCS#1 padding string
+                    byte[] padding = utils.createPaddingString(utils.
+                            getPaddingLength());
+                    if (this.chgPadding) {
+                        utils.changePadding(padding,
+                                this.positionOfPaddignChange);
+                    }
+                    //put the PKCS#1 pieces together
+                    byte[] clear = utils.buildPKCS1Msg(encodedPMS);
 
-                //compute c = m^e mod n (RSA encryption)
-                byte[] ciphertext = null;
-                try {
-                    ciphertext = RSACore.rsa(clear, rsaPK);
-                } catch (BadPaddingException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
-                }
+                    //compute c = m^e mod n (RSA encryption)
+                    byte[] ciphertext = null;
+                    try {
+                        ciphertext = RSACore.rsa(clear, rsaPK);
+                    } catch (BadPaddingException e) {
+                        e.printStackTrace();
+                    }
 
-                encPMS.setEncryptedPreMasterSecret(ciphertext);
-                cke.setExchangeKeys(encPMS);
+                    encPMS.setEncryptedPreMasterSecret(ciphertext);
+                    cke.setExchangeKeys(encPMS);
 
-                trace.setCurrentRecord(cke);
-                break;
-            default:
-                break;
+                    trace.setCurrentRecord(cke);
+                    break;
+                default:
+                    break;
+            }
         }
 
     }
@@ -308,7 +309,7 @@ public class BleichenbacherTimingTest implements Observer {
      * Close the Socket after the test run.
      */
     @AfterMethod
-    public void tearDown() {
+    public final void tearDown() {
         try {
 //            System.out.println("sslServer shutdown: " + sslServer);
             if (sslServer != null) {
@@ -321,7 +322,7 @@ public class BleichenbacherTimingTest implements Observer {
                 sslServerThread = null;
             }
 
-            Thread.currentThread().sleep(5000);
+            sleep(5000);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -331,20 +332,26 @@ public class BleichenbacherTimingTest implements Observer {
      * Start the target SSL Server.
      */
     @BeforeMethod
-    public void setUp() {
+    public final void setUp() {
         try {
 //            System.setProperty("javax.net.debug", "ssl");
             sslServer = new SSLServer(PATH_TO_JKS, JKS_PASSWORD,
                     protocolShortName, PORT, PRINT_INFO);
             sslServerThread = new Thread(sslServer);
             sslServerThread.start();
-            Thread.currentThread().sleep(2000);
+            sleep(2000);
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    private static final long analyzeTrace(final List<Trace> traces) {
+    /**
+     * Analyzes a given Trace list and computes timing delay.
+     *
+     * @param traces Trace list
+     * @return Timing delay.
+     */
+    private static long analyzeTrace(final List<Trace> traces) {
         Long delay = 0L;
         Long timestamp = 0L;
         Long overall = -1L;
@@ -354,7 +361,6 @@ public class BleichenbacherTimingTest implements Observer {
             if (trace.getState() != null) {
 //                System.out.printf("%40s", trace.getState().name() + "\n");
                 timestamp = trace.getNanoTime();
-                EStates currentState = trace.getState();
                 switch (trace.getState()) {
                     case CLIENT_KEY_EXCHANGE:
                         delay = timestamp;
@@ -370,6 +376,8 @@ public class BleichenbacherTimingTest implements Observer {
 //                                    getAlertDescription());
 //                        }
                         break;
+                    default:
+                        break;
                 }
             }
 //            System.out.println(": " + timestamp + "ns");
@@ -377,7 +385,13 @@ public class BleichenbacherTimingTest implements Observer {
         return overall;
     }
 
-    private static final long doStatistics(long[] delayValues) {
+    /**
+     * Computes the arithmetic mean on a set of delay values.
+     *
+     * @param delayValues Delays
+     * @return Arithmetic mean of given delays.
+     */
+    private static long doStatistics(final long[] delayValues) {
         long overall = 0L;
         for (long delay : delayValues) {
             overall += delay;
