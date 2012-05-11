@@ -14,6 +14,7 @@ import de.rub.nds.research.ssl.stack.tests.analyzer.TraceListAnalyzer;
 import de.rub.nds.research.ssl.stack.tests.common.MessageBuilder;
 import de.rub.nds.research.ssl.stack.tests.common.SSLHandshakeWorkflow;
 import de.rub.nds.research.ssl.stack.tests.common.SSLHandshakeWorkflow.EStates;
+import de.rub.nds.research.ssl.stack.tests.common.SSLServer;
 import de.rub.nds.research.ssl.stack.tests.common.SSLTestUtils;
 import de.rub.nds.research.ssl.stack.tests.trace.Trace;
 import de.rub.nds.research.ssl.stack.tests.workflows.ObservableBridge;
@@ -25,6 +26,7 @@ import java.util.Observable;
 import java.util.Observer;
 import org.testng.Assert;
 import org.testng.annotations.AfterMethod;
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
@@ -53,13 +55,17 @@ public class BleichenbacherTest implements Observer {
      */
     private EProtocolVersion protocolVersion = EProtocolVersion.TLS_1_0;
     /**
+     * Protocol short name.
+     */
+    private String protocolShortName = "TLS";
+    /**
      * Test host.
      */
     private static final String HOST = "localhost";
     /**
      * Test port.
      */
-    private static final int PORT = 443;
+    private static final int PORT = 10443;
     /**
      * Separate byte between padding and data in PKCS#1 message.
      */
@@ -96,6 +102,22 @@ public class BleichenbacherTest implements Observer {
      * Test counter.
      */
     private int counter = 1;
+    /**
+     * Test Server Thread.
+     */
+    private Thread sslServerThread;
+    /**
+     * Test SSL Server.
+     */
+    private SSLServer sslServer;
+    /**
+     * Server key store.
+     */
+    private static final String PATH_TO_JKS = "server.jks";
+    /**
+     * Pass word for server key store.
+     */
+    private static final String JKS_PASSWORD = "server";
 
     /**
      * Test parameters for the Bleichenbacher Tests.
@@ -106,22 +128,25 @@ public class BleichenbacherTest implements Observer {
     public Object[][] createData1() {
         return new Object[][]{
                     {"OK case", new byte[]{0x00, 0x02}, new byte[]{0x00},
-                    	protocolVersion, false, 0},
-                    {"Wrong protocol version in PreMasterSecret", new byte[]{0x00, 0x02},
-                    	new byte[]{0x00}, EProtocolVersion.SSL_3_0, false, 0}, 
+                        protocolVersion, false, 0},
+                    {"Wrong protocol version in PreMasterSecret", new byte[]{
+                            0x00, 0x02},
+                        new byte[]{0x00}, EProtocolVersion.SSL_3_0, false, 0},
                     {"Seperate byte not 0x00", new byte[]{0x00, 0x02},
-                    	new byte[]{0x01}, protocolVersion, false, 0},
+                        new byte[]{0x01}, protocolVersion, false, 0},
                     {"Mode changed (first two bytes)", new byte[]{0x00, 0x01},
-                    	new byte[]{0x00}, protocolVersion, false, 0},
-                    {"Zero byte at first position in padding", new byte[]{0x00, 0x02},
-                    	new byte[]{0x00}, protocolVersion,true, 0},
+                        new byte[]{0x00}, protocolVersion, false, 0},
+                    {"Zero byte at first position in padding", new byte[]{0x00,
+                            0x02},
+                        new byte[]{0x00}, protocolVersion, true, 0},
                     // zero byte in the middle of the padding string
                     {"Zero byte in the middle of the padding string",
-                    	new byte[]{0x00, 0x02}, new byte[]{0x00}, protocolVersion,true, 1},
+                        new byte[]{0x00, 0x02}, new byte[]{0x00},
+                        protocolVersion, true, 1},
                     // zero byte at the end of the padding string
-                    {"Zero byte at the end of the padding string", new byte[]{0x00, 0x02},
-                    		new byte[]{0x00}, protocolVersion, true, 2},
-                    };
+                    {"Zero byte at the end of the padding string", new byte[]{
+                            0x00, 0x02},
+                        new byte[]{0x00}, protocolVersion, true, 2},};
     }
 
     /**
@@ -134,11 +159,11 @@ public class BleichenbacherTest implements Observer {
      * @param position Position where padding is changed
      * @throws IOException
      */
-    @Test(enabled = true, dataProvider = "bleichenbacher", invocationCount=1)
+    @Test(enabled = true, dataProvider = "bleichenbacher", invocationCount = 1)
     public final void testBleichenbacherPossible(String desc,
-    		final byte[] mode, final byte[] separate,
-    		final EProtocolVersion version, final boolean changePadding,
-    		final int position)
+            final byte[] mode, final byte[] separate,
+            final EProtocolVersion version, final boolean changePadding,
+            final int position)
             throws IOException {
         workflow = new SSLHandshakeWorkflow();
         workflow.connectToTestServer(HOST, PORT);
@@ -160,8 +185,8 @@ public class BleichenbacherTest implements Observer {
         this.position = position;
 
         workflow.start();
-        
-        System.out.println("Test No." + this.counter +" : " + desc);
+
+        System.out.println("Test No." + this.counter + " : " + desc);
         TraceListAnalyzer analyze = new TraceListAnalyzer();
         analyze.logOutput(workflow.getTraceList());
         System.out.println("------------------------------");
@@ -230,7 +255,7 @@ public class BleichenbacherTest implements Observer {
 
                 //compute c = m^e mod n (RSA encryption)
                 byte[] ciphertext = RsaUtil.pubOp(clear, rsaPK);
-                
+
                 encPMS.setEncryptedPreMasterSecret(ciphertext);
                 cke.setExchangeKeys(encPMS);
 
@@ -243,6 +268,23 @@ public class BleichenbacherTest implements Observer {
     }
 
     /**
+     * Start the target SSL Server.
+     */
+    @BeforeMethod
+    public void setUp() {
+        try {
+//            System.setProperty("javax.net.debug", "ssl");
+            sslServer = new SSLServer(PATH_TO_JKS, JKS_PASSWORD,
+                    protocolShortName, PORT);
+            sslServerThread = new Thread(sslServer);
+            sslServerThread.start();
+            Thread.currentThread().sleep(2000);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
      * Close the Socket after the test run.
      */
     @AfterMethod
@@ -250,6 +292,23 @@ public class BleichenbacherTest implements Observer {
         try {
             workflow.getSocket().close();
         } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        try {
+            if (sslServer != null) {
+                sslServer.shutdown();
+                sslServer = null;
+            }
+
+            if (sslServerThread != null) {
+                sslServerThread.interrupt();
+                sslServerThread = null;
+            }
+
+
+            Thread.currentThread().sleep(5000);
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }

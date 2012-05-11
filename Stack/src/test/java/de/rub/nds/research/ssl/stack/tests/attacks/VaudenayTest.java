@@ -11,6 +11,7 @@ import de.rub.nds.research.ssl.stack.tests.analyzer.TraceListAnalyzer;
 import de.rub.nds.research.ssl.stack.tests.common.KeyMaterial;
 import de.rub.nds.research.ssl.stack.tests.common.SSLHandshakeWorkflow;
 import de.rub.nds.research.ssl.stack.tests.common.SSLHandshakeWorkflow.EStates;
+import de.rub.nds.research.ssl.stack.tests.common.SSLServer;
 import de.rub.nds.research.ssl.stack.tests.common.SSLTestUtils;
 import de.rub.nds.research.ssl.stack.tests.trace.Trace;
 import de.rub.nds.research.ssl.stack.tests.workflows.ObservableBridge;
@@ -24,6 +25,7 @@ import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 import org.testng.annotations.AfterMethod;
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
@@ -48,17 +50,37 @@ public class VaudenayTest implements Observer {
      */
     private EProtocolVersion protocolVersion = EProtocolVersion.TLS_1_0;
     /**
+     * Protocol short name.
+     */
+    private String protocolShortName = "TLS";
+    /**
      * Test host.
      */
     private static final String HOST = "localhost";
     /**
      * Test port.
      */
-    private static final int PORT = 443;
+    private static final int PORT = 10443;
     /**
      * Test counter.
      */
     private int counter = 1;
+    /**
+     * Test Server Thread.
+     */
+    private Thread sslServerThread;
+    /**
+     * Test SSL Server.
+     */
+    private SSLServer sslServer;
+    /**
+     * Server key store.
+     */
+    private static final String PATH_TO_JKS = "server.jks";
+    /**
+     * Pass word for server key store.
+     */
+    private static final String JKS_PASSWORD = "server";
 
     /**
      * Test parameters for the Vaudenay Tests.
@@ -88,16 +110,16 @@ public class VaudenayTest implements Observer {
      * @param changePadding True if padding should be changed
      */
     @Test(enabled = true, dataProvider = "vaudenay")
-    public final void testVaudenay(String desc, 
-    		EProtocolVersion version, boolean changePadding) {
+    public final void testVaudenay(String desc,
+            EProtocolVersion version, boolean changePadding) {
         workflow = new SSLHandshakeWorkflow();
         workflow.connectToTestServer(HOST, PORT);
         workflow.addObserver(this, EStates.CLIENT_FINISHED);
         pVersion = version;
         this.changePadding = changePadding;
         workflow.start();
-        
-        System.out.println("Test No." + this.counter +" : " + desc);
+
+        System.out.println("Test No." + this.counter + " : " + desc);
         TraceListAnalyzer analyze = new TraceListAnalyzer();
         analyze.logOutput(workflow.getTraceList());
         System.out.println("------------------------------");
@@ -177,13 +199,47 @@ public class VaudenayTest implements Observer {
     }
 
     /**
-     * Close the Socket after the test run
+     * Start the target SSL Server.
+     */
+    @BeforeMethod
+    public void setUp() {
+        try {
+//            System.setProperty("javax.net.debug", "ssl");
+            sslServer = new SSLServer(PATH_TO_JKS, JKS_PASSWORD,
+                    protocolShortName, PORT);
+            sslServerThread = new Thread(sslServer);
+            sslServerThread.start();
+            Thread.currentThread().sleep(2000);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * Close the Socket after the test run.
      */
     @AfterMethod
-    public final void tearDown() {
+    public void tearDown() {
         try {
             workflow.getSocket().close();
         } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        try {
+            if (sslServer != null) {
+                sslServer.shutdown();
+                sslServer = null;
+            }
+
+            if (sslServerThread != null) {
+                sslServerThread.interrupt();
+                sslServerThread = null;
+            }
+
+
+            Thread.currentThread().sleep(5000);
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
