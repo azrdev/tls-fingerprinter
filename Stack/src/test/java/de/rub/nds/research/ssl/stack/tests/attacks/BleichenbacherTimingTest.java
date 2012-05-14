@@ -1,5 +1,6 @@
 package de.rub.nds.research.ssl.stack.tests.attacks;
 
+import de.rub.nds.research.ssl.stack.protocols.ARecordFrame;
 import de.rub.nds.research.ssl.stack.protocols.commons.ECipherSuite;
 import de.rub.nds.research.ssl.stack.protocols.commons.EProtocolVersion;
 import de.rub.nds.research.ssl.stack.protocols.commons.KeyExchangeParams;
@@ -118,11 +119,15 @@ public class BleichenbacherTimingTest implements Observer {
     /**
      * Number of repetitions.
      */
-    private static final int NUMBER_OF_REPETIIONS = 1000;
+    private static final int NUMBER_OF_REPETIIONS = 1;
     /**
      * Detailed Info print out.
      */
     private static final boolean PRINT_INFO = false;
+    /*
+     * Identifier if MAC should be invalidated
+     */
+    private boolean destroyMAC = false;
 
     /**
      * Test parameters for the Bleichenbacher Tests.
@@ -134,28 +139,60 @@ public class BleichenbacherTimingTest implements Observer {
         return new Object[][]{
                     // ok case
                     {new byte[]{0x00, 0x02}, new byte[]{0x00}, protocolVersion,
-                        false, 0, "OK"},
+                        false, 0, "OK", false},
                     // wrong protocol version in PreMasterSecret
                     {new byte[]{0x00, 0x02}, new byte[]{0x00},
                         EProtocolVersion.SSL_3_0, false, 0,
-                        "Wrong protocol version in PreMasterSecret"},
+                        "Wrong protocol version in PreMasterSecret", false},
                     // seperate byte is not 0x00
                     {new byte[]{0x00, 0x02}, new byte[]{0x01}, protocolVersion,
-                        false, 0, "Seperate byte is not 0x00"},
+                        false, 0, "Seperate byte is not 0x00", false},
                     // mode changed
                     {new byte[]{0x00, 0x01}, new byte[]{0x00}, protocolVersion,
-                        false, 0, "Mode changed to 0x01"},
+                        false, 0, "Mode changed to 0x01", false},
                     // zero byte at the first position of the padding
                     {new byte[]{0x00, 0x02}, new byte[]{0x00}, protocolVersion,
                         true, 0,
-                        "Zero byte at the first position of the padding"},
+                        "Zero byte at the first position of the padding",
+                        false},
                     // zero byte in the middle of the padding string
                     {new byte[]{0x00, 0x02}, new byte[]{0x00}, protocolVersion,
                         true, 1,
-                        "Zero byte in the middle of the padding string"},
+                        "Zero byte in the middle of the padding string",
+                        false},
                     // zero byte at the end of the padding string
                     {new byte[]{0x00, 0x02}, new byte[]{0x00}, protocolVersion,
-                        true, 2, "Zero byte at the end of the padding string"}
+                        true, 2, "Zero byte at the end of the padding string",
+                        false},
+                    // ok case, MAC tampered
+                    {new byte[]{0x00, 0x02}, new byte[]{0x00}, protocolVersion,
+                        false, 0, "MSG ok, MAC tampered", true},
+                    // wrong protocol version in PreMasterSecret, MAC tampered
+                    {new byte[]{0x00, 0x02}, new byte[]{0x00},
+                        EProtocolVersion.SSL_3_0, false, 0,
+                        "Wrong protocol version in PreMasterSecret, "
+                        + "MAC tampered", true},
+                    // seperate byte is not 0x00
+                    {new byte[]{0x00, 0x02}, new byte[]{0x01}, protocolVersion,
+                        false, 0, "Seperate byte is not 0x00, MAC tampered",
+                        true},
+                    // mode changed, MAC tampered
+                    {new byte[]{0x00, 0x01}, new byte[]{0x00}, protocolVersion,
+                        false, 0, "Mode changed to 0x01, MAC tampered", true},
+                    // zero byte at the first position of the padding, 
+                    // MAC tampered
+                    {new byte[]{0x00, 0x02}, new byte[]{0x00}, protocolVersion,
+                        true, 0, "Zero byte at the first position of "
+                        + "the padding, MAC tampered", true},
+                    // zero byte in the middle of the padding string, 
+                    // MAC tampered
+                    {new byte[]{0x00, 0x02}, new byte[]{0x00}, protocolVersion,
+                        true, 1, "Zero byte in the middle of the padding"
+                        + " string, MAC tampered", true},
+                    // zero byte at the end of the padding string, MAC tampered
+                    {new byte[]{0x00, 0x02}, new byte[]{0x00}, protocolVersion,
+                        true, 2, "Zero byte at the end of the padding string,"
+                        + " MAC tampered", true}
                 };
     }
 
@@ -168,18 +205,21 @@ public class BleichenbacherTimingTest implements Observer {
      * @param changePadding True if padding should be changed
      * @param position Position where padding is changed
      * @param description Test description
+     * @param tamperMAC Destroy Finished MAC of RecordFrame
      */
     @Test(enabled = true, dataProvider = "bleichenbacher")
     public final void testBleichenbacherPossible(final byte[] mode,
             final byte[] separate, final EProtocolVersion version,
             final boolean changePadding, final int position,
-            final String description) {
+            final String description, boolean tamperMAC) {
         this.pkcsMode = mode.clone();
         this.separateByte = separate.clone();
         this.protocolVersion = version;
         this.chgPadding = changePadding;
         this.positionOfPaddignChange = position;
+        this.destroyMAC = tamperMAC;
         boolean canceled = false;
+        
         System.out.printf("\n%-25s%-50s\n", "Test description:", description);
         System.out.printf("%-25s%-50s\n", "Test repeated:",
                 NUMBER_OF_REPETIIONS + " times");
@@ -298,6 +338,19 @@ public class BleichenbacherTimingTest implements Observer {
 
                     trace.setCurrentRecord(cke);
                     break;
+                case CLIENT_FINISHED:
+                    if (destroyMAC) {
+                        ARecordFrame frame = trace.getCurrentRecord();
+                        byte[] encoded = frame.encode(true);
+                        // extract length
+                        int length = (encoded[2] & 0xff) << 8;
+                        length |= (encoded[3] & 0xff);
+
+                        // destroy MAC
+                        encoded[length + 4] = 0x00;
+                        frame.decode(encoded, true);
+                        trace.setCurrentRecord(frame);
+                    }
                 default:
                     break;
             }
@@ -311,7 +364,6 @@ public class BleichenbacherTimingTest implements Observer {
     @AfterMethod
     public final void tearDown() {
         try {
-//            System.out.println("sslServer shutdown: " + sslServer);
             if (sslServer != null) {
                 sslServer.shutdown();
                 sslServer = null;
@@ -334,7 +386,7 @@ public class BleichenbacherTimingTest implements Observer {
     @BeforeMethod
     public final void setUp() {
         try {
-//            System.setProperty("javax.net.debug", "ssl");
+            System.setProperty("javax.net.debug", "ssl");
             sslServer = new SSLServer(PATH_TO_JKS, JKS_PASSWORD,
                     protocolShortName, PORT, PRINT_INFO);
             sslServerThread = new Thread(sslServer);
