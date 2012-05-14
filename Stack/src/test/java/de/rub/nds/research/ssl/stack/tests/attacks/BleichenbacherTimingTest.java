@@ -119,7 +119,7 @@ public class BleichenbacherTimingTest implements Observer {
     /**
      * Number of repetitions.
      */
-    private static final int NUMBER_OF_REPETIIONS = 1;
+    private static final int NUMBER_OF_REPETIIONS = 10000;
     /**
      * Detailed Info print out.
      */
