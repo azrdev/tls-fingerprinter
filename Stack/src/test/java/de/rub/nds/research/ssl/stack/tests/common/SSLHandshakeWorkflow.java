@@ -26,17 +26,17 @@ import java.sql.Timestamp;
 import java.util.ArrayList;
 
 /**
- * The complete SSL Handshake workflow.
+ *  The complete SSL Handshake workflow.
  *
- * @author Eugen Weiss - eugen.weiss@ruhr-uni-bochum.de
- * @version 0.1 Apr 13, 2012
+ *  @author Eugen Weiss - eugen.weiss@ruhr-uni-bochum.de
+ *  @version 0.1 Apr 13, 2012
  */
 public class SSLHandshakeWorkflow extends AWorkflow {
 
     /**
-     * Public constructor to initialize the workflow with its states.
+     *  Public constructor to initialize the workflow with its states.
      *
-     * @param workflowStates The SSL handshake states
+     *  @param workflowStates The SSL handshake states
      */
     public SSLHandshakeWorkflow(WorkflowState[] workflowStates) {
         super(workflowStates);
@@ -52,7 +52,7 @@ public class SSLHandshakeWorkflow extends AWorkflow {
     private boolean encrypted = false;
 
     /**
-     * Define the workflow states.
+     *  Define the workflow states.
      */
     public enum EStates implements WorkflowState {
 
@@ -67,7 +67,6 @@ public class SSLHandshakeWorkflow extends AWorkflow {
 //        CLIENT_FINISHED,
 //        SERVER_CHANGE_CIPHER_SPEC,
 //        SERVER_FINISHED;
-
         CLIENT_HELLO,
         SERVER_HELLO,
         SERVER_CERTIFICATE,
@@ -82,7 +81,7 @@ public class SSLHandshakeWorkflow extends AWorkflow {
         SERVER_CHANGE_CIPHER_SPEC,
         SERVER_FINISHED,
         ALERT;
-        
+
         @Override
         public int getID() {
             return this.ordinal();
@@ -95,14 +94,14 @@ public class SSLHandshakeWorkflow extends AWorkflow {
     }
 
     /**
-     * Initialize the handshake workflow with the state values
+     *  Initialize the handshake workflow with the state values
      */
     public SSLHandshakeWorkflow() {
         this(EStates.values());
     }
 
     /**
-     * Executes the complete SSL handshake.
+     *  Executes the complete SSL handshake.
      */
     @Override
     public void start() {
@@ -115,7 +114,7 @@ public class SSLHandshakeWorkflow extends AWorkflow {
             e.printStackTrace();
         }
         //create the Client Hello message
-        ClientHello clientHello = msgBuilder.createClientHello(protocolVersion); 
+        ClientHello clientHello = msgBuilder.createClientHello(protocolVersion);
         setRecordTrace(trace, clientHello, EStates.CLIENT_HELLO);
 
         //switch the state of the handshake
@@ -130,42 +129,42 @@ public class SSLHandshakeWorkflow extends AWorkflow {
         utils.sendMessage(out, msg);
         //hash current record
         hashBuilder.updateHash(msg, 5, msg.length - 5);
-        
+
         //add trace to ArrayList
         addToList(new Trace(EStates.CLIENT_HELLO, trace.getCurrentRecord(),
                 trace.getOldRecord(), false));
 
         //fetch the response(s)
         try {
-			getResponses(hashBuilder, trace);
-		} catch (IOException e) {
-			e.printStackTrace();
-			return;
-		}
+            getResponses(hashBuilder, trace);
+        } catch (IOException e) {
+            e.printStackTrace();
+            return;
+        }
 
         while (getCurrentState() != EStates.SERVER_HELLO_DONE.getID()) {
-        	if (getCurrentState() == EStates.ALERT.getID()){
-        		return;
-        	}
-        	else {
-        		try {
-					getResponses(hashBuilder, trace);
-				} catch (IOException e) {
-					e.printStackTrace();
-					return;
-				}
-        	}
+            if (getCurrentState() == EStates.ALERT.getID()) {
+                return;
+            } else {
+                try {
+                    getResponses(hashBuilder, trace);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    return;
+                }
+            }
         }
-        
+
         trace = new Trace();
-        
+
         //create ClientKeyExchange
-        ClientKeyExchange cke = msgBuilder.createClientKeyExchange(protocolVersion, this);
+        ClientKeyExchange cke = msgBuilder.createClientKeyExchange(
+                protocolVersion, this);
         cke.encode(true);
         setRecordTrace(trace, cke, EStates.CLIENT_KEY_EXCHANGE);
 
         //change status and notify observers
-        switchToState(trace,EStates.CLIENT_KEY_EXCHANGE);
+        switchToState(trace, EStates.CLIENT_KEY_EXCHANGE);
 
         cke = (ClientKeyExchange) trace.getCurrentRecord();
         msg = cke.encode(true);
@@ -173,7 +172,8 @@ public class SSLHandshakeWorkflow extends AWorkflow {
         //hash current record
         hashBuilder.updateHash(msg, 5, msg.length - 5);
         //add trace to ArrayList
-        addToList(new Trace(EStates.CLIENT_KEY_EXCHANGE, trace.getCurrentRecord(),
+        addToList(new Trace(EStates.CLIENT_KEY_EXCHANGE,
+                trace.getCurrentRecord(),
                 trace.getOldRecord(), false));
 
         try {
@@ -184,16 +184,17 @@ public class SSLHandshakeWorkflow extends AWorkflow {
 
         ChangeCipherSpec ccs = new ChangeCipherSpec(protocolVersion);
         ccs.encode(true);
-        
+
         setRecordTrace(trace, ccs, EStates.CLIENT_CHANGE_CIPHER_SPEC);
-        
+
         switchToState(trace, EStates.CLIENT_CHANGE_CIPHER_SPEC);
 
         ccs = (ChangeCipherSpec) trace.getCurrentRecord();
         msg = ccs.encode(true);
         utils.sendMessage(out, msg);
         encrypted = true;
-        addToList(new Trace(EStates.CLIENT_CHANGE_CIPHER_SPEC, trace.getCurrentRecord(),
+        addToList(new Trace(EStates.CLIENT_CHANGE_CIPHER_SPEC, trace.
+                getCurrentRecord(),
                 trace.getOldRecord(), false));
 
         //create the master secret
@@ -202,7 +203,7 @@ public class SSLHandshakeWorkflow extends AWorkflow {
         //create Finished message
         Finished finished = msgBuilder.createFinished(protocolVersion,
                 EConnectionEnd.CLIENT, handshakeHashes, masterSec);
-        
+
         //encrypt finished message
         TLSCiphertext rec = msgBuilder.encryptRecord(protocolVersion, finished);
         rec.encode(true);
@@ -211,64 +212,70 @@ public class SSLHandshakeWorkflow extends AWorkflow {
 
         switchToNextState(trace);
 
-        rec = (TLSCiphertext) trace.getCurrentRecord();
-        //send Finished message
-        msg = rec.encode(true);
+        msg = trace.getCurrentRecordBytes();
+        if(msg == null) {
+            rec = (TLSCiphertext) trace.getCurrentRecord();
+            //send Finished message
+            msg = rec.encode(true);
+        }
         utils.sendMessage(out, msg);
 
-        addToList(new Trace(EStates.CLIENT_FINISHED, trace.getCurrentRecord(), trace.
-                getOldRecord(), false));
+        addToList(new Trace(EStates.CLIENT_FINISHED, trace.getCurrentRecord(),
+                trace.getOldRecord(), false));
 
         try {
-			getResponses(hashBuilder, trace);
-		} catch (IOException e1) {
-			e1.printStackTrace();
-			return;
-		}
+            getResponses(hashBuilder, trace);
+        } catch (IOException e1) {
+            e1.printStackTrace();
+            return;
+        }
 
         if (getCurrentState() == EStates.SERVER_CHANGE_CIPHER_SPEC.getID()) {
             try {
-				getResponses(hashBuilder, trace);
-			} catch (IOException e) {
-				e.printStackTrace();
-				return;
-			}
+                getResponses(hashBuilder, trace);
+            } catch (IOException e) {
+                e.printStackTrace();
+                return;
+            }
         }
 
     }
 
     /**
-     * Switches to the next state and notifies the observers.
-     * @param trace Holds the tracing data
+     *  Switches to the next state and notifies the observers.
+     *
+     *  @param trace Holds the tracing data
      */
     public void switchToNextState(Trace trace) {
         nextState();
         notifyCurrentObservers(trace);
     }
-    
+
     /**
-     * Sets a new state and notifies the observers.
-     * @param trace Holds the tracing data
-     * @param state The new state
+     *  Sets a new state and notifies the observers.
+     *
+     *  @param trace Holds the tracing data
+     *  @param state The new state
      */
     public void switchToState(Trace trace, EStates state) {
         setCurrentState(state.getID());
         notifyCurrentObservers(trace);
     }
-    
+
     /**
-     * Switches to the previous state or holds current state if 
-     * it is the first state.
-     * @param trace Holds the tracing data
+     *  Switches to the previous state or holds current state if it is the first
+     * state.
+     *
+     *  @param trace Holds the tracing data
      */
     public void switchToPreviousState(Trace trace) {
-    	previousState();
+        previousState();
         notifyCurrentObservers(trace);
     }
-    
+
     private void setRecordTrace(Trace trace,
-    		ARecordFrame record, EStates state) {
-    	//add the newly created message to the trace list
+            ARecordFrame record, EStates state) {
+        //add the newly created message to the trace list
         trace.setCurrentRecord(record);
 
         if (countObservers(state) > 0) {
@@ -277,36 +284,36 @@ public class SSLHandshakeWorkflow extends AWorkflow {
             trace.setOldRecord(null);
         }
     }
-    
 
     /**
-     * Process the response bytes
+     *  Process the response bytes
      *
-     * @param hashBuilder Hash builder for hashing handshake messages
-     * @param trace Trace
-     * @throws IOException 
+     *  @param hashBuilder Hash builder for hashing handshake messages
+     *  @param trace Trace
+     *  @throws IOException
      */
-    private void getResponses(HandshakeHashBuilder hashBuilder, Trace trace) throws IOException {
-    	//wait until response bytes are available
-    	byte[] responseBytes = null;
-    	waitForResponse();
-    	while (in.available() != 0) {
-    		trace = new Trace();
-    		//set the Timestamp and exact time of message arrival
-    		trace.setTimestamp(new Timestamp(System.currentTimeMillis()));
-    		trace.setNanoTime(System.nanoTime());
-    		//fetch the input bytes
-    		responseBytes = utils.fetchResponse(in);
-    		SSLResponse response = new SSLResponse(responseBytes, this);
-    		response.handleResponse(trace, responseBytes);
-    		//hash current record
-    		hashBuilder.updateHash(responseBytes, 5,
-    				responseBytes.length - 5);
-    	}
+    private void getResponses(HandshakeHashBuilder hashBuilder, Trace trace)
+            throws IOException {
+        //wait until response bytes are available
+        byte[] responseBytes = null;
+        waitForResponse();
+        while (in.available() != 0) {
+            trace = new Trace();
+            //set the Timestamp and exact time of message arrival
+            trace.setTimestamp(new Timestamp(System.currentTimeMillis()));
+            trace.setNanoTime(System.nanoTime());
+            //fetch the input bytes
+            responseBytes = utils.fetchResponse(in);
+            SSLResponse response = new SSLResponse(responseBytes, this);
+            response.handleResponse(trace, responseBytes);
+            //hash current record
+            hashBuilder.updateHash(responseBytes, 5,
+                    responseBytes.length - 5);
+        }
     }
-    
+
     /**
-     * Serialize traceList and write it to file.
+     *  Serialize traceList and write it to file.
      */
     public void saveSerializedTraceList() {
 //		OutputStream fileOutStream = null;
@@ -323,67 +330,68 @@ public class SSLHandshakeWorkflow extends AWorkflow {
     }
 
     /**
-     * Wait for response bytes (max. 500ms).
-     * @throws IOException 
+     *  Wait for response bytes (max. 500ms).
+     *
+     *  @throws IOException
      */
     public void waitForResponse() throws IOException {
-    	long startWait = System.currentTimeMillis();
-    	int timeout = 500;
-    	while (in.available() == 0) {
-    		// TODO: Sehen wir hier irgendeine Möglichkeit, mehr CPU-Zeit zu verbrauchen?
-    		if (System.currentTimeMillis() > (startWait + timeout)) {
-    			throw new SocketTimeoutException("No response within 500 ms");
-    		}
-    	}
+        long startWait = System.currentTimeMillis();
+        int timeout = 500;
+        while (in.available() == 0) {
+            // TODO: Sehen wir hier irgendeine Möglichkeit, mehr CPU-Zeit zu verbrauchen?
+            if (System.currentTimeMillis() > (startWait + timeout)) {
+                throw new SocketTimeoutException("No response within 500 ms");
+            }
+        }
     }
 
     /**
-     * Add a new Trace object to the ArrayList.
+     *  Add a new Trace object to the ArrayList.
      *
-     * @param trace
+     *  @param trace
      */
     public void addToList(Trace trace) {
         this.traceList.add(trace);
     }
 
     /**
-     * Get the trace list of the whole handshake.
+     *  Get the trace list of the whole handshake.
      *
-     * @return Trace list
+     *  @return Trace list
      */
     public ArrayList<Trace> getTraceList() {
         return traceList;
     }
 
     /**
-     * Get the Socket of the connection.
+     *  Get the Socket of the connection.
      *
-     * @return Socket
+     *  @return Socket
      */
     public Socket getSocket() {
         return so;
     }
 
     /**
-     * Get the PreMasterSecret.
+     *  Get the PreMasterSecret.
      *
-     * @return PreMasterSecret
+     *  @return PreMasterSecret
      */
     public PreMasterSecret getPreMasterSecret() {
         return this.pms;
     }
 
     /**
-     * Set the PreMasterSecret.
+     *  Set the PreMasterSecret.
      */
     public void setPreMasterSecret(PreMasterSecret pms) {
         this.pms = pms;
     }
 
     /**
-     * Get the handshake messages hash.
+     *  Get the handshake messages hash.
      *
-     * @return handshakeHashes Hash of previous handshake messages
+     *  @return handshakeHashes Hash of previous handshake messages
      */
     public byte[] getHash() {
         return this.handshakeHashes;
@@ -398,16 +406,16 @@ public class SSLHandshakeWorkflow extends AWorkflow {
     }
 
     /**
-     * Establish the connection to the test server
+     *  Establish the connection to the test server
      *
-     * @param host Hostname of the server
-     * @param port Port number of the server
+     *  @param host Hostname of the server
+     *  @param port Port number of the server
      */
     public void connectToTestServer(String host, int port) {
         SocketAddress addr;
         addr = new InetSocketAddress(host, port);
         try {
-        	// TODO: Interessante werte für timeout...
+            // TODO: Interessante werte für timeout...
             so.connect(addr, 100);
             so.setSoTimeout(100);
             out = so.getOutputStream();

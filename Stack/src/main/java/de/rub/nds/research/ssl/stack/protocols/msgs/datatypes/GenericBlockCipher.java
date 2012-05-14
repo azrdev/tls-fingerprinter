@@ -1,6 +1,5 @@
 package de.rub.nds.research.ssl.stack.protocols.msgs.datatypes;
 
-import de.rub.nds.research.ssl.stack.Utility;
 import java.security.AlgorithmParameters;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
@@ -120,10 +119,6 @@ public class GenericBlockCipher extends APubliclySerializable implements
                 0, tmp, pointer, payloadLength);
         pointer += payloadLength;
         // 2. add MAC
-       
-        // frag mac
-        macData[0] |= 2;
-        
         System.arraycopy(macData, 0, tmp, pointer, macData.length);
         pointer += macData.length;
         // 3. add Padding
