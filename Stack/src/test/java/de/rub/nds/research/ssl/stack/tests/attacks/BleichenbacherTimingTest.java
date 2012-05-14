@@ -382,7 +382,7 @@ public class BleichenbacherTimingTest implements Observer {
     @BeforeMethod
     public final void setUp() {
         try {
-            System.setProperty("javax.net.debug", "ssl");
+//            System.setProperty("javax.net.debug", "ssl");
             sslServer = new SSLServer(PATH_TO_JKS, JKS_PASSWORD,
                     protocolShortName, PORT, PRINT_INFO);
             sslServerThread = new Thread(sslServer);
