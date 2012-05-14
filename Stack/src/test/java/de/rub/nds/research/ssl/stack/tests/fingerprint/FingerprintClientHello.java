@@ -72,7 +72,7 @@ public class FingerprintClientHello implements Observer {
 	 */
     @DataProvider(name = "clientHello")
     public Object[][] createData1() {
-    	byte [] random1 = new byte[]{0x00,0x00,0x00,0x00,0x00};
+    	//byte [] random1 = new byte[]{0x00,0x00,0x00,0x00,0x00};
     	RandomValue random2 = new RandomValue();
         return new Object[][]{
 				{"OK case",EProtocolVersion.TLS_1_0.getId(),

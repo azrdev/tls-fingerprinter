@@ -106,7 +106,7 @@ public class MessageBuilder {
             byte[] generator = keyParams.getDHGenerator();
             byte[] primeModulus = keyParams.getDHPrime();
             byte[] privateValue = new byte[20];
-            byte[] clientPublic = new byte[primeModulus.length];
+            byte[] clientPublic;
             /*
              * generate a random private value
              */

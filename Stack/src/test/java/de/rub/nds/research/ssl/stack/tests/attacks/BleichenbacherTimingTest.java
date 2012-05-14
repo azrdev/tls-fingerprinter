@@ -32,107 +32,107 @@ import org.testng.annotations.Test;
 import sun.security.rsa.RSACore;
 
 /**
- *  Test for Bleichenbacher attack.
+ * Test for Bleichenbacher attack.
  *
- *  @author Eugen Weiss - eugen.weiss@ruhr-uni-bochum.de
- *  @author Christopher Meyer - christopher.meyer@ruhr-uni-bochum.de
- *  @version 0.2 Apr 12, 2012
+ * @author Eugen Weiss - eugen.weiss@ruhr-uni-bochum.de
+ * @author Christopher Meyer - christopher.meyer@ruhr-uni-bochum.de
+ * @version 0.2 Apr 12, 2012
  */
 public class BleichenbacherTimingTest implements Observer {
 
     /**
-     *  Client hello message.
+     * Client hello message.
      */
     private ClientHello clientHello;
     /**
-     *  Handshake workflow to observe.
+     * Handshake workflow to observe.
      */
     private SSLHandshakeWorkflow workflow;
     /**
-     *  Help utilities for testing.
+     * Help utilities for testing.
      */
     private SSLTestUtils utils = new SSLTestUtils();
     /**
-     *  TLS protocol version.
+     * TLS protocol version.
      */
     private EProtocolVersion protocolVersion = EProtocolVersion.TLS_1_0;
     /**
-     *  Protocol short name.
+     * Protocol short name.
      */
     private String protocolShortName = "TLS";
     /**
-     *  Test host.
+     * Test host.
      */
     private static final String HOST = "localhost";
     /**
-     *  Test port.
+     * Test port.
      */
     private static final int PORT = 10443;
     /**
-     *  Separate byte between padding and data in PKCS#1 message.
+     * Separate byte between padding and data in PKCS#1 message.
      */
     private byte[] separateByte;
     /**
-     *  First two bytes of PKCS#1 message which defines the op-mode.
+     * First two bytes of PKCS#1 message which defines the op-mode.
      */
     private byte[] pkcsMode;
     /**
-     *  Signalizes if padding should be changed.
+     * Signalizes if padding should be changed.
      */
     private boolean chgPadding;
     /**
-     *  Position in padding to change.
+     * Position in padding to change.
      */
     private int positionOfPaddignChange;
     /**
-     *  First position in padding string.
+     * First position in padding string.
      */
     public static final int FIRST_POSITION = 0;
     /**
-     *  Mid-position of the padding string.
+     * Mid-position of the padding string.
      */
     public static final int MID_POSITION = 1;
     /**
-     *  Last position of the padding string.
+     * Last position of the padding string.
      */
     public static final int LAST_POSITION = 2;
     /**
-     *  Test Server Thread.
+     * Test Server Thread.
      */
     private Thread sslServerThread;
     /**
-     *  Test SSL Server.
+     * Test SSL Server.
      */
     private SSLServer sslServer;
     /**
-     *  Server key store.
+     * Server key store.
      */
     private static final String PATH_TO_JKS = "server.jks";
     /**
-     *  Pass word for server key store.
+     * Pass word for server key store.
      */
     private static final String JKS_PASSWORD = "server";
     /**
-     *  Overall delays.
+     * Overall delays.
      */
     private final long[] delays = new long[NUMBER_OF_REPETIIONS];
     /**
-     *  Number of repetitions.
+     * Number of repetitions.
      */
-    private static final int NUMBER_OF_REPETIIONS = 100000;
+    private static final int NUMBER_OF_REPETIIONS = 1;
     /**
-     *  Detailed Info print out.
+     * Detailed Info print out.
      */
     private static final boolean PRINT_INFO = false;
     /*
-     *  Identifier if MAC should be invalidated
+     * Identifier if MAC should be invalidated
      */
     private boolean destroyMAC = false;
 
     /**
-     *  Test parameters for the Bleichenbacher Tests.
+     * Test parameters for the Bleichenbacher Tests.
      *
-     *  @return List of parameters
+     * @return List of parameters
      */
     @DataProvider(name = "bleichenbacher")
     public Object[][] createData1() {
@@ -197,15 +197,15 @@ public class BleichenbacherTimingTest implements Observer {
     }
 
     /**
-     *  Test if Bleichenbacher attack is possible.
+     * Test if Bleichenbacher attack is possible.
      *
-     *  @param mode First two bytes of PKCS#1 message which defines the op-mode
-     *  @param separate Separate byte between padding and data in PKCS#1 message
-     *  @param version Protocol version
-     *  @param changePadding True if padding should be changed
-     *  @param position Position where padding is changed
-     *  @param description Test description
-     *  @param tamperMAC Destroy Finished MAC of RecordFrame
+     * @param mode First two bytes of PKCS#1 message which defines the op-mode
+     * @param separate Separate byte between padding and data in PKCS#1 message
+     * @param version Protocol version
+     * @param changePadding True if padding should be changed
+     * @param position Position where padding is changed
+     * @param description Test description
+     * @param tamperMAC Destroy Finished MAC of RecordFrame
      */
     @Test(enabled = true, dataProvider = "bleichenbacher")
     public final void testBleichenbacherPossible(final byte[] mode,
@@ -255,10 +255,10 @@ public class BleichenbacherTimingTest implements Observer {
     }
 
     /**
-     *  Update observed object.
+     * Update observed object.
      *
-     *  @param o Observed object
-     *  @param arg Arguments
+     * @param o Observed object
+     * @param arg Arguments
      */
     @Override
     public final void update(final Observable o, final Object arg) {
@@ -302,14 +302,17 @@ public class BleichenbacherTimingTest implements Observer {
                             new EncryptedPreMasterSecret(pk);
                     BigInteger mod = null;
                     RSAPublicKey rsaPK = null;
-                    if (pk instanceof RSAPublicKey) {
+                    if (pk != null && pk instanceof RSAPublicKey) {
                         rsaPK = (RSAPublicKey) pk;
                         mod = rsaPK.getModulus();
                     }
-                    int modLength = mod.bitLength() / 8;
 
+                    int modLength = 0;
+                    if (mod != null) {
+                        modLength = mod.bitLength() / 8;
+                    }
                     /*
-                     *  set the padding length of the PKCS#1 padding string (it
+                     * set the padding length of the PKCS#1 padding string (it
                      * is [<Modulus length> - <Data length> -3])
                      */
                     utils.setPaddingLength((modLength - encodedPMS.length - 3));
@@ -329,11 +332,11 @@ public class BleichenbacherTimingTest implements Observer {
                     byte[] ciphertext = null;
                     try {
                         ciphertext = RSACore.rsa(clear, rsaPK);
+                        encPMS.setEncryptedPreMasterSecret(ciphertext);
                     } catch (BadPaddingException e) {
                         e.printStackTrace();
                     }
 
-                    encPMS.setEncryptedPreMasterSecret(ciphertext);
                     cke.setExchangeKeys(encPMS);
 
                     trace.setCurrentRecord(cke);
@@ -355,7 +358,7 @@ public class BleichenbacherTimingTest implements Observer {
     }
 
     /**
-     *  Close the Socket after the test run.
+     * Close the Socket after the test run.
      */
     @AfterMethod
     public final void tearDown() {
@@ -377,7 +380,7 @@ public class BleichenbacherTimingTest implements Observer {
     }
 
     /**
-     *  Start the target SSL Server.
+     * Start the target SSL Server.
      */
     @BeforeMethod
     public final void setUp() {
@@ -394,10 +397,10 @@ public class BleichenbacherTimingTest implements Observer {
     }
 
     /**
-     *  Analyzes a given Trace list and computes timing delay.
+     * Analyzes a given Trace list and computes timing delay.
      *
-     *  @param traces Trace list
-     *  @return Timing delay.
+     * @param traces Trace list
+     * @return Timing delay.
      */
     private static long analyzeTrace(final List<Trace> traces) {
         Long delay = 0L;
@@ -434,10 +437,10 @@ public class BleichenbacherTimingTest implements Observer {
     }
 
     /**
-     *  Computes the arithmetic mean on a set of delay values.
+     * Computes the arithmetic mean on a set of delay values.
      *
-     *  @param delayValues Delays
-     *  @return Arithmetic mean of given delays.
+     * @param delayValues Delays
+     * @return Arithmetic mean of given delays.
      */
     private static long doStatistics(final long[] delayValues) {
         long overall = 0L;

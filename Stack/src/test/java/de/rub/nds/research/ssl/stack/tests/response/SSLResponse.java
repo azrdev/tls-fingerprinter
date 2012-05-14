@@ -58,7 +58,6 @@ public class SSLResponse extends ARecordFrame implements Observer {
      */
     public final void handleResponse(final Trace trace,
             final byte[] response) {
-        SecurityParameters param = SecurityParameters.getInstance();
         MessageObservable msgObserve = MessageObservable.getInstance();
         EContentType contentType = getContentType();
         switch (contentType) {
@@ -79,8 +78,6 @@ public class SSLResponse extends ARecordFrame implements Observer {
                 }
                 trace.setState(EStates.getStateById(workflow.getCurrentState()));
                 workflow.addToList(trace);
-                // TODO: Für Bleichenbacher-Test anpassen
-                // Assert.fail("Test failed with an SSL-Alert: "+alert.getAlertLevel()+" "+alert.getAlertDescription());
                 break;
             case HANDSHAKE:
                 if (workflow.isEncrypted()) {

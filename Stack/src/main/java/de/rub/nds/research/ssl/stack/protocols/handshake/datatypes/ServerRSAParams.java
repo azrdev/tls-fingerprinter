@@ -43,7 +43,7 @@ public class ServerRSAParams extends APubliclySerializable implements
     @Override
     public byte[] encode(final boolean chained) {
         int pointer = 0;
-        byte[] length = new byte[LENGTH_LENGTH_FIELD];
+        byte[] length;
         byte[] serverRSAParams;
         serverRSAParams = new byte[LENGTH_LENGTH_FIELD + this.rsaModulus.length
                 + LENGTH_LENGTH_FIELD + this.rsaExponent.length];

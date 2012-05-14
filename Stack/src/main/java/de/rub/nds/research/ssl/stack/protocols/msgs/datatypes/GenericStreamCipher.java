@@ -57,27 +57,33 @@ public class GenericStreamCipher extends APubliclySerializable implements
     public final void encryptData(final SecretKey key,
             final String cipherName) {
         Cipher streamCipher = null;
+        int pointer = 0;
+        int payloadLength = 0;
         try {
             streamCipher =
                     Cipher.getInstance(cipherName);
             streamCipher.init(Cipher.ENCRYPT_MODE, key);
+
+            //concatenate data and MAC
+            if (this.plainRecord != null
+                    && this.plainRecord.getPayload() != null) {
+                payloadLength = this.plainRecord.getPayload().length;
+
+                byte[] tmp = new byte[macData.length + payloadLength];
+                System.arraycopy(this.plainRecord.getPayload(),
+                        0, tmp, pointer, payloadLength);
+                pointer += payloadLength;
+
+                System.arraycopy(macData, 0, tmp, pointer, macData.length);
+
+                encryptedData = streamCipher.doFinal(tmp);
+            }
         } catch (NoSuchAlgorithmException e) {
             e.printStackTrace();
         } catch (NoSuchPaddingException e) {
             e.printStackTrace();
         } catch (InvalidKeyException e) {
             e.printStackTrace();
-        }
-        //concatenate data and MAC
-        int pointer = 0;
-        int payloadLength = this.plainRecord.getPayload().length;
-        byte[] tmp = new byte[macData.length + payloadLength];
-        System.arraycopy(this.plainRecord.getPayload(),
-                0, tmp, pointer, payloadLength);
-        pointer += payloadLength;
-        System.arraycopy(macData, 0, tmp, pointer, macData.length);
-        try {
-            encryptedData = streamCipher.doFinal(tmp);
         } catch (IllegalBlockSizeException e) {
             e.printStackTrace();
         } catch (BadPaddingException e) {

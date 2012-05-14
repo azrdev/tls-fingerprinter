@@ -24,35 +24,43 @@ import javax.net.ssl.*;
 public class SSLServer extends Thread {
 
     private final byte[] MESSAGE = "Welcome to the SSL Test Server".getBytes();
-    private int port;
+    private int listenPort;
     private SSLContext sslContext;
     private ServerSocket serverSocket;
     private boolean shutdown;
     private boolean printInfo;
     private static final int TIMEOUT = 500;
 
-    public SSLServer(String path, String password, String protocol, int port,
-            boolean printStateInfo)
-            throws FileNotFoundException, KeyStoreException, IOException,
-            NoSuchAlgorithmException, CertificateException,
-            UnrecoverableKeyException, KeyManagementException {
-        FileInputStream fis = new FileInputStream(path);
+    public SSLServer(final String path, final String password,
+            final String protocol, final int port, final boolean printStateInfo)
+            throws KeyStoreException, IOException, NoSuchAlgorithmException,
+            CertificateException, UnrecoverableKeyException,
+            KeyManagementException {
         KeyStore keyStore = KeyStore.getInstance("JKS");
-        keyStore.load(fis, password.toCharArray());
-        
+        FileInputStream fis = null;
+        try {
+            fis = new FileInputStream(path);
+            keyStore.load(fis, password.toCharArray());
+        } finally {
+            if (fis != null) {
+                fis.close();
+            }
+        }
+
         KeyManagerFactory keyManagerFactory = KeyManagerFactory.getInstance(
                 "SunX509");
         keyManagerFactory.init(keyStore, password.toCharArray());
         KeyManager[] keyManagers = keyManagerFactory.getKeyManagers();
 
-        TrustManagerFactory trustManagerFactory = TrustManagerFactory.getInstance(
+        TrustManagerFactory trustManagerFactory = TrustManagerFactory.
+                getInstance(
                 "SunX509");
         trustManagerFactory.init(keyStore);
         TrustManager[] trustManagers = trustManagerFactory.getTrustManagers();
         sslContext = SSLContext.getInstance(protocol);
         sslContext.init(keyManagers, trustManagers, null);
 
-        this.port = port;
+        this.listenPort = port;
         this.printInfo = printStateInfo;
         if (printInfo) {
             System.out.println("|| SSL Server successfully initialized!");
@@ -112,7 +120,7 @@ public class SSLServer extends Thread {
     private void preSetup() throws SocketException, IOException {
         SSLServerSocketFactory serverSocketFactory = sslContext.
                 getServerSocketFactory();
-        serverSocket = serverSocketFactory.createServerSocket(port);
+        serverSocket = serverSocketFactory.createServerSocket(listenPort);
 
         serverSocket.setSoTimeout(TIMEOUT);
         if (printInfo) {

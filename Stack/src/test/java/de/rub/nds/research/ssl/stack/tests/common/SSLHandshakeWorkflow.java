@@ -26,17 +26,17 @@ import java.sql.Timestamp;
 import java.util.ArrayList;
 
 /**
- *  The complete SSL Handshake workflow.
+ * The complete SSL Handshake workflow.
  *
- *  @author Eugen Weiss - eugen.weiss@ruhr-uni-bochum.de
- *  @version 0.1 Apr 13, 2012
+ * @author Eugen Weiss - eugen.weiss@ruhr-uni-bochum.de
+ * @version 0.1 Apr 13, 2012
  */
 public class SSLHandshakeWorkflow extends AWorkflow {
 
     /**
-     *  Public constructor to initialize the workflow with its states.
+     * Public constructor to initialize the workflow with its states.
      *
-     *  @param workflowStates The SSL handshake states
+     * @param workflowStates The SSL handshake states
      */
     public SSLHandshakeWorkflow(WorkflowState[] workflowStates) {
         super(workflowStates);
@@ -52,7 +52,7 @@ public class SSLHandshakeWorkflow extends AWorkflow {
     private boolean encrypted = false;
 
     /**
-     *  Define the workflow states.
+     * Define the workflow states.
      */
     public enum EStates implements WorkflowState {
 
@@ -94,25 +94,21 @@ public class SSLHandshakeWorkflow extends AWorkflow {
     }
 
     /**
-     *  Initialize the handshake workflow with the state values
+     * Initialize the handshake workflow with the state values
      */
     public SSLHandshakeWorkflow() {
         this(EStates.values());
     }
 
     /**
-     *  Executes the complete SSL handshake.
+     * Executes the complete SSL handshake.
      */
     @Override
     public void start() {
         MessageBuilder msgBuilder = new MessageBuilder();
         Trace trace = new Trace();
         HandshakeHashBuilder hashBuilder = null;
-        try {
-            hashBuilder = new HandshakeHashBuilder();
-        } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
-        }
+
         //create the Client Hello message
         ClientHello clientHello = msgBuilder.createClientHello(protocolVersion);
         setRecordTrace(trace, clientHello, EStates.CLIENT_HELLO);
@@ -128,7 +124,12 @@ public class SSLHandshakeWorkflow extends AWorkflow {
         byte[] msg = clientHello.encode(true);
         utils.sendMessage(out, msg);
         //hash current record
-        hashBuilder.updateHash(msg, 5, msg.length - 5);
+        try {
+            hashBuilder = new HandshakeHashBuilder();
+            hashBuilder.updateHash(msg, 5, msg.length - 5);
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+        }
 
         //add trace to ArrayList
         addToList(new Trace(EStates.CLIENT_HELLO, trace.getCurrentRecord(),
@@ -213,7 +214,7 @@ public class SSLHandshakeWorkflow extends AWorkflow {
         switchToNextState(trace);
 
         msg = trace.getCurrentRecordBytes();
-        if(msg == null) {
+        if (msg == null) {
             rec = (TLSCiphertext) trace.getCurrentRecord();
             //send Finished message
             msg = rec.encode(true);
@@ -242,9 +243,9 @@ public class SSLHandshakeWorkflow extends AWorkflow {
     }
 
     /**
-     *  Switches to the next state and notifies the observers.
+     * Switches to the next state and notifies the observers.
      *
-     *  @param trace Holds the tracing data
+     * @param trace Holds the tracing data
      */
     public void switchToNextState(Trace trace) {
         nextState();
@@ -252,10 +253,10 @@ public class SSLHandshakeWorkflow extends AWorkflow {
     }
 
     /**
-     *  Sets a new state and notifies the observers.
+     * Sets a new state and notifies the observers.
      *
-     *  @param trace Holds the tracing data
-     *  @param state The new state
+     * @param trace Holds the tracing data
+     * @param state The new state
      */
     public void switchToState(Trace trace, EStates state) {
         setCurrentState(state.getID());
@@ -263,10 +264,10 @@ public class SSLHandshakeWorkflow extends AWorkflow {
     }
 
     /**
-     *  Switches to the previous state or holds current state if it is the first
+     * Switches to the previous state or holds current state if it is the first
      * state.
      *
-     *  @param trace Holds the tracing data
+     * @param trace Holds the tracing data
      */
     public void switchToPreviousState(Trace trace) {
         previousState();
@@ -286,11 +287,11 @@ public class SSLHandshakeWorkflow extends AWorkflow {
     }
 
     /**
-     *  Process the response bytes
+     * Process the response bytes
      *
-     *  @param hashBuilder Hash builder for hashing handshake messages
-     *  @param trace Trace
-     *  @throws IOException
+     * @param hashBuilder Hash builder for hashing handshake messages
+     * @param trace Trace
+     * @throws IOException
      */
     private void getResponses(HandshakeHashBuilder hashBuilder, Trace trace)
             throws IOException {
@@ -313,7 +314,7 @@ public class SSLHandshakeWorkflow extends AWorkflow {
     }
 
     /**
-     *  Serialize traceList and write it to file.
+     * Serialize traceList and write it to file.
      */
     public void saveSerializedTraceList() {
 //		OutputStream fileOutStream = null;
@@ -330,9 +331,9 @@ public class SSLHandshakeWorkflow extends AWorkflow {
     }
 
     /**
-     *  Wait for response bytes (max. 500ms).
+     * Wait for response bytes (max. 500ms).
      *
-     *  @throws IOException
+     * @throws IOException
      */
     public void waitForResponse() throws IOException {
         long startWait = System.currentTimeMillis();
@@ -346,52 +347,52 @@ public class SSLHandshakeWorkflow extends AWorkflow {
     }
 
     /**
-     *  Add a new Trace object to the ArrayList.
+     * Add a new Trace object to the ArrayList.
      *
-     *  @param trace
+     * @param trace
      */
     public void addToList(Trace trace) {
         this.traceList.add(trace);
     }
 
     /**
-     *  Get the trace list of the whole handshake.
+     * Get the trace list of the whole handshake.
      *
-     *  @return Trace list
+     * @return Trace list
      */
     public ArrayList<Trace> getTraceList() {
         return traceList;
     }
 
     /**
-     *  Get the Socket of the connection.
+     * Get the Socket of the connection.
      *
-     *  @return Socket
+     * @return Socket
      */
     public Socket getSocket() {
         return so;
     }
 
     /**
-     *  Get the PreMasterSecret.
+     * Get the PreMasterSecret.
      *
-     *  @return PreMasterSecret
+     * @return PreMasterSecret
      */
     public PreMasterSecret getPreMasterSecret() {
         return this.pms;
     }
 
     /**
-     *  Set the PreMasterSecret.
+     * Set the PreMasterSecret.
      */
     public void setPreMasterSecret(PreMasterSecret pms) {
         this.pms = pms;
     }
 
     /**
-     *  Get the handshake messages hash.
+     * Get the handshake messages hash.
      *
-     *  @return handshakeHashes Hash of previous handshake messages
+     * @return handshakeHashes Hash of previous handshake messages
      */
     public byte[] getHash() {
         return this.handshakeHashes;
@@ -406,10 +407,10 @@ public class SSLHandshakeWorkflow extends AWorkflow {
     }
 
     /**
-     *  Establish the connection to the test server
+     * Establish the connection to the test server
      *
-     *  @param host Hostname of the server
-     *  @param port Port number of the server
+     * @param host Hostname of the server
+     * @param port Port number of the server
      */
     public void connectToTestServer(String host, int port) {
         SocketAddress addr;

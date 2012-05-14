@@ -161,7 +161,7 @@ public final class PreMasterSecret extends APubliclySerializable
 
         // 2. add random part
         System.arraycopy(random, 0, preMasterSecret, pointer, random.length);
-        pointer += random.length;
+        //pointer += random.length;
 
         return preMasterSecret;
     }
@@ -195,6 +195,6 @@ public final class PreMasterSecret extends APubliclySerializable
         tmpBytes = new byte[LENGTH_RANDOM];
         System.arraycopy(secret, pointer, tmpBytes, 0, tmpBytes.length);
         setRandom(tmpBytes);
-        pointer += tmpBytes.length;
+        //pointer += tmpBytes.length;
     }
 }

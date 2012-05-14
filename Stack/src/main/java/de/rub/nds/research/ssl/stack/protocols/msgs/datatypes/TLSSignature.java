@@ -95,8 +95,8 @@ public class TLSSignature extends APubliclySerializable {
         byte[] clientRandom = params.getClientRandom();
         byte[] serverRandom = params.getServerRandom();
         byte[] serverParams = getServerParams();
-        byte[] md5Hash = new byte[MD5_LENGTH];
-        byte[] sha1Hash = new byte[SHA1_LENGTH];
+        byte[] md5Hash;
+        byte[] sha1Hash;
         byte[] concat = new byte[CONCAT_HASH_LENGTH];
         md5Hash = md5_hash(clientRandom, serverRandom,
                 serverParams);
@@ -109,13 +109,15 @@ public class TLSSignature extends APubliclySerializable {
         System.arraycopy(sha1Hash, 0, concat, pointer, sha1Hash.length);
         //compute signature
         byte[] msg = null;
-        if (pk instanceof RSAPublicKey) {
+        if (pk != null && pk instanceof RSAPublicKey) {
             RSAPublicKey rsaPK = (RSAPublicKey) pk;
             msg = RsaUtil.pubOp(signature, rsaPK);
         }
         byte[] recHash = new byte[36];
-        System.arraycopy(msg, msg.length - recHash.length, recHash, 0,
-                recHash.length);
+        if (msg != null) {
+            System.arraycopy(msg, msg.length - recHash.length, recHash, 0,
+                    recHash.length);
+        }
         return Arrays.equals(recHash, concat);
     }
 
@@ -160,16 +162,18 @@ public class TLSSignature extends APubliclySerializable {
      */
     public final byte[] md5_hash(byte[] clientRandom,
             byte[] serverRandom, byte[] serverParams) {
+        byte[] result = null;
         MessageDigest md5 = null;
         try {
             md5 = MessageDigest.getInstance("MD5");
+            md5.update(clientRandom);
+            md5.update(serverRandom);
+            md5.update(serverParams);
+            result = md5.digest();
         } catch (NoSuchAlgorithmException e) {
             e.printStackTrace();
         }
-        md5.update(clientRandom);
-        md5.update(serverRandom);
-        md5.update(serverParams);
-        return md5.digest();
+        return result;
     }
 
     /**
@@ -182,16 +186,19 @@ public class TLSSignature extends APubliclySerializable {
      */
     public final byte[] sha1_hash(byte[] clientRandom,
             byte[] serverRandom, byte[] serverParams) {
+        byte[] result = null;
         MessageDigest sha1 = null;
         try {
             sha1 = MessageDigest.getInstance("SHA");
+            sha1.update(clientRandom);
+            sha1.update(serverRandom);
+            sha1.update(serverParams);
+            result = sha1.digest();
         } catch (NoSuchAlgorithmException e) {
             e.printStackTrace();
         }
-        sha1.update(clientRandom);
-        sha1.update(serverRandom);
-        sha1.update(serverParams);
-        return sha1.digest();
+
+        return result;
     }
 
     /**

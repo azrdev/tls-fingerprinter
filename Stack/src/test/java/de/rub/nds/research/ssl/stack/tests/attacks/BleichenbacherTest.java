@@ -122,7 +122,6 @@ public class BleichenbacherTest implements Observer {
      * Detailed Info print out.
      */
     private static final boolean PRINT_INFO = false;
-    
 
     /**
      * Test parameters for the Bleichenbacher Tests.
@@ -209,67 +208,74 @@ public class BleichenbacherTest implements Observer {
         Trace trace = null;
         EStates states = null;
         ObservableBridge obs;
-        if (o instanceof ObservableBridge) {
+        if (o != null && o instanceof ObservableBridge) {
             obs = (ObservableBridge) o;
             states = (EStates) obs.getState();
             trace = (Trace) arg;
         }
-        switch (states) {
-            case CLIENT_HELLO:
-                trace.setCurrentRecord(clientHello);
-                break;
-            case CLIENT_KEY_EXCHANGE:
-                KeyExchangeParams keyParams = KeyExchangeParams.getInstance();
-                PublicKey pk = keyParams.getPublicKey();
-                ClientKeyExchange cke = new ClientKeyExchange(protocolVersion,
-                        keyParams.getKeyExchangeAlgorithm());
-                PreMasterSecret pms = new PreMasterSecret(protocolVersion);
-                workflow.setPreMasterSecret(pms);
-                pms.setProtocolVersion(this.version);
-                byte[] encodedPMS = pms.encode(false);
+        if (states != null) {
+            switch (states) {
+                case CLIENT_HELLO:
+                    trace.setCurrentRecord(clientHello);
+                    break;
+                case CLIENT_KEY_EXCHANGE:
+                    KeyExchangeParams keyParams =
+                            KeyExchangeParams.getInstance();
+                    PublicKey pk = keyParams.getPublicKey();
+                    ClientKeyExchange cke = new ClientKeyExchange(
+                            protocolVersion,
+                            keyParams.getKeyExchangeAlgorithm());
+                    PreMasterSecret pms = new PreMasterSecret(protocolVersion);
+                    workflow.setPreMasterSecret(pms);
+                    pms.setProtocolVersion(this.version);
+                    byte[] encodedPMS = pms.encode(false);
 
-                //encrypt the PreMasterSecret
-                EncryptedPreMasterSecret encPMS = new EncryptedPreMasterSecret(
-                        pk);
-                BigInteger mod = null;
-                RSAPublicKey rsaPK = null;
-                if (pk instanceof RSAPublicKey) {
-                    rsaPK = (RSAPublicKey) pk;
-                    mod = rsaPK.getModulus();
-                }
-                int modLength = mod.bitLength() / 8;
+                    //encrypt the PreMasterSecret
+                    EncryptedPreMasterSecret encPMS =
+                            new EncryptedPreMasterSecret(pk);
+                    BigInteger mod = null;
+                    RSAPublicKey rsaPK = null;
+                    if (pk != null && pk instanceof RSAPublicKey) {
+                        rsaPK = (RSAPublicKey) pk;
+                        mod = rsaPK.getModulus();
+                    }
 
-                /*
-                 * set the padding length of the PKCS#1 padding string (it is
-                 * [<Modulus length> - <Data length> -3])
-                 */
-                utils.setPaddingLength((modLength - encodedPMS.length - 3));
-                utils.setSeperateByte(this.separate);
-                utils.setMode(this.mode);
-                //generate the PKCS#1 padding string
-                byte[] padding = utils.createPaddingString(utils.
-                        getPaddingLength());
-                if (this.changePadding) {
-                    Assert.assertFalse(this.position > utils.getPaddingLength(),
-                            "Position to large - padding length is "
-                            + utils.getPaddingLength());
-                    utils.changePadding(padding, this.position);
-                }
-                //put the PKCS#1 pieces together
-                byte[] clear = utils.buildPKCS1Msg(encodedPMS);
+                    int modLength = 0;
+                    if (mod != null) {
+                        modLength = mod.bitLength() / 8;
+                    }
+                    /*
+                     * set the padding length of the PKCS#1 padding string (it
+                     * is [<Modulus length> - <Data length> -3])
+                     */
+                    utils.setPaddingLength((modLength - encodedPMS.length - 3));
+                    utils.setSeperateByte(this.separate);
+                    utils.setMode(this.mode);
+                    //generate the PKCS#1 padding string
+                    byte[] padding = utils.createPaddingString(utils.
+                            getPaddingLength());
+                    if (this.changePadding) {
+                        Assert.assertFalse(this.position > utils.
+                                getPaddingLength(),
+                                "Position to large - padding length is "
+                                + utils.getPaddingLength());
+                        utils.changePadding(padding, this.position);
+                    }
+                    //put the PKCS#1 pieces together
+                    byte[] clear = utils.buildPKCS1Msg(encodedPMS);
 
-                //compute c = m^e mod n (RSA encryption)
-                byte[] ciphertext = RsaUtil.pubOp(clear, rsaPK);
+                    //compute c = m^e mod n (RSA encryption)
+                    byte[] ciphertext = RsaUtil.pubOp(clear, rsaPK);
 
-                encPMS.setEncryptedPreMasterSecret(ciphertext);
-                cke.setExchangeKeys(encPMS);
+                    encPMS.setEncryptedPreMasterSecret(ciphertext);
+                    cke.setExchangeKeys(encPMS);
 
-                trace.setCurrentRecord(cke);
-                break;
-            default:
-                break;
+                    trace.setCurrentRecord(cke);
+                    break;
+                default:
+                    break;
+            }
         }
-
     }
 
     /**
@@ -280,7 +286,7 @@ public class BleichenbacherTest implements Observer {
         try {
 //            System.setProperty("javax.net.debug", "ssl");
             sslServer = new SSLServer(PATH_TO_JKS, JKS_PASSWORD,
-                    protocolShortName, PORT,PRINT_INFO);
+                    protocolShortName, PORT, PRINT_INFO);
             sslServerThread = new Thread(sslServer);
             sslServerThread.start();
             Thread.currentThread().sleep(2000);

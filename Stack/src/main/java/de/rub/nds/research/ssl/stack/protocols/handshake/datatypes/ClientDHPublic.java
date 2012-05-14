@@ -85,8 +85,7 @@ public final class ClientDHPublic extends APubliclySerializable
     public byte[] encode(final boolean chained) {
         int pointer = 0;
 
-        byte[] length = new byte[LENGTH_BYTES];
-        length = buildLength(dhyc.length, LENGTH_BYTES);
+        byte[] length = buildLength(dhyc.length, LENGTH_BYTES);
 
         // putting the pieces together
         byte[] clientDHPublic = new byte[LENGTH_BYTES + dhyc.length];

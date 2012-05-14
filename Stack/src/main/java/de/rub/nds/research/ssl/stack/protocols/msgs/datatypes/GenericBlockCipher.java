@@ -82,14 +82,15 @@ public class GenericBlockCipher extends APubliclySerializable implements
             cipherName = "DESede";
         }
         Cipher blockCipher = null;
+        int blockSize = 0;
         try {
-            blockCipher =
-                    Cipher.getInstance(cipherName + "/CBC/NoPadding");
+            blockCipher = Cipher.getInstance(cipherName + "/CBC/NoPadding");
             AlgorithmParameters params =
                     AlgorithmParameters.getInstance(cipherName);
             IvParameterSpec iVector = new IvParameterSpec(iv);
             params.init(iVector);
             blockCipher.init(Cipher.ENCRYPT_MODE, key, params);
+            blockSize = blockCipher.getBlockSize();
         } catch (NoSuchAlgorithmException e) {
             e.printStackTrace();
         } catch (NoSuchPaddingException e) {
@@ -105,7 +106,6 @@ public class GenericBlockCipher extends APubliclySerializable implements
         int pointer = 0;
         int payloadLength = this.plainRecord.getPayload().length;
         // padding precomputation 
-        int blockSize = blockCipher.getBlockSize();
         // padding length + 1 since we add the paddingLength field 
         byte[] paddedData = this.createPadding(
                 payloadLength + 1 + macData.length,
@@ -130,12 +130,14 @@ public class GenericBlockCipher extends APubliclySerializable implements
         pointer += paddedDataLength.length;
 
         //encrypt the data
-        try {
-            encryptedData = blockCipher.doFinal(tmp);
-        } catch (IllegalBlockSizeException e) {
-            e.printStackTrace();
-        } catch (BadPaddingException e) {
-            e.printStackTrace();
+        if (blockCipher != null) {
+            try {
+                encryptedData = blockCipher.doFinal(tmp);
+            } catch (IllegalBlockSizeException e) {
+                e.printStackTrace();
+            } catch (BadPaddingException e) {
+                e.printStackTrace();
+            }
         }
     }
 
@@ -189,23 +191,19 @@ public class GenericBlockCipher extends APubliclySerializable implements
             final String cipherName, final byte[] iv) {
         Cipher blockCipher = null;
         AlgorithmParameters params = null;
+
+        IvParameterSpec iVector = new IvParameterSpec(iv);
         try {
-            blockCipher =
-                    Cipher.getInstance(cipherName + "/CBC/NoPadding");
+            blockCipher = Cipher.getInstance(cipherName + "/CBC/NoPadding");
             params = AlgorithmParameters.getInstance(cipherName);
+            params.init(iVector);
+            blockCipher.init(Cipher.ENCRYPT_MODE, key, params);
         } catch (NoSuchAlgorithmException e) {
             e.printStackTrace();
         } catch (NoSuchPaddingException e) {
             e.printStackTrace();
-        }
-        IvParameterSpec iVector = new IvParameterSpec(iv);
-        try {
-            params.init(iVector);
         } catch (InvalidParameterSpecException e) {
             e.printStackTrace();
-        }
-        try {
-            blockCipher.init(Cipher.ENCRYPT_MODE, key, params);
         } catch (InvalidKeyException e) {
             e.printStackTrace();
         } catch (InvalidAlgorithmParameterException e) {

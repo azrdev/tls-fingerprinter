@@ -118,8 +118,7 @@ public final class EncryptedPreMasterSecret extends APubliclySerializable
     @Override
     public byte[] encode(boolean chained) {
         int pointer = 0;
-        byte[] length = new byte[LENGTH_BYTES];
-        length = buildLength(ciphertext.length, LENGTH_BYTES);
+        byte[] length = buildLength(ciphertext.length, LENGTH_BYTES);
 
         byte[] encryptedPreMasterSecret = new byte[LENGTH_BYTES + ciphertext.length];
 

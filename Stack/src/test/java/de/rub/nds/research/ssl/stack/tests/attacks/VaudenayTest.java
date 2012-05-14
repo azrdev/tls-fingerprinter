@@ -85,7 +85,6 @@ public class VaudenayTest implements Observer {
      * Detailed Info print out.
      */
     private static final boolean PRINT_INFO = false;
-    
 
     /**
      * Test parameters for the Vaudenay Tests.
@@ -142,65 +141,76 @@ public class VaudenayTest implements Observer {
         Trace trace = null;
         EStates states = null;
         ObservableBridge obs;
-        if (o instanceof ObservableBridge) {
+        if (o != null && o instanceof ObservableBridge) {
             obs = (ObservableBridge) o;
             states = (EStates) obs.getState();
             trace = (Trace) arg;
         }
-        switch (states) {
-            case CLIENT_FINISHED:
-                SecurityParameters param = SecurityParameters.getInstance();
-                byte[] handshakeHashes = workflow.getHash();
+        if (states != null) {
+            switch (states) {
+                case CLIENT_FINISHED:
+                    SecurityParameters param = SecurityParameters.getInstance();
+                    byte[] handshakeHashes = workflow.getHash();
 
-                //create the key material
-                KeyMaterial keyMat = new KeyMaterial();
+                    //create the key material
+                    KeyMaterial keyMat = new KeyMaterial();
 
-                //create Finished message
-                byte[] data = null;
-                Finished finished = new Finished(pVersion, EConnectionEnd.CLIENT);
-                try {
-                    finished.createVerifyData(param.getMasterSecret(),
-                            handshakeHashes);
-                    data = finished.encode(true);
-                } catch (InvalidKeyException e1) {
-                    e1.printStackTrace();
-                }
+                    //create Finished message
+                    byte[] data = null;
+                    Finished finished = new Finished(pVersion,
+                            EConnectionEnd.CLIENT);
+                    if (param.getMasterSecret() != null
+                            && handshakeHashes != null) {
+                        try {
+                            finished.createVerifyData(param.getMasterSecret(),
+                                    handshakeHashes);
+                            data = finished.encode(true);
+                        } catch (InvalidKeyException e1) {
+                            e1.printStackTrace();
+                        }
+                    }
 
-                //encrypt Finished message
-                String cipherName = param.getBulkCipherAlgorithm().toString();
-                String macName = param.getMacAlgorithm().toString();
-                SecretKey macKey = new SecretKeySpec(keyMat.getClientMACSecret(),
-                        macName);
-                SecretKey symmKey = new SecretKeySpec(keyMat.getClientKey(),
-                        cipherName);
-                TLSCiphertext rec = new TLSCiphertext(protocolVersion,
-                        EContentType.HANDSHAKE);
-                GenericBlockCipher blockCipher = new GenericBlockCipher(finished);
-                blockCipher.computePayloadMAC(macKey, macName);
+                    //encrypt Finished message
+                    String cipherName =
+                            param.getBulkCipherAlgorithm().toString();
+                    String macName = param.getMacAlgorithm().toString();
+                    SecretKey macKey = new SecretKeySpec(
+                            keyMat.getClientMACSecret(), macName);
+                    SecretKey symmKey = new SecretKeySpec(keyMat.getClientKey(),
+                            cipherName);
+                    TLSCiphertext rec = new TLSCiphertext(protocolVersion,
+                            EContentType.HANDSHAKE);
+                    GenericBlockCipher blockCipher = new GenericBlockCipher(
+                            finished);
+                    blockCipher.computePayloadMAC(macKey, macName);
 
-                try {
-                    byte[] payloadMAC, plaintext;
-                    payloadMAC = blockCipher.getMAC();
-                    plaintext = blockCipher.concatenateDataMAC(data, payloadMAC);
-                    Cipher symmCipher = blockCipher.initBlockCipher(symmKey,
-                            cipherName, keyMat.getClientIV());
-                    byte[] paddedData, encryptedData = null;
-                    int blockSize = symmCipher.getBlockSize();
-                    paddedData = utils.addPadding(plaintext, blockSize,
-                            this.changePadding);
-                    encryptedData = symmCipher.doFinal(paddedData);
-                    rec.setGenericCipher(encryptedData);
-                } catch (IllegalBlockSizeException e1) {
-                    e1.printStackTrace();
-                } catch (BadPaddingException e1) {
-                    e1.printStackTrace();
-                }
-                trace.setCurrentRecord(rec);
-            default:
-                break;
+                    if (data != null) {
+                        try {
+                            byte[] payloadMAC, plaintext;
+                            payloadMAC = blockCipher.getMAC();
+                            plaintext = blockCipher.concatenateDataMAC(data,
+                                    payloadMAC);
+                            Cipher symmCipher = blockCipher.initBlockCipher(
+                                    symmKey,
+                                    cipherName, keyMat.getClientIV());
+                            byte[] paddedData, encryptedData = null;
+                            int blockSize = symmCipher.getBlockSize();
+                            paddedData = utils.addPadding(plaintext, blockSize,
+                                    this.changePadding);
+                            encryptedData = symmCipher.doFinal(paddedData);
+                            rec.setGenericCipher(encryptedData);
+                        } catch (IllegalBlockSizeException e1) {
+                            e1.printStackTrace();
+                        } catch (BadPaddingException e1) {
+                            e1.printStackTrace();
+                        }
+                    }
+                    trace.setCurrentRecord(rec);
+                default:
+                    break;
 
+            }
         }
-
     }
 
     /**
