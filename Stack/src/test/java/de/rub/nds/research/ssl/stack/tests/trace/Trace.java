@@ -137,7 +137,10 @@ public final class Trace extends ATrace implements Serializable {
      * @return Bytes of the current record if set, otherwise null.
      */
     public byte[] getCurrentRecordBytes() {
-        return this.currentRecordBytes.clone();
+        byte[] result = null;
+        if(this.currentRecordBytes == null)
+            result = this.currentRecordBytes.clone();
+        return result;
     }
 
     /**

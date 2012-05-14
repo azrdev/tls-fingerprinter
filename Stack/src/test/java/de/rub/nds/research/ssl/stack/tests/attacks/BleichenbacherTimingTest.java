@@ -344,7 +344,6 @@ public class BleichenbacherTimingTest implements Observer {
                         byte[] payload = finished.encode(true);
                         // frag the mac
                         payload[24] = 1;
-                        System.out.println("### MAC destoryed" + payload.length);
                         trace.setCurrentRecordBytes(payload);
                     }
                     break;
