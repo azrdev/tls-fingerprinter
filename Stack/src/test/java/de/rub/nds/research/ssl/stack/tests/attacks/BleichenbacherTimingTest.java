@@ -119,7 +119,7 @@ public class BleichenbacherTimingTest implements Observer {
     /**
      * Number of repetitions.
      */
-    private static final int NUMBER_OF_REPETIIONS = 1;
+    private static final int NUMBER_OF_REPETIIONS = 1000;
     /**
      * Detailed Info print out.
      */
@@ -137,62 +137,62 @@ public class BleichenbacherTimingTest implements Observer {
     @DataProvider(name = "bleichenbacher")
     public Object[][] createData1() {
         return new Object[][]{
-                    // ok case
-                    {new byte[]{0x00, 0x02}, new byte[]{0x00}, protocolVersion,
-                        false, 0, "OK", false},
-                    // wrong protocol version in PreMasterSecret
-                    {new byte[]{0x00, 0x02}, new byte[]{0x00},
-                        EProtocolVersion.SSL_3_0, false, 0,
-                        "Wrong protocol version in PreMasterSecret", false},
-                    // seperate byte is not 0x00
-                    {new byte[]{0x00, 0x02}, new byte[]{0x01}, protocolVersion,
-                        false, 0, "Seperate byte is not 0x00", false},
-                    // mode changed
-                    {new byte[]{0x00, 0x01}, new byte[]{0x00}, protocolVersion,
-                        false, 0, "Mode changed to 0x01", false},
-                    // zero byte at the first position of the padding
-                    {new byte[]{0x00, 0x02}, new byte[]{0x00}, protocolVersion,
-                        true, 0,
-                        "Zero byte at the first position of the padding",
-                        false},
-                    // zero byte in the middle of the padding string
-                    {new byte[]{0x00, 0x02}, new byte[]{0x00}, protocolVersion,
-                        true, 1,
-                        "Zero byte in the middle of the padding string",
-                        false},
-                    // zero byte at the end of the padding string
-                    {new byte[]{0x00, 0x02}, new byte[]{0x00}, protocolVersion,
-                        true, 2, "Zero byte at the end of the padding string",
-                        false},
+//                    // ok case
+//                    {new byte[]{0x00, 0x02}, new byte[]{0x00}, protocolVersion,
+//                        false, 0, "OK", false},
+//                    // wrong protocol version in PreMasterSecret
+//                    {new byte[]{0x00, 0x02}, new byte[]{0x00},
+//                        EProtocolVersion.SSL_3_0, false, 0,
+//                        "Wrong protocol version in PreMasterSecret", false},
+//                    // seperate byte is not 0x00
+//                    {new byte[]{0x00, 0x02}, new byte[]{0x01}, protocolVersion,
+//                        false, 0, "Seperate byte is not 0x00", false},
+//                    // mode changed
+//                    {new byte[]{0x00, 0x01}, new byte[]{0x00}, protocolVersion,
+//                        false, 0, "Mode changed to 0x01", false},
+//                    // zero byte at the first position of the padding
+//                    {new byte[]{0x00, 0x02}, new byte[]{0x00}, protocolVersion,
+//                        true, 0,
+//                        "Zero byte at the first position of the padding",
+//                        false},
+//                    // zero byte in the middle of the padding string
+//                    {new byte[]{0x00, 0x02}, new byte[]{0x00}, protocolVersion,
+//                        true, 1,
+//                        "Zero byte in the middle of the padding string",
+//                        false},
+//                    // zero byte at the end of the padding string
+//                    {new byte[]{0x00, 0x02}, new byte[]{0x00}, protocolVersion,
+//                        true, 2, "Zero byte at the end of the padding string",
+//                        false},
                     // ok case, MAC tampered
                     {new byte[]{0x00, 0x02}, new byte[]{0x00}, protocolVersion,
                         false, 0, "MSG ok, MAC tampered", true},
                     // wrong protocol version in PreMasterSecret, MAC tampered
-                    {new byte[]{0x00, 0x02}, new byte[]{0x00},
-                        EProtocolVersion.SSL_3_0, false, 0,
-                        "Wrong protocol version in PreMasterSecret, "
-                        + "MAC tampered", true},
-                    // seperate byte is not 0x00
-                    {new byte[]{0x00, 0x02}, new byte[]{0x01}, protocolVersion,
-                        false, 0, "Seperate byte is not 0x00, MAC tampered",
-                        true},
-                    // mode changed, MAC tampered
-                    {new byte[]{0x00, 0x01}, new byte[]{0x00}, protocolVersion,
-                        false, 0, "Mode changed to 0x01, MAC tampered", true},
-                    // zero byte at the first position of the padding, 
-                    // MAC tampered
-                    {new byte[]{0x00, 0x02}, new byte[]{0x00}, protocolVersion,
-                        true, 0, "Zero byte at the first position of "
-                        + "the padding, MAC tampered", true},
-                    // zero byte in the middle of the padding string, 
-                    // MAC tampered
-                    {new byte[]{0x00, 0x02}, new byte[]{0x00}, protocolVersion,
-                        true, 1, "Zero byte in the middle of the padding"
-                        + " string, MAC tampered", true},
-                    // zero byte at the end of the padding string, MAC tampered
-                    {new byte[]{0x00, 0x02}, new byte[]{0x00}, protocolVersion,
-                        true, 2, "Zero byte at the end of the padding string,"
-                        + " MAC tampered", true}
+//                    {new byte[]{0x00, 0x02}, new byte[]{0x00},
+//                        EProtocolVersion.SSL_3_0, false, 0,
+//                        "Wrong protocol version in PreMasterSecret, "
+//                        + "MAC tampered", true},
+//                    // seperate byte is not 0x00
+//                    {new byte[]{0x00, 0x02}, new byte[]{0x01}, protocolVersion,
+//                        false, 0, "Seperate byte is not 0x00, MAC tampered",
+//                        true},
+//                    // mode changed, MAC tampered
+//                    {new byte[]{0x00, 0x01}, new byte[]{0x00}, protocolVersion,
+//                        false, 0, "Mode changed to 0x01, MAC tampered", true},
+//                    // zero byte at the first position of the padding, 
+//                    // MAC tampered
+//                    {new byte[]{0x00, 0x02}, new byte[]{0x00}, protocolVersion,
+//                        true, 0, "Zero byte at the first position of "
+//                        + "the padding, MAC tampered", true},
+//                    // zero byte in the middle of the padding string, 
+//                    // MAC tampered
+//                    {new byte[]{0x00, 0x02}, new byte[]{0x00}, protocolVersion,
+//                        true, 1, "Zero byte in the middle of the padding"
+//                        + " string, MAC tampered", true},
+//                    // zero byte at the end of the padding string, MAC tampered
+//                    {new byte[]{0x00, 0x02}, new byte[]{0x00}, protocolVersion,
+//                        true, 2, "Zero byte at the end of the padding string,"
+//                        + " MAC tampered", true}
                 };
     }
 
@@ -338,19 +338,6 @@ public class BleichenbacherTimingTest implements Observer {
 
                     trace.setCurrentRecord(cke);
                     break;
-                case CLIENT_FINISHED:
-                    if (destroyMAC) {
-                        ARecordFrame frame = trace.getCurrentRecord();
-                        byte[] encoded = frame.encode(true);
-                        // extract length
-                        int length = (encoded[2] & 0xff) << 8;
-                        length |= (encoded[3] & 0xff);
-
-                        // destroy MAC
-                        encoded[length + 4] = 0x00;
-                        frame.decode(encoded, true);
-                        trace.setCurrentRecord(frame);
-                    }
                 default:
                     break;
             }

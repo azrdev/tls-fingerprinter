@@ -1,5 +1,6 @@
 package de.rub.nds.research.ssl.stack.protocols.msgs.datatypes;
 
+import de.rub.nds.research.ssl.stack.Utility;
 import java.security.AlgorithmParameters;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
@@ -104,17 +105,38 @@ public class GenericBlockCipher extends APubliclySerializable implements
         //concatenate data and MAC
         int pointer = 0;
         int payloadLength = this.plainRecord.getPayload().length;
-        byte[] tmp = new byte[macData.length + payloadLength];
+        // padding precomputation 
+        int blockSize = blockCipher.getBlockSize();
+        // padding length + 1 since we add the paddingLength field 
+        byte[] paddedData = this.createPadding(
+                payloadLength + 1 + macData.length,
+                blockSize);
+        byte[] paddedDataLength = new byte[]{(byte) (paddedData.length)};
+
+        byte[] tmp = new byte[payloadLength + macData.length
+                + paddedData.length + paddedDataLength.length];
+        // 1. add payload
         System.arraycopy(this.plainRecord.getPayload(),
                 0, tmp, pointer, payloadLength);
         pointer += payloadLength;
+        // 2. add MAC
+       
+        // frag mac
+        macData[0] |= 2;
+        
         System.arraycopy(macData, 0, tmp, pointer, macData.length);
-        byte[] paddedData = null;
-        int blockSize = blockCipher.getBlockSize();
-        paddedData = this.addPadding(tmp, blockSize);
+        pointer += macData.length;
+        // 3. add Padding
+        System.arraycopy(paddedData, 0, tmp, pointer, paddedData.length);
+        pointer += paddedData.length;
+        // 4. add padding length
+        System.arraycopy(paddedDataLength, 0, tmp, pointer,
+                paddedDataLength.length);
+        pointer += paddedDataLength.length;
+
         //encrypt the data
         try {
-            encryptedData = blockCipher.doFinal(paddedData);
+            encryptedData = blockCipher.doFinal(tmp);
         } catch (IllegalBlockSizeException e) {
             e.printStackTrace();
         } catch (BadPaddingException e) {
@@ -200,30 +222,27 @@ public class GenericBlockCipher extends APubliclySerializable implements
     /**
      * Padding as described in Chapter 6.2.3.2 of RFC 2246
      *
-     * @param data Data which should be padded
+     * @param dataLength Length of the data that should be padded
      * @param blockSize Block size of the cipher
      * @return Padded data which is a multiple of the block size
      */
-    public byte[] addPadding(byte[] data, int blockSize) {
+    public byte[] createPadding(int dataLength, int blockSize) {
         int padLength = 0;
-        if ((data.length % blockSize) != 0) {
-            padLength = blockSize - (data.length % blockSize);
+
+        if ((dataLength % blockSize) != 0) {
+            padLength = blockSize - (dataLength % blockSize);
             setPaddingLength(padLength);
         } else {
             padLength = blockSize;
             setPaddingLength(padLength);
         }
-        byte length = (byte) (padLength - 1);
+        byte length = (byte) (padLength);
         byte[] padding = new byte[padLength];
         for (int i = 0; i < padding.length; i++) {
             padding[i] = length;
         }
-        int pointer = 0;
-        byte[] paddedData = new byte[data.length + padLength];
-        System.arraycopy(data, 0, paddedData, pointer, data.length);
-        pointer += data.length;
-        System.arraycopy(padding, 0, paddedData, pointer, padLength);
-        return paddedData;
+
+        return padding;
     }
 
     /**

@@ -11,10 +11,7 @@ import java.net.SocketException;
 import java.net.SocketTimeoutException;
 import java.security.*;
 import java.security.cert.CertificateException;
-import javax.net.ssl.KeyManager;
-import javax.net.ssl.KeyManagerFactory;
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.SSLServerSocketFactory;
+import javax.net.ssl.*;
 
 /**
  * SSL Test Server.
@@ -48,8 +45,12 @@ public class SSLServer extends Thread {
         keyManagerFactory.init(keyStore, password.toCharArray());
         KeyManager[] keyManagers = keyManagerFactory.getKeyManagers();
 
+        TrustManagerFactory trustManagerFactory = TrustManagerFactory.getInstance(
+                "SunX509");
+        trustManagerFactory.init(keyStore);
+        TrustManager[] trustManagers = trustManagerFactory.getTrustManagers();
         sslContext = SSLContext.getInstance(protocol);
-        sslContext.init(keyManagers, null, null);
+        sslContext.init(keyManagers, trustManagers, null);
 
         this.port = port;
         this.printInfo = printStateInfo;
