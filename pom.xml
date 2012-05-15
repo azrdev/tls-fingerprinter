@@ -11,6 +11,7 @@
     <modules>
         <module>Stack</module>
         <module>TimingSocket</module>
+    <module>VirtualNetworkLayer</module>
   </modules>
     
     <build>
