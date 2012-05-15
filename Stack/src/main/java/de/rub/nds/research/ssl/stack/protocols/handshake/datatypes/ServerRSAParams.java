@@ -38,10 +38,10 @@ public class ServerRSAParams extends APubliclySerializable implements
     /**
      * {@inheritDoc}
      *
-     * Method parameter will be ignored - no support for chained encoding
+     * Method parameter will be ignored - no support for chained encoding.
      */
     @Override
-    public byte[] encode(final boolean chained) {
+    public final byte[] encode(final boolean chained) {
         int pointer = 0;
         byte[] length;
         byte[] serverRSAParams;
@@ -78,10 +78,10 @@ public class ServerRSAParams extends APubliclySerializable implements
     /**
      * {@inheritDoc}
      *
-     * Method parameter will be ignored - no support for chained encoding
+     * Method parameter will be ignored - no support for chained encoding.
      */
     @Override
-    public void decode(final byte[] message, final boolean chained) {
+    public final void decode(final byte[] message, final boolean chained) {
         int extractedLength;
         byte[] tmpBytes;
         // deep copy
@@ -89,7 +89,7 @@ public class ServerRSAParams extends APubliclySerializable implements
         System.arraycopy(message, 0, paramCopy, 0, paramCopy.length);
 
         int pointer = 0;
-        // 1. extract the RSA modulus 
+        // 1. extract the RSA modulus
         extractedLength = extractLength(paramCopy, 0, LENGTH_LENGTH_FIELD);
         tmpBytes = new byte[extractedLength];
         pointer += LENGTH_LENGTH_FIELD;
@@ -98,7 +98,8 @@ public class ServerRSAParams extends APubliclySerializable implements
         pointer += tmpBytes.length;
 
         // 2. extract the RSA exponent
-        extractedLength = extractLength(paramCopy, pointer, LENGTH_LENGTH_FIELD);
+        extractedLength = extractLength(paramCopy, pointer,
+                   LENGTH_LENGTH_FIELD);
         tmpBytes = new byte[extractedLength];
         pointer += LENGTH_LENGTH_FIELD;
         System.arraycopy(paramCopy, pointer, tmpBytes, 0, tmpBytes.length);
@@ -112,16 +113,16 @@ public class ServerRSAParams extends APubliclySerializable implements
      * @return RSA modulus
      */
     public final byte[] getRsaModulus() {
-        return rsaModulus;
+        return rsaModulus.clone();
     }
 
     /**
      * Set the RSA modulus parameter.
      *
-     * @param rsaModulus RSA modulus
+     * @param modulus RSA modulus
      */
-    public void setRsaModulus(final byte[] rsaModulus) {
-        this.rsaModulus = rsaModulus;
+    public final void setRsaModulus(final byte[] modulus) {
+        this.rsaModulus = modulus.clone();
     }
 
     /**
@@ -130,15 +131,15 @@ public class ServerRSAParams extends APubliclySerializable implements
      * @return RSA exponent
      */
     public final byte[] getRsaExponent() {
-        return rsaExponent;
+        return rsaExponent.clone();
     }
 
     /**
      * Set the RSA exponent parameter.
      *
-     * @param rsaExponent RSA exponent
+     * @param exponent RSA exponent
      */
-    public void setRsaExponent(final byte[] rsaExponent) {
-        this.rsaExponent = rsaExponent;
+    public final void setRsaExponent(final byte[] exponent) {
+        this.rsaExponent = exponent.clone();
     }
 }

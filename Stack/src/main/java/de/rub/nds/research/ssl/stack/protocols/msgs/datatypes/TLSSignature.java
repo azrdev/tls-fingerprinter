@@ -307,7 +307,7 @@ public class TLSSignature extends APubliclySerializable {
      * @return Signature value
      */
     public final byte[] getSignatureValue() {
-        return sigValue;
+        return sigValue.clone();
     }
 
     /**
@@ -315,6 +315,6 @@ public class TLSSignature extends APubliclySerializable {
      * @param value Signature value
      */
     public final void setSignatureValue(final byte[] value) {
-        this.sigValue = value;
+        this.sigValue = value.clone();
     }
 }

@@ -120,7 +120,7 @@ public class GenericStreamCipher extends APubliclySerializable implements
      * @return Stream-ciphered content
      */
     public final byte[] getContent() {
-        return this.encryptedData;
+        return this.encryptedData.clone();
     }
 
     /**
@@ -129,7 +129,7 @@ public class GenericStreamCipher extends APubliclySerializable implements
      * @param encPayload Stream-ciphered content
      */
     public final void setContent(final byte[] encPayload) {
-        this.encryptedData = encPayload;
+        this.encryptedData = encPayload.clone();
     }
 
     @Override

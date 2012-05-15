@@ -127,7 +127,6 @@ public class GenericBlockCipher extends APubliclySerializable implements
         // 4. add padding length
         System.arraycopy(paddedDataLength, 0, tmp, pointer,
                 paddedDataLength.length);
-        pointer += paddedDataLength.length;
 
         //encrypt the data
         if (blockCipher != null) {
@@ -177,7 +176,7 @@ public class GenericBlockCipher extends APubliclySerializable implements
         } catch (InvalidParameterSpecException e) {
             e.printStackTrace();
         }
-        return cleartext;
+        return cleartext.clone();
     }
 
     /**
@@ -306,7 +305,7 @@ public class GenericBlockCipher extends APubliclySerializable implements
      * @param padString Padding bytes
      */
     public final void setPadding(final byte[] padString) {
-        this.padding = padString;
+        this.padding = padString.clone();
     }
 
     /**
@@ -315,7 +314,7 @@ public class GenericBlockCipher extends APubliclySerializable implements
      * @return Padding bytes
      */
     public final byte[] getPadding() {
-        return this.padding;
+        return this.padding.clone();
     }
 
     /**
@@ -342,7 +341,7 @@ public class GenericBlockCipher extends APubliclySerializable implements
      * @return The MAC of the payload
      */
     public final byte[] getMAC() {
-        return this.macData;
+        return this.macData.clone();
     }
 
     @Override
@@ -369,7 +368,7 @@ public class GenericBlockCipher extends APubliclySerializable implements
      * @return Block-ciphered content
      */
     public final byte[] getContent() {
-        return this.encryptedData;
+        return this.encryptedData.clone();
     }
 
     /**
@@ -378,6 +377,6 @@ public class GenericBlockCipher extends APubliclySerializable implements
      * @param encPayload Block-ciphered content
      */
     public final void setContent(final byte[] encPayload) {
-        this.encryptedData = encPayload;
+        this.encryptedData = encPayload.clone();
     }
 }

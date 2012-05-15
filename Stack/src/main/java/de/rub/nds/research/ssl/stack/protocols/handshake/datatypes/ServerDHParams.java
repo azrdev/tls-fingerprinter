@@ -42,10 +42,10 @@ public class ServerDHParams extends APubliclySerializable implements
     /**
      * {@inheritDoc}
      *
-     * Method parameter will be ignored - no support for chained encoding
+     * Method parameter will be ignored - no support for chained encoding.
      */
     @Override
-    public byte[] encode(final boolean chained) {
+    public final byte[] encode(final boolean chained) {
         int pointer = 0;
         byte[] length = new byte[LENGTH_LENGTH_FIELD];
         byte[] serverDHParams;
@@ -57,7 +57,8 @@ public class ServerDHParams extends APubliclySerializable implements
          * 2-byte length field for every parameter
          */
         length = buildLength(dhp.length, LENGTH_LENGTH_FIELD);
-        System.arraycopy(length, 0, serverDHParams, pointer, LENGTH_LENGTH_FIELD);
+        System.arraycopy(length, 0, serverDHParams, pointer,
+                 LENGTH_LENGTH_FIELD);
         pointer += LENGTH_LENGTH_FIELD;
         /*
          * add the DH prime parameter
@@ -69,7 +70,8 @@ public class ServerDHParams extends APubliclySerializable implements
          * add the DH generator parameter
          */
         length = buildLength(dhg.length, LENGTH_LENGTH_FIELD);
-        System.arraycopy(length, 0, serverDHParams, pointer, LENGTH_LENGTH_FIELD);
+        System.arraycopy(length, 0, serverDHParams, pointer,
+        		LENGTH_LENGTH_FIELD);
         pointer += LENGTH_LENGTH_FIELD;
         System.arraycopy(this.dhg, 0, serverDHParams, pointer, this.dhg.length);
         pointer += this.dhg.length;
@@ -78,9 +80,11 @@ public class ServerDHParams extends APubliclySerializable implements
          * add the DH public value parameter
          */
         length = buildLength(dhys.length, LENGTH_LENGTH_FIELD);
-        System.arraycopy(length, 0, serverDHParams, pointer, LENGTH_LENGTH_FIELD);
+        System.arraycopy(length, 0, serverDHParams, pointer,
+        		LENGTH_LENGTH_FIELD);
         pointer += LENGTH_LENGTH_FIELD;
-        System.arraycopy(this.dhys, 0, serverDHParams, pointer, this.dhys.length);
+        System.arraycopy(this.dhys, 0, serverDHParams, pointer,
+        		this.dhys.length);
 
         return serverDHParams;
     }
@@ -88,10 +92,10 @@ public class ServerDHParams extends APubliclySerializable implements
     /**
      * {@inheritDoc}
      *
-     * Method parameter will be ignored - no support for chained encoding
+     * Method parameter will be ignored - no support for chained encoding.
      */
     @Override
-    public void decode(final byte[] message, final boolean chained) {
+    public final void decode(final byte[] message, final boolean chained) {
         int extractedLength;
         byte[] tmpBytes;
         // deep copy
@@ -99,7 +103,7 @@ public class ServerDHParams extends APubliclySerializable implements
         System.arraycopy(message, 0, paramCopy, 0, paramCopy.length);
 
         int pointer = 0;
-        // 1. extract dh_p 
+        // 1. extract dh_p
         extractedLength = extractLength(paramCopy, 0, LENGTH_LENGTH_FIELD);
         tmpBytes = new byte[extractedLength];
         pointer += LENGTH_LENGTH_FIELD;
@@ -108,15 +112,17 @@ public class ServerDHParams extends APubliclySerializable implements
         pointer += tmpBytes.length;
 
         // 2. extract dh_g
-        extractedLength = extractLength(paramCopy, pointer, LENGTH_LENGTH_FIELD);
+        extractedLength = extractLength(paramCopy, pointer,
+        		LENGTH_LENGTH_FIELD);
         tmpBytes = new byte[extractedLength];
         pointer += LENGTH_LENGTH_FIELD;
         System.arraycopy(paramCopy, pointer, tmpBytes, 0, tmpBytes.length);
         setDHGenerator(tmpBytes);
         pointer += tmpBytes.length;
 
-        // 3. extract dh_Ys 
-        extractedLength = extractLength(paramCopy, pointer, LENGTH_LENGTH_FIELD);
+        // 3. extract dh_Ys
+        extractedLength = extractLength(paramCopy, pointer,
+        		LENGTH_LENGTH_FIELD);
         tmpBytes = new byte[extractedLength];
         pointer += LENGTH_LENGTH_FIELD;
         System.arraycopy(paramCopy, pointer, tmpBytes, 0, tmpBytes.length);
@@ -129,7 +135,7 @@ public class ServerDHParams extends APubliclySerializable implements
      * @param prime Prime modulus
      */
     public final void setDHPrime(final byte[] prime) {
-        this.dhp = prime;
+        this.dhp = prime.clone();
     }
 
     /**
@@ -138,7 +144,7 @@ public class ServerDHParams extends APubliclySerializable implements
      * @return Prime modulus
      */
     public final byte[] getDHPrime() {
-        return this.dhp;
+        return this.dhp.clone();
     }
 
     /**
@@ -147,7 +153,7 @@ public class ServerDHParams extends APubliclySerializable implements
      * @param gen Generator
      */
     public final void setDHGenerator(final byte[] gen) {
-        this.dhg = gen;
+        this.dhg = gen.clone();
     }
 
     /**
@@ -156,7 +162,7 @@ public class ServerDHParams extends APubliclySerializable implements
      * @return DH generator
      */
     public final byte[] getDHGenerator() {
-        return this.dhg;
+        return this.dhg.clone();
     }
 
     /**
@@ -165,7 +171,7 @@ public class ServerDHParams extends APubliclySerializable implements
      * @param pubValue Server's public value
      */
     public final void setDHPublicValue(final byte[] pubValue) {
-        this.dhys = pubValue;
+        this.dhys = pubValue.clone();
     }
 
     /**
@@ -174,6 +180,6 @@ public class ServerDHParams extends APubliclySerializable implements
      * @return DH public value
      */
     public final byte[] getDHPublicValue() {
-        return this.dhys;
+        return this.dhys.clone();
     }
 }

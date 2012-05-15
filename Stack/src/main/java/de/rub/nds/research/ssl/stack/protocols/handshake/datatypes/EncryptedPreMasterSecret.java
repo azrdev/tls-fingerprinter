@@ -22,11 +22,20 @@ import javax.crypto.NoSuchPaddingException;
 public final class EncryptedPreMasterSecret extends APubliclySerializable
         implements IExchangeKeys {
 
-    private byte[] ciphertext;
     /**
-     * Length bytes
+     * Encrypted payload.
      */
-    public final static int LENGTH_BYTES = 2;
+    private byte[] ciphertext;
+
+    /**
+     * Length bytes.
+     */
+    public static final int LENGTH_BYTES = 2;
+
+    /**
+     * Bits in byte.
+     */
+    public static final int BITS_IN_BYTE = 8;
 
     /**
      * Initializes an EncryptedPreMasterSecret part as defined in RFC 2246.
@@ -34,7 +43,7 @@ public final class EncryptedPreMasterSecret extends APubliclySerializable
      * @param pms PreMasterSecret in encoded form
      * @param pk PublicKey
      */
-    public EncryptedPreMasterSecret(final byte[] pms, PublicKey pk) {
+    public EncryptedPreMasterSecret(final byte[] pms, final PublicKey pk) {
         if (pk == null) {
             throw new IllegalArgumentException("Public Key must not be null");
         }
@@ -46,18 +55,18 @@ public final class EncryptedPreMasterSecret extends APubliclySerializable
         if (mod == null) {
             throw new IllegalArgumentException("Modulus must not be null");
         }
-        int length = mod.bitLength() / 8;
+        int length = mod.bitLength() / BITS_IN_BYTE;
         this.ciphertext = new byte[length];
         this.encryptPreMasterSecret(pms, pk);
     }
 
     /**
      * Initializes an EncryptedPreMasterSecret object, PreMasterSecret is not
-     * encrypted yet
+     * encrypted yet.
      *
      * @param pk PublicKey
      */
-    public EncryptedPreMasterSecret(PublicKey pk) {
+    public EncryptedPreMasterSecret(final PublicKey pk) {
         if (pk == null) {
             throw new IllegalArgumentException("Public Key must not be null");
         }
@@ -69,7 +78,7 @@ public final class EncryptedPreMasterSecret extends APubliclySerializable
         if (mod == null) {
             throw new IllegalArgumentException("Modulus must not be null");
         }
-        int length = mod.bitLength() / 8;
+        int length = mod.bitLength() / BITS_IN_BYTE;
         this.ciphertext = new byte[length];
     }
 
@@ -79,18 +88,17 @@ public final class EncryptedPreMasterSecret extends APubliclySerializable
      * @param message EncryptedPreMasterSecret part in encoded form
      */
     public EncryptedPreMasterSecret(final byte[] message) {
-//    	this.ciphertext = new byte[message.length-LENGTH_BYTES];
         this.decode(message, false);
     }
 
     /**
-     * Encrypts the PreMasterSecret with the extracted PublicKey
+     * Encrypts the PreMasterSecret with the extracted PublicKey.
      *
      * @param pms PreMasterSecret to be encrypted
      * @param pk PublicKey for encryption
      * @return encrypted PreMasterSecret
      */
-    public byte[] encryptPreMasterSecret(final byte[] pms, PublicKey pk) {
+    public byte[] encryptPreMasterSecret(final byte[] pms, final PublicKey pk) {
         Cipher cipher;
         try {
             cipher = Cipher.getInstance("RSA");
@@ -113,14 +121,15 @@ public final class EncryptedPreMasterSecret extends APubliclySerializable
     /**
      * {@inheritDoc}
      *
-     * EncryptedPreMasterSecret 2 bytes length of the ciphertext + ciphertext
+     * EncryptedPreMasterSecret 2 length bytes and ciphertext.
      */
     @Override
-    public byte[] encode(boolean chained) {
+    public byte[] encode(final boolean chained) {
         int pointer = 0;
         byte[] length = buildLength(ciphertext.length, LENGTH_BYTES);
 
-        byte[] encryptedPreMasterSecret = new byte[LENGTH_BYTES + ciphertext.length];
+        byte[] encryptedPreMasterSecret = new byte[LENGTH_BYTES
+                                + ciphertext.length];
 
         // 1. add length bytes
         System.arraycopy(length, 0, encryptedPreMasterSecret, pointer,
@@ -137,19 +146,21 @@ public final class EncryptedPreMasterSecret extends APubliclySerializable
      * {@inheritDoc}
      */
     @Override
-    public void decode(byte[] message, boolean chained) {
+    public void decode(final byte[] message, final boolean chained) {
         final byte[] encryptedSecret = new byte[message.length];
         byte[] tmpBytes;
         int pointer;
         int length;
 
         // deep copy
-        System.arraycopy(message, 0, encryptedSecret, 0, encryptedSecret.length);
+        System.arraycopy(message, 0, encryptedSecret,
+                0, encryptedSecret.length);
 
         pointer = 0;
         // 1. extract length
         tmpBytes = new byte[LENGTH_BYTES];
-        System.arraycopy(encryptedSecret, pointer, tmpBytes, 0, tmpBytes.length);
+        System.arraycopy(encryptedSecret, pointer,
+               tmpBytes, 0, tmpBytes.length);
         pointer += tmpBytes.length;
 
         // 2. extract ciphertext
@@ -160,6 +171,10 @@ public final class EncryptedPreMasterSecret extends APubliclySerializable
 
     }
 
+    /**
+     * Set the encrypted pre_master_secret.
+     * @param encPMS Encrypted pre_master_secret
+     */
     public void setEncryptedPreMasterSecret(final byte[] encPMS) {
         this.ciphertext = new byte[encPMS.length];
         System.arraycopy(encPMS, 0, ciphertext, 0, encPMS.length);

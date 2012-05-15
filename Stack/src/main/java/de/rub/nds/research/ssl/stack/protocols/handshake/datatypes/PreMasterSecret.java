@@ -17,23 +17,27 @@ public final class PreMasterSecret extends APubliclySerializable
         implements IExchangeKeys {
 
     /**
-     * Length of the random value: 28 Bytes
+     * Length of the random value: 28 Bytes.
      */
-    private final static int LENGTH_RANDOM = 46;
+    private static final int LENGTH_RANDOM = 46;
     /**
-     * Minimum length of the encoded form
+     * Minimum length of the encoded form.
      */
-    public final static int LENGTH_MINIMUM_ENCODED =
+    public static final int LENGTH_MINIMUM_ENCODED =
             EProtocolVersion.LENGTH_ENCODED
             + LENGTH_RANDOM;
+    /**Protocol version.*/
     private EProtocolVersion protocolVersion = null;
+    /**Random value.*/
     private byte[] random = new byte[LENGTH_RANDOM];
+    /**Diffie Hellman key.*/
     private byte[] dhZ;
 
     /**
      * Initializes a PreMasterSecret part as defined in RFC 2246.
+     * @param version Protocol version
      */
-    public PreMasterSecret(EProtocolVersion version) {
+    public PreMasterSecret(final EProtocolVersion version) {
         this.protocolVersion = EProtocolVersion.valueOf(version.name());
         // initialize random
         SecureRandom secureRandom = new SecureRandom();
@@ -43,17 +47,21 @@ public final class PreMasterSecret extends APubliclySerializable
     /**
      * Initializes a PreMasterSecret part as definied in RFC 2246, when Diffie
      * Hellman is used as key exchange algorithm.
+     * @param clientYs Client exchange key
+     * @param serverYs Server exchange key
+     * @param mod Prime modulus
      */
-    public PreMasterSecret(byte[] clientYs, byte[] serverYs, byte[] mod) {
+    public PreMasterSecret(final byte[] clientYs,
+           final byte[] serverYs, final byte[] mod) {
         BigInteger cYs = new BigInteger(1, clientYs);
         BigInteger sYs = new BigInteger(1, serverYs);
         BigInteger modulus = new BigInteger(1, mod);
 
-        byte[] dhZ = sYs.modPow(cYs, modulus).toByteArray();
+        byte[] key = sYs.modPow(cYs, modulus).toByteArray();
         byte[] tmp = new byte[mod.length];
-        if (dhZ.length > mod.length) {
-            System.arraycopy(dhZ, 1, tmp, 0, mod.length);
-            dhZ = tmp;
+        if (key.length > mod.length) {
+            System.arraycopy(key, 1, tmp, 0, mod.length);
+            key = tmp;
         }
         this.setDHKey(dhZ);
     }
@@ -80,28 +88,28 @@ public final class PreMasterSecret extends APubliclySerializable
     /**
      * Set the protocol version of this message part.
      *
-     * @param protocolVersion The protocol version to be used
+     * @param version The protocol version to be used
      */
     public void setProtocolVersion(
-            final EProtocolVersion protocolVersion) {
-        if (protocolVersion == null) {
+            final EProtocolVersion version) {
+        if (this.protocolVersion == null) {
             throw new IllegalArgumentException(
                     "Protocol version must not be null!");
         }
 
         this.protocolVersion = EProtocolVersion.valueOf(
-                protocolVersion.name());
+                version.name());
     }
 
     /**
      * Set the protocol version of this message.
      *
-     * @param protocolVersion The protocol version object to be used for in
+     * @param version The protocol version object to be used for in
      * encoded form
      */
-    public void setProtocolVersion(final byte[] protocolVersion) {
+    public void setProtocolVersion(final byte[] version) {
         this.protocolVersion = EProtocolVersion.getProtocolVersion(
-                protocolVersion);
+                version);
     }
 
     /**
@@ -122,26 +130,36 @@ public final class PreMasterSecret extends APubliclySerializable
      * @param randomBytes The random bytes of this message part
      */
     public void setRandom(final byte[] randomBytes) {
-        if (randomBytes == null || randomBytes.length != LENGTH_RANDOM) {
-            throw new IllegalArgumentException("Random bytes must not be exactly "
-                    + LENGTH_RANDOM + " bytes!");
+        if (randomBytes == null
+            || randomBytes.length != LENGTH_RANDOM) {
+            throw new IllegalArgumentException("Random bytes"
+            + "must not be exactly " + LENGTH_RANDOM + " bytes!");
         }
         // deep copy
         System.arraycopy(randomBytes, 0, random, 0, randomBytes.length);
     }
 
+    /**
+     * Get the generated DH key.
+     * @return DH key
+     */
     public byte[] getDHKey() {
-        return dhZ;
+        return dhZ.clone();
     }
 
-    public void setDHKey(byte[] dhZ) {
-        this.dhZ = dhZ;
+    /**
+     * Set the generated DH key.
+     * @param key DH key
+     */
+    public void setDHKey(final byte[] key) {
+        this.dhZ = key.clone();
     }
 
     /**
      * {@inheritDoc}
      *
-     * ServerHello representation 2 bytes Protocol version 48 bytes Random value
+     * ServerHello representation 2 bytes Protocol version
+     * 48 bytes Random value.
      */
     @Override
     public byte[] encode(final boolean chained) {
