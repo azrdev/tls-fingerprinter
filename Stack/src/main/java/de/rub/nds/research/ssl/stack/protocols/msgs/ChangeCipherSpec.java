@@ -14,7 +14,8 @@ import de.rub.nds.research.ssl.stack.protocols.commons.EProtocolVersion;
  */
 public final class ChangeCipherSpec extends ARecordFrame {
 
-    private byte[] oneByte = null;
+	/**Payload of ChangeCipherSpec message.*/
+	private byte[] oneByte = null;
 
     /**
      * Initializes a ChangeCipherSpec message as defined in RFC 2246.
@@ -28,8 +29,7 @@ public final class ChangeCipherSpec extends ARecordFrame {
         this.decode(message, chained);
     }
 
-    /**
-     * Initializes a ChangeCipherSpec as defined in RFC 2246
+    /**Initializes a ChangeCipherSpec as defined in RFC 2246.
      *
      * @param version Protocol version
      */
@@ -39,10 +39,10 @@ public final class ChangeCipherSpec extends ARecordFrame {
     }
 
     /**
-     * {@inheritDoc} ChangeCipherSpec message with a 1-byte payload
+     * {@inheritDoc} ChangeCipherSpec message with a 1-byte payload.
      */
     @Override
-    public byte[] encode(boolean chained) {
+    public byte[] encode(final boolean chained) {
         super.setPayload(this.oneByte);
         return super.encode(true);
     }
@@ -70,7 +70,7 @@ public final class ChangeCipherSpec extends ARecordFrame {
                     "Unvalid ChangeCipherSpec message");
         }
 
-        // extract byte 
+        // extract byte
         tmpBytes = new byte[1];
         System.arraycopy(payloadCopy, 0, tmpBytes, 0, tmpBytes.length);
         this.oneByte = tmpBytes;
@@ -80,9 +80,9 @@ public final class ChangeCipherSpec extends ARecordFrame {
     /**
      * Set the payload of the record.
      *
-     * @param oneByte The Payload
+     * @param payload The Payload
      */
-    public void setContent(byte[] oneByte) {
-        this.oneByte = oneByte.clone();
+    public void setContent(final byte[] payload) {
+        this.oneByte = payload.clone();
     }
 }

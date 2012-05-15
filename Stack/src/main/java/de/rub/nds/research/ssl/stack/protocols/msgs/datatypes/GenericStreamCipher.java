@@ -5,7 +5,12 @@ import de.rub.nds.research.ssl.stack.protocols.ARecordFrame;
 import de.rub.nds.research.ssl.stack.protocols.commons.APubliclySerializable;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
-import javax.crypto.*;
+
+import javax.crypto.BadPaddingException;
+import javax.crypto.Cipher;
+import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.NoSuchPaddingException;
+import javax.crypto.SecretKey;
 
 /**
  * Stream cipher encryption/decrpytion and MAC computation.
@@ -31,7 +36,7 @@ public class GenericStreamCipher extends APubliclySerializable implements
     private byte[] encryptedData;
 
     /**
-     * Initialize a GenericStreamCipher as defined in RFC2246
+     * Initialize a GenericStreamCipher as defined in RFC2246.
      *
      * @param data Ciphertext
      */
@@ -40,7 +45,7 @@ public class GenericStreamCipher extends APubliclySerializable implements
     }
 
     /**
-     * Initialize a GenericStreamCipher as defined in RFC2246
+     * Initialize a GenericStreamCipher as defined in RFC2246.
      *
      * @param frame Non-encrypted record frame
      */
@@ -49,7 +54,7 @@ public class GenericStreamCipher extends APubliclySerializable implements
     }
 
     /**
-     * Concatenate data and MAC, encrypt data
+     * Concatenate data and MAC, encrypt data.
      *
      * @param key Symmetric key
      * @param cipherName Name of the symmetric cipher
@@ -92,7 +97,7 @@ public class GenericStreamCipher extends APubliclySerializable implements
     }
 
     /**
-     * Compute the MAC of the payload
+     * Compute the MAC of the payload.
      *
      * @param key Secret key for MAC computation
      * @param macName MAC algorithm

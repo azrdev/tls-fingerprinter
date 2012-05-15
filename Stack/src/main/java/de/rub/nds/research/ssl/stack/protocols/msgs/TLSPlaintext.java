@@ -12,10 +12,13 @@ import de.rub.nds.research.ssl.stack.protocols.commons.EProtocolVersion;
  */
 public class TLSPlaintext extends ARecordFrame {
 
+     /**
+      * Data record fragment.
+      */
     private byte[] fragment = null;
 
     /**
-     * Initializes a plain data record
+     * Initializes a plain data record.
      *
      * @param message SSL data record
      * @param chained Decode single or chained with underlying frames
@@ -27,7 +30,7 @@ public class TLSPlaintext extends ARecordFrame {
     }
 
     /**
-     * Initializes a plain data record
+     * Initializes a plain data record.
      *
      * @param protocolVersion Protocol version of this message
      */
@@ -41,7 +44,7 @@ public class TLSPlaintext extends ARecordFrame {
     @Override
     public final byte[] encode(final boolean chained) {
         super.setPayload(this.fragment);
-        return chained ? super.encode(true) : fragment;
+        return chained ? super.encode(true) : this.fragment;
     }
 
     /**
@@ -68,20 +71,20 @@ public class TLSPlaintext extends ARecordFrame {
     }
 
     /**
-     * Set the data fragment of this record
+     * Set the data fragment of this record.
      *
-     * @param fragment Data fragment
+     * @param fragm Data fragment
      */
-    public void setFragment(byte[] fragment) {
-        this.fragment = fragment.clone();
+    public final void setFragment(final byte[] fragm) {
+        this.fragment = fragm.clone();
     }
 
     /**
-     * Get the data fragment of this record
+     * Get the data fragment of this record.
      *
      * @return Data fragment
      */
-    public byte[] getFragment() {
+    public final byte[] getFragment() {
         return this.fragment.clone();
     }
 }

@@ -27,7 +27,7 @@ public class GenericBlockCipher extends APubliclySerializable implements
         IGenericCipher {
 
     /**
-     * Plain record
+     * Plain record.
      */
     private ARecordFrame plainRecord = null;
     /**
@@ -52,7 +52,7 @@ public class GenericBlockCipher extends APubliclySerializable implements
     private byte[] padding;
 
     /**
-     * Initialize a GenericBlockCipher as defined in RFC2246
+     * Initialize a GenericBlockCipher as defined in RFC2246.
      *
      * @param data Ciphertext
      */
@@ -61,7 +61,7 @@ public class GenericBlockCipher extends APubliclySerializable implements
     }
 
     /**
-     * Initialize a GenericBlockCipher as defined in RFC2246
+     * Initialize a GenericBlockCipher as defined in RFC2246.
      *
      * @param frame Non-encrypted record frame
      */
@@ -70,13 +70,13 @@ public class GenericBlockCipher extends APubliclySerializable implements
     }
 
     /**
-     * Concatenate data and MAC, add padding and encrypt data
+     * Concatenate data and MAC, add padding and encrypt data.
      *
      * @param key Symmetric key
      * @param cipherName Name of the symmetric cipher
      * @param iv Initialization vector for ciphertext computation
      */
-    public void encryptData(final SecretKey key,
+    public final void encryptData(final SecretKey key,
             String cipherName, final byte[] iv) {
         if (cipherName.equals("TRIPLE_DES")) {
             cipherName = "DESede";
@@ -105,11 +105,11 @@ public class GenericBlockCipher extends APubliclySerializable implements
         //concatenate data and MAC
         int pointer = 0;
         int payloadLength = this.plainRecord.getPayload().length;
-        // padding precomputation 
-        // padding length + 1 since we add the paddingLength field 
-        byte[] paddedData = this.createPadding(
-                payloadLength + 1 + macData.length,
-                blockSize);
+        // padding precomputation
+        // padding length + 1 since we add the paddingLength field
+        this.createPadding(payloadLength
+                   + 1 + macData.length, blockSize);
+        byte[] paddedData = getPadding();
         byte[] paddedDataLength = new byte[]{(byte) (paddedData.length)};
 
         byte[] tmp = new byte[payloadLength + macData.length
@@ -142,11 +142,12 @@ public class GenericBlockCipher extends APubliclySerializable implements
     }
 
     /**
-     * Decrypt the data of an encrypted data record
+     * Decrypt the data of an encrypted data record.
      *
      * @param key Symmetric key
      * @param cipherName Name of the symmetric cipher
      * @param iv Initialization vector for ciphertext computation
+     * @return Decrypted data
      */
     public final byte[] decryptData(final SecretKey key,
             final String cipherName, final byte[] iv) {
@@ -160,7 +161,7 @@ public class GenericBlockCipher extends APubliclySerializable implements
             params.init(iVector);
             blockCipher.init(Cipher.DECRYPT_MODE, key, params);
             //first decrypt the data
-            cleartext = blockCipher.doFinal(this.encryptedData);
+            this.cleartext = blockCipher.doFinal(this.encryptedData);
         } catch (NoSuchAlgorithmException e) {
             e.printStackTrace();
         } catch (NoSuchPaddingException e) {
@@ -180,7 +181,7 @@ public class GenericBlockCipher extends APubliclySerializable implements
     }
 
     /**
-     * Initialize block cipher for ciphertext computation
+     * Initialize block cipher for ciphertext computation.
      *
      * @param key Symmetric key for encryption
      * @param cipherName Symmetric cipher
@@ -213,13 +214,13 @@ public class GenericBlockCipher extends APubliclySerializable implements
     }
 
     /**
-     * Padding as described in Chapter 6.2.3.2 of RFC 2246
+     * Padding as described in Chapter 6.2.3.2 of RFC 2246.
      *
      * @param dataLength Length of the data that should be padded
      * @param blockSize Block size of the cipher
-     * @return Padded data which is a multiple of the block size
      */
-    public byte[] createPadding(int dataLength, int blockSize) {
+    public final void createPadding(final int dataLength,
+            final int blockSize) {
         int padLength = 0;
 
         if ((dataLength % blockSize) != 0) {
@@ -230,12 +231,11 @@ public class GenericBlockCipher extends APubliclySerializable implements
             setPaddingLength(padLength);
         }
         byte length = (byte) (padLength);
-        byte[] padding = new byte[padLength];
-        for (int i = 0; i < padding.length; i++) {
-            padding[i] = length;
+        byte[] tmp = new byte[padLength];
+        for (int i = 0; i < tmp.length; i++) {
+            tmp[i] = length;
         }
-
-        return padding;
+        setPadding(tmp);
     }
 
     /**
@@ -243,9 +243,9 @@ public class GenericBlockCipher extends APubliclySerializable implements
      *
      * @param payload Decrypted payload
      */
-    public final void checkAndRemovePadding(byte[] payload) {
+    public final void checkAndRemovePadding(final byte[] payload) {
         int payloadLength = payload.length;
-        int paddingLength = extractLength(payload, payloadLength - 1, 1);
+        this.paddingLength = extractLength(payload, payloadLength - 1, 1);
         setPaddingLength(paddingLength);
         byte padByteValue = (byte) paddingLength;
         for (int i = payloadLength - paddingLength; i < payloadLength; i++) {
@@ -263,7 +263,7 @@ public class GenericBlockCipher extends APubliclySerializable implements
     }
 
     /**
-     * Compute the MAC of the payload
+     * Compute the MAC of the payload.
      *
      * @param key Secret key for MAC computation
      * @param macName MAC algorithm
@@ -281,7 +281,7 @@ public class GenericBlockCipher extends APubliclySerializable implements
     }
 
     /**
-     * Concatenates the record payload and the MAC
+     * Concatenates the record payload and the MAC.
      *
      * @param data Record payload
      * @param mac MAC of the payload
@@ -303,10 +303,10 @@ public class GenericBlockCipher extends APubliclySerializable implements
     /**
      * Set padding bytes of a block.
      *
-     * @param padding Padding bytes
+     * @param padString Padding bytes
      */
-    public final void setPadding(final byte[] padding) {
-        this.padding = padding;
+    public final void setPadding(final byte[] padString) {
+        this.padding = padString;
     }
 
     /**
@@ -321,10 +321,10 @@ public class GenericBlockCipher extends APubliclySerializable implements
     /**
      * Set the length of the block padding.
      *
-     * @param paddingLength Length of the block padding
+     * @param padLength Length of the block padding
      */
-    public final void setPaddingLength(final int paddingLength) {
-        this.paddingLength = paddingLength;
+    public final void setPaddingLength(final int padLength) {
+        this.paddingLength = padLength;
     }
 
     /**
@@ -346,7 +346,8 @@ public class GenericBlockCipher extends APubliclySerializable implements
     }
 
     @Override
-    public void decode(final byte[] message, final boolean chained) {
+    public final void decode(final byte[] message,
+            final boolean chained) {
         final byte[] encPayload = new byte[message.length];
 
         // deep copy

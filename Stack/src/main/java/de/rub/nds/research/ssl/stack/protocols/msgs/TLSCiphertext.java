@@ -4,8 +4,10 @@ import de.rub.nds.research.ssl.stack.protocols.ARecordFrame;
 import de.rub.nds.research.ssl.stack.protocols.commons.EContentType;
 import de.rub.nds.research.ssl.stack.protocols.commons.EProtocolVersion;
 import de.rub.nds.research.ssl.stack.protocols.commons.SecurityParameters;
-import de.rub.nds.research.ssl.stack.protocols.msgs.datatypes.GenericBlockCipher;
-import de.rub.nds.research.ssl.stack.protocols.msgs.datatypes.GenericStreamCipher;
+import de.rub.nds.research.ssl.stack.protocols.msgs.
+datatypes.GenericBlockCipher;
+import de.rub.nds.research.ssl.stack.protocols.msgs.
+datatypes.GenericStreamCipher;
 import de.rub.nds.research.ssl.stack.protocols.msgs.datatypes.IGenericCipher;
 
 /**
@@ -17,12 +19,12 @@ import de.rub.nds.research.ssl.stack.protocols.msgs.datatypes.IGenericCipher;
 public class TLSCiphertext extends ARecordFrame {
 
     /**
-     * The cipher
+     * Generic cipher interface.
      */
     private IGenericCipher genericCipher = null;
 
     /**
-     * Initializes an encrypted data record
+     * Initializes an encrypted data record.
      *
      * @param message SSL data record in encrypted form
      * @param chained Decode single or chained with underlying frames
@@ -34,7 +36,7 @@ public class TLSCiphertext extends ARecordFrame {
     }
 
     /**
-     * Initializes a data record with a specific content type
+     * Initializes a data record with a specific content type.
      *
      * @param version Protocol version
      * @param type The content type
@@ -45,7 +47,7 @@ public class TLSCiphertext extends ARecordFrame {
     }
 
     /**
-     * Initializes a application data record
+     * Initializes an application data record.
      *
      * @param version Protocol version
      */
@@ -54,7 +56,7 @@ public class TLSCiphertext extends ARecordFrame {
     }
 
     /**
-     * Set the ciphertext
+     * Set the ciphertext of the message.
      *
      * @param cipher The cipher
      */
@@ -63,28 +65,27 @@ public class TLSCiphertext extends ARecordFrame {
     }
 
     /**
-     * Get the cipher
+     * Get the cipher. Stream or block cipher is possible.
      *
      * @return Specific cipher type object
      */
     public final IGenericCipher getGenericCipher() {
-        IGenericCipher genericCipher = null;
         SecurityParameters param = SecurityParameters.getInstance();
         byte[] tmp;
 
         tmp = this.genericCipher.encode(false);
         switch (param.getCipherType()) {
             case STREAM:
-                genericCipher = new GenericStreamCipher(tmp);
+                this.genericCipher = new GenericStreamCipher(tmp);
                 break;
             case BLOCK:
-                genericCipher = new GenericBlockCipher(tmp);
+                this.genericCipher = new GenericBlockCipher(tmp);
                 break;
             default:
                 break;
         }
 
-        return genericCipher;
+        return this.genericCipher;
     }
 
     /**

@@ -3,8 +3,15 @@ package de.rub.nds.research.ssl.stack.protocols.msgs.datatypes;
 import de.rub.nds.research.ssl.stack.protocols.commons.APubliclySerializable;
 import de.rub.nds.research.ssl.stack.protocols.commons.KeyExchangeParams;
 import de.rub.nds.research.ssl.stack.protocols.commons.SecurityParameters;
-import de.rub.nds.research.ssl.stack.protocols.handshake.datatypes.ESignatureAlgorithm;
-import java.security.*;
+import de.rub.nds.research.ssl.stack.protocols.handshake.
+datatypes.ESignatureAlgorithm;
+
+import java.security.InvalidKeyException;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.security.PublicKey;
+import java.security.Signature;
+import java.security.SignatureException;
 import java.security.interfaces.RSAPublicKey;
 import java.util.Arrays;
 
@@ -17,6 +24,9 @@ import java.util.Arrays;
  */
 public class TLSSignature extends APubliclySerializable {
 
+    /**
+     * Signature algorithm of this handshake.
+     */
     private ESignatureAlgorithm sigAlgorithm;
     /**
      * Length of the length field.
@@ -30,26 +40,34 @@ public class TLSSignature extends APubliclySerializable {
      * Length of a SHA1 hash.
      */
     private static final int SHA1_LENGTH = 20;
+
     /**
      * Length of a MD5 hash.
      */
     private static final int MD5_LENGTH = 16;
+
     /**
      * Length of concatenated MD5 and SHA1 hash.
      */
     private static final int CONCAT_HASH_LENGTH = SHA1_LENGTH + MD5_LENGTH;
+
     /**
-     * Signature value
+     * Max. count of parameters in ServerKeyExchange message.
+     */
+    private static final int MAX_COUNT_PARAM = 4;
+
+    /**
+     * Signature value.
      */
     private byte[] sigValue = null;
 
     /**
      * Initialize a TLS signature as defined in RFC 2246.
      *
-     * @param sigAlgorithm Signature algorithm
+     * @param algorithm Signature algorithm
      */
-    public TLSSignature(ESignatureAlgorithm sigAlgorithm) {
-        this.sigAlgorithm = sigAlgorithm;
+    public TLSSignature(final ESignatureAlgorithm algorithm) {
+        this.sigAlgorithm = algorithm;
     }
 
     /**
@@ -57,7 +75,7 @@ public class TLSSignature extends APubliclySerializable {
      *
      * @param message Handshake message bytes
      */
-    public TLSSignature(byte[] message) {
+    public TLSSignature(final byte[] message) {
         KeyExchangeParams keyParams = KeyExchangeParams.getInstance();
         this.sigAlgorithm = keyParams.getSignatureAlgorithm();
         this.decode(message, false);
@@ -71,7 +89,7 @@ public class TLSSignature extends APubliclySerializable {
      * @param signature Signed server key exchange parameters
      * @return True if signature was successfully verified
      */
-    public boolean checkSignature(byte[] signature) {
+    public final boolean checkSignature(final byte[] signature) {
         KeyExchangeParams keyParams = KeyExchangeParams.getInstance();
         boolean valid = false;
         if (this.sigAlgorithm == ESignatureAlgorithm.RSA) {
@@ -89,19 +107,21 @@ public class TLSSignature extends APubliclySerializable {
      *
      * @param signature Signature bytes
      * @param pk Public key
+     * @return True if signature verification was successful
      */
-    public boolean checkRSASignature(byte[] signature, PublicKey pk) {
+    public final boolean checkRSASignature(final byte[] signature,
+            final PublicKey pk) {
         SecurityParameters params = SecurityParameters.getInstance();
         byte[] clientRandom = params.getClientRandom();
         byte[] serverRandom = params.getServerRandom();
-        byte[] serverParams = getServerParams();
+        byte[] parameters = getServerParams();
         byte[] md5Hash;
         byte[] sha1Hash;
         byte[] concat = new byte[CONCAT_HASH_LENGTH];
-        md5Hash = md5_hash(clientRandom, serverRandom,
-                serverParams);
-        sha1Hash = sha1_hash(clientRandom, serverRandom,
-                serverParams);
+        md5Hash = md5Hash(clientRandom, serverRandom,
+                parameters);
+        sha1Hash = sha1Hash(clientRandom, serverRandom,
+                parameters);
         //concatenate the two hashes
         int pointer = 0;
         System.arraycopy(md5Hash, 0, concat, pointer, md5Hash.length);
@@ -113,7 +133,7 @@ public class TLSSignature extends APubliclySerializable {
             RSAPublicKey rsaPK = (RSAPublicKey) pk;
             msg = RsaUtil.pubOp(signature, rsaPK);
         }
-        byte[] recHash = new byte[36];
+        byte[] recHash = new byte[CONCAT_HASH_LENGTH];
         if (msg != null) {
             System.arraycopy(msg, msg.length - recHash.length, recHash, 0,
                     recHash.length);
@@ -127,20 +147,22 @@ public class TLSSignature extends APubliclySerializable {
      *
      * @param signature Signature bytes
      * @param pk Public key
+     * @return True if signature verification was successful
      */
-    public boolean checkDSSSignature(byte[] signature, PublicKey pk) {
+    public final boolean checkDSSSignature(final byte[] signature,
+            final PublicKey pk) {
         boolean valid = false;
         SecurityParameters params = SecurityParameters.getInstance();
         byte[] clientRandom = params.getClientRandom();
         byte[] serverRandom = params.getServerRandom();
-        byte[] serverParams = getServerParams();
+        byte[] parameters = getServerParams();
         Signature sig;
         try {
             sig = Signature.getInstance("SHA1withDSA");
             sig.initVerify(pk);
             sig.update(clientRandom);
             sig.update(serverRandom);
-            sig.update(serverParams);
+            sig.update(parameters);
             valid = sig.verify(signature);
         } catch (NoSuchAlgorithmException e) {
             e.printStackTrace();
@@ -157,18 +179,18 @@ public class TLSSignature extends APubliclySerializable {
      *
      * @param clientRandom Client random parameter
      * @param serverRandom Server random parameter
-     * @param serverParams Server parameters
+     * @param parameters Server parameters
      * @return MD5 hash
      */
-    public final byte[] md5_hash(byte[] clientRandom,
-            byte[] serverRandom, byte[] serverParams) {
+    public final byte[] md5Hash(final byte[] clientRandom,
+            final byte[] serverRandom, final byte[] parameters) {
         byte[] result = null;
         MessageDigest md5 = null;
         try {
             md5 = MessageDigest.getInstance("MD5");
             md5.update(clientRandom);
             md5.update(serverRandom);
-            md5.update(serverParams);
+            md5.update(parameters);
             result = md5.digest();
         } catch (NoSuchAlgorithmException e) {
             e.printStackTrace();
@@ -181,18 +203,18 @@ public class TLSSignature extends APubliclySerializable {
      *
      * @param clientRandom Client random parameter
      * @param serverRandom Server random parameter
-     * @param serverParams Server parameters
+     * @param parameters Server parameters
      * @return SHA1 hash
      */
-    public final byte[] sha1_hash(byte[] clientRandom,
-            byte[] serverRandom, byte[] serverParams) {
+    public final byte[] sha1Hash(final byte[] clientRandom,
+            final byte[] serverRandom, final byte[] parameters) {
         byte[] result = null;
         MessageDigest sha1 = null;
         try {
             sha1 = MessageDigest.getInstance("SHA");
             sha1.update(clientRandom);
             sha1.update(serverRandom);
-            sha1.update(serverParams);
+            sha1.update(parameters);
             result = sha1.digest();
         } catch (NoSuchAlgorithmException e) {
             e.printStackTrace();
@@ -205,7 +227,7 @@ public class TLSSignature extends APubliclySerializable {
      * {@inheritDoc}
      */
     @Override
-    public byte[] encode(boolean chained) {
+    public final byte[] encode(final boolean chained) {
         /*
          * To be implemented.
          */
@@ -216,7 +238,7 @@ public class TLSSignature extends APubliclySerializable {
      * {@inheritDoc}
      */
     @Override
-    public void decode(byte[] message, boolean chained) {
+    public final void decode(final byte[] message, final boolean chained) {
         int extractedLength;
         int sigLength = 0;
         byte[] tmpBytes;
@@ -232,7 +254,7 @@ public class TLSSignature extends APubliclySerializable {
             setSignatureValue(new byte[0]);
         } else {
             int pointer = 0;
-            for (int i = 0; i < 4; i++) {
+            for (int i = 0; i < MAX_COUNT_PARAM; i++) {
                 extractedLength = extractLength(paramCopy, pointer,
                         LENGTH_LENGTH_FIELD);
                 pointer += LENGTH_LENGTH_FIELD + extractedLength;
@@ -242,16 +264,16 @@ public class TLSSignature extends APubliclySerializable {
                     break;
                 }
             }
-            // extract signature 
+            // extract signature
             tmpBytes = new byte[sigLength];
             System.arraycopy(paramCopy, pointer, tmpBytes, 0, tmpBytes.length);
             setSignatureValue(tmpBytes);
             //extract serverParams
-            byte[] serverParams = new byte[paramCopy.length - (sigLength + 2)];
-            System.arraycopy(paramCopy, 0, serverParams, 0,
+            byte[] parameters = new byte[paramCopy.length - (sigLength + 2)];
+            System.arraycopy(paramCopy, 0, parameters, 0,
                     paramCopy.length - (sigLength + 2));
-            setServerParams(serverParams);
-            if (checkSignature(tmpBytes) != true) {
+            setServerParams(parameters);
+            if (!(checkSignature(tmpBytes))) {
                 try {
                     throw new Exception("Signature invalid");
                 } catch (Exception e) {
@@ -271,12 +293,12 @@ public class TLSSignature extends APubliclySerializable {
     }
 
     /**
-     * Set the server parameters
+     * Set the server parameters.
      *
-     * @param serverParams Server parameters
+     * @param parameters Server parameters
      */
-    private void setServerParams(byte[] serverParams) {
-        this.serverParams = serverParams;
+    private void setServerParams(final byte[] parameters) {
+        this.serverParams = parameters;
     }
 
     /**
@@ -284,16 +306,15 @@ public class TLSSignature extends APubliclySerializable {
      *
      * @return Signature value
      */
-    public byte[] getSignatureValue() {
+    public final byte[] getSignatureValue() {
         return sigValue;
     }
 
     /**
      * Set the signature value.
-     *
-     * @return Signature value
+     * @param value Signature value
      */
-    public void setSignatureValue(byte[] sigValue) {
-        this.sigValue = sigValue;
+    public final void setSignatureValue(final byte[] value) {
+        this.sigValue = value;
     }
 }
