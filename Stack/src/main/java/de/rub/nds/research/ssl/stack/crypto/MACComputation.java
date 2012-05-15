@@ -7,7 +7,7 @@ import javax.crypto.Mac;
 import javax.crypto.SecretKey;
 
 /**
- * MAC computation of the record payloads
+ * MAC computation of the record payloads.
  *
  * @author Eugen Weiss
  *
@@ -15,10 +15,17 @@ import javax.crypto.SecretKey;
  */
 public class MACComputation extends ARecordFrame {
 
+    /**Message authentication code.*/
     private Mac mac = null;
+    /**Sequence number.*/
     private byte[] seqNum = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
 
-    public MACComputation(SecretKey key, String macName) {
+    /**
+     * Initialize MAC with its properties.
+     * @param key Secret key
+     * @param macName Name of MAC algorithm
+     */
+    public MACComputation(final SecretKey key, final String macName) {
         try {
             mac = Mac.getInstance("Hmac" + macName);
             mac.init(key);
@@ -30,15 +37,22 @@ public class MACComputation extends ARecordFrame {
     }
 
     /**
-     * Compute MAC as described in Chapter 6.2.3.1 in RFC 2246
+     * Compute MAC as described in Chapter 6.2.3.1 in RFC 2246.
      *
-     * @param key
-     * @param macName
+     * @param protocolVersion Protocol version
+     * @param contentType Content type of the message
+     * @param payloadLength Length of message payload
+     * @param payload Payload of the message
+     * @return MAC value
      */
-    public byte[] computeMAC(byte[] protocolVersion, byte contentType,
-            byte[] payloadLength, byte[] payload) {
-        //concatenate sequence number, content type, protocol version, length and payload
-        byte[] data = new byte[seqNum.length + 1 + protocolVersion.length + payloadLength.length + payload.length];
+    public final byte[] computeMAC(final byte[] protocolVersion,
+            final byte contentType, final byte[] payloadLength,
+            final byte[] payload) {
+        /*concatenate sequence number, content type,
+        protocol version, length and payload*/
+        byte[] data = new byte[seqNum.length + 1
+                       + protocolVersion.length
+                       + payloadLength.length + payload.length];
         int pointer = 0;
 
         //add sequence number
@@ -65,10 +79,5 @@ public class MACComputation extends ARecordFrame {
         //compute the MAC of the message
         return mac.doFinal(data);
     }
-//	private void incrementSeqNum(){
-//		byte num = 0x01;
-//		for (int i=0; i<seqNum.length; i++){
-//			
-//		}
-//	}
+
 }
