@@ -123,6 +123,7 @@ public class SSLServer extends Thread {
         serverSocket = serverSocketFactory.createServerSocket(listenPort);
 
         serverSocket.setSoTimeout(TIMEOUT);
+        serverSocket.setReuseAddress(true);
         if (printInfo) {
             System.out.println("|| presetup successful");
         }
