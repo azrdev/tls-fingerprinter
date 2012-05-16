@@ -1,11 +1,16 @@
 package de.rub.nds.research.ssl.stack.tests.analyzer;
 
 import java.util.ArrayList;
+import java.util.Properties;
+
+import org.testng.Reporter;
+import org.testng.remote.strprotocol.IMessage;
 
 import de.rub.nds.research.ssl.stack.Utility;
 import de.rub.nds.research.ssl.stack.protocols.ARecordFrame;
 import de.rub.nds.research.ssl.stack.protocols.alert.Alert;
 import de.rub.nds.research.ssl.stack.protocols.commons.ECipherSuite;
+import de.rub.nds.research.ssl.stack.protocols.commons.EProtocolVersion;
 import de.rub.nds.research.ssl.stack.protocols.handshake.Certificate;
 import de.rub.nds.research.ssl.stack.protocols.handshake.ClientHello;
 import de.rub.nds.research.ssl.stack.protocols.handshake.ClientKeyExchange;
@@ -18,6 +23,7 @@ import de.rub.nds.research.ssl.stack.tests.trace.Trace;
 
 public class TraceListAnalyzer {
 	
+	
 	public TraceListAnalyzer() {
 		
 	}
@@ -25,7 +31,19 @@ public class TraceListAnalyzer {
 	public void analyzeList(ArrayList<Trace> traceList) {
 		for (int i=0; i<traceList.size(); i++) {
 			if (traceList.get(i).getOldRecord() != null) {
+				ARecordFrame currentRecord = traceList.get(i).getCurrentRecord();
+				ARecordFrame oldRecord = traceList.get(i).getOldRecord();
+				callMessageAnalyzer(currentRecord, oldRecord);
 			}
+		}
+	}
+	
+	public void callMessageAnalyzer(ARecordFrame currentRecord,
+			ARecordFrame oldRecord){
+		IMessageAnalyzer analyzer;
+		if(currentRecord instanceof ClientHello) {
+			analyzer = new ClientHelloAnalyzer();
+			analyzer.compareMessages(currentRecord, oldRecord);
 		}
 	}
 	
@@ -33,56 +51,55 @@ public class TraceListAnalyzer {
 		for (Trace trace : traceList) {
 			 ARecordFrame currentRecord = trace.getCurrentRecord();
 			 if (currentRecord instanceof ClientHello) {
-				 System.out.println("--Client Hello send--");
+				 Reporter.log("--Client Hello send--");
 				 ClientHello clientHello = (ClientHello) currentRecord; 
 				 ECipherSuite [] ciphers = clientHello.getCipherSuites();
-				 System.out.println("Cipher suites:");
+				 Reporter.log("Cipher suites:");
 				 for (ECipherSuite cipher : ciphers) {
-					 System.out.print(cipher.name() + ",");
+					 Reporter.log(cipher.name() + ",");
 				 }
-				 System.out.println();
-				 System.out.println("Protocol version: "
+				 Reporter.log("Protocol version: "
 						 + clientHello.getMessageProtocolVersion());
-				 System.out.println("Random value: "
+				 Reporter.log("Random value: "
 						 + Utility.byteToHex(clientHello.getRandom().getValue()));
 			 }
 			 if (currentRecord instanceof ServerHello) {
-				 System.out.println("--Server Hello received--");
+				 Reporter.log("--Server Hello received--");
 				 ServerHello serverHello = (ServerHello) currentRecord;
-				 System.out.println("Chosen cipher suite: " +
+				 Reporter.log("Chosen cipher suite: " +
 				 serverHello.getCipherSuite().name());
-				 System.out.println("Protocol version: "
+				 Reporter.log("Protocol version: "
 						 + serverHello.getProtocolVersion());
-				 System.out.println("Random value: "
+				 Reporter.log("Random value: "
 						 + Utility.byteToHex(serverHello.getRandom().getValue()));
 			 }
 			 if (currentRecord instanceof Certificate) {
-				 System.out.println("--Certificate received--");
+				 Reporter.log("--Certificate received--");
 				 Certificate certificate = (Certificate) currentRecord;
 			 }
 			 if (currentRecord instanceof ServerKeyExchange) {
-				 System.out.println("--Server Key Exchange received--");
+				 Reporter.log("--Server Key Exchange received--");
 				 ServerKeyExchange ske = (ServerKeyExchange) currentRecord;
 			 }
 			 if (currentRecord instanceof ServerHelloDone) {
-				 System.out.println("--Server Hello Done received--");
+				 Reporter.log("--Server Hello Done received--");
 				 ServerHelloDone shd = (ServerHelloDone) currentRecord;
 			 }
 			 if (currentRecord instanceof ClientKeyExchange) {
-				 System.out.println("--Client Key Exchange send--");
+				 Reporter.log("--Client Key Exchange send--");
 				 ClientKeyExchange cke = (ClientKeyExchange) currentRecord;
 			 }
 			 if (currentRecord instanceof ChangeCipherSpec) {
-				 System.out.println("--Change Cipher Spec--");
+				 Reporter.log("--Change Cipher Spec--");
 				 ChangeCipherSpec ccs = (ChangeCipherSpec) currentRecord;
 			 }
 			 if (currentRecord instanceof TLSCiphertext) {
-				 System.out.println("--Encrypted Handshake message--");
+				 Reporter.log("--Encrypted Handshake message--");
 				 TLSCiphertext tlsCipher = (TLSCiphertext) currentRecord;
 			 }
 			 if (currentRecord instanceof Alert) {
 				 Alert alert = (Alert) currentRecord;
-				 System.out.println("Handshake ends with Alert: "
+				 Reporter.log("Handshake ends with Alert: "
 				 + alert.getAlertLevel() + "- " + alert.getAlertDescription());
 			 }
 		 }
