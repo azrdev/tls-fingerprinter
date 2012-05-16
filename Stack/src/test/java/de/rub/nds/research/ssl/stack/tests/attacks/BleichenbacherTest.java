@@ -25,6 +25,7 @@ import java.security.interfaces.RSAPublicKey;
 import java.util.Observable;
 import java.util.Observer;
 import org.testng.Assert;
+import org.testng.Reporter;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.DataProvider;
@@ -190,10 +191,10 @@ public class BleichenbacherTest implements Observer {
 
         workflow.start();
 
-        System.out.println("Test No." + this.counter + " : " + desc);
+        Reporter.log("Test No." + this.counter + " : " + desc);
         TraceListAnalyzer analyze = new TraceListAnalyzer();
         analyze.logOutput(workflow.getTraceList());
-        System.out.println("------------------------------");
+        Reporter.log("------------------------------");
         this.counter++;
     }
 
