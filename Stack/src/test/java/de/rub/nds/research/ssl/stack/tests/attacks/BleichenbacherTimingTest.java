@@ -25,6 +25,8 @@ import java.util.List;
 import java.util.Observable;
 import java.util.Observer;
 import javax.crypto.BadPaddingException;
+
+import org.testng.Reporter;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.DataProvider;
@@ -220,11 +222,16 @@ public class BleichenbacherTimingTest implements Observer {
         this.destroyMAC = tamperMAC;
         boolean canceled = false;
 
-        System.out.printf("\n%-25s%-50s\n", "Test description:", description);
-        System.out.printf("%-25s%-50s\n", "Test repeated:",
-                NUMBER_OF_REPETIIONS + " times");
-        System.out.printf("%-25s%-50s\n", "Time measurement:",
-                "Time between CLIENT_KEY_EXCHANGE and SERVER_CHANGE_CIPHER_SPEC"
+//        System.out.printf("\n%-25s%-50s\n", "Test description:", description);
+        Reporter.log("Test description: " + description);
+//        System.out.printf("%-25s%-50s\n", "Test repeated:",
+//                NUMBER_OF_REPETIIONS + " times");
+        Reporter.log("Test repeated:" + NUMBER_OF_REPETIIONS + " times");
+//        System.out.printf("%-25s%-50s\n", "Time measurement:",
+//                "Time between CLIENT_KEY_EXCHANGE and SERVER_CHANGE_CIPHER_SPEC"
+//                + " or ALERT");
+        Reporter.log("Time measurement:" 
+        		+ "Time between CLIENT_KEY_EXCHANGE and SERVER_CHANGE_CIPHER_SPEC"
                 + " or ALERT");
         try {
             for (int i = 0; i < NUMBER_OF_REPETIIONS; i++) {
@@ -245,13 +252,17 @@ public class BleichenbacherTimingTest implements Observer {
         }
 
         Long averagedTime = doStatistics(delays);
-        System.out.printf("%-25s", "Averaged time (ns):");
+//        System.out.printf("%-25s", "Averaged time (ns):");
+        Reporter.log("Averaged time (ns):");
         if (canceled) {
-            System.out.printf("%-50s\n", "computation not possible");
+//            System.out.printf("%-50s\n", "computation not possible");
+        	Reporter.log("computation not possible");
         } else {
-            System.out.printf("%-50s\n", averagedTime);
+//            System.out.printf("%-50s\n", averagedTime);
+        	Reporter.log(averagedTime.toString());
         }
-        System.out.println("------------------------------");
+//        System.out.println("------------------------------");
+        Reporter.log("------------------------------");
     }
 
     /**
