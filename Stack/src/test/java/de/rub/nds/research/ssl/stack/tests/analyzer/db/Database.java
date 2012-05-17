@@ -23,13 +23,12 @@ public class Database {
 	}
 	
 	public void connectDB() throws Exception {
-		Class.forName("com.mysql.jdbc.Driver");
-		conn = DriverManager.getConnection("jdbc:mysql://localhost/fingerprint?"
-				+ "user=tester&password=pentest");
+		Class.forName("org.apache.derby.jdbc.EmbeddedDriver");
+		conn = DriverManager.getConnection("jdbc:derby:Fingerprint;user=tester;password=ssltest");
 	}
 	
 	public ResultSet readValue() throws Exception {
-		java.sql.PreparedStatement prepared = conn.prepareStatement("select value from fingerprint.test_parameters");
+		java.sql.PreparedStatement prepared = conn.prepareStatement("select value from app.test_parameters");
 		return prepared.executeQuery();
 	}
 	
@@ -37,7 +36,7 @@ public class Database {
 			byte [] cipherSuites, int randomLength,
 			int sessionIdLength, byte [] compMethod, String alert, String impl) throws Exception {
 		ByteArrayInputStream bais = new ByteArrayInputStream(protocolVersion);
-		java.sql.PreparedStatement prepared = conn.prepareStatement("insert into fingerprint.client_hello_behaviour"
+		java.sql.PreparedStatement prepared = conn.prepareStatement("insert into app.client_hello_behaviour"
 				+ " values (default,?,?,?,?,?,?,?)");
 		prepared.setBinaryStream(1, bais);
 		bais = new ByteArrayInputStream(cipherSuites);
@@ -49,13 +48,12 @@ public class Database {
 		prepared.setString(6, alert);
 		prepared.setString(7, impl);
 		prepared.executeUpdate();
-		
 	}
 	
 	public void writeToDB(int testrun, String name, String status,
 			Timestamp time, String parameter, byte [] bytes) throws Exception {
 		ByteArrayInputStream bais = new ByteArrayInputStream(bytes);
-		java.sql.PreparedStatement prepared = conn.prepareStatement("insert into fingerprint.test_parameters"
+		java.sql.PreparedStatement prepared = conn.prepareStatement("insert into app.test_parameters"
 				+ " values (default,?,?,?,?,?,?)");
 		prepared.setInt(1, testrun);
 		prepared.setString(2, name);

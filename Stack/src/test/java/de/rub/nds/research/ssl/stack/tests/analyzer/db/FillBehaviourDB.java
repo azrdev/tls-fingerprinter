@@ -13,7 +13,7 @@ public class FillBehaviourDB {
 		try {
 			db.insertClientHelloBehaviour(EProtocolVersion.TLS_1_0.getId(),
 					cipherSuites.encode(false), 32,
-					32, new byte[]{0x01}, null, "jsse");
+					32, new byte[]{0x01}, "decode_error", "openssl");
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
