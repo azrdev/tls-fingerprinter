@@ -13,15 +13,15 @@ import de.rub.nds.research.ssl.stack.protocols.commons.APubliclySerializable;
 public final class SessionId extends APubliclySerializable {
 
     /**
-     * Length of the length field
+     * Length of the length field.
      */
     private static final int LENGTH_LENGTH_FIELD = 1;
     /**
-     * Minimum length of the encoded form
+     * Minimum length of the encoded form.
      */
-    public final static int LENGTH_MINIMUM_ENCODED = LENGTH_LENGTH_FIELD;
+    public static final int LENGTH_MINIMUM_ENCODED = LENGTH_LENGTH_FIELD;
     /**
-     * Session id
+     * Session id.
      */
     private byte[] id = new byte[0];
 
@@ -72,10 +72,10 @@ public final class SessionId extends APubliclySerializable {
     /**
      * {@inheritDoc}
      *
-     * Method parameter will be ignored - no support for chained encoding
+     * Method parameter will be ignored - no support for chained encoding.
      */
     @Override
-    public byte[] encode(boolean chained) {
+    public byte[] encode(final boolean chained) {
         byte[] tmp = new byte[id.length + LENGTH_LENGTH_FIELD];
         tmp[0] = ((Integer) id.length).byteValue();
         System.arraycopy(id, 0, tmp, LENGTH_LENGTH_FIELD, id.length);
@@ -86,7 +86,7 @@ public final class SessionId extends APubliclySerializable {
     /**
      * {@inheritDoc}
      *
-     * Method parameter will be ignored - no support for chained decoding
+     * Method parameter will be ignored - no support for chained decoding.
      */
     public void decode(final byte[] message, final boolean chained) {
         final int extractLength;

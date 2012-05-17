@@ -16,29 +16,29 @@ import java.security.SecureRandom;
 public final class RandomValue extends APubliclySerializable {
 
     /**
-     * Length of the random value: 28 Bytes
+     * Length of the random value: 28 Bytes.
      */
-    private final static int LENGTH_RANDOM_VALUE = 28;
+    private static final int LENGTH_RANDOM_VALUE = 28;
     /**
-     * Length of the UNIX timestamp: 4 Bytes
+     * Length of the UNIX timestamp: 4 Bytes.
      */
-    private final static int LENGTH_UNIX_TIMESTAMP = 4;
+    private static final int LENGTH_UNIX_TIMESTAMP = 4;
     /**
-     * Length of the encoded form
+     * Length of the encoded form.
      */
-    public final static int LENGTH_ENCODED = LENGTH_RANDOM_VALUE
+    public static final int LENGTH_ENCODED = LENGTH_RANDOM_VALUE
             + LENGTH_UNIX_TIMESTAMP;
     /**
-     * Random value - 28 bytes secure random
+     * Random value - 28 bytes secure random.
      */
     private byte[] value = new byte[LENGTH_RANDOM_VALUE];
     /**
-     * Unix timestamp - 32 bit UNIX timestamp = 4 bytes
+     * Unix timestamp - 32 bit UNIX timestamp = 4 bytes.
      */
     private byte[] unixTimestamp = new byte[LENGTH_UNIX_TIMESTAMP];
 
     /**
-     * Initializes a random value object as defined in RFC-2246
+     * Initializes a random value object as defined in RFC-2246.
      */
     public RandomValue() {
         SecureRandom secureRandom = new SecureRandom();
@@ -52,7 +52,7 @@ public final class RandomValue extends APubliclySerializable {
     }
 
     /**
-     * Initializes a random value object as defined in RFC-2246
+     * Initializes a random value object as defined in RFC-2246.
      *
      * @param message Random value in encoded form
      */
@@ -80,7 +80,8 @@ public final class RandomValue extends APubliclySerializable {
      */
     public final void setValue(final byte[] randomValue) {
         if (randomValue == null) {
-            throw new IllegalArgumentException("Random value must not be null!");
+            throw new IllegalArgumentException("Random value"
+                       + "must not be null!");
         }
 
         // deep copy
@@ -111,8 +112,9 @@ public final class RandomValue extends APubliclySerializable {
             throw new IllegalArgumentException("Timestamp must not be null!");
         }
 
-        if (unixTimestamp.length != 4) {
-            throw new IllegalArgumentException("Timestamps must be 4 bytes long");
+        if (unixTimestamp.length != LENGTH_UNIX_TIMESTAMP) {
+            throw new IllegalArgumentException("Timestamps"
+               + "must be 4 bytes long");
         }
 
         // deep copy
@@ -124,10 +126,10 @@ public final class RandomValue extends APubliclySerializable {
     /**
      * {@inheritDoc}
      *
-     * Method parameter will be ignored - no support for chained encoding
+     * Method parameter will be ignored - no support for chained encoding.
      */
     @Override
-    public byte[] encode(boolean chained) {
+    public byte[] encode(final boolean chained) {
         byte[] tmp = new byte[LENGTH_ENCODED];
         System.arraycopy(unixTimestamp, 0, tmp, 0, LENGTH_UNIX_TIMESTAMP);
         System.arraycopy(value, 0, tmp, LENGTH_UNIX_TIMESTAMP,
@@ -139,7 +141,7 @@ public final class RandomValue extends APubliclySerializable {
     /**
      * {@inheritDoc}
      *
-     * Method parameter will be ignored - no support for chained decoding
+     * Method parameter will be ignored - no support for chained decoding.
      */
     public void decode(final byte[] message, final boolean chained) {
         // deep copy
@@ -153,7 +155,8 @@ public final class RandomValue extends APubliclySerializable {
             throw new IllegalArgumentException("Random record too long.");
         }
 
-        System.arraycopy(random, 0, this.unixTimestamp, 0, LENGTH_UNIX_TIMESTAMP);
+        System.arraycopy(random, 0, this.unixTimestamp,
+                    0, LENGTH_UNIX_TIMESTAMP);
         System.arraycopy(random, LENGTH_UNIX_TIMESTAMP, this.value, 0,
                 LENGTH_RANDOM_VALUE);
     }

@@ -15,33 +15,44 @@ import java.security.InvalidKeyException;
 public class MasterSecret extends APubliclySerializable {
 
     /**
-     * Minimum length of the encoded form
+     * Minimum length of the encoded form.
      */
-    public final static int LENGTH_MINIMUM_ENCODED = 48;
+    public static final int LENGTH_MINIMUM_ENCODED = 48;
     /**
-     * Master secret label
+     * Master secret label.
      */
-    private final static String MASTER_SECRET_LABEL = "master secret";
-    private byte[] master_secret = null;
+    private static final String MASTER_SECRET_LABEL = "master secret";
+    /**
+     * Master secret bytes.
+     */
+    private byte[] masterSecret = null;
 
-    public MasterSecret(byte[] clientRandom, byte[] serverRandom,
-            byte[] encodedPMS) throws InvalidKeyException {
-        byte[] randomValues = this.concatRandomValues(clientRandom, serverRandom);
+    /**
+     * Initializes and computes the master secret.
+     * @param clientRandom Random value from the ClientHello message
+     * @param serverRandom Random value from the ServerHello message
+     * @param encodedPMS PreMasterSecret in encoded form
+     * @throws InvalidKeyException Invalid key passed
+     */
+    public MasterSecret(final byte[] clientRandom,
+             final byte[] serverRandom, final byte[] encodedPMS)
+             throws InvalidKeyException {
+        byte[] randomValues =
+                this.concatRandomValues(clientRandom, serverRandom);
         PseudoRandomFunction prf = new PseudoRandomFunction(
                 LENGTH_MINIMUM_ENCODED);
-        master_secret = prf.generatePseudoRandomValue(encodedPMS,
+        masterSecret = prf.generatePseudoRandomValue(encodedPMS,
                 MASTER_SECRET_LABEL, randomValues);
     }
 
     /**
      * Creates the seed value which is an input parameter of the PRF function.
-     *
-     * @param label
-     * @param clientRandom
-     * @param serverRandom
-     * @return seed
+     * @param clientRandom Random value from the ClientHello message
+     * @param serverRandom Random value from the ServerHello message
+     * @return seed Concatenated client and server random
      */
-    private byte[] concatRandomValues(byte[] clientRandom, byte[] serverRandom) {
+    private byte[] concatRandomValues(final byte[] clientRandom,
+                 final byte[] serverRandom) {
         byte[] seed = new byte[clientRandom.length + serverRandom.length];
         int pointer = 0;
         //copy the client random to the array
@@ -52,35 +63,46 @@ public class MasterSecret extends APubliclySerializable {
     }
 
     /**
-     * Set the bytes of the master secret
+     * Set the bytes of the master secret.
      *
-     * @param secret_bytes The bytes of the master secret
+     * @param secretBytes The bytes of the master secret
      */
-    public void setMasterSecret(final byte[] secret_bytes) {
-        if (master_secret == null || master_secret.length != LENGTH_MINIMUM_ENCODED) {
-            throw new IllegalArgumentException("Master secret must be exactly 48 Bytes "
+    public final void setMasterSecret(final byte[] secretBytes) {
+        if (masterSecret == null
+                  || masterSecret.length != LENGTH_MINIMUM_ENCODED) {
+            throw new IllegalArgumentException("Master secret"
+                    + "must be exactly 48 Bytes "
                     + LENGTH_MINIMUM_ENCODED + " bytes!");
         }
         // deep copy
-        System.arraycopy(secret_bytes, 0, master_secret, 0, secret_bytes.length);
+        System.arraycopy(secretBytes, 0, masterSecret, 0, secretBytes.length);
     }
 
-    public byte[] getMasterSecret() {
+    /**
+     * Get the master secret.
+     * @return Master secret
+     */
+    public final byte[] getMasterSecret() {
         // deep copy
         byte[] copy = new byte[LENGTH_MINIMUM_ENCODED];
-        System.arraycopy(master_secret, 0, copy, 0, LENGTH_MINIMUM_ENCODED);
+        System.arraycopy(masterSecret, 0, copy, 0, LENGTH_MINIMUM_ENCODED);
         return copy;
     }
 
+    /**
+     * {@inheritDoc}
+     *
+     * Encrypted pre_master_secret.
+     */
     @Override
-    public byte[] encode(boolean chained) {
-        byte[] masterSecret = new byte[LENGTH_MINIMUM_ENCODED];
-        System.arraycopy(master_secret, 0, masterSecret, 0, master_secret.length);
-        return masterSecret;
+    public final byte[] encode(final boolean chained) {
+        byte[] masterSec = new byte[LENGTH_MINIMUM_ENCODED];
+        System.arraycopy(masterSec, 0, masterSec, 0, masterSec.length);
+        return masterSec;
     }
 
     @Override
-    public void decode(byte[] message, boolean chained) {
+    public void decode(final byte[] message, final boolean chained) {
         // TODO Auto-generated method stub
     }
 }

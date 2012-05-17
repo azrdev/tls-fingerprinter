@@ -1,7 +1,5 @@
 package de.rub.nds.research.ssl.stack.protocols.handshake.datatypes;
 
-import java.util.Locale;
-
 /**
  * Key exchange algorithm as used in the key exchange messages.
  *
@@ -10,6 +8,8 @@ import java.util.Locale;
  */
 public enum EKeyExchangeAlgorithm {
 
+    /**RSA key exchange.*/
     RSA,
+    /**Diffie-Hellman key exchange.*/
     DIFFIE_HELLMAN;
 }

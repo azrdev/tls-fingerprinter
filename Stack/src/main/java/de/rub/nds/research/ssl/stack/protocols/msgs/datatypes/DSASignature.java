@@ -26,7 +26,7 @@ public class DSASignature implements ISignature {
      * @param serverParams Server key exchange parameters
      */
     public DSASignature(final byte [] serverParams) {
-         this.parameters = serverParams;
+         this.parameters = serverParams.clone();
     }
 
     /**

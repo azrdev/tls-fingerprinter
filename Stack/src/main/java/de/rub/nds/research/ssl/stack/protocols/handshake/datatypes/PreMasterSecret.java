@@ -17,7 +17,7 @@ public final class PreMasterSecret extends APubliclySerializable
         implements IExchangeKeys {
 
     /**
-     * Length of the random value: 28 Bytes.
+     * Length of the random value: 46 Bytes.
      */
     private static final int LENGTH_RANDOM = 46;
     /**
@@ -158,7 +158,7 @@ public final class PreMasterSecret extends APubliclySerializable
     /**
      * {@inheritDoc}
      *
-     * ServerHello representation 2 bytes Protocol version
+     * PreMasterSecret representation 2 bytes Protocol version
      * 48 bytes Random value.
      */
     @Override
@@ -170,7 +170,7 @@ public final class PreMasterSecret extends APubliclySerializable
         byte[] preMasterSecret = new byte[LENGTH_MINIMUM_ENCODED];
 
         /*
-         * Prepre PreMasterSecret part
+         * Prepare PreMasterSecret part
          */
         // 1. add protocol version
         tmp = this.getProtocolVersion().getId();

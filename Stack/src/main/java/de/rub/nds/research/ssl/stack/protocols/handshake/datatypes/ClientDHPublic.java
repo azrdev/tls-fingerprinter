@@ -17,17 +17,20 @@ public final class ClientDHPublic extends APubliclySerializable
 
     /**
      * Length of the dh_Yc parameter in the implicit case (refer to 7.4.7.2
-     * Client Diffie-Hellman public valuein RFC 2246 )
+     * Client Diffie-Hellman public valuein RFC 2246 ).
      */
-    private final static int LENGTH_DH_YC = 0;
+    private static final int LENGTH_DH_YC = 0;
     /**
-     * Minimum length of the encoded form
+     * Minimum length of the encoded form.
      */
-    public final static int LENGTH_MINIMUM_ENCODED = 0;
+    public static final int LENGTH_MINIMUM_ENCODED = 0;
     /**
-     * Length bytes
+     * Length bytes.
      */
-    public final static int LENGTH_BYTES = 2;
+    public static final int LENGTH_BYTES = 2;
+    /**
+     * Diffie-Hellman public value.
+     */
     private byte[] dhyc = new byte[LENGTH_DH_YC];
 
     /**
@@ -79,7 +82,8 @@ public final class ClientDHPublic extends APubliclySerializable
     /**
      * {@inheritDoc}
      *
-     * ServerHello representation 2 bytes Protocol version 48 bytes Random value
+     * ServerHello representation 2 bytes Protocol version
+     * 48 bytes Random value.
      */
     @Override
     public byte[] encode(final boolean chained) {

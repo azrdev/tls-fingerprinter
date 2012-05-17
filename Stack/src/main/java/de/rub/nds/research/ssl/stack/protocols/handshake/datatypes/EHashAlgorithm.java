@@ -8,6 +8,8 @@ package de.rub.nds.research.ssl.stack.protocols.handshake.datatypes;
  */
 public enum EHashAlgorithm {
 
+    /**MD5 hash.*/
     MD5,
+    /**SHA1 hash.*/
     SHA1;
 }

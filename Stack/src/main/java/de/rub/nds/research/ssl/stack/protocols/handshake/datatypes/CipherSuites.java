@@ -4,7 +4,7 @@ import de.rub.nds.research.ssl.stack.protocols.commons.APubliclySerializable;
 import de.rub.nds.research.ssl.stack.protocols.commons.ECipherSuite;
 
 /**
- * Cipher suites part - as defined in RFC-2246
+ * Cipher suites part - as defined in RFC-2246.
  *
  * @author Christopher Meyer - christopher.meyer@rub.de
  * @version 0.1
@@ -14,13 +14,13 @@ import de.rub.nds.research.ssl.stack.protocols.commons.ECipherSuite;
 public final class CipherSuites extends APubliclySerializable {
 
     /**
-     * Length of the length field
+     * Length of the length field.
      */
     private static final int LENGTH_LENGTH_FIELD = 2;
     /**
-     * Minimum length of the encoded form
+     * Minimum length of the encoded form.
      */
-    public final static int LENGTH_MINIMUM_ENCODED = LENGTH_LENGTH_FIELD;
+    public static final int LENGTH_MINIMUM_ENCODED = LENGTH_LENGTH_FIELD;
     /**
      * List of all cipher suites of this object.
      */
@@ -35,7 +35,7 @@ public final class CipherSuites extends APubliclySerializable {
     }
 
     /**
-     * Initializes a cipher suites object as defined in RFC-2246
+     * Initializes a cipher suites object as defined in RFC-2246.
      *
      * @param message Cipher suites in encoded form
      */
@@ -74,12 +74,12 @@ public final class CipherSuites extends APubliclySerializable {
 
     /**
      * {@inheritDoc} CipherSuites representation 2 + x*2 bytes for x cipher
-     * suites
+     * suites.
      *
-     * Method parameter will be ignored - no support for chained encoding
+     * Method parameter will be ignored - no support for chained encoding.
      */
     @Override
-    public byte[] encode(boolean chained) {
+    public byte[] encode(final boolean chained) {
         int pointer = 0;
         Integer cipherSuitesBytes = suites.length * ECipherSuite.LENGTH_ENCODED;
         byte[] tmp = new byte[LENGTH_LENGTH_FIELD + cipherSuitesBytes];
@@ -102,7 +102,7 @@ public final class CipherSuites extends APubliclySerializable {
     /**
      * {@inheritDoc}
      *
-     * Method parameter will be ignored - no support for chained decoding
+     * Method parameter will be ignored - no support for chained decoding.
      */
     public void decode(final byte[] message, final boolean chained) {
         final int cipherSuitesCount;

@@ -40,7 +40,7 @@ public class RSASignature implements ISignature {
      * @param serverParams Server key exchange parameters
      */
     public RSASignature(final byte [] serverParams) {
-        this.parameters = serverParams;
+        this.parameters = serverParams.clone();
     }
 
 	/**

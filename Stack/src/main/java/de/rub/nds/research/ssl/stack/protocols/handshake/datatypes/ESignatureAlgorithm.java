@@ -8,7 +8,10 @@ package de.rub.nds.research.ssl.stack.protocols.handshake.datatypes;
  */
 public enum ESignatureAlgorithm {
 
+    /**RSA signature.*/
     RSA,
+    /**DSS signature.*/
     DSS,
+    /**Anonymous.*/
     anon;
 }

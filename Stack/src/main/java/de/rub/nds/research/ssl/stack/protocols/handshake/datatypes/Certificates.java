@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Certificates part - as defined in RFC-2246
+ * Certificates part - as defined in RFC-2246.
  *
  * @author Christopher Meyer - christopher.meyer@rub.de
  * @version 0.1
@@ -15,15 +15,15 @@ import java.util.List;
 public final class Certificates extends APubliclySerializable {
 
     /**
-     * Default list size
+     * Default list size.
      */
     private static final int DEFAULT_LIST_SIZE = 3;
     /**
-     * Length of the length field
+     * Length of the length field.
      */
     private static final int LENGTH_LENGTH_FIELD = 3;
     /**
-     * Minimum length of the encoded form
+     * Minimum length of the encoded form.
      */
     public final static int LENGTH_MINIMUM_ENCODED = LENGTH_LENGTH_FIELD;
     /**
@@ -32,14 +32,14 @@ public final class Certificates extends APubliclySerializable {
     private ASN1Certificate[] certificates;
 
     /**
-     * Initializes a Certificates object as defined in RFC-2246
+     * Initializes a Certificates object as defined in RFC-2246.
      */
     public Certificates() {
         certificates = new ASN1Certificate[0];
     }
 
     /**
-     * Initializes a Certificates object as defined in RFC-2246
+     * Initializes a Certificates object as defined in RFC-2246.
      *
      * @param message Certificates in encoded form
      */
@@ -65,9 +65,11 @@ public final class Certificates extends APubliclySerializable {
      *
      * @param certificates The Certificates to be used for this message
      */
-    public final void setCertificates(final ASN1Certificate[] certificates) {
+    public final void setCertificates(
+            final ASN1Certificate[] certificates) {
         if (certificates == null) {
-            throw new IllegalArgumentException("Certificates must not be null!");
+            throw new IllegalArgumentException(
+                       "Certificates must not be null!");
         }
 
         this.certificates = new ASN1Certificate[certificates.length];
@@ -81,9 +83,11 @@ public final class Certificates extends APubliclySerializable {
      *
      * @param certificates The Certificates to be used for this message
      */
-    public final void setCertificates(final List<ASN1Certificate> certificates) {
+    public final void setCertificates(
+            final List<ASN1Certificate> certificates) {
         if (certificates == null) {
-            throw new IllegalArgumentException("Certificates must not be null!");
+            throw new IllegalArgumentException(
+                   "Certificates must not be null!");
         }
 
         setCertificates(
@@ -91,12 +95,12 @@ public final class Certificates extends APubliclySerializable {
     }
 
     /**
-     * {@inheritDoc} CipherSuites representation 3 + x bytes Certificate
+     * {@inheritDoc} CipherSuites representation 3 + x bytes Certificate.
      *
-     * Method parameter will be ignored - no support for chained encoding
+     * Method parameter will be ignored - no support for chained encoding.
      */
     @Override
-    public byte[] encode(boolean chained) {
+    public byte[] encode(final boolean chained) {
         int pointer = 0;
         int certificatesLength = 0;
         byte[][] encCertificates = new byte[certificates.length][];
@@ -113,7 +117,8 @@ public final class Certificates extends APubliclySerializable {
         }
 
         pointer = 0;
-        certificatesMessage = new byte[certificatesLength + LENGTH_LENGTH_FIELD];
+        certificatesMessage = new byte[certificatesLength
+                                       + LENGTH_LENGTH_FIELD];
 
         // 1. length
         tmpBytes = buildLength(certificatesLength, LENGTH_LENGTH_FIELD);
@@ -134,7 +139,7 @@ public final class Certificates extends APubliclySerializable {
     /**
      * {@inheritDoc}
      *
-     * Method parameter will be ignored - no support for chained decoding
+     * Method parameter will be ignored - no support for chained decoding.
      */
     public void decode(final byte[] message, final boolean chained) {
         int pointer = 0;

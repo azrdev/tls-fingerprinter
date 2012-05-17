@@ -13,15 +13,15 @@ import de.rub.nds.research.ssl.stack.protocols.commons.APubliclySerializable;
 public final class CompressionMethod extends APubliclySerializable {
 
     /**
-     * Length of the length field
+     * Length of the length field.
      */
     private static final int LENGTH_LENGTH_FIELD = 1;
     /**
-     * Minimum length of the encoded form
+     * Minimum length of the encoded form.
      */
-    public final static int LENGTH_MINIMUM_ENCODED = LENGTH_LENGTH_FIELD;
+    public static final int LENGTH_MINIMUM_ENCODED = LENGTH_LENGTH_FIELD;
     /**
-     * Compression method
+     * Compression method.
      */
     private byte[] methods = new byte[]{0x0};
 
@@ -73,10 +73,10 @@ public final class CompressionMethod extends APubliclySerializable {
     /**
      * {@inheritDoc}
      *
-     * Method parameter will be ignored - no support for chained encoding
+     * Method parameter will be ignored - no support for chained encoding.
      */
     @Override
-    public byte[] encode(boolean chained) {
+    public byte[] encode(final boolean chained) {
         byte[] tmp = new byte[methods.length + LENGTH_LENGTH_FIELD];
         tmp[0] = ((Integer) methods.length).byteValue();
         System.arraycopy(methods, 0, tmp, LENGTH_LENGTH_FIELD, methods.length);
@@ -87,7 +87,7 @@ public final class CompressionMethod extends APubliclySerializable {
     /**
      * {@inheritDoc}
      *
-     * Method parameter will be ignored - no support for chained decoding
+     * Method parameter will be ignored - no support for chained decoding.
      */
     public void decode(final byte[] message, final boolean chained) {
         final int methodsLength;

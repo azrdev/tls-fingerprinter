@@ -77,7 +77,8 @@ public class PseudoRandomFunction {
         byte[] hashSeed = this.createHashSeed(label, seed);
 
         //PreMasterSecret has to be devided in to parts
-        int partLength = Math.round(secretLength / 2);
+        float part = secretLength / 2;
+        int partLength = Math.round(part);
         byte[] secret1 = new byte[partLength];
         byte[] secret2 = new byte[partLength];
         //copy each part in an extra array

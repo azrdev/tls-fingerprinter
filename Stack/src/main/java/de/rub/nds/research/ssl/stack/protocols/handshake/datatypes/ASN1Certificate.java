@@ -3,7 +3,7 @@ package de.rub.nds.research.ssl.stack.protocols.handshake.datatypes;
 import de.rub.nds.research.ssl.stack.protocols.commons.APubliclySerializable;
 
 /**
- * ASN.1 certificate message part - as defined in RFC-2246
+ * ASN.1 certificate message part - as defined in RFC-2246.
  *
  * @author Christopher Meyer - christopher.meyer@rub.de
  * @version 0.1
@@ -13,15 +13,15 @@ import de.rub.nds.research.ssl.stack.protocols.commons.APubliclySerializable;
 public final class ASN1Certificate extends APubliclySerializable {
 
     /**
-     * Length of the length field
+     * Length of the length field.
      */
     private static final int LENGTH_LENGTH_FIELD = 3;
     /**
-     * Minimum length of the encoded form
+     * Minimum length of the encoded form.
      */
-    public final static int LENGTH_MINIMUM_ENCODED = LENGTH_LENGTH_FIELD;
+    public static final int LENGTH_MINIMUM_ENCODED = LENGTH_LENGTH_FIELD;
     /**
-     * ASN.1 certificate
+     * ASN.1 certificate.
      */
     private byte[] certificate = new byte[0];
 
@@ -67,16 +67,17 @@ public final class ASN1Certificate extends APubliclySerializable {
 
         // deep copy
         this.certificate = new byte[certificate.length];
-        System.arraycopy(certificate, 0, this.certificate, 0, certificate.length);
+        System.arraycopy(certificate, 0, this.certificate,
+                  0, certificate.length);
     }
 
     /**
      * {@inheritDoc}
      *
-     * Method parameter will be ignored - no support for chained encoding
+     * Method parameter will be ignored - no support for chained encoding.
      */
     @Override
-    public byte[] encode(boolean chained) {
+    public byte[] encode(final boolean chained) {
         final byte[] certificateBytes =
                 new byte[certificate.length + LENGTH_LENGTH_FIELD];
 
@@ -91,14 +92,15 @@ public final class ASN1Certificate extends APubliclySerializable {
     /**
      * {@inheritDoc}
      *
-     * Method parameter will be ignored - no support for chained decoding
+     * Method parameter will be ignored - no support for chained decoding.
      */
     public void decode(final byte[] message, final boolean chained) {
         final int extractedLength;
         final byte[] tmpBytes;
         // deep copy
         final byte[] certificateCopy = new byte[message.length];
-        System.arraycopy(message, 0, certificateCopy, 0, certificateCopy.length);
+        System.arraycopy(message, 0, certificateCopy,
+                 0, certificateCopy.length);
 
         // check size
         if (certificateCopy.length < LENGTH_MINIMUM_ENCODED) {
@@ -106,7 +108,8 @@ public final class ASN1Certificate extends APubliclySerializable {
                     "ASN.1 certificate record too short.");
         }
 
-        extractedLength = extractLength(certificateCopy, 0, LENGTH_LENGTH_FIELD);
+        extractedLength = extractLength(certificateCopy,
+                 0, LENGTH_LENGTH_FIELD);
         tmpBytes = new byte[extractedLength];
         System.arraycopy(certificateCopy, LENGTH_LENGTH_FIELD, tmpBytes, 0,
                 tmpBytes.length);

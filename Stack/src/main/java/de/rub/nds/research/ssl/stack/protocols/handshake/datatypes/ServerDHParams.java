@@ -81,10 +81,10 @@ public class ServerDHParams extends APubliclySerializable implements
          */
         length = buildLength(dhys.length, LENGTH_LENGTH_FIELD);
         System.arraycopy(length, 0, serverDHParams, pointer,
-        		LENGTH_LENGTH_FIELD);
+                 LENGTH_LENGTH_FIELD);
         pointer += LENGTH_LENGTH_FIELD;
         System.arraycopy(this.dhys, 0, serverDHParams, pointer,
-        		this.dhys.length);
+               this.dhys.length);
 
         return serverDHParams;
     }
@@ -113,7 +113,7 @@ public class ServerDHParams extends APubliclySerializable implements
 
         // 2. extract dh_g
         extractedLength = extractLength(paramCopy, pointer,
-        		LENGTH_LENGTH_FIELD);
+                 LENGTH_LENGTH_FIELD);
         tmpBytes = new byte[extractedLength];
         pointer += LENGTH_LENGTH_FIELD;
         System.arraycopy(paramCopy, pointer, tmpBytes, 0, tmpBytes.length);
@@ -122,7 +122,7 @@ public class ServerDHParams extends APubliclySerializable implements
 
         // 3. extract dh_Ys
         extractedLength = extractLength(paramCopy, pointer,
-        		LENGTH_LENGTH_FIELD);
+                 LENGTH_LENGTH_FIELD);
         tmpBytes = new byte[extractedLength];
         pointer += LENGTH_LENGTH_FIELD;
         System.arraycopy(paramCopy, pointer, tmpBytes, 0, tmpBytes.length);
