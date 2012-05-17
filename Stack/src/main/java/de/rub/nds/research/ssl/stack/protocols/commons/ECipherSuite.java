@@ -4,7 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Cipher Suites for SSL/TLS
+ * Cipher Suites for SSL/TLS.
  *
  * @author Christopher Meyer - christopher.meyer@rub.de
  * @version 0.1 Nov 11, 2011
@@ -346,7 +346,7 @@ public enum ECipherSuite {
     TLS_ECDHE_PSK_WITH_CAMELLIA_256_CBC_SHA384(new byte[]{(byte) 0xC0,
 (byte) 0x9B});
     /**
-     * * Length of the cipher suite id: 2 Bytes
+     * * Length of the cipher suite id: 2 Bytes.
      */
     final public static int LENGTH_ENCODED = 2;
     final private static Map<Integer, ECipherSuite> ID_MAP =
@@ -362,7 +362,7 @@ public enum ECipherSuite {
     }
 
     /**
-     * Construct a cipher suite with the given id
+     * Construct a cipher suite with the given id.
      *
      * @param idBytes Id of this cipher suite
      */
@@ -371,7 +371,7 @@ public enum ECipherSuite {
     }
 
     /**
-     * Get the Id of this cipher suite
+     * Get the Id of this cipher suite.
      *
      * @return Id as byte array
      */
@@ -384,7 +384,7 @@ public enum ECipherSuite {
     }
 
     /**
-     * Get the cipher suite for a given id
+     * Get the cipher suite for a given id.
      *
      * @param id ID of the desired cipher suite
      * @return Associated cipher suite

@@ -4,24 +4,34 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Content types of SSL/TLS
+ * Content types of SSL/TLS.
  *
  * @author Christopher Meyer - christopher.meyer@rub.de
  * @version 0.1 Nov 14, 2011
  */
 public enum EContentType {
 
+    /**Change cipher spec message.*/
     CHANGE_CIPHER_SPEC((byte) 0x14),
+    /**Alert message.*/
     ALERT((byte) 0x15),
+    /**Handshake message.*/
     HANDSHAKE((byte) 0x16),
+    /**Application message.*/
     APPLICATION((byte) 0x17);
     /**
-     * Length of the content type id: 1 Byte
+     * Length of the content type id: 1 Byte.
      */
-    final public static int LENGTH_ENCODED = 1;
-    final private static Map<Byte, EContentType> ID_MAP =
+    public static final int LENGTH_ENCODED = 1;
+    /**
+     * Map byte value to content type.
+     */
+    private static final Map<Byte, EContentType> ID_MAP =
             new HashMap<Byte, EContentType>(4);
-    final private byte id;
+    /**
+     * Content type id.
+     */
+    private final byte id;
 
     static {
         byte[] id;
@@ -31,7 +41,7 @@ public enum EContentType {
     }
 
     /**
-     * Construct a version with the given id
+     * Construct a version with the given id.
      *
      * @param idBytes Id of this version
      */
@@ -40,7 +50,7 @@ public enum EContentType {
     }
 
     /**
-     * Get the Id of this content type
+     * Get the Id of this content type.
      *
      * @return Id as byte
      */
@@ -49,7 +59,7 @@ public enum EContentType {
     }
 
     /**
-     * Get the content type for a given id
+     * Get the content type for a given id.
      *
      * @param id ID of the desired content type
      * @return Associated content type

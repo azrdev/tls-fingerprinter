@@ -27,7 +27,7 @@ public abstract class APubliclySerializable {
     public abstract void decode(byte[] message, boolean chained);
 
     /**
-     * Extracts the length field out of a given byte array
+     * Extracts the length field out of a given byte array.
      *
      * @param bytes Byte array which contains the length information
      * @param offset Start in the array of the length field?
