@@ -125,6 +125,6 @@ public final class Finished extends AHandshakeRecord {
      * @return 12 Bytes verify Data of a finished message
      */
     public byte[] getVerifyData() {
-        return this.verifyData;
+        return this.verifyData.clone();
     }
 }

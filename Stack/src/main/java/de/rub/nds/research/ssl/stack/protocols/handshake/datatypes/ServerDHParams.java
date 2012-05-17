@@ -71,7 +71,7 @@ public class ServerDHParams extends APubliclySerializable implements
          */
         length = buildLength(dhg.length, LENGTH_LENGTH_FIELD);
         System.arraycopy(length, 0, serverDHParams, pointer,
-        		LENGTH_LENGTH_FIELD);
+                   LENGTH_LENGTH_FIELD);
         pointer += LENGTH_LENGTH_FIELD;
         System.arraycopy(this.dhg, 0, serverDHParams, pointer, this.dhg.length);
         pointer += this.dhg.length;

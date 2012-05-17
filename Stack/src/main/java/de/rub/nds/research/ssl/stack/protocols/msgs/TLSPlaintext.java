@@ -44,7 +44,7 @@ public class TLSPlaintext extends ARecordFrame {
     @Override
     public final byte[] encode(final boolean chained) {
         super.setPayload(this.fragment);
-        return chained ? super.encode(true) : this.fragment;
+        return chained ? super.encode(true) : this.fragment.clone();
     }
 
     /**

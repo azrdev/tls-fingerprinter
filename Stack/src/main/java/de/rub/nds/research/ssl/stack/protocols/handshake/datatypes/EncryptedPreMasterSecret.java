@@ -115,7 +115,7 @@ public final class EncryptedPreMasterSecret extends APubliclySerializable
         } catch (InvalidKeyException e) {
             e.printStackTrace();
         }
-        return ciphertext;
+        return ciphertext.clone();
     }
 
     /**

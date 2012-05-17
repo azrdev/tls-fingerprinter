@@ -61,9 +61,9 @@ public final class PreMasterSecret extends APubliclySerializable
         byte[] tmp = new byte[mod.length];
         if (key.length > mod.length) {
             System.arraycopy(key, 1, tmp, 0, mod.length);
-            key = tmp;
+            key = tmp.clone();
         }
-        this.setDHKey(dhZ);
+        this.setDHKey(key);
     }
 
     /**

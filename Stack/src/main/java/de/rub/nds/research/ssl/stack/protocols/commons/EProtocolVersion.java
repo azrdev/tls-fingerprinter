@@ -36,16 +36,12 @@ public enum EProtocolVersion {
      * Bits in byte.
      */
     private static final int BITS_IN_BYTE = 8;
-    /**
-     * Mask.
-     */
-    private static final byte MASK = (byte) 0xff;
 
     static {
         byte[] id;
         for (EProtocolVersion tmp : EProtocolVersion.values()) {
             id = tmp.getId();
-            ID_MAP.put(id[0] << BITS_IN_BYTE | id[1] & MASK, tmp);
+            ID_MAP.put(id[0] << BITS_IN_BYTE | id[1] & 0xff, tmp);
         }
     }
 
@@ -85,7 +81,7 @@ public enum EProtocolVersion {
                     + LENGTH_ENCODED + " bytes.");
         }
 
-        protocolVersion = id[0] << BITS_IN_BYTE | id[1] & MASK;
+        protocolVersion = id[0] << BITS_IN_BYTE | id[1] & 0xff;
 
         if (!ID_MAP.containsKey(protocolVersion)) {
             throw new IllegalArgumentException("No such protocol version.");
