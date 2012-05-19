@@ -1,6 +1,5 @@
 package de.rub.nds.research.ssl.stack.crypto;
 
-import de.rub.nds.research.ssl.stack.protocols.ARecordFrame;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import javax.crypto.Mac;
@@ -9,11 +8,11 @@ import javax.crypto.SecretKey;
 /**
  * MAC computation of the record payloads.
  *
- * @author Eugen Weiss
+ * @author Eugen Weiss - eugen.weiss@ruhr-uni-bochum.de
  *
  * Mar 22, 2012
  */
-public class MACComputation extends ARecordFrame {
+public class MACComputation {
 
     /**Message authentication code.*/
     private Mac mac = null;
@@ -75,9 +74,37 @@ public class MACComputation extends ARecordFrame {
         //add record payload
         System.arraycopy(payload, 0, data, pointer, payload.length);
 
+        //increment the sequence number
+        this.incrementArray(seqNum);
 
         //compute the MAC of the message
         return mac.doFinal(data);
     }
+    
+    /**
+     * Increment a byte array by one.
+     * @param seq Byte array to increment
+     * @return Incremented byte array
+     */
+    public byte [] incrementArray(byte[] seq) {
+		for (int i=seq.length-1; i >= 0; i--) {
+			Byte valueByte = seq[i];
+			Integer num = valueByte.intValue();
+			if (Integer.signum(num) == -1) {
+				num += 256;
+			}
+			if (num < 255) {
+				num++;
+				seq[i]= num.byteValue();
+				break;
+			} else if (i == 0) {
+				//reset array and start by 0 if maximum number is reached
+				for (int j=0; j<seq.length; j++) {
+					seq[j] = 0x00;
+				}
+			}
+		}
+		return seq;
+	}
 
 }
