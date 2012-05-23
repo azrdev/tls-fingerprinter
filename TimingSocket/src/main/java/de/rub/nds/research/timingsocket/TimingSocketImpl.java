@@ -1,42 +1,163 @@
 package de.rub.nds.research.timingsocket;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.net.InetAddress;
-import java.net.SocketAddress;
-import java.net.SocketException;
-import java.net.SocketImpl;
+import java.net.*;
+
 
 /**
  * Implementation of a timing socket for exact time measurement.
  *
+ * @author Sebastian Schinzel - ssc@seecurity.org
  * @author Christopher Meyer - christopher.meyer@rub.de
  * @version 0.1
  *
- * May 11, 2012
+ * May 23, 2012
  */
 public class TimingSocketImpl extends SocketImpl {
+    
+    private class TimingOutputStream extends OutputStream {
+    
+        TimingSocketImpl tsi;
+
+        /**
+        * TimingOutputStream only works with an instance
+        * of TimingSocketImpl.
+        */
+        private TimingOutputStream() {
+        }
+
+        public TimingOutputStream(TimingSocketImpl tsi) {
+            this.tsi = tsi;
+        }
+
+        @Override
+        public void write(int i) throws IOException {
+            throw new UnsupportedOperationException("Not supported yet.");
+        }
+
+        @Override
+        public void write(byte[] ar) throws IOException {
+            tsi.write(ar);
+        }
+    }
+    
+    private class TimingInputStream extends InputStream {
+
+        @Override
+        public int available() throws IOException {
+            
+            throw new UnsupportedOperationException("Not supported yet.");
+            // return super.available();
+        }
+
+        @Override
+        public void close() throws IOException {
+            
+            throw new UnsupportedOperationException("Not supported yet.");
+            // super.close();
+        }
+
+        @Override
+        public synchronized void mark(int i) {
+            throw new UnsupportedOperationException("Not supported yet.");
+            // super.mark(i);
+        }
+
+        @Override
+        public boolean markSupported() {
+            throw new UnsupportedOperationException("Not supported yet.");
+            // return super.markSupported();
+        }
+
+        @Override
+        public synchronized void reset() throws IOException {
+            throw new UnsupportedOperationException("Not supported yet.");
+            // super.reset();
+        }
+
+        @Override
+        public long skip(long l) throws IOException {
+            throw new UnsupportedOperationException("Not supported yet.");
+            // return super.skip(l);
+        }
+    
+        TimingSocketImpl tsi;
+
+        private TimingInputStream() {
+        }
+
+        public TimingInputStream(TimingSocketImpl tsi) {
+            this.tsi = tsi;
+        }
+
+        @Override
+        public int read(byte[] ar) throws IOException {
+            System.out.println("called read (java)");
+            System.out.flush();
+            return tsi.read(ar);
+        }
+
+        @Override
+        public int read() throws IOException {
+            throw new UnsupportedOperationException("Not supported yet.");
+        }
+
+        @Override
+        public int read(byte[] ar, int start, int end) throws IOException {
+            throw new UnsupportedOperationException("Not supported yet.");
+        }
+
+    }
+    
+    static {
+        String file = new File("").getAbsolutePath() + "/../TimingSocket/src/main/java/libnativecode.dylib";
+        System.load(file);
+    }
+    private int file_desc;
+    private OutputStream os;
+    private InputStream is;
 
     @Override
-    protected void create(boolean stream) throws IOException {
-        throw new UnsupportedOperationException("Not supported yet.");
+    public void create(boolean stream) throws IOException {
+        if(stream == false) {
+            throw new UnsupportedOperationException("Datagram socket not supported yet. Use stream==true.");
+        }
+        
+        file_desc = c_create(stream);
+        
+        if(file_desc < 0) {
+            throw new IOException("Cannot create socket.");
+        }
+        
+        os = new TimingOutputStream(this);
+        is = new TimingInputStream(this);
     }
+    public native int c_create(boolean stream);
 
     @Override
-    protected void connect(String host, int port) throws IOException {
-        throw new UnsupportedOperationException("Not supported yet.");
+    public void connect(String host, int port) throws IOException {
+        int ret = c_connect(file_desc, host, port);
+        
+        if(ret != 0) {
+            throw new IOException("Cannot connect socket.");
+        }
     }
+    public native int c_connect(int socket, String host, int port);
 
     @Override
     protected void connect(InetAddress address, int port) throws IOException {
-        throw new UnsupportedOperationException("Not supported yet.");
+        String host = address.getCanonicalHostName();
+        connect(host, port);
     }
 
     @Override
     protected void connect(SocketAddress address, int timeout) throws
             IOException {
-        throw new UnsupportedOperationException("Not supported yet.");
+        InetSocketAddress isa = (InetSocketAddress) address;
+        connect(isa.getHostName(), isa.getPort());
     }
 
     @Override
@@ -56,12 +177,14 @@ public class TimingSocketImpl extends SocketImpl {
 
     @Override
     protected InputStream getInputStream() throws IOException {
-        throw new UnsupportedOperationException("Not supported yet.");
+        System.out.println("called getInputStream");
+        System.out.flush();
+        return is;
     }
 
     @Override
     protected OutputStream getOutputStream() throws IOException {
-        throw new UnsupportedOperationException("Not supported yet.");
+        return os;
     }
 
     @Override
@@ -71,8 +194,9 @@ public class TimingSocketImpl extends SocketImpl {
 
     @Override
     protected void close() throws IOException {
-        throw new UnsupportedOperationException("Not supported yet.");
+        c_close();
     }
+    public native int c_close();
 
     @Override
     protected void sendUrgentData(int data) throws IOException {
@@ -81,8 +205,20 @@ public class TimingSocketImpl extends SocketImpl {
 
     @Override
     public void setOption(int optID, Object value) throws SocketException {
-        throw new UnsupportedOperationException("Not supported yet.");
+        int ret = -1;
+        if(optID == SocketOptions.SO_LINGER) {
+            int value_int = (Integer) value;
+            ret = c_setOption(optID, value_int);
+        } else {
+            //Todo: throw new UnsupportedOperationException("Option ID " + optID + " not supported yet.");
+        }
+        
+        if(ret != 0) {
+            //Todo: throw new SocketException("Could not set option");
+        }
     }
+    public native int c_setOption(int optID, int value);
+    
 
     @Override
     public Object getOption(int optID) throws SocketException {
@@ -97,4 +233,24 @@ public class TimingSocketImpl extends SocketImpl {
         // Zeitmessung sobald verfügbar
         return 0L;
     }
+    
+    /**
+     * Callback function for TimingOutputStream
+     * @param ar The data to be send
+     */
+    public void write(byte[] ar) {
+        c_write(ar);
+    }
+    public native int c_write(byte[] ar);
+    
+    /**
+     * Callback function for TimingInputStream
+     * @param ar The array that is filled with data
+     * @return The amount of bytes read
+     */
+    public int read(byte[] ar) {
+        return c_read(ar);
+    }
+    public native int c_read(byte[] ar);
+    
 }
