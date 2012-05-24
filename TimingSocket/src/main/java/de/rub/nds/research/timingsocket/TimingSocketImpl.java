@@ -19,6 +19,24 @@ import java.net.*;
 public class TimingSocketImpl extends SocketImpl {
     
     private class TimingOutputStream extends OutputStream {
+
+        @Override
+        public void close() throws IOException {
+            throw new UnsupportedOperationException("Not supported yet.");
+        }
+
+        @Override
+        /**
+         * We flush with every write, so we don't need this 
+         * method (I guess...).
+         */
+        public void flush() throws IOException {
+        }
+
+        @Override
+        public void write(byte[] bytes, int i, int i1) throws IOException {
+            throw new UnsupportedOperationException("Not supported yet.");
+        }
     
         TimingSocketImpl tsi;
 
@@ -48,9 +66,7 @@ public class TimingSocketImpl extends SocketImpl {
 
         @Override
         public int available() throws IOException {
-            
-            throw new UnsupportedOperationException("Not supported yet.");
-            // return super.available();
+            return tsi.available();
         }
 
         @Override
@@ -95,14 +111,12 @@ public class TimingSocketImpl extends SocketImpl {
 
         @Override
         public int read(byte[] ar) throws IOException {
-            System.out.println("called read (java)");
-            System.out.flush();
             return tsi.read(ar);
         }
 
         @Override
         public int read() throws IOException {
-            throw new UnsupportedOperationException("Not supported yet.");
+            return tsi.read();
         }
 
         @Override
@@ -177,8 +191,6 @@ public class TimingSocketImpl extends SocketImpl {
 
     @Override
     protected InputStream getInputStream() throws IOException {
-        System.out.println("called getInputStream");
-        System.out.flush();
         return is;
     }
 
@@ -189,8 +201,14 @@ public class TimingSocketImpl extends SocketImpl {
 
     @Override
     protected int available() throws IOException {
-        throw new UnsupportedOperationException("Not supported yet.");
+        int avail = c_available();
+        if(avail > 0) {
+            return 1400;
+        } else {
+            return 0;
+        }
     }
+    public native int c_available();
 
     @Override
     protected void close() throws IOException {
@@ -226,13 +244,15 @@ public class TimingSocketImpl extends SocketImpl {
     }
     
     public void startTimeMeasurement() {
-        // startet Timing vom nächsten write an bis zum ersten folgenden read
+        c_startTimeMeasurement();
     }
+    public native void c_startTimeMeasurement();
     
     public long getTiming() {
-        // Zeitmessung sobald verfügbar
+        throw new UnsupportedOperationException("Not supported yet.");
         return 0L;
     }
+    public native void c_getTiming();
     
     /**
      * Callback function for TimingOutputStream
@@ -252,5 +272,14 @@ public class TimingSocketImpl extends SocketImpl {
         return c_read(ar);
     }
     public native int c_read(byte[] ar);
+    
+    /**
+     * Callback function for TimingInputStream
+     * @return A single byte read from the socket
+     */
+    public int read() {
+        return c_read_no_param();
+    }
+    public native int c_read_no_param();
     
 }

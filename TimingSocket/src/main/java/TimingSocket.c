@@ -9,6 +9,7 @@
 #define _debug
 
 static int sock = -1;
+static int start_measurement = 0;
 
 JNIEXPORT jint JNICALL Java_de_rub_nds_research_timingsocket_TimingSocketImpl_c_1create(JNIEnv * env, jobject obj, jboolean stream)
 {
@@ -83,7 +84,7 @@ JNIEXPORT jint JNICALL Java_de_rub_nds_research_timingsocket_TimingSocketImpl_c_
 #endif
         len_sent = write(sock, c_array, len);
 #ifdef _debug
-        printf("finished write(), sent %d bytes\n", len_sent);
+        printf("finished write(), sent %d bytes\n", (int)len_sent);
         fflush(stdout);
 #endif
 
@@ -95,15 +96,16 @@ JNIEXPORT jint JNICALL Java_de_rub_nds_research_timingsocket_TimingSocketImpl_c_
 
 JNIEXPORT jint JNICALL Java_de_rub_nds_research_timingsocket_TimingSocketImpl_c_1read(JNIEnv *env, jobject obj, jbyteArray ar) {
 #ifdef _debug
-        puts("Called c_read()\n");
+        printf("Called c_read(ar)\n");
         fflush(stdout);
 #endif
         jbyte *c_array = (*env)->GetByteArrayElements(env, ar, 0);
+
         jsize len = (*env)->GetArrayLength(env, ar);
         ssize_t len_read = -1;
 
         len_read = read(sock, c_array, len);
-        printf("###################### c_1read: %d\n", len);
+        printf("finished c_1read: %d\n", len);
         fflush(stdout);
 
         // Todo: whatever this last argument "0" means...
@@ -119,4 +121,46 @@ JNIEXPORT jint JNICALL Java_de_rub_nds_research_timingsocket_TimingSocketImpl_c_
         fflush(stdout);
 #endif
         return close(sock);
+}
+
+JNIEXPORT jint JNICALL Java_de_rub_nds_research_timingsocket_TimingSocketImpl_c_1read_1no_1param(JNIEnv * env, jobject obj)
+{
+#ifdef _debug
+        printf("r");
+        fflush(stdout);
+#endif
+        jint buf;
+        ssize_t len_read = -1;
+        len_read = read(sock, &buf, 1);
+
+        return buf;
+}
+
+JNIEXPORT jint JNICALL Java_de_rub_nds_research_timingsocket_TimingSocketImpl_c_1available(JNIEnv *env, jobject obj)
+{
+        fd_set fdset;
+        struct timeval timeout;
+        int ret = -1;
+
+        bzero(&timeout, sizeof timeout);
+        FD_ZERO(&fdset);
+        FD_SET(sock, &fdset);
+
+        ret = select(100, &fdset, NULL, NULL, &timeout);
+
+#ifdef _debug
+        printf("called c_available --> %d\n", ret);
+        fflush(stdout);
+#endif
+
+        return ret;       
+}
+
+JNIEXPORT void JNICALL Java_de_rub_nds_research_timingsocket_TimingSocketImpl_c_1startTimeMeasurement(JNIEnv *env, jobject obj)
+{
+#ifdef _debug
+        puts("Called c_startTimeMeasurement()\n");
+        fflush(stdout);
+#endif
+        start_measurement = 1;
 }
