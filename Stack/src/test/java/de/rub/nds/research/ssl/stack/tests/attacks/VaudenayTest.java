@@ -7,7 +7,7 @@ import de.rub.nds.research.ssl.stack.protocols.commons.SecurityParameters;
 import de.rub.nds.research.ssl.stack.protocols.handshake.Finished;
 import de.rub.nds.research.ssl.stack.protocols.msgs.TLSCiphertext;
 import de.rub.nds.research.ssl.stack.protocols.msgs.datatypes.GenericBlockCipher;
-import de.rub.nds.research.ssl.stack.tests.analyzer.TraceListAnalyzer;
+import de.rub.nds.research.ssl.stack.tests.analyzer.common.TraceListAnalyzer;
 import de.rub.nds.research.ssl.stack.tests.common.KeyMaterial;
 import de.rub.nds.research.ssl.stack.tests.common.SSLHandshakeWorkflow;
 import de.rub.nds.research.ssl.stack.tests.common.SSLHandshakeWorkflow.EStates;

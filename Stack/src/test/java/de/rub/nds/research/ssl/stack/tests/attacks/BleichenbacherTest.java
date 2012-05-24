@@ -10,7 +10,10 @@ import de.rub.nds.research.ssl.stack.protocols.handshake.datatypes.EncryptedPreM
 import de.rub.nds.research.ssl.stack.protocols.handshake.datatypes.PreMasterSecret;
 import de.rub.nds.research.ssl.stack.protocols.handshake.datatypes.RandomValue;
 import de.rub.nds.research.ssl.stack.protocols.msgs.datatypes.RsaUtil;
-import de.rub.nds.research.ssl.stack.tests.analyzer.TraceListAnalyzer;
+import de.rub.nds.research.ssl.stack.tests.analyzer.BleichenbacherAnalyzer;
+import de.rub.nds.research.ssl.stack.tests.analyzer.common.AFingerprintAnalyzer;
+import de.rub.nds.research.ssl.stack.tests.analyzer.common.TraceListAnalyzer;
+import de.rub.nds.research.ssl.stack.tests.analyzer.counter.ScoreCounter;
 import de.rub.nds.research.ssl.stack.tests.common.MessageBuilder;
 import de.rub.nds.research.ssl.stack.tests.common.SSLHandshakeWorkflow;
 import de.rub.nds.research.ssl.stack.tests.common.SSLHandshakeWorkflow.EStates;
@@ -39,10 +42,6 @@ import org.testng.annotations.Test;
  */
 public class BleichenbacherTest implements Observer {
 
-    /**
-     * Client hello message.
-     */
-    private ClientHello clientHello;
     /**
      * Handshake workflow to observe.
      */
@@ -143,15 +142,14 @@ public class BleichenbacherTest implements Observer {
                         new byte[]{0x00}, protocolVersion, false, 0},
                     {"Zero byte at first position in padding", new byte[]{0x00,
                             0x02},
-                        new byte[]{0x00}, protocolVersion, true, 0},
-                    // zero byte in the middle of the padding string
+                        new byte[]{0x00}, protocolVersion, true, FIRST_POSITION},
                     {"Zero byte in the middle of the padding string",
                         new byte[]{0x00, 0x02}, new byte[]{0x00},
-                        protocolVersion, true, 1},
-                    // zero byte at the end of the padding string
+                        protocolVersion, true, MID_POSITION},
                     {"Zero byte at the end of the padding string", new byte[]{
                             0x00, 0x02},
-                        new byte[]{0x00}, protocolVersion, true, 2},};
+                        new byte[]{0x00}, protocolVersion, true, LAST_POSITION},
+                        };
     }
 
     /**
@@ -174,14 +172,6 @@ public class BleichenbacherTest implements Observer {
         workflow.connectToTestServer(HOST, PORT);
         workflow.addObserver(this, EStates.CLIENT_HELLO);
         workflow.addObserver(this, EStates.CLIENT_KEY_EXCHANGE);
-        MessageBuilder builder = new MessageBuilder();
-        CipherSuites suites = new CipherSuites();
-        RandomValue random = new RandomValue();
-        suites.setSuites(new ECipherSuite[]{
-                    ECipherSuite.TLS_RSA_WITH_AES_128_CBC_SHA});
-        clientHello = builder.createClientHello(EProtocolVersion.TLS_1_0.getId(),
-                random.encode(false),
-                suites.encode(false), new byte[]{0x00});
 
         this.mode = mode;
         this.separate = separate;
@@ -217,6 +207,14 @@ public class BleichenbacherTest implements Observer {
         if (states != null) {
             switch (states) {
                 case CLIENT_HELLO:
+                	MessageBuilder builder = new MessageBuilder();
+                    CipherSuites suites = new CipherSuites();
+                    RandomValue random = new RandomValue();
+                    suites.setSuites(new ECipherSuite[]{
+                                ECipherSuite.TLS_RSA_WITH_AES_128_CBC_SHA});
+                    ClientHello clientHello = builder.createClientHello(EProtocolVersion.TLS_1_0.getId(),
+                            random.encode(false),
+                            suites.encode(false), new byte[]{0x00});
                     trace.setCurrentRecord(clientHello);
                     break;
                 case CLIENT_KEY_EXCHANGE:
