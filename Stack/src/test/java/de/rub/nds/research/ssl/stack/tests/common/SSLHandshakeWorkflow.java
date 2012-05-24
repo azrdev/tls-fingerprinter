@@ -14,8 +14,12 @@ import de.rub.nds.research.ssl.stack.tests.response.SSLResponse;
 import de.rub.nds.research.ssl.stack.tests.trace.Trace;
 import de.rub.nds.research.ssl.stack.tests.workflows.AWorkflow;
 import de.rub.nds.research.ssl.stack.tests.workflows.WorkflowState;
+
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.net.Socket;
@@ -311,23 +315,6 @@ public class SSLHandshakeWorkflow extends AWorkflow {
             hashBuilder.updateHash(responseBytes, 5,
                     responseBytes.length - 5);
         }
-    }
-
-    /**
-     * Serialize traceList and write it to file.
-     */
-    public void saveSerializedTraceList() {
-//		OutputStream fileOutStream = null;
-//		try {
-//			fileOutStream = new FileOutputStream("eugenTest.ser");
-//			ObjectOutputStream oStream = new ObjectOutputStream(fileOutStream);
-//			oStream.writeObject(this.traceList);
-//			fileOutStream.close();
-//		} catch (FileNotFoundException e) {
-//			e.printStackTrace();
-//		} catch (IOException e) {
-//			e.printStackTrace();
-//		}
     }
 
     /**
