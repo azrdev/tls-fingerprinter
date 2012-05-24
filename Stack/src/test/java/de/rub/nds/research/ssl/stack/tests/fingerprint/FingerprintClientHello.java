@@ -1,27 +1,19 @@
 package de.rub.nds.research.ssl.stack.tests.fingerprint;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Observable;
 import java.util.Observer;
 
-import org.testng.Assert;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
-import de.rub.nds.research.ssl.stack.protocols.ARecordFrame;
-import de.rub.nds.research.ssl.stack.protocols.alert.Alert;
 import de.rub.nds.research.ssl.stack.protocols.commons.ECipherSuite;
 import de.rub.nds.research.ssl.stack.protocols.commons.EProtocolVersion;
-import de.rub.nds.research.ssl.stack.protocols.handshake.Certificate;
 import de.rub.nds.research.ssl.stack.protocols.handshake.ClientHello;
-import de.rub.nds.research.ssl.stack.protocols.handshake.ServerHello;
-import de.rub.nds.research.ssl.stack.protocols.handshake.ServerKeyExchange;
 import de.rub.nds.research.ssl.stack.protocols.handshake.datatypes.CipherSuites;
 import de.rub.nds.research.ssl.stack.protocols.handshake.datatypes.RandomValue;
-import de.rub.nds.research.ssl.stack.protocols.msgs.TLSCiphertext;
-import de.rub.nds.research.ssl.stack.tests.analyzer.TraceListAnalyzer;
+import de.rub.nds.research.ssl.stack.tests.analyzer.common.TraceListAnalyzer;
 import de.rub.nds.research.ssl.stack.tests.common.MessageBuilder;
 import de.rub.nds.research.ssl.stack.tests.common.SSLHandshakeWorkflow;
 import de.rub.nds.research.ssl.stack.tests.common.SSLHandshakeWorkflow.EStates;
@@ -97,7 +89,7 @@ public class FingerprintClientHello implements Observer {
 	 * @throws InterruptedException 
 	 * @throws IOException 
      */
-	 @Test(enabled = true, dataProvider = "clientHello")
+	 @Test(enabled = true, dataProvider = "clientHello", invocationCount=1)
 	 public void fingerprintClientHello(String desc, byte [] protocolVersion, 
 				byte [] random, ECipherSuite [] suites, byte [] compMethod){
 		 workflow = new SSLHandshakeWorkflow();
@@ -137,7 +129,6 @@ public class FingerprintClientHello implements Observer {
 			 ClientHello clientHello = msgBuilder.createClientHello(protVersion, random, cipherSuites, compMethod);
 			 trace.setCurrentRecord(clientHello);
 		 }
-
 	 }
 	
 	/**
