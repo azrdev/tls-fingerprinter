@@ -1,19 +1,20 @@
 package de.rub.nds.research.ssl.stack.tests.analyzer.db;
 
-import java.io.ByteArrayInputStream;
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.sql.Timestamp;
 
-import de.rub.nds.research.ssl.stack.protocols.commons.ECipherSuite;
+import de.rub.nds.research.ssl.stack.protocols.commons.SecurityParameters;
 
 public class Database {
 	
+	/**Instance of Database.*/
+    private static volatile Database db;
 	private Connection conn;
-	
+
 	public Database() {
 		try {
 			this.connectDB();
@@ -22,50 +23,61 @@ public class Database {
 		}
 	}
 	
+	/**Singleton instance creation.
+     * @return Database instance
+     */
+    public static Database getInstance() {
+        if (db == null) {
+            db = new Database();
+        }
+        return db;
+    }
+	
 	public void connectDB() throws Exception {
+//		Class.forName("org.apache.derby.jdbc.ClientDriver");
+//		conn = DriverManager.getConnection("jdbc:derby://localhost:1527//home/regit/svn/SSL/Stack/Fingerprint;create=false;user=tester;password=ssltest");
 		Class.forName("org.apache.derby.jdbc.EmbeddedDriver");
-		conn = DriverManager.getConnection("jdbc:derby:Fingerprint;user=tester;password=ssltest");
+		conn = DriverManager.getConnection("jdbc:derby:Fingerprint;create=false;user=tester;password=ssltest");
 	}
 	
-	public ResultSet readValue() throws Exception {
-		java.sql.PreparedStatement prepared = conn.prepareStatement("select value from app.test_parameters");
-		return prepared.executeQuery();
+	public ResultSet checkFingerprintInDB(String hash) {
+		Connection conn = db.getConnection();
+		ResultSet result = null;
+		try {
+			PreparedStatement prepared = conn.prepareStatement("select tls_impl, last_state, alert, state_before_alert, points" +
+					" from tls_fingerprint_hash where signature = ?");
+			prepared.setString(1, hash);
+			result = prepared.executeQuery();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return result;
 	}
 	
-	public void insertClientHelloBehaviour(byte [] protocolVersion,
-			byte [] cipherSuites, int randomLength,
-			int sessionIdLength, byte [] compMethod, String alert, String impl) throws Exception {
-		ByteArrayInputStream bais = new ByteArrayInputStream(protocolVersion);
-		java.sql.PreparedStatement prepared = conn.prepareStatement("insert into app.client_hello_behaviour"
-				+ " values (default,?,?,?,?,?,?,?)");
-		prepared.setBinaryStream(1, bais);
-		bais = new ByteArrayInputStream(cipherSuites);
-		prepared.setBinaryStream(2, bais);
-		prepared.setInt(3, randomLength);
-		prepared.setInt(4, sessionIdLength);
-		bais = new ByteArrayInputStream(compMethod);
-		prepared.setBinaryStream(5, bais);
-		prepared.setString(6, alert);
-		prepared.setString(7, impl);
-		prepared.executeUpdate();
-	}
 	
-	public void writeToDB(int testrun, String name, String status,
-			Timestamp time, String parameter, byte [] bytes) throws Exception {
-		ByteArrayInputStream bais = new ByteArrayInputStream(bytes);
-		java.sql.PreparedStatement prepared = conn.prepareStatement("insert into app.test_parameters"
-				+ " values (default,?,?,?,?,?,?)");
-		prepared.setInt(1, testrun);
-		prepared.setString(2, name);
-		prepared.setString(3, status);
-		prepared.setTimestamp(4, time);
-		prepared.setString(5, parameter);
-		prepared.setBinaryStream(6, bais);
+	public void writeToDB(String signature, Timestamp timestamp, String test_name,
+			String test_desc) throws Exception {
+		java.sql.PreparedStatement prepared = conn.prepareStatement("insert into app.tls_testrun"
+				+ " values (default,?,?,?,?)");
+		prepared.setString(1, signature);
+		prepared.setTimestamp(2, timestamp);
+		prepared.setString(3, test_name);
+		prepared.setString(4, test_desc);
 		prepared.executeUpdate();
 	}
 	
 	public void closeDB() throws Exception {
 		conn.close();
+	}
+	
+	public Connection getConnection() {
+		return conn;
+	}
+
+	public void setConnection(Connection conn) {
+		this.conn = conn;
 	}
 
 }
