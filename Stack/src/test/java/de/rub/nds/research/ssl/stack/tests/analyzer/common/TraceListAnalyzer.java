@@ -1,5 +1,8 @@
-package de.rub.nds.research.ssl.stack.tests.analyzer;
+package de.rub.nds.research.ssl.stack.tests.analyzer.common;
 
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Properties;
 
@@ -19,6 +22,8 @@ import de.rub.nds.research.ssl.stack.protocols.handshake.ServerHelloDone;
 import de.rub.nds.research.ssl.stack.protocols.handshake.ServerKeyExchange;
 import de.rub.nds.research.ssl.stack.protocols.msgs.ChangeCipherSpec;
 import de.rub.nds.research.ssl.stack.protocols.msgs.TLSCiphertext;
+import de.rub.nds.research.ssl.stack.tests.analyzer.db.Database;
+import de.rub.nds.research.ssl.stack.tests.common.SSLHandshakeWorkflow.EStates;
 import de.rub.nds.research.ssl.stack.tests.trace.Trace;
 
 public class TraceListAnalyzer {
@@ -27,26 +32,7 @@ public class TraceListAnalyzer {
 	public TraceListAnalyzer() {
 		
 	}
-	
-	public void analyzeList(ArrayList<Trace> traceList) {
-		for (int i=0; i<traceList.size(); i++) {
-			if (traceList.get(i).getOldRecord() != null) {
-				ARecordFrame currentRecord = traceList.get(i).getCurrentRecord();
-				ARecordFrame oldRecord = traceList.get(i).getOldRecord();
-				callMessageAnalyzer(currentRecord, oldRecord);
-			}
-		}
-	}
-	
-	public void callMessageAnalyzer(ARecordFrame currentRecord,
-			ARecordFrame oldRecord){
-		IMessageAnalyzer analyzer;
-		if(currentRecord instanceof ClientHello) {
-			analyzer = new ClientHelloAnalyzer();
-			analyzer.compareMessages(currentRecord, oldRecord);
-		}
-	}
-	
+
 	public void logOutput(ArrayList<Trace> traceList) {
 		for (Trace trace : traceList) {
 			 ARecordFrame currentRecord = trace.getCurrentRecord();
