@@ -250,7 +250,6 @@ public class TimingSocketImpl extends SocketImpl {
     
     public long getTiming() {
         throw new UnsupportedOperationException("Not supported yet.");
-        return 0L;
     }
     public native void c_getTiming();
     
