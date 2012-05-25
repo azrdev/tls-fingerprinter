@@ -49,6 +49,16 @@
             <version>4.10</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>TimingSocket</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>TimingSocket</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
     
     <properties>

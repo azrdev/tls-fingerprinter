@@ -88,7 +88,7 @@ public class SSLServer extends Thread {
                 } catch (SocketTimeoutException e) {
                     // ignore
                     continue;
-                } catch (Exception e) {
+                } catch (Exception e) {e.printStackTrace();
                     // keep on going after any errors! 
                     // dirrrrrty, don't do this at home!
                 }

@@ -1,16 +1,9 @@
 package de.rub.nds.research.ssl.stack.tests.response;
 
-import java.util.Observable;
-import java.util.Observer;
-
-import org.testng.Assert;
-
-
 import de.rub.nds.research.ssl.stack.protocols.ARecordFrame;
 import de.rub.nds.research.ssl.stack.protocols.alert.Alert;
 import de.rub.nds.research.ssl.stack.protocols.alert.datatypes.EAlertLevel;
 import de.rub.nds.research.ssl.stack.protocols.commons.EContentType;
-import de.rub.nds.research.ssl.stack.protocols.commons.SecurityParameters;
 import de.rub.nds.research.ssl.stack.protocols.handshake.AHandshakeRecord;
 import de.rub.nds.research.ssl.stack.protocols.handshake.HandshakeEnumeration;
 import de.rub.nds.research.ssl.stack.protocols.handshake.MessageObservable;
@@ -19,6 +12,8 @@ import de.rub.nds.research.ssl.stack.protocols.msgs.TLSCiphertext;
 import de.rub.nds.research.ssl.stack.tests.common.SSLHandshakeWorkflow;
 import de.rub.nds.research.ssl.stack.tests.common.SSLHandshakeWorkflow.EStates;
 import de.rub.nds.research.ssl.stack.tests.trace.Trace;
+import java.util.Observable;
+import java.util.Observer;
 
 /**
  * A response during the SSL protocol processing.

@@ -235,7 +235,7 @@ public class BleichenbacherTimingTest implements Observer {
                 + " or ALERT");
         try {
             for (int i = 0; i < NUMBER_OF_REPETIIONS; i++) {
-                workflow = new SSLHandshakeWorkflow();
+                workflow = new SSLHandshakeWorkflow(true);
                 workflow.connectToTestServer(HOST, PORT);
                 workflow.addObserver(this, EStates.CLIENT_HELLO);
                 workflow.addObserver(this, EStates.CLIENT_KEY_EXCHANGE);
@@ -243,9 +243,7 @@ public class BleichenbacherTimingTest implements Observer {
                 workflow.start();
 
                 delays[i] = analyzeTrace(workflow.getTraceList());
-                if (workflow.getSocket() != null) {
-                    workflow.getSocket().close();
-                }
+                workflow.closeSocket();
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -351,13 +349,14 @@ public class BleichenbacherTimingTest implements Observer {
                     cke.setExchangeKeys(encPMS);
 
                     trace.setCurrentRecord(cke);
+                    trace.setTimeMeasurementEnabled(true);
                     break;
                 case CLIENT_FINISHED:
                     if (destroyMAC) {
                         ARecordFrame finished = trace.getCurrentRecord();
                         byte[] payload = finished.encode(true);
                         // frag the mac
-                        payload[24] = 1;
+//                        payload[24] = 1;
                         trace.setCurrentRecordBytes(payload);
                     }
                     break;

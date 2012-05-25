@@ -10,10 +10,7 @@ import de.rub.nds.research.ssl.stack.protocols.handshake.datatypes.EncryptedPreM
 import de.rub.nds.research.ssl.stack.protocols.handshake.datatypes.PreMasterSecret;
 import de.rub.nds.research.ssl.stack.protocols.handshake.datatypes.RandomValue;
 import de.rub.nds.research.ssl.stack.protocols.msgs.datatypes.RsaUtil;
-import de.rub.nds.research.ssl.stack.tests.analyzer.BleichenbacherAnalyzer;
-import de.rub.nds.research.ssl.stack.tests.analyzer.common.AFingerprintAnalyzer;
 import de.rub.nds.research.ssl.stack.tests.analyzer.common.TraceListAnalyzer;
-import de.rub.nds.research.ssl.stack.tests.analyzer.counter.ScoreCounter;
 import de.rub.nds.research.ssl.stack.tests.common.MessageBuilder;
 import de.rub.nds.research.ssl.stack.tests.common.SSLHandshakeWorkflow;
 import de.rub.nds.research.ssl.stack.tests.common.SSLHandshakeWorkflow.EStates;
@@ -133,22 +130,22 @@ public class BleichenbacherTest implements Observer {
         return new Object[][]{
                     {"OK case", new byte[]{0x00, 0x02}, new byte[]{0x00},
                         protocolVersion, false, 0},
-                    {"Wrong protocol version in PreMasterSecret", new byte[]{
-                            0x00, 0x02},
-                        new byte[]{0x00}, EProtocolVersion.SSL_3_0, false, 0},
-                    {"Seperate byte not 0x00", new byte[]{0x00, 0x02},
-                        new byte[]{0x01}, protocolVersion, false, 0},
-                    {"Mode changed (first two bytes)", new byte[]{0x00, 0x01},
-                        new byte[]{0x00}, protocolVersion, false, 0},
-                    {"Zero byte at first position in padding", new byte[]{0x00,
-                            0x02},
-                        new byte[]{0x00}, protocolVersion, true, FIRST_POSITION},
-                    {"Zero byte in the middle of the padding string",
-                        new byte[]{0x00, 0x02}, new byte[]{0x00},
-                        protocolVersion, true, MID_POSITION},
-                    {"Zero byte at the end of the padding string", new byte[]{
-                            0x00, 0x02},
-                        new byte[]{0x00}, protocolVersion, true, LAST_POSITION},
+//                    {"Wrong protocol version in PreMasterSecret", new byte[]{
+//                            0x00, 0x02},
+//                        new byte[]{0x00}, EProtocolVersion.SSL_3_0, false, 0},
+//                    {"Seperate byte not 0x00", new byte[]{0x00, 0x02},
+//                        new byte[]{0x01}, protocolVersion, false, 0},
+//                    {"Mode changed (first two bytes)", new byte[]{0x00, 0x01},
+//                        new byte[]{0x00}, protocolVersion, false, 0},
+//                    {"Zero byte at first position in padding", new byte[]{0x00,
+//                            0x02},
+//                        new byte[]{0x00}, protocolVersion, true, FIRST_POSITION},
+//                    {"Zero byte in the middle of the padding string",
+//                        new byte[]{0x00, 0x02}, new byte[]{0x00},
+//                        protocolVersion, true, MID_POSITION},
+//                    {"Zero byte at the end of the padding string", new byte[]{
+//                            0x00, 0x02},
+//                        new byte[]{0x00}, protocolVersion, true, LAST_POSITION},
                         };
     }
 
@@ -283,7 +280,7 @@ public class BleichenbacherTest implements Observer {
     @BeforeMethod
     public void setUp() {
         try {
-//            System.setProperty("javax.net.debug", "ssl");
+            System.setProperty("javax.net.debug", "ssl");
             sslServer = new SSLServer(PATH_TO_JKS, JKS_PASSWORD,
                     protocolShortName, PORT, PRINT_INFO);
             sslServerThread = new Thread(sslServer);
@@ -300,7 +297,7 @@ public class BleichenbacherTest implements Observer {
     @AfterMethod
     public void tearDown() {
         try {
-            workflow.getSocket().close();
+            workflow.closeSocket();
         } catch (IOException e) {
             e.printStackTrace();
         }

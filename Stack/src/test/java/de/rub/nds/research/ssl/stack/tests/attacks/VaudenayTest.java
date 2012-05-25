@@ -238,7 +238,7 @@ public class VaudenayTest implements Observer {
     @AfterMethod
     public void tearDown() {
         try {
-            workflow.getSocket().close();
+            workflow.closeSocket();
         } catch (IOException e) {
             e.printStackTrace();
         }
