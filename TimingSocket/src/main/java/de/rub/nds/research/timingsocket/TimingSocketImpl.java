@@ -17,7 +17,10 @@ import java.net.*;
  * May 23, 2012
  */
 public class TimingSocketImpl extends SocketImpl {
-    
+     
+    /**
+     * This class implements callbacks to @TimingSocketImpl.
+     */
     private class TimingOutputStream extends OutputStream {
 
         @Override
@@ -52,6 +55,11 @@ public class TimingSocketImpl extends SocketImpl {
         }
 
         @Override
+        /**
+         * Please do not use this method. Use @write(byte[]) instead and
+         * only send atomic writes, i.e. do not split a request across multiple
+         * writes. This would currently screw up the timing measurements.
+         */
         public void write(int i) throws IOException {
             throw new UnsupportedOperationException("Not supported yet.");
         }
@@ -62,6 +70,9 @@ public class TimingSocketImpl extends SocketImpl {
         }
     }
     
+    /**
+     * This class implements callbacks to @TimingSocketImpl.
+     */
     private class TimingInputStream extends InputStream {
 
         @Override
@@ -71,33 +82,27 @@ public class TimingSocketImpl extends SocketImpl {
 
         @Override
         public void close() throws IOException {
-            
             throw new UnsupportedOperationException("Not supported yet.");
-            // super.close();
         }
 
         @Override
         public synchronized void mark(int i) {
             throw new UnsupportedOperationException("Not supported yet.");
-            // super.mark(i);
         }
 
         @Override
         public boolean markSupported() {
             throw new UnsupportedOperationException("Not supported yet.");
-            // return super.markSupported();
         }
 
         @Override
         public synchronized void reset() throws IOException {
             throw new UnsupportedOperationException("Not supported yet.");
-            // super.reset();
         }
 
         @Override
         public long skip(long l) throws IOException {
             throw new UnsupportedOperationException("Not supported yet.");
-            // return super.skip(l);
         }
     
         TimingSocketImpl tsi;
@@ -163,9 +168,8 @@ public class TimingSocketImpl extends SocketImpl {
 
     @Override
     protected void connect(InetAddress address, int port) throws IOException {
-        // String host = address.getCanonicalHostName();
-        // connect(host, port);
-        throw new UnsupportedOperationException("Not supported yet.");
+        String host = address.getCanonicalHostName();
+        connect(host, port);
     }
 
     @Override
@@ -174,9 +178,6 @@ public class TimingSocketImpl extends SocketImpl {
         String host = ((InetSocketAddress) address).getHostName();
         int port = ((InetSocketAddress) address).getPort();
         connect(host, port);
-        // InetSocketAddress isa = (InetSocketAddress) address;
-        // connect(isa.getHostName(), isa.getPort());
-        // throw new UnsupportedOperationException("Not supported yet.");
     }
 
     @Override
@@ -204,14 +205,14 @@ public class TimingSocketImpl extends SocketImpl {
         return os;
     }
 
+    /**
+     * 
+     * @return 1 if there is data available, 0 if there is no data available.
+     * @throws IOException 
+     */
     @Override
     protected int available() throws IOException {
-        int avail = c_available();
-        if(avail > 0) {
-            return 1400;
-        } else {
-            return 0;
-        }
+        return c_available();
     }
     private native int c_available();
 
@@ -229,15 +230,18 @@ public class TimingSocketImpl extends SocketImpl {
     @Override
     public void setOption(int optID, Object value) throws SocketException {
         int ret = -1;
-        if(optID == SocketOptions.SO_LINGER) {
-            int value_int = (Integer) value;
-            ret = c_setOption(optID, value_int);
-        } else {
-            //Todo: throw new UnsupportedOperationException("Option ID " + optID + " not supported yet.");
+        switch(optID) {
+            case SocketOptions.SO_LINGER:
+            case SocketOptions.SO_TIMEOUT:
+                int value_int = (Integer) value;
+                ret = c_setOption(optID, value_int);
+                break;
+            default:
+                throw new UnsupportedOperationException("Option ID " + Integer.toHexString(optID) + " not supported yet.");
         }
         
         if(ret != 0) {
-            //Todo: throw new SocketException("Could not set option");
+            throw new SocketException("Could not set option");
         }
     }
     private native int c_setOption(int optID, int value);

@@ -15,6 +15,11 @@ static unsigned long long start = 0;
 static unsigned long long end = 0;
 static unsigned long long ticks_measured = 0;
 
+void calc_ticks() {
+        ticks_measured = end - start;
+        start_measurement = 0;
+}
+
 JNIEXPORT jint JNICALL Java_de_rub_nds_research_timingsocket_TimingSocketImpl_c_1create(JNIEnv * env, jobject obj, jboolean stream)
 {
 #ifdef _debug
@@ -68,11 +73,31 @@ JNIEXPORT jint JNICALL Java_de_rub_nds_research_timingsocket_TimingSocketImpl_c_
         int c_true = (0 == 0);
         int ret;
 
-        struct linger so_linger;
-        so_linger.l_onoff = c_true;
-        so_linger.l_linger = 30;
+        if(opt_name == 0x0080) { // SO_LINGER
+#ifdef _debug
+                printf("setting SO_LINGER to l_linger=%d\n", opt_value);
+                fflush(stdout);
+#endif
+                struct linger so_linger;
+                so_linger.l_onoff = c_true;
+                so_linger.l_linger = opt_value;
+        
+                ret = setsockopt(sock, SOL_SOCKET, SO_LINGER, &so_linger, sizeof so_linger);
+        } else if(opt_name == 0x1006) {
+#ifdef _debug
+                printf("setting SO_RCVTIMEO to tv_sec=%d\n", opt_value);
+                fflush(stdout);
+#endif
+                struct timeval tv;
 
-        ret = setsockopt(sock, SOL_SOCKET, SO_LINGER, &so_linger, sizeof so_linger);
+                bzero(&tv, sizeof tv);
+                tv.tv_sec = opt_value;
+
+                ret = setsockopt(sock, SOL_SOCKET, SO_RCVTIMEO,(struct timeval *)&tv,sizeof(struct timeval));
+        } else {
+                printf("c_setOption(): Wrong optID: %x\n", opt_name);
+                ret = -1;
+        }
 
         return ret;
 }
@@ -87,7 +112,13 @@ JNIEXPORT jint JNICALL Java_de_rub_nds_research_timingsocket_TimingSocketImpl_c_
         fflush(stdout);
 #endif
         len_sent = write(sock, c_array, len);
-        start = get_ticks();
+        if(start_measurement == 1) {
+#ifdef _debug
+                puts("Starting measurement");
+                fflush(stdout);
+#endif
+                start = get_ticks();
+        }
 #ifdef _debug
         printf("finished write(), sent %d bytes\n", (int)len_sent);
         fflush(stdout);
@@ -110,7 +141,14 @@ JNIEXPORT jint JNICALL Java_de_rub_nds_research_timingsocket_TimingSocketImpl_c_
         ssize_t len_read = -1;
 
         len_read = read(sock, c_array, len);
-        end = get_ticks();
+        if(start_measurement == 1 && start != 0) {
+#ifdef _debug
+                puts("Stopping measurement");
+                fflush(stdout);
+#endif
+                end = get_ticks();
+                calc_ticks();
+        }
         printf("finished c_1read: %d\n", len);
         fflush(stdout);
 
@@ -137,7 +175,17 @@ JNIEXPORT jint JNICALL Java_de_rub_nds_research_timingsocket_TimingSocketImpl_c_
 #endif
         jint buf;
         ssize_t len_read = -1;
+
         len_read = read(sock, &buf, 1);
+
+        if(start_measurement == 1 && start != 0) {
+#ifdef _debug
+                puts("Stopping measurement");
+                fflush(stdout);
+#endif
+                end = get_ticks();
+                calc_ticks();
+        }
 
         return buf;
 }
@@ -179,9 +227,4 @@ JNIEXPORT jlong JNICALL Java_de_rub_nds_research_timingsocket_TimingSocketImpl_c
         return ticks_measured;
 }
 
-void calc_ticks() {
-        ticks_measured = end - start;
-        start_measurement = 0;
-        start = 0L;
-        end = 0L;
-}
+
