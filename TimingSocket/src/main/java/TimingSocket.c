@@ -5,11 +5,14 @@
 #include <netdb.h>
 #include <strings.h>
 #include <unistd.h>
+#include "fau_timer.c"
 
 #define _debug
 
 static int sock = -1;
 static int start_measurement = 0;
+static unsigned long long start = 0;
+static unsigned long long end = 0;
 
 JNIEXPORT jint JNICALL Java_de_rub_nds_research_timingsocket_TimingSocketImpl_c_1create(JNIEnv * env, jobject obj, jboolean stream)
 {
@@ -24,7 +27,7 @@ JNIEXPORT jint JNICALL Java_de_rub_nds_research_timingsocket_TimingSocketImpl_c_
 
 JNIEXPORT jint JNICALL Java_de_rub_nds_research_timingsocket_TimingSocketImpl_c_1connect(JNIEnv * env, jobject obj, jint sock, jstring host, jint port)
 {
-        extern int errno;
+        // extern int errno;
         int ret = -1;
         struct hostent *server;
         struct sockaddr_in serv_addr;
@@ -44,7 +47,7 @@ JNIEXPORT jint JNICALL Java_de_rub_nds_research_timingsocket_TimingSocketImpl_c_
         ret = connect(sock, (struct sockaddr*) &serv_addr, sizeof(serv_addr));
 
 #ifdef _debug
-        printf("Called c_connect(%d, %s (%x %x, %d), %d) --> %d, errno: %d\n", sock, c_host, *(server->h_addr), *((server->h_addr) + 3), server->h_length, port, ret, errno);
+        printf("Called c_connect(%d, %s (%x %x, %d), %d) --> %d\n", sock, c_host, *(server->h_addr), *((server->h_addr) + 3), server->h_length, port, ret);
         fflush(stdout);
 #endif
 
@@ -83,6 +86,7 @@ JNIEXPORT jint JNICALL Java_de_rub_nds_research_timingsocket_TimingSocketImpl_c_
         fflush(stdout);
 #endif
         len_sent = write(sock, c_array, len);
+        start = get_ticks();
 #ifdef _debug
         printf("finished write(), sent %d bytes\n", (int)len_sent);
         fflush(stdout);
