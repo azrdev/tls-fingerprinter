@@ -13,6 +13,7 @@ static int sock = -1;
 static int start_measurement = 0;
 static unsigned long long start = 0;
 static unsigned long long end = 0;
+static unsigned long long ticks_measured = 0;
 
 JNIEXPORT jint JNICALL Java_de_rub_nds_research_timingsocket_TimingSocketImpl_c_1create(JNIEnv * env, jobject obj, jboolean stream)
 {
@@ -109,6 +110,7 @@ JNIEXPORT jint JNICALL Java_de_rub_nds_research_timingsocket_TimingSocketImpl_c_
         ssize_t len_read = -1;
 
         len_read = read(sock, c_array, len);
+        end = get_ticks();
         printf("finished c_1read: %d\n", len);
         fflush(stdout);
 
@@ -166,5 +168,20 @@ JNIEXPORT void JNICALL Java_de_rub_nds_research_timingsocket_TimingSocketImpl_c_
         puts("Called c_startTimeMeasurement()\n");
         fflush(stdout);
 #endif
+        ticks_measured = 0;
         start_measurement = 1;
+        start = 0L;
+        end = 0L;
+}
+
+JNIEXPORT jlong JNICALL Java_de_rub_nds_research_timingsocket_TimingSocketImpl_c_1getTiming(JNIEnv *evn, jobject obj)
+{
+        return ticks_measured;
+}
+
+void calc_ticks() {
+        ticks_measured = end - start;
+        start_measurement = 0;
+        start = 0L;
+        end = 0L;
 }

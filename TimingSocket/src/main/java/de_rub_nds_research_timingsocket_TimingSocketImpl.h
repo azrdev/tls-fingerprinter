@@ -58,9 +58,9 @@ JNIEXPORT void JNICALL Java_de_rub_nds_research_timingsocket_TimingSocketImpl_c_
 /*
  * Class:     de_rub_nds_research_timingsocket_TimingSocketImpl
  * Method:    c_getTiming
- * Signature: ()V
+ * Signature: ()J
  */
-JNIEXPORT void JNICALL Java_de_rub_nds_research_timingsocket_TimingSocketImpl_c_1getTiming
+JNIEXPORT jlong JNICALL Java_de_rub_nds_research_timingsocket_TimingSocketImpl_c_1getTiming
   (JNIEnv *, jobject);
 
 /*

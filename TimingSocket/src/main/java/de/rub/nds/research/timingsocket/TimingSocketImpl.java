@@ -149,7 +149,7 @@ public class TimingSocketImpl extends SocketImpl {
         os = new TimingOutputStream(this);
         is = new TimingInputStream(this);
     }
-    public native int c_create(boolean stream);
+    private native int c_create(boolean stream);
 
     @Override
     public void connect(String host, int port) throws IOException {
@@ -159,19 +159,24 @@ public class TimingSocketImpl extends SocketImpl {
             throw new IOException("Cannot connect socket.");
         }
     }
-    public native int c_connect(int socket, String host, int port);
+    private native int c_connect(int socket, String host, int port);
 
     @Override
     protected void connect(InetAddress address, int port) throws IOException {
-        String host = address.getCanonicalHostName();
-        connect(host, port);
+        // String host = address.getCanonicalHostName();
+        // connect(host, port);
+        throw new UnsupportedOperationException("Not supported yet.");
     }
 
     @Override
     protected void connect(SocketAddress address, int timeout) throws
             IOException {
-        InetSocketAddress isa = (InetSocketAddress) address;
-        connect(isa.getHostName(), isa.getPort());
+        String host = ((InetSocketAddress) address).getHostName();
+        int port = ((InetSocketAddress) address).getPort();
+        connect(host, port);
+        // InetSocketAddress isa = (InetSocketAddress) address;
+        // connect(isa.getHostName(), isa.getPort());
+        // throw new UnsupportedOperationException("Not supported yet.");
     }
 
     @Override
@@ -208,13 +213,13 @@ public class TimingSocketImpl extends SocketImpl {
             return 0;
         }
     }
-    public native int c_available();
+    private native int c_available();
 
     @Override
     protected void close() throws IOException {
         c_close();
     }
-    public native int c_close();
+    private native int c_close();
 
     @Override
     protected void sendUrgentData(int data) throws IOException {
@@ -235,7 +240,7 @@ public class TimingSocketImpl extends SocketImpl {
             //Todo: throw new SocketException("Could not set option");
         }
     }
-    public native int c_setOption(int optID, int value);
+    private native int c_setOption(int optID, int value);
     
 
     @Override
@@ -243,42 +248,62 @@ public class TimingSocketImpl extends SocketImpl {
         throw new UnsupportedOperationException("Not supported yet.");
     }
     
+    /**
+     * This function tells the socket to measure the response time of
+     * the next write-read couple. It works like this:
+     * 
+     * 1. call @startTimeMeasurement()
+     * 2. Perform a write() to send the request
+     * 3. Perform a read() immediately after sending the request to 
+     *    ensure that you get correct results in case that the
+     *    response is very fast.
+     * 4. Retrieve the measured timing by calling @getTiming()
+     */
     public void startTimeMeasurement() {
         c_startTimeMeasurement();
     }
-    public native void c_startTimeMeasurement();
+    private native void c_startTimeMeasurement();
     
+    /**
+     * This function works hand-in-hand with @startTimeMeasurement()
+     * and retrieves the measured time.
+     * 
+     * @return The measured response time from sending the last byte of the
+     *         request to retrieving the first byte of the response. The 
+     *         unit of measurement is CPU clock ticks. If the return value
+     *         is 0, an error occurred.
+     */
     public long getTiming() {
-        throw new UnsupportedOperationException("Not supported yet.");
+        return c_getTiming();
     }
-    public native void c_getTiming();
+    private native long c_getTiming();
     
     /**
      * Callback function for TimingOutputStream
      * @param ar The data to be send
      */
-    public void write(byte[] ar) {
+    private void write(byte[] ar) {
         c_write(ar);
     }
-    public native int c_write(byte[] ar);
+    private native int c_write(byte[] ar);
     
     /**
      * Callback function for TimingInputStream
      * @param ar The array that is filled with data
      * @return The amount of bytes read
      */
-    public int read(byte[] ar) {
+    private int read(byte[] ar) {
         return c_read(ar);
     }
-    public native int c_read(byte[] ar);
+    private native int c_read(byte[] ar);
     
     /**
      * Callback function for TimingInputStream
      * @return A single byte read from the socket
      */
-    public int read() {
+    private int read() {
         return c_read_no_param();
     }
-    public native int c_read_no_param();
+    private native int c_read_no_param();
     
 }
