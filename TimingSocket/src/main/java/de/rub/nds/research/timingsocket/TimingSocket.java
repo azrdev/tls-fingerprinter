@@ -12,15 +12,25 @@ import java.net.*;
  * May 11, 2012
  */
 public class TimingSocket extends Socket {
-
+    TimingSocketImpl timingSocketImpl;
+    
     public TimingSocket() throws SocketException {
-        super(new TimingSocketImpl());
-
+            this(new TimingSocketImpl());
     }
 
+    /**
+     * Dirrrty trick to be able to hold a copy of the TimingSocketImpl instance.
+     * @param tsi TimingSocketImpl class
+     * @throws SocketException 
+     */
+    private TimingSocket(TimingSocketImpl tsi) throws SocketException {
+        super(tsi);
+        timingSocketImpl = tsi;
+    }
+    
     public TimingSocket(final String host, final int port)
             throws SocketException, IOException {
-        this();
+        this(new TimingSocketImpl());
         final SocketAddress socketAddr = new InetSocketAddress(host, port);
         connect(socketAddr);
     }
@@ -52,5 +62,13 @@ public class TimingSocket extends Socket {
         bind(localSocketAddr);
         final SocketAddress socketAddr = new InetSocketAddress(address, port);
         connect(socketAddr);
+    }
+    
+    public void startTimeMeasurement() {
+        timingSocketImpl.startTimeMeasurement();
+    }
+    
+    public long getTiming() {
+        return timingSocketImpl.getTiming();
     }
 }
