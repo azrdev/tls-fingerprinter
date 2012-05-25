@@ -16,7 +16,11 @@ public abstract class ATrace {
     /**
      * Time in nano-precesion.
      */
-    private Long nanoTime = null;
+    private long nanoTime = 0L;
+    /**
+     * Accurate time from timing socket.
+     */
+    private long accurateTime = 0L;
 
     /**
      * Public constructor for the trace which sets the current. timestamp and
@@ -61,5 +65,26 @@ public abstract class ATrace {
      */
     public final void setNanoTime(final Long nanoTime) {
         this.nanoTime = nanoTime;
+    }
+
+    /**
+     * Get the time provided by TimingSocket.
+     *
+     * @return Time provided by TimingSocket
+     */
+    public final Long getAccurateTime() {
+        return this.accurateTime;
+    }
+
+    /**
+     * Set the accurate time as provided by the TimingSocket (only TimingSocket
+     * should use this method).
+     *
+     * @param accurateTime Accurate as time as provided by TimingSocket (Time
+     * interval between sending the previous message and the reception of this
+     * message)
+     */
+    public final void setAccurateTime(final Long accurateTime) {
+        this.accurateTime = accurateTime;
     }
 }

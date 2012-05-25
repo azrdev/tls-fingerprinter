@@ -277,6 +277,7 @@ public final class SSLHandshakeWorkflow extends AWorkflow {
 
         // do we need accurate response times?
         if (timingEnabled && trace.isTimeMeasurementEnabled()) {
+            waitingForTime = true;
             ((TimingSocket) so).startTimeMeasurement();
         }
 
@@ -356,8 +357,10 @@ public final class SSLHandshakeWorkflow extends AWorkflow {
             trace.setNanoTime(System.nanoTime());
 
             if (timingEnabled && waitingForTime) {
-                trace.setAccurateTime(((TimingSocket) so).getTiming());
+                waitingForTime = false;
+               trace.setAccurateTime(((TimingSocket) so).getTiming());
             }
+            
             //fetch the input bytes
             responseBytes = utils.fetchResponse(in);
             SSLResponse response = new SSLResponse(responseBytes, this);

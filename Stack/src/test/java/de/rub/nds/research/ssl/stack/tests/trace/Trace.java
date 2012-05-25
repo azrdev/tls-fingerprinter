@@ -200,16 +200,7 @@ public final class Trace extends ATrace implements Serializable {
      * @return True if time measurement is enabled for this trace.
      */
     public boolean isTimeMeasurementEnabled() {
-        return this.isTimeMeasurementEnabled();
+        return this.timeMeasurementEnabled;
     }
 
-    /**
-     * Set the accurate timing as handled by the timing socket.
-     *
-     * @param timing Timing of this trace (Time interval between sending the
-     * previous message and the reception of this message)
-     */
-    public void setAccurateTime(long timing) {
-        throw new UnsupportedOperationException("Not yet implemented");
-    }
 }

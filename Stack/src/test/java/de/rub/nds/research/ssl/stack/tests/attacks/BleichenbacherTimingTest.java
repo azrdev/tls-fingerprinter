@@ -141,60 +141,59 @@ public class BleichenbacherTimingTest implements Observer {
         return new Object[][]{
                     // ok case
                     {new byte[]{0x00, 0x02}, new byte[]{0x00}, protocolVersion,
-                        false, 0, "OK", false},
-                    // wrong protocol version in PreMasterSecret
-                    {new byte[]{0x00, 0x02}, new byte[]{0x00},
-                        EProtocolVersion.SSL_3_0, false, 0,
-                        "Wrong protocol version in PreMasterSecret", false},
-                    // seperate byte is not 0x00
-                    {new byte[]{0x00, 0x02}, new byte[]{0x01}, protocolVersion,
-                        false, 0, "Seperate byte is not 0x00", false},
-                    // mode changed
-                    {new byte[]{0x00, 0x01}, new byte[]{0x00}, protocolVersion,
-                        false, 0, "Mode changed to 0x01", false},
-                    // zero byte at the first position of the padding
-                    {new byte[]{0x00, 0x02}, new byte[]{0x00}, protocolVersion,
-                        true, 0,
-                        "Zero byte at the first position of the padding",
-                        false},
-                    // zero byte in the middle of the padding string
-                    {new byte[]{0x00, 0x02}, new byte[]{0x00}, protocolVersion,
-                        true, 1,
-                        "Zero byte in the middle of the padding string",
-                        false},
-                    // zero byte at the end of the padding string
-                    {new byte[]{0x00, 0x02}, new byte[]{0x00}, protocolVersion,
-                        true, 2, "Zero byte at the end of the padding string",
-                        false},
-                    // ok case, MAC tampered
-                    {new byte[]{0x00, 0x02}, new byte[]{0x00}, protocolVersion,
-                        false, 0, "MSG ok, MAC tampered", true},
-                    // wrong protocol version in PreMasterSecret, MAC tampered
-                    {new byte[]{0x00, 0x02}, new byte[]{0x00},
-                        EProtocolVersion.SSL_3_0, false, 0,
-                        "Wrong protocol version in PreMasterSecret, "
-                        + "MAC tampered", true},
-                    // seperate byte is not 0x00
-                    {new byte[]{0x00, 0x02}, new byte[]{0x01}, protocolVersion,
-                        false, 0, "Seperate byte is not 0x00, MAC tampered",
-                        true},
-                    // mode changed, MAC tampered
-                    {new byte[]{0x00, 0x01}, new byte[]{0x00}, protocolVersion,
-                        false, 0, "Mode changed to 0x01, MAC tampered", true},
-                    // zero byte at the first position of the padding, 
-                    // MAC tampered
-                    {new byte[]{0x00, 0x02}, new byte[]{0x00}, protocolVersion,
-                        true, 0, "Zero byte at the first position of "
-                        + "the padding, MAC tampered", true},
-                    // zero byte in the middle of the padding string, 
-                    // MAC tampered
-                    {new byte[]{0x00, 0x02}, new byte[]{0x00}, protocolVersion,
-                        true, 1, "Zero byte in the middle of the padding"
-                        + " string, MAC tampered", true},
-                    // zero byte at the end of the padding string, MAC tampered
-                    {new byte[]{0x00, 0x02}, new byte[]{0x00}, protocolVersion,
-                        true, 2, "Zero byte at the end of the padding string,"
-                        + " MAC tampered", true}
+                        false, 0, "OK", false}, // wrong protocol version in PreMasterSecret
+                //                    {new byte[]{0x00, 0x02}, new byte[]{0x00},
+                //                        EProtocolVersion.SSL_3_0, false, 0,
+                //                        "Wrong protocol version in PreMasterSecret", false},
+                //                    // seperate byte is not 0x00
+                //                    {new byte[]{0x00, 0x02}, new byte[]{0x01}, protocolVersion,
+                //                        false, 0, "Seperate byte is not 0x00", false},
+                //                    // mode changed
+                //                    {new byte[]{0x00, 0x01}, new byte[]{0x00}, protocolVersion,
+                //                        false, 0, "Mode changed to 0x01", false},
+                //                    // zero byte at the first position of the padding
+                //                    {new byte[]{0x00, 0x02}, new byte[]{0x00}, protocolVersion,
+                //                        true, 0,
+                //                        "Zero byte at the first position of the padding",
+                //                        false},
+                //                    // zero byte in the middle of the padding string
+                //                    {new byte[]{0x00, 0x02}, new byte[]{0x00}, protocolVersion,
+                //                        true, 1,
+                //                        "Zero byte in the middle of the padding string",
+                //                        false},
+                //                    // zero byte at the end of the padding string
+                //                    {new byte[]{0x00, 0x02}, new byte[]{0x00}, protocolVersion,
+                //                        true, 2, "Zero byte at the end of the padding string",
+                //                        false},
+                //                    // ok case, MAC tampered
+                //                    {new byte[]{0x00, 0x02}, new byte[]{0x00}, protocolVersion,
+                //                        false, 0, "MSG ok, MAC tampered", true},
+                //                    // wrong protocol version in PreMasterSecret, MAC tampered
+                //                    {new byte[]{0x00, 0x02}, new byte[]{0x00},
+                //                        EProtocolVersion.SSL_3_0, false, 0,
+                //                        "Wrong protocol version in PreMasterSecret, "
+                //                        + "MAC tampered", true},
+                //                    // seperate byte is not 0x00
+                //                    {new byte[]{0x00, 0x02}, new byte[]{0x01}, protocolVersion,
+                //                        false, 0, "Seperate byte is not 0x00, MAC tampered",
+                //                        true},
+                //                    // mode changed, MAC tampered
+                //                    {new byte[]{0x00, 0x01}, new byte[]{0x00}, protocolVersion,
+                //                        false, 0, "Mode changed to 0x01, MAC tampered", true},
+                //                    // zero byte at the first position of the padding, 
+                //                    // MAC tampered
+                //                    {new byte[]{0x00, 0x02}, new byte[]{0x00}, protocolVersion,
+                //                        true, 0, "Zero byte at the first position of "
+                //                        + "the padding, MAC tampered", true},
+                //                    // zero byte in the middle of the padding string, 
+                //                    // MAC tampered
+                //                    {new byte[]{0x00, 0x02}, new byte[]{0x00}, protocolVersion,
+                //                        true, 1, "Zero byte in the middle of the padding"
+                //                        + " string, MAC tampered", true},
+                //                    // zero byte at the end of the padding string, MAC tampered
+                //                    {new byte[]{0x00, 0x02}, new byte[]{0x00}, protocolVersion,
+                //                        true, 2, "Zero byte at the end of the padding string,"
+                //                        + " MAC tampered", true}
                 };
     }
 
@@ -230,8 +229,8 @@ public class BleichenbacherTimingTest implements Observer {
 //        System.out.printf("%-25s%-50s\n", "Time measurement:",
 //                "Time between CLIENT_KEY_EXCHANGE and SERVER_CHANGE_CIPHER_SPEC"
 //                + " or ALERT");
-        Reporter.log("Time measurement:" 
-        		+ "Time between CLIENT_KEY_EXCHANGE and SERVER_CHANGE_CIPHER_SPEC"
+        Reporter.log("Time measurement:"
+                + "Time between CLIENT_KEY_EXCHANGE and SERVER_CHANGE_CIPHER_SPEC"
                 + " or ALERT");
         try {
             for (int i = 0; i < NUMBER_OF_REPETIIONS; i++) {
@@ -254,10 +253,10 @@ public class BleichenbacherTimingTest implements Observer {
         Reporter.log("Averaged time (ns):");
         if (canceled) {
 //            System.out.printf("%-50s\n", "computation not possible");
-        	Reporter.log("computation not possible");
+            Reporter.log("computation not possible");
         } else {
 //            System.out.printf("%-50s\n", averagedTime);
-        	Reporter.log(averagedTime.toString());
+            Reporter.log(averagedTime.toString());
         }
 //        System.out.println("------------------------------");
         Reporter.log("------------------------------");
@@ -348,15 +347,15 @@ public class BleichenbacherTimingTest implements Observer {
 
                     cke.setExchangeKeys(encPMS);
 
-                    trace.setCurrentRecord(cke);
                     trace.setTimeMeasurementEnabled(true);
+                    trace.setCurrentRecord(cke);
                     break;
                 case CLIENT_FINISHED:
                     if (destroyMAC) {
                         ARecordFrame finished = trace.getCurrentRecord();
                         byte[] payload = finished.encode(true);
                         // frag the mac
-//                        payload[24] = 1;
+                        payload[24] = 1;
                         trace.setCurrentRecordBytes(payload);
                     }
                     break;
@@ -416,12 +415,10 @@ public class BleichenbacherTimingTest implements Observer {
         Long delay = 0L;
         Long timestamp = 0L;
         Long overall = -1L;
-//        System.out.printf("%50s", "===> Test duration <===\n");
 
         for (Trace trace : traces) {
             if (trace.getState() != null) {
-//                System.out.printf("%40s", trace.getState().name() + "\n");
-                timestamp = trace.getNanoTime();
+                timestamp = trace.getAccurateTime();
                 switch (trace.getState()) {
                     case CLIENT_KEY_EXCHANGE:
                         delay = timestamp;
@@ -431,17 +428,11 @@ public class BleichenbacherTimingTest implements Observer {
                         break;
                     case ALERT:
                         overall = timestamp - delay;
-//                        if (trace.getCurrentRecord() instanceof Alert) {
-//                            System.out.println("Alert reason: " 
-//                                    + ((Alert) trace.getCurrentRecord()).
-//                                    getAlertDescription());
-//                        }
                         break;
                     default:
                         break;
                 }
             }
-//            System.out.println(": " + timestamp + "ns");
         }
         return overall;
     }
