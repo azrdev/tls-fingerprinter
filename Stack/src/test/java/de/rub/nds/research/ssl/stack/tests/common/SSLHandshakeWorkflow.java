@@ -381,7 +381,7 @@ public final class SSLHandshakeWorkflow extends AWorkflow {
         while (in.available() == 0) {
             // TODO: Sehen wir hier irgendeine Möglichkeit, mehr CPU-Zeit zu verbrauchen?
             if (System.currentTimeMillis() > (startWait + timeout)) {
-                throw new SocketTimeoutException("No response within 500 ms");
+                throw new SocketTimeoutException("No response within " + timeout + " ms");
             }
         }
     }

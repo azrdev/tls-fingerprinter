@@ -128,8 +128,8 @@ public class BleichenbacherTest implements Observer {
     @DataProvider(name = "bleichenbacher")
     public Object[][] createData1() {
         return new Object[][]{
-                    {"OK case", new byte[]{0x00, 0x02}, new byte[]{0x00},
-                        protocolVersion, false, 0},
+//                    {"OK case", new byte[]{0x00, 0x02}, new byte[]{0x00},
+//                        protocolVersion, false, 0},
 //                    {"Wrong protocol version in PreMasterSecret", new byte[]{
 //                            0x00, 0x02},
 //                        new byte[]{0x00}, EProtocolVersion.SSL_3_0, false, 0},
@@ -140,9 +140,9 @@ public class BleichenbacherTest implements Observer {
 //                    {"Zero byte at first position in padding", new byte[]{0x00,
 //                            0x02},
 //                        new byte[]{0x00}, protocolVersion, true, FIRST_POSITION},
-//                    {"Zero byte in the middle of the padding string",
-//                        new byte[]{0x00, 0x02}, new byte[]{0x00},
-//                        protocolVersion, true, MID_POSITION},
+                    {"Zero byte in the middle of the padding string",
+                        new byte[]{0x00, 0x02}, new byte[]{0x00},
+                        protocolVersion, true, MID_POSITION},
 //                    {"Zero byte at the end of the padding string", new byte[]{
 //                            0x00, 0x02},
 //                        new byte[]{0x00}, protocolVersion, true, LAST_POSITION},
