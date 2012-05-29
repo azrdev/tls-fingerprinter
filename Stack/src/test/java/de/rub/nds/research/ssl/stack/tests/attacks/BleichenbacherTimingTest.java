@@ -140,8 +140,8 @@ public class BleichenbacherTimingTest implements Observer {
     public Object[][] createData1() {
         return new Object[][]{
                     // ok case
-                    {new byte[]{0x00, 0x02}, new byte[]{0x00}, protocolVersion,
-                        false, 0, "OK", false}, // wrong protocol version in PreMasterSecret
+//                    {new byte[]{0x00, 0x02}, new byte[]{0x00}, protocolVersion,
+//                        false, 0, "OK", false}, // wrong protocol version in PreMasterSecret
                 //                    {new byte[]{0x00, 0x02}, new byte[]{0x00},
                 //                        EProtocolVersion.SSL_3_0, false, 0,
                 //                        "Wrong protocol version in PreMasterSecret", false},
@@ -187,9 +187,9 @@ public class BleichenbacherTimingTest implements Observer {
                 //                        + "the padding, MAC tampered", true},
                 //                    // zero byte in the middle of the padding string, 
                 //                    // MAC tampered
-                //                    {new byte[]{0x00, 0x02}, new byte[]{0x00}, protocolVersion,
-                //                        true, 1, "Zero byte in the middle of the padding"
-                //                        + " string, MAC tampered", true},
+                                    {new byte[]{0x00, 0x02}, new byte[]{0x00}, protocolVersion,
+                                        true, 1, "Zero byte in the middle of the padding"
+                                        + " string, MAC tampered", true},
                 //                    // zero byte at the end of the padding string, MAC tampered
                 //                    {new byte[]{0x00, 0x02}, new byte[]{0x00}, protocolVersion,
                 //                        true, 2, "Zero byte at the end of the padding string,"
@@ -234,7 +234,7 @@ public class BleichenbacherTimingTest implements Observer {
                 + " or ALERT");
         try {
             for (int i = 0; i < NUMBER_OF_REPETIIONS; i++) {
-                workflow = new SSLHandshakeWorkflow(true);
+                workflow = new SSLHandshakeWorkflow(false);
                 workflow.connectToTestServer(HOST, PORT);
                 workflow.addObserver(this, EStates.CLIENT_HELLO);
                 workflow.addObserver(this, EStates.CLIENT_KEY_EXCHANGE);

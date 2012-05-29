@@ -165,7 +165,7 @@ public class BleichenbacherTest implements Observer {
             final EProtocolVersion version, final boolean changePadding,
             final int position)
             throws IOException {
-        workflow = new SSLHandshakeWorkflow(true);
+        workflow = new SSLHandshakeWorkflow(false);
         workflow.connectToTestServer(HOST, PORT);
         workflow.addObserver(this, EStates.CLIENT_HELLO);
         workflow.addObserver(this, EStates.CLIENT_KEY_EXCHANGE);
