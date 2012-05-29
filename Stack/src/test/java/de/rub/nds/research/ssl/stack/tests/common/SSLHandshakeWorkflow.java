@@ -1,5 +1,6 @@
 package de.rub.nds.research.ssl.stack.tests.common;
 
+import de.rub.nds.research.ssl.stack.Utility;
 import de.rub.nds.research.ssl.stack.protocols.ARecordFrame;
 import de.rub.nds.research.ssl.stack.protocols.commons.EConnectionEnd;
 import de.rub.nds.research.ssl.stack.protocols.commons.EProtocolVersion;
@@ -7,6 +8,7 @@ import de.rub.nds.research.ssl.stack.protocols.handshake.ClientHello;
 import de.rub.nds.research.ssl.stack.protocols.handshake.datatypes.MasterSecret;
 import de.rub.nds.research.ssl.stack.protocols.handshake.datatypes.PreMasterSecret;
 import de.rub.nds.research.ssl.stack.protocols.msgs.ChangeCipherSpec;
+import de.rub.nds.research.ssl.stack.tests.fingerprint.FingerprintClientHello;
 import de.rub.nds.research.ssl.stack.tests.response.SSLResponse;
 import de.rub.nds.research.ssl.stack.tests.trace.Trace;
 import de.rub.nds.research.ssl.stack.tests.workflows.AWorkflow;
@@ -20,6 +22,8 @@ import java.security.DigestException;
 import java.security.NoSuchAlgorithmException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
+
+import org.apache.log4j.Logger;
 
 /**
  * The complete SSL Handshake workflow.
@@ -41,6 +45,8 @@ public final class SSLHandshakeWorkflow extends AWorkflow {
     private boolean encrypted = false;
     private boolean timingEnabled = false;
     private boolean waitingForTime = false;
+    
+    static Logger logger = Logger.getLogger(SSLHandshakeWorkflow.class.getName());
 
     /**
      * Define the workflow states.
@@ -126,6 +132,7 @@ public final class SSLHandshakeWorkflow extends AWorkflow {
      */
     @Override
     public void start() {
+    	logger.info(">>> Start TLS handshake");
         ARecordFrame record;
         Trace trace;
         MessageBuilder msgBuilder = new MessageBuilder();
@@ -150,6 +157,8 @@ public final class SSLHandshakeWorkflow extends AWorkflow {
         utils.setClientRandom((ClientHello) record);
         // drop it on the wire!
         prepareAndSend(trace);
+        logger.info("Client Hello message send");
+        logger.debug("Message in hex: " + Utility.byteToHex(trace.getCurrentRecord().getPayload()));
         // hash current record
         updateHash(hashBuilder, trace);
         // add trace to ArrayList
@@ -179,6 +188,8 @@ public final class SSLHandshakeWorkflow extends AWorkflow {
         switchToState(trace, EStates.CLIENT_KEY_EXCHANGE);
         // drop it on the wire!
         prepareAndSend(trace);
+        logger.info("Client Key Exchange message send");
+        logger.debug("Message in hex: " + Utility.byteToHex(trace.getCurrentRecord().getPayload()));
         // hash current record
         updateHash(hashBuilder, trace);
         // add trace to ArrayList
@@ -196,6 +207,8 @@ public final class SSLHandshakeWorkflow extends AWorkflow {
         switchToState(trace, EStates.CLIENT_CHANGE_CIPHER_SPEC);
         // drop it on the wire!
         prepareAndSend(trace);
+        logger.info("Change Cipher Spec message send");
+        logger.debug("Message in hex: " + Utility.byteToHex(trace.getCurrentRecord().getPayload()));
         // switch to encrypted mode
         encrypted = true;
         // add trace to ArrayList
@@ -223,6 +236,8 @@ public final class SSLHandshakeWorkflow extends AWorkflow {
         switchToNextState(trace);
         // drop it on the wire!
         prepareAndSend(trace);
+        logger.info("Finished message send");
+        logger.debug("Message in hex: " + Utility.byteToHex(trace.getCurrentRecord().getPayload()));
         // add trace to ArrayList
         addToList(new Trace(EStates.CLIENT_FINISHED, trace.getCurrentRecord(),
                 trace.getOldRecord(), false));
@@ -239,6 +254,7 @@ public final class SSLHandshakeWorkflow extends AWorkflow {
                 return;
             }
         }
+        logger.info("<<< TLS Handshake finished");
     }
 
     /**
