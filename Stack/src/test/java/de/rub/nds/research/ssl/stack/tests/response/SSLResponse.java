@@ -15,6 +15,8 @@ import de.rub.nds.research.ssl.stack.tests.trace.Trace;
 import java.util.Observable;
 import java.util.Observer;
 
+import org.apache.log4j.Logger;
+
 /**
  * A response during the SSL protocol processing.
  *
@@ -31,6 +33,8 @@ public class SSLResponse extends ARecordFrame implements Observer {
      * Handshake workflow
      */
     private SSLHandshakeWorkflow workflow;
+    
+    static Logger logger = Logger.getLogger(SSLResponse.class.getName());
 
     /**
      * Initialize a SSL response.
@@ -57,6 +61,7 @@ public class SSLResponse extends ARecordFrame implements Observer {
         EContentType contentType = getContentType();
         switch (contentType) {
             case CHANGE_CIPHER_SPEC:
+            	logger.info("Change Cipher Spec message received");
                 ChangeCipherSpec ccs = new ChangeCipherSpec(response, true);
                 trace.setCurrentRecord(ccs);
                 workflow.switchToNextState(trace);
@@ -64,7 +69,10 @@ public class SSLResponse extends ARecordFrame implements Observer {
                 workflow.addToList(trace);
                 break;
             case ALERT:
+            	logger.info("Alert message received");
                 Alert alert = new Alert(response, true);
+                logger.info("Alert level: " + alert.getAlertLevel().name());
+                logger.info("Alert message: " + alert.getAlertDescription().name());
                 trace.setCurrentRecord(alert);
                 if (EAlertLevel.FATAL.equals(alert.getAlertLevel())) {
                     workflow.switchToState(trace, EStates.ALERT);
@@ -76,6 +84,7 @@ public class SSLResponse extends ARecordFrame implements Observer {
                 break;
             case HANDSHAKE:
                 if (workflow.isEncrypted()) {
+                	logger.info("Finished message received");
                     TLSCiphertext ciphertext = new TLSCiphertext(response, true);
                     trace.setCurrentRecord(ciphertext);
                     workflow.switchToNextState(trace);
