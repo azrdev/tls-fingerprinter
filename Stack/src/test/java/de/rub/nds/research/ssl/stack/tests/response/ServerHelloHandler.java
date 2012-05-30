@@ -3,6 +3,8 @@ package de.rub.nds.research.ssl.stack.tests.response;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.log4j.Logger;
+
 import de.rub.nds.research.ssl.stack.protocols.commons.EBulkCipherAlgorithm;
 import de.rub.nds.research.ssl.stack.protocols.commons.ECipherSuite;
 import de.rub.nds.research.ssl.stack.protocols.commons.ECipherType;
@@ -14,6 +16,7 @@ import de.rub.nds.research.ssl.stack.protocols.handshake.AHandshakeRecord;
 import de.rub.nds.research.ssl.stack.protocols.handshake.ServerHello;
 import de.rub.nds.research.ssl.stack.protocols.handshake.datatypes.EKeyExchangeAlgorithm;
 import de.rub.nds.research.ssl.stack.protocols.handshake.datatypes.ESignatureAlgorithm;
+import de.rub.nds.research.ssl.stack.tests.fingerprint.FingerprintCHRecordHeader;
 
 /**
  * Handles a Server Hello message. The handler
@@ -57,6 +60,11 @@ public class ServerHelloHandler implements IHandshakeStates {
 	 */
 	private static final int KEY_SIZE_DES = 8;
 	
+	 /**
+     * Initialize the log4j logger.
+     */
+	static Logger logger = Logger.getRootLogger();
+	
 	
 	/**
 	 * Empty constructor
@@ -72,6 +80,7 @@ public class ServerHelloHandler implements IHandshakeStates {
 	@Override
 	public final void handleResponse(final AHandshakeRecord handRecord) {
 		serverHello = (ServerHello) handRecord;
+		logger.info("Chosen cipher: " + serverHello.getCipherSuite().name());
 		this.setServerRandom();
 		this.setSecurityParameters(serverHello.getCipherSuite());
 	}
