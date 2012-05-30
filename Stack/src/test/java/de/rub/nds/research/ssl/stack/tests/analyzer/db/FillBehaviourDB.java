@@ -24,16 +24,16 @@ public class FillBehaviourDB {
 		java.sql.PreparedStatement prepared = conn.prepareStatement("insert into tls_fingerprint_hash"
 				+ " values (default,?,?,?,?,?,?)");
 		BleichenbacherParameters parameters = new BleichenbacherParameters();
-		parameters.setChangePadding(false);
+		parameters.setProtocolVersion(EProtocolVersion.TLS_1_0);
 		parameters.setMode(new byte[]{0x00,0x02});
+		parameters.setChangePadding(true);
 		parameters.setSeparate(new byte[]{0x00});
-		parameters.setProtocolVersion(EProtocolVersion.SSL_3_0);
-		parameters.setPosition(0);
-		String fingerprint = parameters.computeFingerprint();
+		parameters.setPosition(2);
+		String fingerprint = parameters.computeHash();
 		prepared.setString(1, fingerprint);
 		prepared.setString(2, "ALERT");
 		prepared.setString(3, "HANDSHAKE_FAILURE");
-		prepared.setString(4, "SERVER_CHANGE_CIPHER_SPEC");
+		prepared.setString(4, "CLIENT_FINISHED");
 		prepared.setString(5, "JSSE_STANDARD");
 		prepared.setInt(6, 2);
 		prepared.executeUpdate();

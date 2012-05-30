@@ -7,23 +7,18 @@ import java.util.ArrayList;
 import de.rub.nds.research.ssl.stack.protocols.alert.Alert;
 import de.rub.nds.research.ssl.stack.protocols.commons.EProtocolVersion;
 import de.rub.nds.research.ssl.stack.tests.analyzer.common.AFingerprintAnalyzer;
+import de.rub.nds.research.ssl.stack.tests.analyzer.common.AParameters;
 import de.rub.nds.research.ssl.stack.tests.analyzer.common.ETLSImplementation;
 import de.rub.nds.research.ssl.stack.tests.analyzer.counter.ScoreCounter;
 import de.rub.nds.research.ssl.stack.tests.analyzer.db.Database;
 import de.rub.nds.research.ssl.stack.tests.trace.Trace;
 
-public class BleichenbacherAnalyzer extends AFingerprintAnalyzer {
+public class TestHashAnalyzer extends AFingerprintAnalyzer {
 	
-	private BleichenbacherParameters parameters = new BleichenbacherParameters();
+	private String hashValue;
 	
-	public BleichenbacherAnalyzer(byte [] mode, byte [] separate,
-			EProtocolVersion protocolVersion, boolean changePadding,
-			int position){
-		parameters.setMode(mode);
-		parameters.setSeparate(separate);
-		parameters.setProtocolVersion(protocolVersion);
-		parameters.setChangePadding(changePadding);
-		parameters.setPosition(position);
+	public TestHashAnalyzer(AParameters parameters){
+		this.hashValue = parameters.computeHash();	
 	}
 
 	@Override
@@ -39,9 +34,8 @@ public class BleichenbacherAnalyzer extends AFingerprintAnalyzer {
 			stateBeforeAlert = previousTrace.getState().name();
 		}
 		ScoreCounter counter = ScoreCounter.getInstance();
-		String fingerprint = parameters.computeFingerprint();
 		Database db = Database.getInstance();
-		ResultSet result = db.checkFingerprintInDB(fingerprint);
+		ResultSet result = db.findHashInDB(this.hashValue);
 		try {
 			while (result.next()) {
 				if (result.getString("LAST_STATE").equalsIgnoreCase("ALERT")) {

@@ -14,6 +14,7 @@ import de.rub.nds.research.ssl.stack.protocols.ARecordFrame;
 import de.rub.nds.research.ssl.stack.protocols.alert.Alert;
 import de.rub.nds.research.ssl.stack.protocols.commons.ECipherSuite;
 import de.rub.nds.research.ssl.stack.protocols.commons.EProtocolVersion;
+import de.rub.nds.research.ssl.stack.protocols.commons.StackProperties;
 import de.rub.nds.research.ssl.stack.protocols.handshake.Certificate;
 import de.rub.nds.research.ssl.stack.protocols.handshake.ClientHello;
 import de.rub.nds.research.ssl.stack.protocols.handshake.ClientKeyExchange;
@@ -34,6 +35,7 @@ public class TraceListAnalyzer {
 	}
 
 	public void logOutput(ArrayList<Trace> traceList) {
+		boolean test2 = StackProperties.LENGTH_CHECK;
 		for (Trace trace : traceList) {
 			 ARecordFrame currentRecord = trace.getCurrentRecord();
 			 if (currentRecord instanceof ClientHello) {

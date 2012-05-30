@@ -15,6 +15,7 @@ public class ScoreCounter {
 	private int jsseStandardScore = 0;
 	private int jsseBouncyScore = 0;
 	private int microsoftScore = 0;
+	private int totalCounter = 0;
 	
 	/**Empty constructor.*/
 	private ScoreCounter() {
@@ -33,6 +34,7 @@ public class ScoreCounter {
 	 * @param score Score
 	 */
 	public void countResult(ETLSImplementation impl, int score) {
+		this.totalCounter += score;
 		switch (impl) {
 		case OPENSSL: this.openSSLScore += score;
 		break;
@@ -61,6 +63,10 @@ public class ScoreCounter {
 	
 	public int getMicrosoftScore() {
 		return this.microsoftScore;
+	}
+	
+	public int getTotalCounter() {
+		return this.totalCounter;
 	}
 	
 
