@@ -1,20 +1,12 @@
 package de.rub.nds.research.ssl.stack.tests.analyzer.common;
 
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.sql.Timestamp;
 import java.util.ArrayList;
-import java.util.Properties;
-
 import org.testng.Reporter;
-import org.testng.remote.strprotocol.IMessage;
 
 import de.rub.nds.research.ssl.stack.Utility;
 import de.rub.nds.research.ssl.stack.protocols.ARecordFrame;
 import de.rub.nds.research.ssl.stack.protocols.alert.Alert;
 import de.rub.nds.research.ssl.stack.protocols.commons.ECipherSuite;
-import de.rub.nds.research.ssl.stack.protocols.commons.EProtocolVersion;
-import de.rub.nds.research.ssl.stack.protocols.commons.StackProperties;
 import de.rub.nds.research.ssl.stack.protocols.handshake.Certificate;
 import de.rub.nds.research.ssl.stack.protocols.handshake.ClientHello;
 import de.rub.nds.research.ssl.stack.protocols.handshake.ClientKeyExchange;
@@ -23,8 +15,6 @@ import de.rub.nds.research.ssl.stack.protocols.handshake.ServerHelloDone;
 import de.rub.nds.research.ssl.stack.protocols.handshake.ServerKeyExchange;
 import de.rub.nds.research.ssl.stack.protocols.msgs.ChangeCipherSpec;
 import de.rub.nds.research.ssl.stack.protocols.msgs.TLSCiphertext;
-import de.rub.nds.research.ssl.stack.tests.analyzer.db.Database;
-import de.rub.nds.research.ssl.stack.tests.common.SSLHandshakeWorkflow.EStates;
 import de.rub.nds.research.ssl.stack.tests.trace.Trace;
 
 public class TraceListAnalyzer {
@@ -35,7 +25,6 @@ public class TraceListAnalyzer {
 	}
 
 	public void logOutput(ArrayList<Trace> traceList) {
-		boolean test2 = StackProperties.LENGTH_CHECK;
 		for (Trace trace : traceList) {
 			 ARecordFrame currentRecord = trace.getCurrentRecord();
 			 if (currentRecord instanceof ClientHello) {
