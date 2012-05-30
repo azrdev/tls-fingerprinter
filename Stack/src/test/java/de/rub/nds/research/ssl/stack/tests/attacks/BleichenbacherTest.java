@@ -10,12 +10,17 @@ import de.rub.nds.research.ssl.stack.protocols.handshake.datatypes.EncryptedPreM
 import de.rub.nds.research.ssl.stack.protocols.handshake.datatypes.PreMasterSecret;
 import de.rub.nds.research.ssl.stack.protocols.handshake.datatypes.RandomValue;
 import de.rub.nds.research.ssl.stack.protocols.msgs.datatypes.RsaUtil;
+import de.rub.nds.research.ssl.stack.tests.analyzer.BleichenbacherParameters;
+import de.rub.nds.research.ssl.stack.tests.analyzer.TestHashAnalyzer;
+import de.rub.nds.research.ssl.stack.tests.analyzer.common.AFingerprintAnalyzer;
 import de.rub.nds.research.ssl.stack.tests.analyzer.common.TraceListAnalyzer;
+import de.rub.nds.research.ssl.stack.tests.analyzer.counter.ScoreCounter;
 import de.rub.nds.research.ssl.stack.tests.common.MessageBuilder;
 import de.rub.nds.research.ssl.stack.tests.common.SSLHandshakeWorkflow;
 import de.rub.nds.research.ssl.stack.tests.common.SSLHandshakeWorkflow.EStates;
 import de.rub.nds.research.ssl.stack.tests.common.SSLServer;
 import de.rub.nds.research.ssl.stack.tests.common.SSLTestUtils;
+import de.rub.nds.research.ssl.stack.tests.fingerprint.FingerprintClientHello;
 import de.rub.nds.research.ssl.stack.tests.trace.Trace;
 import de.rub.nds.research.ssl.stack.tests.workflows.ObservableBridge;
 import java.io.IOException;
@@ -24,9 +29,13 @@ import java.security.PublicKey;
 import java.security.interfaces.RSAPublicKey;
 import java.util.Observable;
 import java.util.Observer;
+
+import org.apache.log4j.Logger;
+import org.apache.log4j.PropertyConfigurator;
 import org.testng.Assert;
 import org.testng.Reporter;
 import org.testng.annotations.AfterMethod;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -119,6 +128,11 @@ public class BleichenbacherTest implements Observer {
      * Detailed Info print out.
      */
     private static final boolean PRINT_INFO = false;
+    
+    /**
+     * Initialize the log4j logger.
+     */
+    static Logger logger = Logger.getLogger(FingerprintClientHello.class.getName());
 
     /**
      * Test parameters for the Bleichenbacher Tests.
@@ -128,8 +142,8 @@ public class BleichenbacherTest implements Observer {
     @DataProvider(name = "bleichenbacher")
     public Object[][] createData1() {
         return new Object[][]{
-                    {"OK case", new byte[]{0x00, 0x02}, new byte[]{0x00},
-                        protocolVersion, false, 0},
+//                    {"OK case", new byte[]{0x00, 0x02}, new byte[]{0x00},
+//                        protocolVersion, false, 0},
                     {"Wrong protocol version in PreMasterSecret", new byte[]{
                             0x00, 0x02},
                         new byte[]{0x00}, EProtocolVersion.SSL_3_0, false, 0},
@@ -165,23 +179,33 @@ public class BleichenbacherTest implements Observer {
             final EProtocolVersion version, final boolean changePadding,
             final int position)
             throws IOException {
+    	logger.info("++++Start Test No." + counter + "(" + desc +")++++");
         workflow = new SSLHandshakeWorkflow(false);
         workflow.connectToTestServer(HOST, PORT);
+        logger.info("Test Server: " + HOST +":" +PORT);
         workflow.addObserver(this, EStates.CLIENT_HELLO);
         workflow.addObserver(this, EStates.CLIENT_KEY_EXCHANGE);
+        logger.info(EStates.CLIENT_HELLO.name() + " state is observed");
+        logger.info(EStates.CLIENT_KEY_EXCHANGE.name() + " state is observed");
 
         this.mode = mode;
         this.separate = separate;
         this.version = version;
         this.changePadding = changePadding;
         this.position = position;
-
+        
+        BleichenbacherParameters parameters = new BleichenbacherParameters();
+        parameters.setMode(mode);
+        parameters.setSeparate(separate);
+        parameters.setProtocolVersion(version);
+        parameters.setChangePadding(changePadding);
+        parameters.setPosition(position);
+        
         workflow.start();
-
-        Reporter.log("Test No." + this.counter + " : " + desc);
-        TraceListAnalyzer analyze = new TraceListAnalyzer();
-        analyze.logOutput(workflow.getTraceList());
-        Reporter.log("------------------------------");
+      
+        AFingerprintAnalyzer analyzer = new TestHashAnalyzer(parameters);
+        analyzer.analyze(workflow.getTraceList());
+        logger.info("------------------------------");
         this.counter++;
     }
 
@@ -272,6 +296,14 @@ public class BleichenbacherTest implements Observer {
                     break;
             }
         }
+    }
+    
+    /**
+     * Initialize logging properties
+     */
+    @BeforeClass
+    public void setUpClass() {
+    	PropertyConfigurator.configure("logging.properties");
     }
 
     /**
