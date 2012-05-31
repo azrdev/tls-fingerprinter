@@ -16,7 +16,6 @@ import de.rub.nds.research.ssl.stack.protocols.handshake.AHandshakeRecord;
 import de.rub.nds.research.ssl.stack.protocols.handshake.ServerHello;
 import de.rub.nds.research.ssl.stack.protocols.handshake.datatypes.EKeyExchangeAlgorithm;
 import de.rub.nds.research.ssl.stack.protocols.handshake.datatypes.ESignatureAlgorithm;
-import de.rub.nds.research.ssl.stack.tests.fingerprint.FingerprintCHRecordHeader;
 
 /**
  * Handles a Server Hello message. The handler
