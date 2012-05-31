@@ -203,8 +203,8 @@ public class BleichenbacherTest implements Observer {
         
         workflow.start();
       
-        AFingerprintAnalyzer analyzer = new TestHashAnalyzer(parameters);
-        analyzer.analyze(workflow.getTraceList());
+//        AFingerprintAnalyzer analyzer = new TestHashAnalyzer(parameters);
+//        analyzer.analyze(workflow.getTraceList());
         logger.info("------------------------------");
         this.counter++;
     }
