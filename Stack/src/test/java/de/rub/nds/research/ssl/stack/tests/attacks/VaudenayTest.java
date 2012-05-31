@@ -25,8 +25,10 @@ import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 
+import org.apache.log4j.PropertyConfigurator;
 import org.testng.Reporter;
 import org.testng.annotations.AfterMethod;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -214,6 +216,14 @@ public class VaudenayTest implements Observer {
             }
         }
     }
+    
+    /**
+     * Initialize logging properties
+     */
+    @BeforeClass
+    public void setUpClass() {
+    	PropertyConfigurator.configure("logging.properties");
+    }
 
     /**
      * Start the target SSL Server.
@@ -221,7 +231,7 @@ public class VaudenayTest implements Observer {
     @BeforeMethod
     public void setUp() {
         try {
-//            System.setProperty("javax.net.debug", "ssl");
+            System.setProperty("javax.net.debug", "ssl");
             sslServer = new SSLServer(PATH_TO_JKS, JKS_PASSWORD,
                     protocolShortName, PORT, PRINT_INFO);
             sslServerThread = new Thread(sslServer);
