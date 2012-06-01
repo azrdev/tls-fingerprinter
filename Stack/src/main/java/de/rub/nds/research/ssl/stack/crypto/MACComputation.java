@@ -18,6 +18,10 @@ public class MACComputation {
     private Mac mac = null;
     /**Sequence number.*/
     private byte[] seqNum = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+    /**
+     * Max value of a single byte.
+     */
+    private static final int BYTE_MAX = 255;
 
     /**
      * Initialize MAC with its properties.
@@ -80,31 +84,32 @@ public class MACComputation {
         //compute the MAC of the message
         return mac.doFinal(data);
     }
-    
+
     /**
      * Increment a byte array by one.
      * @param seq Byte array to increment
      * @return Incremented byte array
      */
-    public byte [] incrementArray(byte[] seq) {
-		for (int i=seq.length-1; i >= 0; i--) {
-			Byte valueByte = seq[i];
-			Integer num = valueByte.intValue();
-			if (Integer.signum(num) == -1) {
-				num += 256;
-			}
-			if (num < 255) {
-				num++;
-				seq[i]= num.byteValue();
-				break;
-			} else if (i == 0) {
-				//reset array and start by 0 if maximum number is reached
-				for (int j=0; j<seq.length; j++) {
-					seq[j] = 0x00;
-				}
-			}
-		}
-		return seq;
-	}
+    public final byte [] incrementArray(final byte[] seq) {
+        for (int i = seq.length - 1; i >= 0; i--) {
+            Byte valueByte = seq[i];
+            Integer num = valueByte.intValue();
+            if (Integer.signum(num) == -1) {
+                num += BYTE_MAX + 1;
+            }
+            if (num < BYTE_MAX) {
+                num++;
+                seq[i] = num.byteValue();
+                break;
+            } else if (i == 0) {
+                /*reset array and start by 0 if maximum
+                number is reached*/
+                for (int j = 0; j < seq.length; j++) {
+                    seq[j] = 0x00;
+                }
+            }
+        }
+        return seq;
+    }
 
 }
