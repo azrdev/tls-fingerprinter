@@ -4,6 +4,9 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
+import org.apache.log4j.Logger;
+import org.testng.Reporter;
+
 import de.rub.nds.research.ssl.stack.protocols.alert.Alert;
 import de.rub.nds.research.ssl.stack.protocols.commons.EProtocolVersion;
 import de.rub.nds.research.ssl.stack.tests.analyzer.common.AFingerprintAnalyzer;
@@ -17,8 +20,11 @@ public class TestHashAnalyzer extends AFingerprintAnalyzer {
 	
 	private String hashValue;
 	
+	static Logger logger = Logger.getRootLogger();
+	
 	public TestHashAnalyzer(AParameters parameters){
-		this.hashValue = parameters.computeHash();	
+		this.hashValue = parameters.computeHash();
+		logger.debug("Hash value: " + this.hashValue);
 	}
 
 	@Override
@@ -43,11 +49,13 @@ public class TestHashAnalyzer extends AFingerprintAnalyzer {
 							result.getString("ALERT").equalsIgnoreCase(alertDesc)) {
 						counter.countResult(ETLSImplementation.valueOf(result.getString("TLS_IMPL")),
 								result.getInt("POINTS"));
+						Reporter.log("Found fingerprint hit for " + result.getString("TLS_IMPL"));
 					}
 				}
 				else if (result.getString("LAST_STATE").equalsIgnoreCase(lastState)) {
 					counter.countResult(ETLSImplementation.valueOf(result.getString("TLS_IMPL")),
 							result.getInt("POINTS"));
+					Reporter.log("Found fingerprint hit for " + result.getString("TLS_IMPL"));
 				}
 			}
 		} catch (SQLException e) {
