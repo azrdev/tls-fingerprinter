@@ -46,7 +46,7 @@ public final class SSLHandshakeWorkflow extends AWorkflow {
     private boolean timingEnabled = false;
     private boolean waitingForTime = false;
     
-    static Logger logger = Logger.getLogger(SSLHandshakeWorkflow.class.getName());
+    static Logger logger = Logger.getRootLogger();
 
     /**
      * Define the workflow states.
@@ -158,7 +158,6 @@ public final class SSLHandshakeWorkflow extends AWorkflow {
         // drop it on the wire!
         prepareAndSend(trace);
         logger.info("Client Hello message send");
-        logger.debug("Message in hex: " + Utility.byteToHex(trace.getCurrentRecord().getPayload()));
         // hash current record
         updateHash(hashBuilder, trace);
         // add trace to ArrayList
@@ -305,6 +304,7 @@ public final class SSLHandshakeWorkflow extends AWorkflow {
             trace.setCurrentRecordBytes(msg);
         }
         utils.sendMessage(out, msg);
+        logger.debug("Message in hex: " + Utility.byteToHex(msg));
     }
 
     /**
