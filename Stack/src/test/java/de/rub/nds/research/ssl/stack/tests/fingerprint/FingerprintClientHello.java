@@ -11,15 +11,12 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
-import de.rub.nds.research.ssl.stack.Utility;
 import de.rub.nds.research.ssl.stack.protocols.commons.ECipherSuite;
 import de.rub.nds.research.ssl.stack.protocols.commons.EProtocolVersion;
-import de.rub.nds.research.ssl.stack.protocols.commons.StackProperties;
 import de.rub.nds.research.ssl.stack.protocols.handshake.ClientHello;
 import de.rub.nds.research.ssl.stack.protocols.handshake.datatypes.CipherSuites;
 import de.rub.nds.research.ssl.stack.protocols.handshake.datatypes.RandomValue;
 import de.rub.nds.research.ssl.stack.tests.analyzer.ClientHelloParameters;
-import de.rub.nds.research.ssl.stack.tests.analyzer.RecordHeaderParameters;
 import de.rub.nds.research.ssl.stack.tests.analyzer.TestHashAnalyzer;
 import de.rub.nds.research.ssl.stack.tests.analyzer.common.AFingerprintAnalyzer;
 import de.rub.nds.research.ssl.stack.tests.common.MessageBuilder;
@@ -145,7 +142,6 @@ public class FingerprintClientHello implements Observer {
     public void fingerprintClientHello(String desc,
             byte[] noSessionValue, byte [] session, byte[] sessionIdLength,
             byte [] cipherLength, byte[] compMethod) {
-    	StackProperties.getInstance();
     	logger.info("++++Start Test No." + counter + "(" + desc +")++++");
         workflow = new SSLHandshakeWorkflow();
         if (TestConfiguration.HOST.isEmpty() || TestConfiguration.PORT == 0) {
