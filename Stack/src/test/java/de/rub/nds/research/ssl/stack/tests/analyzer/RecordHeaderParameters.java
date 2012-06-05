@@ -61,6 +61,9 @@ public class RecordHeaderParameters extends AParameters {
 		if (msgType != null) {
 			this.msgType = msgType.clone();
 		}
+		else { 
+			this.msgType = null;
+		}
 	}
 
 	/**
@@ -84,6 +87,9 @@ public class RecordHeaderParameters extends AParameters {
 		if (protocolVersion != null) {
 			this.protocolVersion = protocolVersion.clone();
 		}
+		else {
+			this.protocolVersion = null;
+		}
 	}
 
 	/**
@@ -106,6 +112,9 @@ public class RecordHeaderParameters extends AParameters {
 	public void setRecordLength(byte[] recordLength) {
 		if (recordLength != null) {
 			this.recordLength = recordLength.clone();
+		}
+		else {
+			this.recordLength = null;
 		}
 	}
 

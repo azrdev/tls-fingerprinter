@@ -14,10 +14,8 @@ import de.rub.nds.research.ssl.stack.tests.analyzer.common.AParameters;
  */
 public class ClientHelloParameters extends AParameters {
 	
-	/**Timestamp in the random value.*/
-	private byte [] timestamp = null;
 	/**Byte to separate random from the rest of the message.*/
-	private byte[] randomSeparate = null;
+	private byte[] noSessionValue = null;
 	/**Session Id of the ClientHello message.*/
 	private byte[] sessionId = null;
 	/**Value of the sessionId length field*/
@@ -29,37 +27,15 @@ public class ClientHelloParameters extends AParameters {
 	/**Test class name.*/
 	private String name;
 
-	/**
-	 * Get the timestamp of the random value.
-	 * @return Timestamp
-	 */
-	public byte[] getTimestamp() {
-		if (this.timestamp != null) {
-			return this.timestamp.clone();
-		}
-		else {
-			return null;
-		}
-	}
 	
 	/**
-	 * Set the timestamp of the random value.
-	 * @param timestamp Timestamp
-	 */
-	public void setTimestamp(byte[] timestamp) {
-		if (timestamp != null) {
-			this.timestamp = timestamp;
-		}
-	}
-	
-	/**
-	 * Get the separate byte between random value and the
-	 * rest of the ClientHello message.
+	 * Get the session ID value if no sessionID is defined.
+	 * (Default is 0x00)
 	 * @return Separate byte
 	 */
-	public byte[] getRandomSeparate() {
-		if (this.randomSeparate != null) {
-			return this.randomSeparate.clone();
+	public byte[] getNoSessionIdValue() {
+		if (this.noSessionValue != null) {
+			return this.noSessionValue.clone();
 		}
 		else {
 			return null;
@@ -67,13 +43,16 @@ public class ClientHelloParameters extends AParameters {
 	}
 	
 	/**
-	 * Set the separate byte between random value and the
-	 * rest of the ClientHello message.
+	 * Set the session ID value if no sessionID is defined.
+	 * (Default is 0x00)
 	 * @param randomSeparate Separate byte
 	 */
-	public void setRandomSeparate(byte[] randomSeparate) {
+	public void setNoSessionIdValue(byte[] randomSeparate) {
 		if (randomSeparate != null) {
-			this.randomSeparate = randomSeparate.clone();
+			this.noSessionValue = randomSeparate.clone();
+		}
+		else {
+			this.noSessionValue = null;
 		}
 	}
 	
@@ -98,6 +77,9 @@ public class ClientHelloParameters extends AParameters {
 		if (sessionId != null) {
 			this.sessionId = sessionId.clone();
 		}
+		else {
+			this.sessionId = null;
+		}
 	}
 	
 	/**
@@ -120,6 +102,9 @@ public class ClientHelloParameters extends AParameters {
 	public void setSessionIdLen(byte[] sessionIdLen) {
 		if (sessionIdLen != null) {
 			this.sessionIdLen = sessionIdLen.clone();
+		}
+		else {
+			this.sessionIdLen = null;
 		}
 	}
 	
@@ -144,6 +129,9 @@ public class ClientHelloParameters extends AParameters {
 		if (cipherLen != null) {
 			this.cipherLen = cipherLen.clone();
 		}
+		else {
+			this.cipherLen = null;
+		}
 	}
 	
 	/**
@@ -166,6 +154,9 @@ public class ClientHelloParameters extends AParameters {
 	public void setCompMethod(byte[] compMethod) {
 		if (compMethod != null) {
 			this.compMethod = compMethod.clone();
+		}
+		else {
+			this.compMethod = null;
 		}
 	}
 	
@@ -197,8 +188,7 @@ public class ClientHelloParameters extends AParameters {
 			e.printStackTrace();
 		}
 		updateHash(sha1, getTestClassName().getBytes());
-		updateHash(sha1, getTimestamp());
-		updateHash(sha1, getRandomSeparate());
+		updateHash(sha1, getNoSessionIdValue());
 		updateHash(sha1, getSessionId());
 		updateHash(sha1, getSessionIdLen());
 		updateHash(sha1, getCipherLen());

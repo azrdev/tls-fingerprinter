@@ -29,6 +29,7 @@ public class TestHashAnalyzer extends AFingerprintAnalyzer {
 
 	@Override
 	public void analyze(ArrayList<Trace> traceList) {
+		boolean dbHit = false;
 		Trace lastTrace = traceList.get(traceList.size()-1);
 		String lastState = lastTrace.getState().name();
 		String alertDesc = null;
@@ -47,16 +48,21 @@ public class TestHashAnalyzer extends AFingerprintAnalyzer {
 				if (result.getString("LAST_STATE").equalsIgnoreCase("ALERT")) {
 					if (result.getString("STATE_BEFORE_ALERT").equalsIgnoreCase(stateBeforeAlert) &&
 							result.getString("ALERT").equalsIgnoreCase(alertDesc)) {
+						dbHit=true;
 						counter.countResult(ETLSImplementation.valueOf(result.getString("TLS_IMPL")),
 								result.getInt("POINTS"));
 						Reporter.log("Found fingerprint hit for " + result.getString("TLS_IMPL"));
 					}
 				}
 				else if (result.getString("LAST_STATE").equalsIgnoreCase(lastState)) {
+					dbHit=true;
 					counter.countResult(ETLSImplementation.valueOf(result.getString("TLS_IMPL")),
 							result.getInt("POINTS"));
 					Reporter.log("Found fingerprint hit for " + result.getString("TLS_IMPL"));
-				}
+				}	
+			}
+			if (dbHit == false) {
+				counter.countNoHit(2);
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();

@@ -16,6 +16,7 @@ public class ScoreCounter {
 	private int jsseBouncyScore = 0;
 	private int microsoftScore = 0;
 	private int totalCounter = 0;
+	private int noHit = 0;
 	
 	/**Empty constructor.*/
 	private ScoreCounter() {
@@ -49,6 +50,10 @@ public class ScoreCounter {
 		
 	}
 	
+	public void countNoHit(int score) {
+		this.noHit = this.noHit + score;
+	}
+	
 	public int getOpenSSLScore() {
 		return this.openSSLScore;
 	}
@@ -66,7 +71,11 @@ public class ScoreCounter {
 	}
 	
 	public int getTotalCounter() {
-		return this.totalCounter;
+		return this.totalCounter + this.noHit;
+	}
+	
+	public int getNoHitCounter() {
+		return this.noHit;
 	}
 	
 
