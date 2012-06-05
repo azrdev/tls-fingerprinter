@@ -6,6 +6,7 @@ import java.security.NoSuchAlgorithmException;
 import de.rub.nds.research.ssl.stack.Utility;
 import de.rub.nds.research.ssl.stack.protocols.commons.EProtocolVersion;
 import de.rub.nds.research.ssl.stack.tests.analyzer.common.AParameters;
+import de.rub.nds.research.ssl.stack.tests.common.SSLTestUtils;
 
 /**
  * Defines the test parameters used for Bleichenbacher Test.
@@ -34,7 +35,7 @@ public class BleichenbacherParameters extends AParameters {
 	/**
 	 * Position where padding is changed.
 	 */
-	private int position;
+	private SSLTestUtils.POSITIONS position;
 	
 	/**
 	 * Get the mode as defined in PKCS#1 standard.
@@ -103,7 +104,7 @@ public class BleichenbacherParameters extends AParameters {
 	 * Get the position where padding is changed.
 	 * @return Position
 	 */
-	public int getPosition() {
+	public SSLTestUtils.POSITIONS getPosition() {
 		return position;
 	}
 	
@@ -111,7 +112,7 @@ public class BleichenbacherParameters extends AParameters {
 	 * Set the position where padding is changed.
 	 * @param position Position where padding is changed
 	 */
-	public void setPosition(int position) {
+	public void setPosition(SSLTestUtils.POSITIONS position) {
 		this.position = position;
 	}
 	

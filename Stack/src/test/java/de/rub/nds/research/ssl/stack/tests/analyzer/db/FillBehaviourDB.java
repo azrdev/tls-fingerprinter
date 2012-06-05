@@ -5,6 +5,7 @@ import java.sql.Connection;
 import de.rub.nds.research.ssl.stack.protocols.commons.EProtocolVersion;
 
 import de.rub.nds.research.ssl.stack.tests.analyzer.BleichenbacherParameters;
+import de.rub.nds.research.ssl.stack.tests.common.SSLTestUtils;
 
 public class FillBehaviourDB {
 	
@@ -28,7 +29,7 @@ public class FillBehaviourDB {
 		parameters.setMode(new byte[]{0x00,0x02});
 		parameters.setChangePadding(true);
 		parameters.setSeparate(new byte[]{0x00});
-		parameters.setPosition(2);
+		parameters.setPosition(SSLTestUtils.POSITIONS.MIDDLE);
 		String fingerprint = parameters.computeHash();
 		prepared.setString(1, fingerprint);
 		prepared.setString(2, "ALERT");

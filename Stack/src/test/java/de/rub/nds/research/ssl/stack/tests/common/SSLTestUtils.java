@@ -11,10 +11,10 @@ import de.rub.nds.research.ssl.stack.protocols.handshake.AHandshakeRecord;
 import de.rub.nds.research.ssl.stack.protocols.handshake.ClientHello;
 
 /**
- *  Help methods for the test classes
+ * Help methods for the test classes
  *
- *  @author Eugen Weiss - eugen.weiss@ruhr-uni-bochum.de
- *  @version 0.1 Mar 15, 2012
+ * @author Eugen Weiss - eugen.weiss@ruhr-uni-bochum.de
+ * @version 0.1 Mar 15, 2012
  */
 public class SSLTestUtils {
 
@@ -27,7 +27,7 @@ public class SSLTestUtils {
      */
     private byte[] seperateByte = new byte[]{0x00};
     /**
-     *  First two bytes of a PKCS#1 message which defines the operation mode.
+     * First two bytes of a PKCS#1 message which defines the operation mode.
      */
     private byte[] mode = new byte[]{0x00, 0x02};
     /**
@@ -44,16 +44,16 @@ public class SSLTestUtils {
     private static final int CIPHER_SUITE_COUNT = ECipherSuite.values().length;
 
     /**
-     *  Empty constructor.
+     * Empty constructor.
      */
     public SSLTestUtils() {
     }
 
     /**
-     *  Fetch the response bytes from the Input stream.
+     * Fetch the response bytes from the Input stream.
      *
-     *  @param in Input stream
-     *  @return The response bytes
+     * @param in Input stream
+     * @return The response bytes
      */
     public final byte[] fetchResponse(final InputStream in) {
         byte[] header = new byte[HEADER_LENGTH];
@@ -87,10 +87,10 @@ public class SSLTestUtils {
     }
 
     /**
-     *  Build a PKCS#1 conform message
+     * Build a PKCS#1 conform message
      *
-     *  @param data The data
-     *  @return PKCS#1 conform message
+     * @param data The data
+     * @return PKCS#1 conform message
      */
     public final byte[] buildPKCS1Msg(final byte[] data) {
         byte[] tmp;
@@ -113,10 +113,10 @@ public class SSLTestUtils {
     }
 
     /**
-     *  Create a non-zero padding string
+     * Create a non-zero padding string
      *
-     *  @param length Length of the padding string
-     *  @return The bytes of the padding
+     * @param length Length of the padding string
+     * @return The bytes of the padding
      */
     public final byte[] createPaddingString(final int length) {
         padding = new byte[length];
@@ -132,27 +132,34 @@ public class SSLTestUtils {
     }
 
     /**
-     *  Change the padding string on a specific position
+     * Change a byte[] on a specific position
      *
-     *  @param padding The padding string
-     *  @param position Position within the padding string
+     * @param array The byte[] array to change
+     * @param position The position within the arrayed
+     * @param to Change byte
+     * @return changed array
      */
-    public final void changePadding(final byte[] padding, int position) {
-        int midPos = padding.length / 2;
-        int lastPos = padding.length - 1;
+    public final byte[] changeByteArray(final byte[] array,
+            final POSITIONS position, final byte to) {
+        byte[] newPadding = array.clone();
+        int midPos = newPadding.length / 2;
+        int lastPos = newPadding.length - 1;
+        
         switch (position) {
-            case 0:
-                padding[0] = 0x00;
+            case FIRST:
+                newPadding[0] = to;
                 break;
-            case 1:
-                padding[midPos] = 0x00;
+            case MIDDLE:
+                newPadding[midPos] = to;
                 break;
-            case 2:
-                padding[lastPos] = 0x00;
+            case LAST:
+                newPadding[lastPos] = to;
                 break;
             default:
-                padding[position] = 0x00;
+                break;
         }
+        
+        return newPadding;
     }
 
     /**
@@ -160,7 +167,7 @@ public class SSLTestUtils {
      *
      * @param data Data which should be padded
      * @param blockSize Block size of the cipher
-     * @param changePadding True if padding should be changed
+     * @param changeByteArray True if padding should be changed
      * @return Padded data which is a multiple of the block size
      */
     public final byte[] addPadding(final byte[] data,
@@ -319,6 +326,10 @@ public class SSLTestUtils {
         this.mode = mode;
     }
 
+    public final void setPadding(final byte[] newPadding) {
+        this.padding = newPadding.clone();
+    }
+    
     /**
      * Get the first two bytes of a PKCS#1 message which stands for the
      * operation mode.
@@ -328,4 +339,12 @@ public class SSLTestUtils {
     public final byte[] getMode() {
         return mode;
     }
+
+    /**
+     * Placeholder for fixed Positions, for example in a padding String, etc.
+     */
+    public enum POSITIONS {
+
+        FIRST, MIDDLE, LAST
+    };
 }

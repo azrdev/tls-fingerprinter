@@ -115,7 +115,7 @@ public class VaudenayTest implements Observer {
      * Test Vaudenay attack.
      *
      * @param version Protocol version
-     * @param changePadding True if padding should be changed
+     * @param changeByteArray True if padding should be changed
      */
     @Test(enabled = true, dataProvider = "vaudenay")
     public final void testVaudenay(String desc,

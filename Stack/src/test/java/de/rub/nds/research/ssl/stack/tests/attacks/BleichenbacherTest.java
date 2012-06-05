@@ -91,19 +91,7 @@ public class BleichenbacherTest implements Observer {
     /**
      * Position in padding to change.
      */
-    private int position;
-    /**
-     * First position in padding string.
-     */
-    public static final int FIRST_POSITION = 0;
-    /**
-     * Mid-position of the padding string.
-     */
-    public static final int MID_POSITION = 1;
-    /**
-     * Last position of the padding string.
-     */
-    public static final int LAST_POSITION = 2;
+    private SSLTestUtils.POSITIONS position;
     /**
      * Test counter.
      */
@@ -146,20 +134,20 @@ public class BleichenbacherTest implements Observer {
 //                        protocolVersion, false, 0},
                     {"Wrong protocol version in PreMasterSecret", new byte[]{
                             0x00, 0x02},
-                        new byte[]{0x00}, EProtocolVersion.SSL_3_0, false, 0},
+                        new byte[]{0x00}, EProtocolVersion.SSL_3_0, false, SSLTestUtils.POSITIONS.FIRST},
                     {"Seperate byte not 0x00", new byte[]{0x00, 0x02},
-                        new byte[]{0x01}, protocolVersion, false, 0},
+                        new byte[]{0x01}, protocolVersion, false, SSLTestUtils.POSITIONS.FIRST},
                     {"Mode changed (first two bytes)", new byte[]{0x00, 0x01},
-                        new byte[]{0x00}, protocolVersion, false, 0},
+                        new byte[]{0x00}, protocolVersion, false, SSLTestUtils.POSITIONS.FIRST},
                     {"Zero byte at first position in padding", new byte[]{0x00,
                             0x02},
-                        new byte[]{0x00}, protocolVersion, true, FIRST_POSITION},
+                        new byte[]{0x00}, protocolVersion, true, SSLTestUtils.POSITIONS.FIRST},
                     {"Zero byte in the middle of the padding string",
                         new byte[]{0x00, 0x02}, new byte[]{0x00},
-                        protocolVersion, true, MID_POSITION},
+                        protocolVersion, true, SSLTestUtils.POSITIONS.MIDDLE},
                     {"Zero byte at the end of the padding string", new byte[]{
                             0x00, 0x02},
-                        new byte[]{0x00}, protocolVersion, true, LAST_POSITION},
+                        new byte[]{0x00}, protocolVersion, true, SSLTestUtils.POSITIONS.LAST},
                         };
     }
 
@@ -169,7 +157,7 @@ public class BleichenbacherTest implements Observer {
      * @param mode First two bytes of PKCS#1 message which defines the op-mode
      * @param separate Separate byte between padding and data in PKCS#1 message
      * @param version Protocol version
-     * @param changePadding True if padding should be changed
+     * @param changeByteArray True if padding should be changed
      * @param position Position where padding is changed
      * @throws IOException
      */
@@ -177,7 +165,7 @@ public class BleichenbacherTest implements Observer {
     public final void testBleichenbacherPossible(String desc,
             final byte[] mode, final byte[] separate,
             final EProtocolVersion version, final boolean changePadding,
-            final int position)
+            final SSLTestUtils.POSITIONS position)
             throws IOException {
     	logger.info("++++Start Test No." + counter + "(" + desc +")++++");
         workflow = new SSLHandshakeWorkflow(false);
@@ -275,11 +263,9 @@ public class BleichenbacherTest implements Observer {
                     byte[] padding = utils.createPaddingString(utils.
                             getPaddingLength());
                     if (this.changePadding) {
-                        Assert.assertFalse(this.position > utils.
-                                getPaddingLength(),
-                                "Position to large - padding length is "
-                                + utils.getPaddingLength());
-                        utils.changePadding(padding, this.position);
+                        padding = utils.changeByteArray(padding,
+                                this.position, (byte)0x00);  
+                        utils.setPadding(padding);
                     }
                     //put the PKCS#1 pieces together
                     byte[] clear = utils.buildPKCS1Msg(encodedPMS);
