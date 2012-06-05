@@ -11,16 +11,11 @@ import de.rub.nds.research.ssl.stack.protocols.handshake.datatypes.PreMasterSecr
 import de.rub.nds.research.ssl.stack.protocols.handshake.datatypes.RandomValue;
 import de.rub.nds.research.ssl.stack.protocols.msgs.datatypes.RsaUtil;
 import de.rub.nds.research.ssl.stack.tests.analyzer.BleichenbacherParameters;
-import de.rub.nds.research.ssl.stack.tests.analyzer.TestHashAnalyzer;
-import de.rub.nds.research.ssl.stack.tests.analyzer.common.AFingerprintAnalyzer;
-import de.rub.nds.research.ssl.stack.tests.analyzer.common.TraceListAnalyzer;
-import de.rub.nds.research.ssl.stack.tests.analyzer.counter.ScoreCounter;
 import de.rub.nds.research.ssl.stack.tests.common.MessageBuilder;
 import de.rub.nds.research.ssl.stack.tests.common.SSLHandshakeWorkflow;
 import de.rub.nds.research.ssl.stack.tests.common.SSLHandshakeWorkflow.EStates;
 import de.rub.nds.research.ssl.stack.tests.common.SSLServer;
 import de.rub.nds.research.ssl.stack.tests.common.SSLTestUtils;
-import de.rub.nds.research.ssl.stack.tests.fingerprint.FingerprintClientHello;
 import de.rub.nds.research.ssl.stack.tests.trace.Trace;
 import de.rub.nds.research.ssl.stack.tests.workflows.ObservableBridge;
 import java.io.IOException;
@@ -32,8 +27,6 @@ import java.util.Observer;
 
 import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
-import org.testng.Assert;
-import org.testng.Reporter;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
@@ -73,26 +66,6 @@ public class BleichenbacherTest implements Observer {
      */
     private static final int PORT = 10443;
     /**
-     * Separate byte between padding and data in PKCS#1 message.
-     */
-    private byte[] separate;
-    /**
-     * Protocol version.
-     */
-    private EProtocolVersion version;
-    /**
-     * First two bytes of PKCS#1 message which defines the op-mode.
-     */
-    private byte[] mode;
-    /**
-     * Signalizes if padding should be changed.
-     */
-    private boolean changePadding;
-    /**
-     * Position in padding to change.
-     */
-    private SSLTestUtils.POSITIONS position;
-    /**
      * Test counter.
      */
     private int counter = 1;
@@ -120,18 +93,21 @@ public class BleichenbacherTest implements Observer {
     /**
      * Initialize the log4j logger.
      */
-    static Logger logger = Logger.getLogger(FingerprintClientHello.class.getName());
+    static Logger logger = Logger.getRootLogger();
+    /**
+     * Bleichenbacher test parameters.
+     */
+    private BleichenbacherParameters parameters = new BleichenbacherParameters();
 
     /**
      * Test parameters for the Bleichenbacher Tests.
-     *
      * @return List of parameters
      */
     @DataProvider(name = "bleichenbacher")
     public Object[][] createData1() {
         return new Object[][]{
 //                    {"OK case", new byte[]{0x00, 0x02}, new byte[]{0x00},
-//                        protocolVersion, false, 0},
+//                        protocolVersion, false, SSLTestUtils.POSITIONS.FIRST},
                     {"Wrong protocol version in PreMasterSecret", new byte[]{
                             0x00, 0x02},
                         new byte[]{0x00}, EProtocolVersion.SSL_3_0, false, SSLTestUtils.POSITIONS.FIRST},
@@ -175,14 +151,7 @@ public class BleichenbacherTest implements Observer {
         workflow.addObserver(this, EStates.CLIENT_KEY_EXCHANGE);
         logger.info(EStates.CLIENT_HELLO.name() + " state is observed");
         logger.info(EStates.CLIENT_KEY_EXCHANGE.name() + " state is observed");
-
-        this.mode = mode;
-        this.separate = separate;
-        this.version = version;
-        this.changePadding = changePadding;
-        this.position = position;
         
-        BleichenbacherParameters parameters = new BleichenbacherParameters();
         parameters.setMode(mode);
         parameters.setSeparate(separate);
         parameters.setProtocolVersion(version);
@@ -235,7 +204,7 @@ public class BleichenbacherTest implements Observer {
                             keyParams.getKeyExchangeAlgorithm());
                     PreMasterSecret pms = new PreMasterSecret(protocolVersion);
                     workflow.setPreMasterSecret(pms);
-                    pms.setProtocolVersion(this.version);
+                    pms.setProtocolVersion(parameters.getProtocolVersion());
                     byte[] encodedPMS = pms.encode(false);
 
                     //encrypt the PreMasterSecret
@@ -257,14 +226,14 @@ public class BleichenbacherTest implements Observer {
                      * is [<Modulus length> - <Data length> -3])
                      */
                     utils.setPaddingLength((modLength - encodedPMS.length - 3));
-                    utils.setSeperateByte(this.separate);
-                    utils.setMode(this.mode);
+                    utils.setSeperateByte(parameters.getSeparate());
+                    utils.setMode(parameters.getMode());
                     //generate the PKCS#1 padding string
                     byte[] padding = utils.createPaddingString(utils.
                             getPaddingLength());
-                    if (this.changePadding) {
+                    if (parameters.isChangePadding()) {
                         padding = utils.changeByteArray(padding,
-                                this.position, (byte)0x00);  
+                                parameters.getPosition(), (byte)0x00);  
                         utils.setPadding(padding);
                     }
                     //put the PKCS#1 pieces together
