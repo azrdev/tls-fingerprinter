@@ -87,18 +87,6 @@ public class BleichenbacherTimingTest implements Observer {
      */
     private SSLTestUtils.POSITIONS positionOfPaddignChange;
     /**
-     * First position in padding string.
-     */
-    public static final int FIRST_POSITION = 0;
-    /**
-     * Mid-position of the padding string.
-     */
-    public static final int MID_POSITION = 1;
-    /**
-     * Last position of the padding string.
-     */
-    public static final int LAST_POSITION = 2;
-    /**
      * Test Server Thread.
      */
     private Thread sslServerThread;
