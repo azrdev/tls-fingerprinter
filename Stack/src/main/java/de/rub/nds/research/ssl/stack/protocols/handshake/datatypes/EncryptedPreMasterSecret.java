@@ -101,7 +101,7 @@ public final class EncryptedPreMasterSecret extends APubliclySerializable
     public byte[] encryptPreMasterSecret(final byte[] pms, final PublicKey pk) {
         Cipher cipher;
         try {
-            cipher = Cipher.getInstance("RSA");
+            cipher = Cipher.getInstance("RSA/ECB/PKCS1Padding");
             cipher.init(Cipher.ENCRYPT_MODE, pk);
             ciphertext = cipher.doFinal(pms);
         } catch (NoSuchAlgorithmException e) {
