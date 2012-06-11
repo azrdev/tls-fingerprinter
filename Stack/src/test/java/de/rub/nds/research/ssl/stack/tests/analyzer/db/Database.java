@@ -34,8 +34,10 @@ public class Database {
     }
 	
 	public void connectDB() throws Exception {
-		Class.forName("org.apache.derby.jdbc.EmbeddedDriver");
-		conn = DriverManager.getConnection("jdbc:derby:Fingerprint;create=false;user=tester;password=ssltest");
+//		Class.forName("org.apache.derby.jdbc.EmbeddedDriver");
+//		conn = DriverManager.getConnection("jdbc:derby:Fingerprint;create=false;user=tester;password=ssltest");
+		Class.forName("org.apache.derby.jdbc.ClientDriver");
+		conn = DriverManager.getConnection("jdbc:derby://localhost:1527//home/regit/svn/SSL/Stack/Fingerprint;create=false;user=tester;password=ssltest");
 	}
 	
 	public ResultSet findHashInDB(String hash) {
@@ -43,7 +45,7 @@ public class Database {
 		ResultSet result = null;
 		try {
 			PreparedStatement prepared = conn.prepareStatement("select tls_impl, last_state, alert, state_before_alert, points" +
-					" from tls_fingerprint_hash where signature = ?");
+					" from tls_fingerprint_hash where hash = ?");
 			prepared.setString(1, hash);
 			result = prepared.executeQuery();
 		} catch (SQLException e) {

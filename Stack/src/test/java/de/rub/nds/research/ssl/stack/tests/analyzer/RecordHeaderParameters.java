@@ -23,6 +23,8 @@ public class RecordHeaderParameters extends AParameters {
 	private byte [] recordLength;
 	/**Test class name.*/
 	private String name;
+	/**Decription of the test case*/
+	private String desc;
 	
 	/**
 	 * Get the name of the test class.
@@ -38,6 +40,22 @@ public class RecordHeaderParameters extends AParameters {
 	 */
 	public void setTestClassName(String className) {
 		this.name = className;
+	}
+	
+	/**
+	 * Get the description of a test case.
+	 * @return Description of the test case
+	 */
+	public String getDescription() {
+		return this.desc;
+	}
+	
+	/**
+	 * Set the description of a test case.
+	 * @param desc Decription of the test case
+	 */
+	public void setDescription(String desc) {
+		this.desc = desc;
 	}
 	
 	/**
@@ -130,6 +148,7 @@ public class RecordHeaderParameters extends AParameters {
 			e.printStackTrace();
 		}
 		updateHash(sha1, getTestClassName().getBytes());
+		updateHash(sha1, getDescription().getBytes());
 		updateHash(sha1, getMsgType());
 		updateHash(sha1, getProtocolVersion());
 		updateHash(sha1, getRecordLength());
