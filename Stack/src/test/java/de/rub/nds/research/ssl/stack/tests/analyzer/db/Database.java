@@ -34,10 +34,10 @@ public class Database {
     }
 	
 	public void connectDB() throws Exception {
-//		Class.forName("org.apache.derby.jdbc.EmbeddedDriver");
-//		conn = DriverManager.getConnection("jdbc:derby:Fingerprint;create=false;user=tester;password=ssltest");
-		Class.forName("org.apache.derby.jdbc.ClientDriver");
-		conn = DriverManager.getConnection("jdbc:derby://localhost:1527//home/regit/svn/SSL/Stack/Fingerprint;create=false;user=tester;password=ssltest");
+		Class.forName("org.apache.derby.jdbc.EmbeddedDriver");
+		conn = DriverManager.getConnection("jdbc:derby:Fingerprint;create=false;user=tester;password=ssltest");
+//		Class.forName("org.apache.derby.jdbc.ClientDriver");
+//		conn = DriverManager.getConnection("jdbc:derby://localhost:1527//home/regit/svn/SSL/Stack/Fingerprint;create=false;user=tester;password=ssltest");
 	}
 	
 	public ResultSet findHashInDB(String hash) {
