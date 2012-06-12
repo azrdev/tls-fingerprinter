@@ -70,7 +70,7 @@ public class VaudenayParameters extends AParameters {
 		updateHash(sha1, getProtocolVersion().getId());
 		updateHash(sha1, String.valueOf(isChangePadding()).getBytes());
 		byte [] hash = sha1.digest();
-		String hashString = Utility.byteToHex(hash);
+		String hashString = Utility.bytesToHex(hash);
 		hashString = hashString.replace(" ", "");
 		return hashString;
 	}

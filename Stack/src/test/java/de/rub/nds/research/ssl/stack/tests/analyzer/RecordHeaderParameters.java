@@ -153,7 +153,7 @@ public class RecordHeaderParameters extends AParameters {
 		updateHash(sha1, getProtocolVersion());
 		updateHash(sha1, getRecordLength());
 		byte [] hash = sha1.digest();
-		String hashValue = Utility.byteToHex(hash);
+		String hashValue = Utility.bytesToHex(hash);
 		hashValue = hashValue.replace(" ", "");
 		return hashValue;
 	}

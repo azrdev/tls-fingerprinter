@@ -133,7 +133,7 @@ public class BleichenbacherParameters extends AParameters {
 		updateHash(sha1, String.valueOf(getPosition()).getBytes());
 		updateHash(sha1, String.valueOf(isChangePadding()).getBytes());
 		byte [] hash = sha1.digest();
-		String hashValue = Utility.byteToHex(hash);
+		String hashValue = Utility.bytesToHex(hash);
 		hashValue = hashValue.replace(" ", "");
 		return hashValue;
 	}

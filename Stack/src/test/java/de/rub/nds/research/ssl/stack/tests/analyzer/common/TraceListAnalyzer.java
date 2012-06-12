@@ -38,7 +38,7 @@ public class TraceListAnalyzer {
 				 Reporter.log("Protocol version: "
 						 + clientHello.getMessageProtocolVersion());
 				 Reporter.log("Random value: "
-						 + Utility.byteToHex(clientHello.getRandom().getValue()));
+						 + Utility.bytesToHex(clientHello.getRandom().getValue()));
 			 }
 			 if (currentRecord instanceof ServerHello) {
 				 Reporter.log("--Server Hello received--");
@@ -48,7 +48,7 @@ public class TraceListAnalyzer {
 				 Reporter.log("Protocol version: "
 						 + serverHello.getProtocolVersion());
 				 Reporter.log("Random value: "
-						 + Utility.byteToHex(serverHello.getRandom().getValue()));
+						 + Utility.bytesToHex(serverHello.getRandom().getValue()));
 			 }
 			 if (currentRecord instanceof Certificate) {
 				 Reporter.log("--Certificate received--");

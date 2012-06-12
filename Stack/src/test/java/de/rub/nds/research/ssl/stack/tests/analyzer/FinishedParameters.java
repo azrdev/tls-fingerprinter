@@ -141,7 +141,7 @@ public class FinishedParameters extends AParameters {
 		updateHash(sha1, String.valueOf(isDestroyHash()).getBytes());
 		updateHash(sha1, String.valueOf(isDestroyVerify()).getBytes());
 		byte [] hash = sha1.digest();
-		String hashValue = Utility.byteToHex(hash);
+		String hashValue = Utility.bytesToHex(hash);
 		hashValue = hashValue.replace(" ", "");
 		return hashValue;
 	}

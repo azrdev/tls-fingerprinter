@@ -213,7 +213,7 @@ public class ClientHelloParameters extends AParameters {
 		updateHash(sha1, getCipherLen());
 		updateHash(sha1, getCompMethod());
 		byte [] hash = sha1.digest();
-		String hashValue = Utility.byteToHex(hash);
+		String hashValue = Utility.bytesToHex(hash);
 		hashValue = hashValue.replace(" ", "");
 		return hashValue;
 	}

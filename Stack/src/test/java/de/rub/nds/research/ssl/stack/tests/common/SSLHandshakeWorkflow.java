@@ -188,7 +188,7 @@ public final class SSLHandshakeWorkflow extends AWorkflow {
         // drop it on the wire!
         prepareAndSend(trace);
         logger.info("Client Key Exchange message send");
-        logger.debug("Message in hex: " + Utility.byteToHex(trace.getCurrentRecord().getPayload()));
+        logger.debug("Message in hex: " + Utility.bytesToHex(trace.getCurrentRecord().getPayload()));
         // hash current record
         updateHash(hashBuilder, trace);
         // add trace to ArrayList
@@ -207,7 +207,7 @@ public final class SSLHandshakeWorkflow extends AWorkflow {
         // drop it on the wire!
         prepareAndSend(trace);
         logger.info("Change Cipher Spec message send");
-        logger.debug("Message in hex: " + Utility.byteToHex(trace.getCurrentRecord().getPayload()));
+        logger.debug("Message in hex: " + Utility.bytesToHex(trace.getCurrentRecord().getPayload()));
         // switch to encrypted mode
         encrypted = true;
         // add trace to ArrayList
@@ -236,7 +236,7 @@ public final class SSLHandshakeWorkflow extends AWorkflow {
         // drop it on the wire!
         prepareAndSend(trace);
         logger.info("Finished message send");
-        logger.debug("Message in hex: " + Utility.byteToHex(trace.getCurrentRecord().getPayload()));
+        logger.debug("Message in hex: " + Utility.bytesToHex(trace.getCurrentRecord().getPayload()));
         // add trace to ArrayList
         addToList(new Trace(EStates.CLIENT_FINISHED, trace.getCurrentRecord(),
                 trace.getOldRecord(), false));
@@ -304,7 +304,7 @@ public final class SSLHandshakeWorkflow extends AWorkflow {
             trace.setCurrentRecordBytes(msg);
         }
         utils.sendMessage(out, msg);
-        logger.debug("Message in hex: " + Utility.byteToHex(msg));
+        logger.debug("Message in hex: " + Utility.bytesToHex(msg));
     }
 
     /**
