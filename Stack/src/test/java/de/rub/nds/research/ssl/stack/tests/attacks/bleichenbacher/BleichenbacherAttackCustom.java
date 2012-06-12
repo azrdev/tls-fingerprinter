@@ -4,7 +4,7 @@
  */
 package de.rub.nds.research.ssl.stack.tests.attacks.bleichenbacher;
 
-import de.rub.nds.research.ssl.stack.tests.attacks.bleichenbacher.Oracle;
+import de.rub.nds.research.ssl.stack.tests.attacks.bleichenbacher.StandardOracle;
 import de.rub.nds.research.ssl.stack.tests.attacks.bleichenbacher.BleichenbacherAttackCrypto;
 import java.math.BigInteger;
 import java.security.interfaces.RSAPublicKey;
@@ -25,7 +25,7 @@ public class BleichenbacherAttackCustom extends BleichenbacherAttackCrypto {
     private int search;
     
     public BleichenbacherAttackCustom(final byte[] msg, RSAPublicKey pubKey,
-            Oracle pkcsOracle, int maxtUsed) {
+            StandardOracle pkcsOracle, int maxtUsed) {
         super(msg, pubKey, pkcsOracle, maxtUsed);
     }
     

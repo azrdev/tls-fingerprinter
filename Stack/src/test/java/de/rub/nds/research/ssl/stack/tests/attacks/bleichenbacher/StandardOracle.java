@@ -4,7 +4,6 @@ import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
 import java.security.PublicKey;
-import java.security.interfaces.RSAPrivateCrtKey;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
 import javax.crypto.BadPaddingException;
@@ -13,21 +12,21 @@ import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
 
 /**
- * Bleichenbacher oracle.
+ * Standard Bleichenbacher oracle.
  *
  * @author Christopher Meyer - christopher.meyer@rub.de
  * @version 0.1
  *
  * May 18, 2012
  */
-public class Oracle {
+public class StandardOracle implements IOracle {
 
     private final RSAPrivateKey privateKey;
     private final RSAPublicKey publicKey;
     private Cipher cipher;
     private long numberOfQueries;
 
-    public Oracle(final PrivateKey privKey, final PublicKey pubKey) throws
+    public StandardOracle(final PrivateKey privKey, final PublicKey pubKey) throws
             NoSuchAlgorithmException,
             NoSuchPaddingException,
             InvalidKeyException {
@@ -59,6 +58,7 @@ public class Oracle {
         return result;
     }
     
+    @Override
     public long getNumberOfQueries() {
         return numberOfQueries;
     }
@@ -89,20 +89,22 @@ public class Oracle {
 
     }
 
+    @Override
     public boolean checkPKCSConformity(final byte[] msg) {
         boolean result = false;
         numberOfQueries++;
 
         // fresh init
         try {
-//            cipher = Cipher.getInstance("RSA/None/PKCS1Padding");
-            cipher = Cipher.getInstance("RSA/None/NoPadding");
+            cipher = Cipher.getInstance("RSA/None/PKCS1Padding");
+//            cipher = Cipher.getInstance("RSA/None/NoPadding");
             cipher.init(Cipher.DECRYPT_MODE, this.privateKey);
             byte[] toCheck = cipher.doFinal(msg);
             
-            if(toCheck[0] == 0x02 && toCheck.length == (cipher.getBlockSize()-1)) {
-                result = true;
-            }
+//            if(toCheck[0] == 0x02 && toCheck.length == (cipher.getBlockSize()-1)) {
+//                result = true;
+//            }
+            result = true;
         } catch (NoSuchAlgorithmException ex) {
             ex.printStackTrace();
             result = false;
@@ -129,7 +131,13 @@ public class Oracle {
         return result;
     }
 
+    @Override
     public int getBlockSize() {
         return cipher.getBlockSize();
+    }
+
+    @Override
+    public PublicKey getPublicKey() {
+        return this.publicKey;
     }
 }

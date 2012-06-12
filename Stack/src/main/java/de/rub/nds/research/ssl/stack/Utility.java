@@ -1,7 +1,15 @@
 package de.rub.nds.research.ssl.stack;
 
+import java.io.IOException;
 import java.math.BigInteger;
+import java.security.GeneralSecurityException;
+import java.security.KeyPair;
+import java.security.PrivateKey;
+import java.security.cert.X509Certificate;
+import java.util.Date;
 import java.util.List;
+import java.util.Random;
+import sun.security.x509.*;
 
 /**
  * Helper routines for common use
@@ -65,7 +73,6 @@ public abstract class Utility {
 //        }
 //        return sb.toString();
 //    }
-    
     /**
      * Computes the Greatest Common Divisor of two integers.
      *
@@ -194,5 +201,51 @@ public abstract class Utility {
         }
 
         return result;
+    }
+
+    /**
+     * Create a self-signed X.509 Certificate
+     *
+     * @param keyPair Public/Private key pair
+     * @param algorithm Signature alogrithm
+     * @param distinguishedNameSubject X.509 Distinguished Name of the subject
+     * @param distinguishedNameIssuer X.509 Distinguished Name of the issuer
+     * @param validFrom Valid strating from this date
+     * @param validUntil Valid until this date
+     * @param serialNumber Serial number
+     */
+    public static X509Certificate generateX509v3Cert(KeyPair keyPair,
+            String algorithm, String distinguishedNameSubject,
+            String distinguishedNameIssuer, Date validFrom, Date validUntil,
+            BigInteger serialNumber)
+            throws GeneralSecurityException, IOException {
+        // prepare necessary infos
+        X500Name subject = new X500Name(distinguishedNameSubject);
+        X500Name issuer = new X500Name(distinguishedNameIssuer);
+        CertificateValidity validtyPeriod = new CertificateValidity(validFrom,
+                validUntil);
+        AlgorithmId algorithmId = AlgorithmId.get(algorithm);
+
+        // put the pieces together
+        X509CertInfo certificateInfo = new X509CertInfo();
+        certificateInfo.set(X509CertInfo.VERSION,
+                new CertificateVersion(CertificateVersion.V3));
+        certificateInfo.set(X509CertInfo.SUBJECT,
+                new CertificateSubjectName(subject));
+        certificateInfo.set(X509CertInfo.ISSUER,
+                new CertificateIssuerName(issuer));
+        certificateInfo.set(X509CertInfo.VALIDITY, validtyPeriod);
+        certificateInfo.set(X509CertInfo.SERIAL_NUMBER,
+                new CertificateSerialNumber(serialNumber));
+        certificateInfo.set(X509CertInfo.ALGORITHM_ID,
+                new CertificateAlgorithmId(algorithmId));
+        certificateInfo.set(X509CertInfo.KEY, new CertificateX509Key(keyPair.
+                getPublic()));
+
+        // Sign the certificate
+        X509CertImpl cert = new X509CertImpl(certificateInfo);
+        cert.sign(keyPair.getPrivate(), algorithm);
+
+        return cert;
     }
 }
