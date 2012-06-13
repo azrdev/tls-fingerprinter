@@ -1,4 +1,4 @@
-package de.rub.nds.research.ssl.stack.tests.attacks.bleichenbacher;
+package de.rub.nds.research.ssl.stack.tests.attacks.bleichenbacher.oracles;
 
 import java.security.PublicKey;
 

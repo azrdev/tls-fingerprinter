@@ -1,5 +1,6 @@
 package de.rub.nds.research.ssl.stack.tests.attacktests;
 
+import de.rub.nds.research.ssl.stack.Utility;
 import de.rub.nds.research.ssl.stack.protocols.commons.ECipherSuite;
 import de.rub.nds.research.ssl.stack.protocols.commons.EProtocolVersion;
 import de.rub.nds.research.ssl.stack.protocols.commons.KeyExchangeParams;
@@ -106,24 +107,24 @@ public class BleichenbacherTest implements Observer {
     @DataProvider(name = "bleichenbacher")
     public Object[][] createData1() {
         return new Object[][]{
-//                    {"OK case", new byte[]{0x00, 0x02}, new byte[]{0x00},
-//                        protocolVersion, false, SSLTestUtils.POSITIONS.FIRST},
-                    {"Wrong protocol version in PreMasterSecret", new byte[]{
-                            0x00, 0x02},
-                        new byte[]{0x00}, EProtocolVersion.SSL_3_0, false, SSLTestUtils.POSITIONS.FIRST},
-                    {"Seperate byte not 0x00", new byte[]{0x00, 0x02},
-                        new byte[]{0x01}, protocolVersion, false, SSLTestUtils.POSITIONS.FIRST},
-                    {"Mode changed (first two bytes)", new byte[]{0x00, 0x01},
-                        new byte[]{0x00}, protocolVersion, false, SSLTestUtils.POSITIONS.FIRST},
-                    {"Zero byte at first position in padding", new byte[]{0x00,
-                            0x02},
-                        new byte[]{0x00}, protocolVersion, true, SSLTestUtils.POSITIONS.FIRST},
-                    {"Zero byte in the middle of the padding string",
-                        new byte[]{0x00, 0x02}, new byte[]{0x00},
-                        protocolVersion, true, SSLTestUtils.POSITIONS.MIDDLE},
-                    {"Zero byte at the end of the padding string", new byte[]{
-                            0x00, 0x02},
-                        new byte[]{0x00}, protocolVersion, true, SSLTestUtils.POSITIONS.LAST},
+                    {"OK case", new byte[]{0x00, 0x02}, new byte[]{0x00},
+                        protocolVersion, false, SSLTestUtils.POSITIONS.FIRST},
+//                    {"Wrong protocol version in PreMasterSecret", new byte[]{
+//                            0x00, 0x02},
+//                        new byte[]{0x00}, EProtocolVersion.SSL_3_0, false, SSLTestUtils.POSITIONS.FIRST},
+//                    {"Seperate byte not 0x00", new byte[]{0x00, 0x02},
+//                        new byte[]{0x01}, protocolVersion, false, SSLTestUtils.POSITIONS.FIRST},
+//                    {"Mode changed (first two bytes)", new byte[]{0x00, 0x01},
+//                        new byte[]{0x00}, protocolVersion, false, SSLTestUtils.POSITIONS.FIRST},
+//                    {"Zero byte at first position in padding", new byte[]{0x00,
+//                            0x02},
+//                        new byte[]{0x00}, protocolVersion, true, SSLTestUtils.POSITIONS.FIRST},
+//                    {"Zero byte in the middle of the padding string",
+//                        new byte[]{0x00, 0x02}, new byte[]{0x00},
+//                        protocolVersion, true, SSLTestUtils.POSITIONS.MIDDLE},
+//                    {"Zero byte at the end of the padding string", new byte[]{
+//                            0x00, 0x02},
+//                        new byte[]{0x00}, protocolVersion, true, SSLTestUtils.POSITIONS.LAST},
                         };
     }
 
@@ -238,10 +239,8 @@ public class BleichenbacherTest implements Observer {
                     }
                     //put the PKCS#1 pieces together
                     byte[] clear = utils.buildPKCS1Msg(encodedPMS);
-
                     //compute c = m^e mod n (RSA encryption)
                     byte[] ciphertext = RsaUtil.pubOp(clear, rsaPK);
-
                     encPMS.setEncryptedPreMasterSecret(ciphertext);
                     cke.setExchangeKeys(encPMS);
 
@@ -267,7 +266,7 @@ public class BleichenbacherTest implements Observer {
     @BeforeMethod
     public void setUp() {
         try {
-            System.setProperty("javax.net.debug", "ssl");
+//            System.setProperty("javax.net.debug", "ssl");
             sslServer = new SSLServer(PATH_TO_JKS, JKS_PASSWORD,
                     protocolShortName, PORT, PRINT_INFO);
             sslServerThread = new Thread(sslServer);

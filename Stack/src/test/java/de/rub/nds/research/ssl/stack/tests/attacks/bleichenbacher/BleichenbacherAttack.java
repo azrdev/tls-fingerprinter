@@ -1,5 +1,6 @@
 package de.rub.nds.research.ssl.stack.tests.attacks.bleichenbacher;
 
+import de.rub.nds.research.ssl.stack.tests.attacks.bleichenbacher.oracles.IOracle;
 import de.rub.nds.research.ssl.stack.Utility;
 import java.math.BigInteger;
 import java.security.KeyFactory;
