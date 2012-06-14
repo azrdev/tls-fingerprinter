@@ -104,11 +104,6 @@ public class JSSEOracle implements IOracle, Observer {
     @Override
     public boolean checkPKCSConformity(final byte[] msg) {
         workflow.reset();
-//                 workflow = new SSLHandshakeWorkflow(false);
-//        workflow.addObserver(this,
-//                SSLHandshakeWorkflow.EStates.CLIENT_KEY_EXCHANGE);
-//        workflow.addObserver(this, SSLHandshakeWorkflow.EStates.ALERT);
-        
         workflow.connectToTestServer(this.host, this.port);
         
         numberOfQueries++;

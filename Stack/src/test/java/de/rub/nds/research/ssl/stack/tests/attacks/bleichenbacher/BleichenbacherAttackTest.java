@@ -190,7 +190,7 @@ public class BleichenbacherAttackTest {
         logger.info("++++Start Test No." + counter + "(" + desc + ")++++");
 
         BleichenbacherAttack attacker = new BleichenbacherAttack(encryptedPKCS,
-                (RSAPublicKey) oracle.getPublicKey(), oracle, false);
+                (RSAPublicKey) oracle.getPublicKey(), oracle, true);
         attacker.attack();
 
         logger.info("------------------------------");
