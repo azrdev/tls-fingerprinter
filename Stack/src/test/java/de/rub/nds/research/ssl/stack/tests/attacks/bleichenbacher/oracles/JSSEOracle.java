@@ -115,6 +115,11 @@ public class JSSEOracle implements IOracle, Observer {
         encPMStoCheck = msg;
         workflow.start();
 
+        try {
+            workflow.closeSocket();
+        } catch(IOException e) {
+            // eat this!
+        }
         return oracleResult;
     }
 
