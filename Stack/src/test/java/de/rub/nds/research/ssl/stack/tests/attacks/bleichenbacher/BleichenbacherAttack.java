@@ -31,12 +31,14 @@ public class BleichenbacherAttack {
     protected Interval[] m;
     protected final int blockSize;
     protected final BigInteger bigB;
+    protected final boolean msgIsPKCS;
 
     public BleichenbacherAttack(final byte[] msg, RSAPublicKey pubKey,
-            IOracle pkcsOracle) {
+            final IOracle pkcsOracle, final boolean msgPKCScofnorm) {
         this.encryptedMsg = msg.clone();
         this.publicKey = (RSAPublicKey) pkcsOracle.getPublicKey();
         this.oracle = pkcsOracle;
+        this.msgIsPKCS = msgPKCScofnorm;
         c0 = BigInteger.ZERO;
         si = BigInteger.ZERO;
         m = null;
@@ -61,7 +63,12 @@ public class BleichenbacherAttack {
         boolean solutionFound = false;
 
         System.out.println("Step 1: Blinding");
-        stepOne();
+        if(this.msgIsPKCS) {
+            System.out.println("Step skipped --> msg considered as PKCS conform.");
+            s0 = BigInteger.ONE;
+        }else {
+            stepOne();
+        }
         i++;
 
         while (!solutionFound) {

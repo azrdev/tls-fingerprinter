@@ -23,8 +23,8 @@ public class BleichenbacherAttackCrypto extends BleichenbacherAttack {
     List<BigInteger> tList;
 
     public BleichenbacherAttackCrypto(final byte[] msg, RSAPublicKey pubKey,
-            StandardOracle pkcsOracle, int maxtUsed) {
-        super(msg, pubKey, pkcsOracle);
+            StandardOracle pkcsOracle, int maxtUsed, final boolean msgPKCSconform) {
+        super(msg, pubKey, pkcsOracle, msgPKCSconform);
         this.maxtUsed = maxtUsed;
         tList = new LinkedList<BigInteger>();
     }

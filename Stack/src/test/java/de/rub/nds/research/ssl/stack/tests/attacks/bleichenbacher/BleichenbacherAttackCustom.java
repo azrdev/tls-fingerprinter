@@ -25,8 +25,8 @@ public class BleichenbacherAttackCustom extends BleichenbacherAttackCrypto {
     private int search;
     
     public BleichenbacherAttackCustom(final byte[] msg, RSAPublicKey pubKey,
-            StandardOracle pkcsOracle, int maxtUsed) {
-        super(msg, pubKey, pkcsOracle, maxtUsed);
+            StandardOracle pkcsOracle, int maxtUsed, final boolean msgPKCSconform) {
+        super(msg, pubKey, pkcsOracle, maxtUsed, msgPKCSconform);
     }
     
     
