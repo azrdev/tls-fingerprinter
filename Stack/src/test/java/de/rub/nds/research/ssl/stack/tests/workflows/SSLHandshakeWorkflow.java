@@ -121,13 +121,13 @@ public final class SSLHandshakeWorkflow extends AWorkflow {
     public void reset() {
         closeSocket();
         resetState();
-        
+
         traceList.clear();
         pms = null;
         handshakeHashes = null;
         encrypted = false;
         waitingForTime = false;
-        
+
         if (timingEnabled) {
             try {
                 so = new TimingSocket();
@@ -168,10 +168,10 @@ public final class SSLHandshakeWorkflow extends AWorkflow {
         // save the client random value for later computations
         utils.setClientRandom((ClientHello) record);
         // drop it on the wire!
-        if(so.isConnected()) {
-                logger.info("Connection reset by peer.");
-                closeSocket();
-                return;
+        if (so.isConnected()) {
+            logger.info("Connection reset by peer.");
+            closeSocket();
+            return;
         }
         prepareAndSend(trace);
         logger.info("Client Hello message send");
@@ -205,10 +205,10 @@ public final class SSLHandshakeWorkflow extends AWorkflow {
         // change status and notify observers
         switchToState(trace, EStates.CLIENT_KEY_EXCHANGE);
         // drop it on the wire!
-        if(so.isConnected()) {
-                logger.info("Connection reset by peer.");
-                closeSocket();
-                return;
+        if (so.isConnected()) {
+            logger.info("Connection reset by peer.");
+            closeSocket();
+            return;
         }
         prepareAndSend(trace);
         logger.info("Client Key Exchange message send");
@@ -230,10 +230,10 @@ public final class SSLHandshakeWorkflow extends AWorkflow {
         //change status and notify observers
         switchToState(trace, EStates.CLIENT_CHANGE_CIPHER_SPEC);
         // drop it on the wire!
-        if(so.isConnected()) {
-                logger.info("Connection reset by peer.");
-                closeSocket();
-                return;
+        if (so.isConnected()) {
+            logger.info("Connection reset by peer.");
+            closeSocket();
+            return;
         }
         prepareAndSend(trace);
         logger.info("Change Cipher Spec message send");
@@ -265,10 +265,10 @@ public final class SSLHandshakeWorkflow extends AWorkflow {
         // change status and notify observers
         switchToNextState(trace);
         // drop it on the wire!
-        if(so.isConnected()) {
-                logger.info("Connection reset by peer.");
-                closeSocket();
-                return;
+        if (so.isConnected()) {
+            logger.info("Connection reset by peer.");
+            closeSocket();
+            return;
         }
         prepareAndSend(trace);
         logger.info("Finished message send");
@@ -494,9 +494,8 @@ public final class SSLHandshakeWorkflow extends AWorkflow {
     public void connectToTestServer(String host, int port) {
         SocketAddress addr = new InetSocketAddress(host, port);
         try {
-            // TODO: Interessante werte für timeout...
-            so.connect(addr, 500);
-            so.setSoTimeout(500);
+            so.setSoTimeout(1000);
+            so.connect(addr, 1000);
             out = so.getOutputStream();
             in = so.getInputStream();
         } catch (IOException e) {
