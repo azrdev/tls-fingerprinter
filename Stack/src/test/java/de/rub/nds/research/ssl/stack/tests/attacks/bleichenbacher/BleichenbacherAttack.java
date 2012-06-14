@@ -33,7 +33,7 @@ public class BleichenbacherAttack {
     protected final BigInteger bigB;
     protected final boolean msgIsPKCS;
 
-    public BleichenbacherAttack(final byte[] msg, RSAPublicKey pubKey,
+    public BleichenbacherAttack(final byte[] msg,
             final IOracle pkcsOracle, final boolean msgPKCScofnorm) {
         this.encryptedMsg = msg.clone();
         this.publicKey = (RSAPublicKey) pkcsOracle.getPublicKey();
@@ -67,6 +67,10 @@ public class BleichenbacherAttack {
             System.out.println("Step skipped --> "
                     + "Message is considered as PKCS compliant.");
             s0 = BigInteger.ONE;
+            c0 = new BigInteger(1, encryptedMsg);
+            m = new Interval[]{
+            new Interval(BigInteger.valueOf(2).multiply(bigB),
+            (BigInteger.valueOf(3).multiply(bigB)).subtract(BigInteger.ONE))};
         }else {
             stepOne();
         }

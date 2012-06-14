@@ -98,13 +98,13 @@ public class StandardOracle implements IOracle {
         try {
             cipher = Cipher.getInstance("RSA/None/PKCS1Padding");
 //            cipher = Cipher.getInstance("RSA/None/NoPadding");
+            
             cipher.init(Cipher.DECRYPT_MODE, this.privateKey);
             byte[] toCheck = cipher.doFinal(msg);
             
 //            if(toCheck[0] == 0x02 && toCheck.length == (cipher.getBlockSize()-1)) {
-//                result = true;
+                result = true;
 //            }
-            result = true;
         } catch (NoSuchAlgorithmException ex) {
             ex.printStackTrace();
             result = false;
