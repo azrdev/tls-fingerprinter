@@ -168,12 +168,13 @@ public final class SSLHandshakeWorkflow extends AWorkflow {
         // save the client random value for later computations
         utils.setClientRandom((ClientHello) record);
         // drop it on the wire!
-        if (so.isConnected()) {
-            logger.info("Connection reset by peer.");
+        try {
+            prepareAndSend(trace);
+        } catch (IOException e) {
+            logger.info("### Connection reset by peer.");
             closeSocket();
             return;
         }
-        prepareAndSend(trace);
         logger.info("Client Hello message send");
         // hash current record
         updateHash(hashBuilder, trace);
@@ -183,7 +184,7 @@ public final class SSLHandshakeWorkflow extends AWorkflow {
         // fetch the response(s)
         while (getCurrentState() != EStates.SERVER_HELLO_DONE.getID()) {
             if (getCurrentState() == EStates.ALERT.getID()) {
-                logger.info("Connection reset due to FATAL_ALERT.");
+                logger.info("### Connection reset due to FATAL_ALERT.");
                 closeSocket();
                 return;
             }
@@ -205,12 +206,13 @@ public final class SSLHandshakeWorkflow extends AWorkflow {
         // change status and notify observers
         switchToState(trace, EStates.CLIENT_KEY_EXCHANGE);
         // drop it on the wire!
-        if (so.isConnected()) {
-            logger.info("Connection reset by peer.");
+        try {
+            prepareAndSend(trace);
+        } catch (IOException e) {
+            logger.info("### Connection reset by peer.");
             closeSocket();
             return;
         }
-        prepareAndSend(trace);
         logger.info("Client Key Exchange message send");
         logger.debug("Message in hex: " + Utility.bytesToHex(trace.
                 getCurrentRecord().getPayload()));
@@ -230,12 +232,13 @@ public final class SSLHandshakeWorkflow extends AWorkflow {
         //change status and notify observers
         switchToState(trace, EStates.CLIENT_CHANGE_CIPHER_SPEC);
         // drop it on the wire!
-        if (so.isConnected()) {
-            logger.info("Connection reset by peer.");
+        try {
+            prepareAndSend(trace);
+        } catch (IOException e) {
+            logger.info("### Connection reset by peer.");
             closeSocket();
             return;
         }
-        prepareAndSend(trace);
         logger.info("Change Cipher Spec message send");
         logger.debug("Message in hex: " + Utility.bytesToHex(trace.
                 getCurrentRecord().getPayload()));
@@ -265,12 +268,13 @@ public final class SSLHandshakeWorkflow extends AWorkflow {
         // change status and notify observers
         switchToNextState(trace);
         // drop it on the wire!
-        if (so.isConnected()) {
-            logger.info("Connection reset by peer.");
+        try {
+            prepareAndSend(trace);
+        } catch (IOException e) {
+            logger.info("### Connection reset by peer.");
             closeSocket();
             return;
         }
-        prepareAndSend(trace);
         logger.info("Finished message send");
         logger.debug("Message in hex: " + Utility.bytesToHex(trace.
                 getCurrentRecord().getPayload()));
@@ -280,7 +284,7 @@ public final class SSLHandshakeWorkflow extends AWorkflow {
         // fetch the response(s)
         while (getCurrentState() != EStates.SERVER_FINISHED.getID()) {
             if (getCurrentState() == EStates.ALERT.getID()) {
-                logger.info("Connection reset due to FATAL_ALERT.");
+                logger.info("### Connection reset due to FATAL_ALERT.");
                 closeSocket();
                 return;
             }
@@ -325,7 +329,7 @@ public final class SSLHandshakeWorkflow extends AWorkflow {
      *
      * @param trace Trace to be send
      */
-    private void prepareAndSend(final Trace trace) {
+    private void prepareAndSend(final Trace trace) throws IOException {
         ARecordFrame rec;
         byte[] msg;
 

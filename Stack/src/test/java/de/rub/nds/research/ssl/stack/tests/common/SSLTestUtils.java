@@ -144,7 +144,7 @@ public class SSLTestUtils {
         byte[] newPadding = array.clone();
         int midPos = newPadding.length / 2;
         int lastPos = newPadding.length - 1;
-        
+
         switch (position) {
             case FIRST:
                 newPadding[0] = to;
@@ -158,7 +158,7 @@ public class SSLTestUtils {
             default:
                 break;
         }
-        
+
         return newPadding;
     }
 
@@ -226,13 +226,11 @@ public class SSLTestUtils {
      * @param out Output stream
      * @param msg SSL message
      */
-    public final void sendMessage(final OutputStream out, final byte[] msg) {
-        try {
-            out.write(msg);
-            out.flush();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+    public final void sendMessage(final OutputStream out, final byte[] msg)
+            throws IOException {
+        out.write(msg);
+        // does nothing, but to be accurate
+        out.flush();
     }
 
     /**
@@ -301,7 +299,7 @@ public class SSLTestUtils {
     /**
      * Set the separate byte between padding and data in a PKCS#1 message.
      *
-     * @param seperateByte The separate byte
+     *  @param seperateByte The separate byte
      */
     public final void setSeperateByte(byte[] seperateByte) {
         this.seperateByte = seperateByte;
@@ -329,7 +327,7 @@ public class SSLTestUtils {
     public final void setPadding(final byte[] newPadding) {
         this.padding = newPadding.clone();
     }
-    
+
     /**
      * Get the first two bytes of a PKCS#1 message which stands for the
      * operation mode.
