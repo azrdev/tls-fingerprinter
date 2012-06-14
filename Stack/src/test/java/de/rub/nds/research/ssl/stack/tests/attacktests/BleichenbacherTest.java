@@ -1,6 +1,5 @@
 package de.rub.nds.research.ssl.stack.tests.attacktests;
 
-import de.rub.nds.research.ssl.stack.Utility;
 import de.rub.nds.research.ssl.stack.protocols.commons.ECipherSuite;
 import de.rub.nds.research.ssl.stack.protocols.commons.EProtocolVersion;
 import de.rub.nds.research.ssl.stack.protocols.commons.KeyExchangeParams;
@@ -15,7 +14,7 @@ import de.rub.nds.research.ssl.stack.tests.analyzer.BleichenbacherParameters;
 import de.rub.nds.research.ssl.stack.tests.common.MessageBuilder;
 import de.rub.nds.research.ssl.stack.tests.common.SSLHandshakeWorkflow;
 import de.rub.nds.research.ssl.stack.tests.common.SSLHandshakeWorkflow.EStates;
-import de.rub.nds.research.ssl.stack.tests.common.SSLServer;
+import de.rub.nds.research.ssl.stack.tests.common.SSLServerHandler;
 import de.rub.nds.research.ssl.stack.tests.common.SSLTestUtils;
 import de.rub.nds.research.ssl.stack.tests.trace.Trace;
 import de.rub.nds.research.ssl.stack.tests.workflows.ObservableBridge;
@@ -55,10 +54,6 @@ public class BleichenbacherTest implements Observer {
      */
     private EProtocolVersion protocolVersion = EProtocolVersion.TLS_1_0;
     /**
-     * Protocol short name.
-     */
-    private String protocolShortName = "TLS";
-    /**
      * Test host.
      */
     private static final String HOST = "localhost";
@@ -69,28 +64,7 @@ public class BleichenbacherTest implements Observer {
     /**
      * Test counter.
      */
-    private int counter = 1;
-    /**
-     * Test Server Thread.
-     */
-    private Thread sslServerThread;
-    /**
-     * Test SSL Server.
-     */
-    private SSLServer sslServer;
-    /**
-     * Server key store.
-     */
-    private static final String PATH_TO_JKS = "server.jks";
-    /**
-     * Pass word for server key store.
-     */
-    private static final String JKS_PASSWORD = "server";
-    /**
-     * Detailed Info print out.
-     */
-    private static final boolean PRINT_INFO = false;
-    
+    private int counter = 1;  
     /**
      * Initialize the log4j logger.
      */
@@ -99,6 +73,10 @@ public class BleichenbacherTest implements Observer {
      * Bleichenbacher test parameters.
      */
     private BleichenbacherParameters parameters = new BleichenbacherParameters();
+    /**
+     * Handler to start/stop a test server.
+     */
+    private SSLServerHandler serverHandler = new SSLServerHandler();
 
     /**
      * Test parameters for the Bleichenbacher Tests.
@@ -265,16 +243,7 @@ public class BleichenbacherTest implements Observer {
      */
     @BeforeMethod
     public void setUp() {
-        try {
-//            System.setProperty("javax.net.debug", "ssl");
-            sslServer = new SSLServer(PATH_TO_JKS, JKS_PASSWORD,
-                    protocolShortName, PORT, PRINT_INFO);
-            sslServerThread = new Thread(sslServer);
-            sslServerThread.start();
-            Thread.currentThread().sleep(2000);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        serverHandler.startTestServer();
     }
 
     /**
@@ -287,22 +256,7 @@ public class BleichenbacherTest implements Observer {
         } catch (IOException e) {
             e.printStackTrace();
         }
-
-        try {
-            if (sslServer != null) {
-                sslServer.shutdown();
-                sslServer = null;
-            }
-
-            if (sslServerThread != null) {
-                sslServerThread.interrupt();
-                sslServerThread = null;
-            }
-
-
-            Thread.currentThread().sleep(5000);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        
+        serverHandler.shutdownTestServer();
     }
 }
