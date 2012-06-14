@@ -64,7 +64,8 @@ public class BleichenbacherAttack {
 
         System.out.println("Step 1: Blinding");
         if(this.msgIsPKCS) {
-            System.out.println("Step skipped --> msg considered as PKCS conform.");
+            System.out.println("Step skipped --> "
+                    + "Message is considered as PKCS compliant.");
             s0 = BigInteger.ONE;
         }else {
             stepOne();

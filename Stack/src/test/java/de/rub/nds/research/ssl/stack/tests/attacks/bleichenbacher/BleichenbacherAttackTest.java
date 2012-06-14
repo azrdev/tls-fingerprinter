@@ -197,30 +197,6 @@ public class BleichenbacherAttackTest {
         this.counter++;
     }
 
-//    public static void main(String[] args) throws NoSuchAlgorithmException,
-//            NoSuchPaddingException, InvalidKeyException,
-//            IllegalBlockSizeException, BadPaddingException, SSLException {
-//        byte[] plainBytes = "Decrypt me".getBytes();
-//        byte[] cipherBytes;
-//
-//        Security.addProvider(new BouncyCastleProvider());
-//        KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("RSA");
-//        keyPairGenerator.initialize(2048);
-//        KeyPair keyPair = keyPairGenerator.genKeyPair();
-//
-//        Cipher cipher = getInstance("RSA/None/PKCS1Padding");
-//        cipher.init(Cipher.ENCRYPT_MODE, keyPair.getPublic());
-//        cipherBytes = cipher.doFinal(plainBytes);
-//
-//        StandardOracle oracle = new StandardOracle(keyPair.getPrivate(), keyPair.getPublic());
-//        JSSEOracle jsseOracle = new JSSEOracle("www.heise.de", 443);
-//        System.out.println(jsseOracle.getPublicKey().toString());
-//        
-//        BleichenbacherAttack attacker = new BleichenbacherAttack(cipherBytes,
-//                (RSAPublicKey) keyPair.getPublic(), oracle);
-//
-//        //attacker.attack();
-//    }
     /**
      * Initialize logging properties
      */
