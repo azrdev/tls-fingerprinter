@@ -11,8 +11,8 @@ import de.rub.nds.research.ssl.stack.protocols.handshake.datatypes.EncryptedPreM
 import de.rub.nds.research.ssl.stack.protocols.handshake.datatypes.PreMasterSecret;
 import de.rub.nds.research.ssl.stack.protocols.handshake.datatypes.RandomValue;
 import de.rub.nds.research.ssl.stack.tests.common.MessageBuilder;
-import de.rub.nds.research.ssl.stack.tests.common.SSLHandshakeWorkflow;
-import de.rub.nds.research.ssl.stack.tests.common.SSLHandshakeWorkflow.EStates;
+import de.rub.nds.research.ssl.stack.tests.workflows.SSLHandshakeWorkflow;
+import de.rub.nds.research.ssl.stack.tests.workflows.SSLHandshakeWorkflow.EStates;
 import de.rub.nds.research.ssl.stack.tests.common.SSLServer;
 import de.rub.nds.research.ssl.stack.tests.common.SSLTestUtils;
 import de.rub.nds.research.ssl.stack.tests.trace.Trace;
@@ -216,8 +216,9 @@ public class BleichenbacherTimingTest implements Observer {
                 + "Time between CLIENT_KEY_EXCHANGE and SERVER_CHANGE_CIPHER_SPEC"
                 + " or ALERT");
         try {
-            for (int i = 0; i < NUMBER_OF_REPETIIONS; i++) {
                 workflow = new SSLHandshakeWorkflow(false);
+            for (int i = 0; i < NUMBER_OF_REPETIIONS; i++) {
+                workflow.reset();
                 workflow.connectToTestServer(HOST, PORT);
                 workflow.addObserver(this, EStates.CLIENT_HELLO);
                 workflow.addObserver(this, EStates.CLIENT_KEY_EXCHANGE);

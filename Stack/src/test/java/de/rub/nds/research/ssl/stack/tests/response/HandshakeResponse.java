@@ -7,8 +7,8 @@ import de.rub.nds.research.ssl.stack.protocols.handshake.Certificate;
 import de.rub.nds.research.ssl.stack.protocols.handshake.ServerHello;
 import de.rub.nds.research.ssl.stack.protocols.handshake.ServerHelloDone;
 import de.rub.nds.research.ssl.stack.protocols.handshake.ServerKeyExchange;
-import de.rub.nds.research.ssl.stack.tests.common.SSLHandshakeWorkflow;
-import de.rub.nds.research.ssl.stack.tests.common.SSLHandshakeWorkflow.EStates;
+import de.rub.nds.research.ssl.stack.tests.workflows.SSLHandshakeWorkflow;
+import de.rub.nds.research.ssl.stack.tests.workflows.SSLHandshakeWorkflow.EStates;
 import de.rub.nds.research.ssl.stack.tests.trace.Trace;
 
 /**

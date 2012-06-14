@@ -7,7 +7,7 @@ import de.rub.nds.research.ssl.stack.protocols.commons.KeyExchangeParams;
 import de.rub.nds.research.ssl.stack.protocols.handshake.ClientKeyExchange;
 import de.rub.nds.research.ssl.stack.protocols.handshake.datatypes.EncryptedPreMasterSecret;
 import de.rub.nds.research.ssl.stack.protocols.handshake.datatypes.PreMasterSecret;
-import de.rub.nds.research.ssl.stack.tests.common.SSLHandshakeWorkflow;
+import de.rub.nds.research.ssl.stack.tests.workflows.SSLHandshakeWorkflow;
 import de.rub.nds.research.ssl.stack.tests.trace.Trace;
 import de.rub.nds.research.ssl.stack.tests.workflows.ObservableBridge;
 import java.io.IOException;
@@ -60,7 +60,6 @@ public class JSSEOracle implements IOracle, Observer {
         workflow.addObserver(this,
                 SSLHandshakeWorkflow.EStates.CLIENT_KEY_EXCHANGE);
         workflow.addObserver(this, SSLHandshakeWorkflow.EStates.ALERT);
-
     }
 
     public static PublicKey fetchServerPublicKey(String serverHost,
@@ -104,22 +103,20 @@ public class JSSEOracle implements IOracle, Observer {
 
     @Override
     public boolean checkPKCSConformity(final byte[] msg) {
-        workflow = new SSLHandshakeWorkflow(false);
-        workflow.addObserver(this,
-                SSLHandshakeWorkflow.EStates.CLIENT_KEY_EXCHANGE);
-        workflow.addObserver(this, SSLHandshakeWorkflow.EStates.ALERT);
+        workflow.reset();
+//                 workflow = new SSLHandshakeWorkflow(false);
+//        workflow.addObserver(this,
+//                SSLHandshakeWorkflow.EStates.CLIENT_KEY_EXCHANGE);
+//        workflow.addObserver(this, SSLHandshakeWorkflow.EStates.ALERT);
+        
         workflow.connectToTestServer(this.host, this.port);
-                
+        
         numberOfQueries++;
 
         encPMStoCheck = msg;
         workflow.start();
-
-        try {
-            workflow.closeSocket();
-        } catch(IOException e) {
-            // eat this!
-        }
+        workflow.closeSocket();
+        
         return oracleResult;
     }
 

@@ -4,7 +4,7 @@ import java.io.Serializable;
 import java.sql.Timestamp;
 
 import de.rub.nds.research.ssl.stack.protocols.ARecordFrame;
-import de.rub.nds.research.ssl.stack.tests.common.SSLHandshakeWorkflow.EStates;
+import de.rub.nds.research.ssl.stack.tests.workflows.SSLHandshakeWorkflow.EStates;
 
 /**
  * Trace information about the SSL handshake processing.

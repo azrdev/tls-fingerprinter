@@ -14,9 +14,9 @@ import de.rub.nds.research.ssl.stack.protocols.commons.KeyExchangeParams;
 import de.rub.nds.research.ssl.stack.protocols.handshake.ClientKeyExchange;
 import de.rub.nds.research.ssl.stack.protocols.handshake.datatypes.EncryptedPreMasterSecret;
 import de.rub.nds.research.ssl.stack.protocols.handshake.datatypes.PreMasterSecret;
-import de.rub.nds.research.ssl.stack.tests.common.SSLHandshakeWorkflow;
+import de.rub.nds.research.ssl.stack.tests.workflows.SSLHandshakeWorkflow;
 import de.rub.nds.research.ssl.stack.tests.common.SSLTestUtils;
-import de.rub.nds.research.ssl.stack.tests.common.SSLHandshakeWorkflow.EStates;
+import de.rub.nds.research.ssl.stack.tests.workflows.SSLHandshakeWorkflow.EStates;
 import de.rub.nds.research.ssl.stack.tests.trace.Trace;
 import de.rub.nds.research.ssl.stack.tests.workflows.ObservableBridge;
 
@@ -115,10 +115,6 @@ public class FingerprintClientKeyExchange implements Observer {
      */
     @AfterMethod
     public void tearDown() {
-        try {
-            workflow.closeSocket();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        workflow.closeSocket();
     }
 }

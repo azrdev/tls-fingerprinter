@@ -20,9 +20,9 @@ import de.rub.nds.research.ssl.stack.tests.analyzer.ClientHelloParameters;
 import de.rub.nds.research.ssl.stack.tests.analyzer.TestHashAnalyzer;
 import de.rub.nds.research.ssl.stack.tests.analyzer.common.AFingerprintAnalyzer;
 import de.rub.nds.research.ssl.stack.tests.common.MessageBuilder;
-import de.rub.nds.research.ssl.stack.tests.common.SSLHandshakeWorkflow;
+import de.rub.nds.research.ssl.stack.tests.workflows.SSLHandshakeWorkflow;
 import de.rub.nds.research.ssl.stack.tests.common.TestConfiguration;
-import de.rub.nds.research.ssl.stack.tests.common.SSLHandshakeWorkflow.EStates;
+import de.rub.nds.research.ssl.stack.tests.workflows.SSLHandshakeWorkflow.EStates;
 import de.rub.nds.research.ssl.stack.tests.trace.Trace;
 import de.rub.nds.research.ssl.stack.tests.workflows.ObservableBridge;
 
@@ -228,10 +228,6 @@ public class FingerprintClientHello implements Observer {
      */
     @AfterMethod
     public void tearDown() {
-        try {
-            workflow.closeSocket();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        workflow.closeSocket();
     }
 }

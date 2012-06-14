@@ -1,4 +1,4 @@
-package de.rub.nds.research.ssl.stack.tests.common;
+package de.rub.nds.research.ssl.stack.tests.workflows;
 
 import de.rub.nds.research.ssl.stack.Utility;
 import de.rub.nds.research.ssl.stack.protocols.ARecordFrame;
@@ -8,11 +8,11 @@ import de.rub.nds.research.ssl.stack.protocols.handshake.ClientHello;
 import de.rub.nds.research.ssl.stack.protocols.handshake.datatypes.MasterSecret;
 import de.rub.nds.research.ssl.stack.protocols.handshake.datatypes.PreMasterSecret;
 import de.rub.nds.research.ssl.stack.protocols.msgs.ChangeCipherSpec;
-import de.rub.nds.research.ssl.stack.tests.fingerprint.FingerprintClientHello;
+import de.rub.nds.research.ssl.stack.tests.common.HandshakeHashBuilder;
+import de.rub.nds.research.ssl.stack.tests.common.MessageBuilder;
+import de.rub.nds.research.ssl.stack.tests.common.SSLTestUtils;
 import de.rub.nds.research.ssl.stack.tests.response.SSLResponse;
 import de.rub.nds.research.ssl.stack.tests.trace.Trace;
-import de.rub.nds.research.ssl.stack.tests.workflows.AWorkflow;
-import de.rub.nds.research.ssl.stack.tests.workflows.WorkflowState;
 import de.rub.nds.research.timingsocket.TimingSocket;
 import java.io.IOException;
 import java.io.InputStream;
@@ -22,7 +22,6 @@ import java.security.DigestException;
 import java.security.NoSuchAlgorithmException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
-
 import org.apache.log4j.Logger;
 
 /**
@@ -45,7 +44,6 @@ public final class SSLHandshakeWorkflow extends AWorkflow {
     private boolean encrypted = false;
     private boolean timingEnabled = false;
     private boolean waitingForTime = false;
-    
     static Logger logger = Logger.getRootLogger();
 
     /**
@@ -99,16 +97,8 @@ public final class SSLHandshakeWorkflow extends AWorkflow {
     public SSLHandshakeWorkflow(WorkflowState[] workflowStates,
             boolean enableTiming) {
         super(workflowStates);
-        if (enableTiming) {
-            try {
-                so = new TimingSocket();
-                timingEnabled = true;
-            } catch (SocketException e) {
-                e.printStackTrace();
-            }
-        } else {
-            so = new Socket();
-        }
+        timingEnabled = enableTiming;
+        reset();
     }
 
     /**
@@ -127,12 +117,35 @@ public final class SSLHandshakeWorkflow extends AWorkflow {
         this(EStates.values(), false);
     }
 
+    @Override
+    public void reset() {
+        closeSocket();
+        resetState();
+        
+        traceList.clear();
+        pms = null;
+        handshakeHashes = null;
+        encrypted = false;
+        waitingForTime = false;
+        
+        if (timingEnabled) {
+            try {
+                so = new TimingSocket();
+            } catch (SocketException e) {
+                e.printStackTrace();
+            }
+        } else {
+            so = new Socket();
+            System.out.println("Socket available");
+        }
+    }
+
     /**
      * Executes the complete SSL handshake.
      */
     @Override
     public void start() {
-    	logger.info(">>> Start TLS handshake");
+        logger.info(">>> Start TLS handshake");
         ARecordFrame record;
         Trace trace;
         MessageBuilder msgBuilder = new MessageBuilder();
@@ -166,6 +179,7 @@ public final class SSLHandshakeWorkflow extends AWorkflow {
         // fetch the response(s)
         while (getCurrentState() != EStates.SERVER_HELLO_DONE.getID()) {
             if (getCurrentState() == EStates.ALERT.getID()) {
+                closeSocket();
                 return;
             }
 
@@ -173,6 +187,7 @@ public final class SSLHandshakeWorkflow extends AWorkflow {
                 getResponses(hashBuilder);
             } catch (IOException e) {
                 e.printStackTrace();
+                System.out.println("out: " + 199);
                 return;
             }
         }
@@ -188,7 +203,8 @@ public final class SSLHandshakeWorkflow extends AWorkflow {
         // drop it on the wire!
         prepareAndSend(trace);
         logger.info("Client Key Exchange message send");
-        logger.debug("Message in hex: " + Utility.bytesToHex(trace.getCurrentRecord().getPayload()));
+        logger.debug("Message in hex: " + Utility.bytesToHex(trace.
+                getCurrentRecord().getPayload()));
         // hash current record
         updateHash(hashBuilder, trace);
         // add trace to ArrayList
@@ -207,7 +223,8 @@ public final class SSLHandshakeWorkflow extends AWorkflow {
         // drop it on the wire!
         prepareAndSend(trace);
         logger.info("Change Cipher Spec message send");
-        logger.debug("Message in hex: " + Utility.bytesToHex(trace.getCurrentRecord().getPayload()));
+        logger.debug("Message in hex: " + Utility.bytesToHex(trace.
+                getCurrentRecord().getPayload()));
         // switch to encrypted mode
         encrypted = true;
         // add trace to ArrayList
@@ -236,13 +253,15 @@ public final class SSLHandshakeWorkflow extends AWorkflow {
         // drop it on the wire!
         prepareAndSend(trace);
         logger.info("Finished message send");
-        logger.debug("Message in hex: " + Utility.bytesToHex(trace.getCurrentRecord().getPayload()));
+        logger.debug("Message in hex: " + Utility.bytesToHex(trace.
+                getCurrentRecord().getPayload()));
         // add trace to ArrayList
         addToList(new Trace(EStates.CLIENT_FINISHED, trace.getCurrentRecord(),
                 trace.getOldRecord(), false));
         // fetch the response(s)
         while (getCurrentState() != EStates.SERVER_FINISHED.getID()) {
             if (getCurrentState() == EStates.ALERT.getID()) {
+                closeSocket();
                 return;
             }
 
@@ -250,6 +269,7 @@ public final class SSLHandshakeWorkflow extends AWorkflow {
                 getResponses(hashBuilder);
             } catch (IOException e) {
                 e.printStackTrace();
+                System.out.println("out: " + 283);
                 return;
             }
         }
@@ -374,9 +394,9 @@ public final class SSLHandshakeWorkflow extends AWorkflow {
 
             if (timingEnabled && waitingForTime) {
                 waitingForTime = false;
-               trace.setAccurateTime(((TimingSocket) so).getTiming());
+                trace.setAccurateTime(((TimingSocket) so).getTiming());
             }
-            
+
             //fetch the input bytes
             responseBytes = utils.fetchResponse(in);
             SSLResponse response = new SSLResponse(responseBytes, this);
@@ -397,7 +417,8 @@ public final class SSLHandshakeWorkflow extends AWorkflow {
         while (in.available() == 0) {
             // TODO: Sehen wir hier irgendeine Möglichkeit, mehr CPU-Zeit zu verbrauchen?
             if (System.currentTimeMillis() > (startWait + timeout)) {
-                throw new SocketTimeoutException("No response within " + timeout + " ms");
+                throw new SocketTimeoutException(
+                        "No response within " + timeout + " ms");
             }
         }
     }
@@ -452,14 +473,14 @@ public final class SSLHandshakeWorkflow extends AWorkflow {
      * @param port Port number of the server
      */
     public void connectToTestServer(String host, int port) {
-        SocketAddress addr;
-        addr = new InetSocketAddress(host, port);
+        SocketAddress addr = new InetSocketAddress(host, port);
         try {
             // TODO: Interessante werte für timeout...
-            so.connect(addr, 100);
-            so.setSoTimeout(100);
+            so.connect(addr, 500);
+            so.setSoTimeout(500);
             out = so.getOutputStream();
             in = so.getInputStream();
+        System.out.println("Socket connected");
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -479,9 +500,30 @@ public final class SSLHandshakeWorkflow extends AWorkflow {
      *
      * @throws IOException On I/O error
      */
-    public void closeSocket() throws IOException {
+    public void closeSocket() {
+        if (out != null) {
+            try {
+                out.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            out = null;
+        }
+        if (in != null) {
+            try {
+                in.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            in = null;
+        }
         if (so != null) {
-            so.close();
+            try {
+                so.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            so = null;
         }
     }
 

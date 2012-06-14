@@ -41,6 +41,11 @@ public abstract class AWorkflow {
     public abstract void start();
 
     /**
+     * Resets the class
+     */
+    public abstract void reset();
+    
+    /**
      * Add an observer for a specific workflow state.
      *
      * @param observer Observer to be registered
@@ -169,5 +174,12 @@ public abstract class AWorkflow {
     	this.currentState=state;
     	ObservableBridge newState = this.states[this.currentState];
         newState.setChangedFlag();
+    }
+    
+    /**
+     * Resets the internal state machine to its initial state.
+     */
+    protected void resetState() {
+        this.currentState = 0;
     }
 }

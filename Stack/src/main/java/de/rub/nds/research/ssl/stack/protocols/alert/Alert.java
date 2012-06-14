@@ -92,7 +92,7 @@ public class Alert extends ARecordFrame {
 
         //check size
         if (payloadCopy.length > 2 || payloadCopy.length == 0) {
-            throw new IllegalArgumentException("Unvalid Alert message");
+            throw new IllegalArgumentException("Invalid Alert message");
         }
 
         // extract alert level

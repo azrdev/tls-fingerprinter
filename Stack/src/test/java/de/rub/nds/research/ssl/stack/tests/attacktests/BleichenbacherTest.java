@@ -12,8 +12,8 @@ import de.rub.nds.research.ssl.stack.protocols.handshake.datatypes.RandomValue;
 import de.rub.nds.research.ssl.stack.protocols.msgs.datatypes.RsaUtil;
 import de.rub.nds.research.ssl.stack.tests.analyzer.BleichenbacherParameters;
 import de.rub.nds.research.ssl.stack.tests.common.MessageBuilder;
-import de.rub.nds.research.ssl.stack.tests.common.SSLHandshakeWorkflow;
-import de.rub.nds.research.ssl.stack.tests.common.SSLHandshakeWorkflow.EStates;
+import de.rub.nds.research.ssl.stack.tests.workflows.SSLHandshakeWorkflow;
+import de.rub.nds.research.ssl.stack.tests.workflows.SSLHandshakeWorkflow.EStates;
 import de.rub.nds.research.ssl.stack.tests.common.SSLServerHandler;
 import de.rub.nds.research.ssl.stack.tests.common.SSLTestUtils;
 import de.rub.nds.research.ssl.stack.tests.trace.Trace;
@@ -138,7 +138,6 @@ public class BleichenbacherTest implements Observer {
         parameters.setPosition(position);
         
         workflow.start();
-      
 //        AFingerprintAnalyzer analyzer = new TestHashAnalyzer(parameters);
 //        analyzer.analyze(workflow.getTraceList());
         logger.info("------------------------------");
@@ -251,12 +250,7 @@ public class BleichenbacherTest implements Observer {
      */
     @AfterMethod
     public void tearDown() {
-        try {
-            workflow.closeSocket();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        
+        workflow.closeSocket();
         serverHandler.shutdownTestServer();
     }
 }

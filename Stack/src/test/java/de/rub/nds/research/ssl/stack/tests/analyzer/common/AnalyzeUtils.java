@@ -10,7 +10,7 @@ import de.rub.nds.research.ssl.stack.protocols.commons.APubliclySerializable;
 import de.rub.nds.research.ssl.stack.protocols.handshake.ClientHello;
 import de.rub.nds.research.ssl.stack.protocols.handshake.ClientKeyExchange;
 import de.rub.nds.research.ssl.stack.protocols.handshake.datatypes.CipherSuites;
-import de.rub.nds.research.ssl.stack.tests.common.SSLHandshakeWorkflow.EStates;
+import de.rub.nds.research.ssl.stack.tests.workflows.SSLHandshakeWorkflow.EStates;
 
 public class AnalyzeUtils {
 

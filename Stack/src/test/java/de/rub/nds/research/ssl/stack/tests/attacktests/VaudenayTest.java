@@ -9,8 +9,8 @@ import de.rub.nds.research.ssl.stack.protocols.msgs.TLSCiphertext;
 import de.rub.nds.research.ssl.stack.protocols.msgs.datatypes.GenericBlockCipher;
 import de.rub.nds.research.ssl.stack.tests.analyzer.common.TraceListAnalyzer;
 import de.rub.nds.research.ssl.stack.tests.common.KeyMaterial;
-import de.rub.nds.research.ssl.stack.tests.common.SSLHandshakeWorkflow;
-import de.rub.nds.research.ssl.stack.tests.common.SSLHandshakeWorkflow.EStates;
+import de.rub.nds.research.ssl.stack.tests.workflows.SSLHandshakeWorkflow;
+import de.rub.nds.research.ssl.stack.tests.workflows.SSLHandshakeWorkflow.EStates;
 import de.rub.nds.research.ssl.stack.tests.common.SSLServer;
 import de.rub.nds.research.ssl.stack.tests.common.SSLServerHandler;
 import de.rub.nds.research.ssl.stack.tests.common.SSLTestUtils;
@@ -219,12 +219,7 @@ public class VaudenayTest implements Observer {
      */
     @AfterMethod
     public void tearDown() {
-        try {
-            workflow.closeSocket();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
+        workflow.closeSocket();
         serverHandler.shutdownTestServer();
     }
 }
