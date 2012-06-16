@@ -1,14 +1,19 @@
 package de.rub.nds.research.ssl.stack.tests.attacks.bleichenbacher;
 
-import de.rub.nds.research.ssl.stack.tests.attacks.bleichenbacher.oracles.IOracle;
+import de.rub.nds.research.ssl.stack.tests.attacks.bleichenbacher.oracles.AOracle;
 import de.rub.nds.research.ssl.stack.Utility;
+import de.rub.nds.research.ssl.stack.tests.attacks.bleichenbacher.oracles.ATestOracle;
+import de.rub.nds.research.ssl.stack.tests.attacks.bleichenbacher.oracles.StandardOracle;
 import java.math.BigInteger;
-import java.security.KeyFactory;
-import java.security.PrivateKey;
+import java.security.*;
 import java.security.interfaces.RSAPublicKey;
 import java.security.spec.RSAPrivateKeySpec;
 import java.util.ArrayList;
+import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
+import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.NoSuchPaddingException;
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
 
 /**
  * Bleichenbacher algorithm.
@@ -21,7 +26,7 @@ import javax.crypto.Cipher;
  */
 public class BleichenbacherAttack {
 
-    protected final IOracle oracle;
+    protected final AOracle oracle;
     //protected final byte[] decryptedMsg;
     protected final byte[] encryptedMsg;
     protected final RSAPublicKey publicKey;
@@ -34,7 +39,7 @@ public class BleichenbacherAttack {
     protected final boolean msgIsPKCS;
 
     public BleichenbacherAttack(final byte[] msg,
-            final IOracle pkcsOracle, final boolean msgPKCScofnorm) {
+            final AOracle pkcsOracle, final boolean msgPKCScofnorm) {
         this.encryptedMsg = msg.clone();
         this.publicKey = (RSAPublicKey) pkcsOracle.getPublicKey();
         this.oracle = pkcsOracle;

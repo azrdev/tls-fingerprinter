@@ -2,7 +2,7 @@ package de.rub.nds.research.ssl.stack.tests.attacks.bleichenbacher;
 
 import de.rub.nds.research.ssl.stack.tests.attacks.bleichenbacher.oracles.JSSEOracle;
 import de.rub.nds.research.ssl.stack.tests.attacks.bleichenbacher.BleichenbacherAttack;
-import de.rub.nds.research.ssl.stack.tests.attacks.bleichenbacher.oracles.IOracle;
+import de.rub.nds.research.ssl.stack.tests.attacks.bleichenbacher.oracles.AOracle;
 import de.rub.nds.research.ssl.stack.tests.common.SSLServer;
 import java.security.interfaces.RSAPublicKey;
 import javax.net.ssl.SSLException;
@@ -186,7 +186,7 @@ public class BleichenbacherAttackTest {
     }
 
     @Test(enabled = true, dataProvider = "bleichenbacher", invocationCount = 1)
-    public final void testBleichenbacherAttack(String desc, IOracle oracle) {
+    public final void testBleichenbacherAttack(String desc, AOracle oracle) {
         logger.info("++++Start Test No." + counter + "(" + desc + ")++++");
 
         BleichenbacherAttack attacker = new BleichenbacherAttack(encryptedPKCS,

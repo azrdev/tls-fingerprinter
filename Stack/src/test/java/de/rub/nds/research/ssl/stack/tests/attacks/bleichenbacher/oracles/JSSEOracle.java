@@ -33,7 +33,7 @@ import javax.net.ssl.*;
  *
  * May 18, 2012
  */
-public class JSSEOracle implements IOracle, Observer {
+public class JSSEOracle extends AOracle implements Observer {
 
     /**
      * Handshake workflow to observe.
@@ -43,8 +43,6 @@ public class JSSEOracle implements IOracle, Observer {
      * TLS protocol version.
      */
     private EProtocolVersion protocolVersion = EProtocolVersion.TLS_1_0;
-    private RSAPublicKey publicKey;
-    private long numberOfQueries;
     private String host;
     private int port;
     private byte[] encPMStoCheck;
@@ -55,6 +53,7 @@ public class JSSEOracle implements IOracle, Observer {
         this.publicKey = null;
         this.host = serverAddress;
         this.port = serverPort;
+        this.blockSize = computeBlockSize();
 
         workflow = new SSLHandshakeWorkflow(false);
         workflow.addObserver(this,
@@ -97,11 +96,6 @@ public class JSSEOracle implements IOracle, Observer {
     }
 
     @Override
-    public long getNumberOfQueries() {
-        return numberOfQueries;
-    }
-
-    @Override
     public boolean checkPKCSConformity(final byte[] msg) {
         workflow.reset();
         workflow.connectToTestServer(this.host, this.port);
@@ -115,8 +109,7 @@ public class JSSEOracle implements IOracle, Observer {
         return oracleResult;
     }
 
-    @Override
-    public int getBlockSize() {
+    private int computeBlockSize() {
         byte[] tmp = publicKey.getModulus().toByteArray();
         int result = tmp.length;
         int remainder = tmp.length % 8;

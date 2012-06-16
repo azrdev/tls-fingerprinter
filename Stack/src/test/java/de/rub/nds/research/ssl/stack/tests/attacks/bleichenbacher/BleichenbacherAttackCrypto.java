@@ -6,7 +6,7 @@ package de.rub.nds.research.ssl.stack.tests.attacks.bleichenbacher;
 
 import de.rub.nds.research.ssl.stack.tests.attacks.bleichenbacher.oracles.StandardOracle;
 import de.rub.nds.research.ssl.stack.Utility;
-import de.rub.nds.research.ssl.stack.tests.attacks.bleichenbacher.oracles.IOracle;
+import de.rub.nds.research.ssl.stack.tests.attacks.bleichenbacher.oracles.AOracle;
 import java.math.BigInteger;
 import java.security.interfaces.RSAPublicKey;
 import java.util.LinkedList;
@@ -23,7 +23,7 @@ public class BleichenbacherAttackCrypto extends BleichenbacherAttack {
     protected int maxtUsed;
     List<BigInteger> tList;
 
-    public BleichenbacherAttackCrypto(final byte[] msg, IOracle pkcsOracle, 
+    public BleichenbacherAttackCrypto(final byte[] msg, AOracle pkcsOracle, 
             int maxtUsed, final boolean msgPKCSconform) {
         super(msg, pkcsOracle, msgPKCSconform);
         this.maxtUsed = maxtUsed;

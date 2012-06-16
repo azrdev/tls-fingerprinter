@@ -19,21 +19,22 @@ import javax.crypto.NoSuchPaddingException;
  *
  * May 18, 2012
  */
-public class StandardOracle implements IOracle {
+public class StandardOracle extends ATestOracle {
 
     private final RSAPrivateKey privateKey;
-    private final RSAPublicKey publicKey;
     private Cipher cipher;
-    private long numberOfQueries;
-
-    public StandardOracle(final PrivateKey privKey, final PublicKey pubKey) throws
+    
+    public StandardOracle(final PrivateKey privKey, final PublicKey pubKey, 
+            ATestOracle.OracleType oracleType) throws
             NoSuchAlgorithmException,
             NoSuchPaddingException,
             InvalidKeyException {
         this.privateKey = (RSAPrivateKey) privKey;
         this.publicKey = (RSAPublicKey) pubKey;
+        this.oracleType = oracleType;
         cipher = Cipher.getInstance("RSA/None/PKCS1Padding");
         cipher.init(Cipher.DECRYPT_MODE, this.privateKey);
+        this.blockSize = cipher.getBlockSize();
     }
 
     public byte[] encrypt(byte[] toEncrypt) {
@@ -56,11 +57,6 @@ public class StandardOracle implements IOracle {
         }
 
         return result;
-    }
-    
-    @Override
-    public long getNumberOfQueries() {
-        return numberOfQueries;
     }
     
     public byte[] decrypt(final byte[] msg) {
@@ -96,15 +92,15 @@ public class StandardOracle implements IOracle {
 
         // fresh init
         try {
-            cipher = Cipher.getInstance("RSA/None/PKCS1Padding");
-//            cipher = Cipher.getInstance("RSA/None/NoPadding");
+//            cipher = Cipher.getInstance("RSA/None/PKCS1Padding");
+            cipher = Cipher.getInstance("RSA/None/NoPadding");
             
             cipher.init(Cipher.DECRYPT_MODE, this.privateKey);
             byte[] toCheck = cipher.doFinal(msg);
             
-//            if(toCheck[0] == 0x02 && toCheck.length == (cipher.getBlockSize()-1)) {
+            if(checkDecryptedBytes(toCheck)) {
                 result = true;
-//            }
+            }
         } catch (NoSuchAlgorithmException ex) {
             ex.printStackTrace();
             result = false;
@@ -129,15 +125,5 @@ public class StandardOracle implements IOracle {
         }
 
         return result;
-    }
-
-    @Override
-    public int getBlockSize() {
-        return cipher.getBlockSize();
-    }
-
-    @Override
-    public PublicKey getPublicKey() {
-        return this.publicKey;
     }
 }
