@@ -4,7 +4,7 @@ import java.security.PublicKey;
 import java.security.interfaces.RSAPublicKey;
 
 /**
- * Oracle Interface for Bleichenbacher attack.
+ * Oracle template for Bleichenbacher attack.
  *
  * @author Christopher Meyer - christopher.meyer@rub.de
  * @version 0.1

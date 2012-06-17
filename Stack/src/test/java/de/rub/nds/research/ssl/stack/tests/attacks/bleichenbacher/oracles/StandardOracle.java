@@ -1,15 +1,13 @@
 package de.rub.nds.research.ssl.stack.tests.attacks.bleichenbacher.oracles;
 
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
-import java.security.PrivateKey;
-import java.security.PublicKey;
+import java.security.*;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
 
 /**
  * Standard Bleichenbacher oracle.
@@ -22,13 +20,14 @@ import javax.crypto.NoSuchPaddingException;
 public class StandardOracle extends ATestOracle {
 
     private final RSAPrivateKey privateKey;
-    private Cipher cipher;
+    protected Cipher cipher;
     
     public StandardOracle(final PrivateKey privKey, final PublicKey pubKey, 
             ATestOracle.OracleType oracleType) throws
             NoSuchAlgorithmException,
             NoSuchPaddingException,
             InvalidKeyException {
+        Security.addProvider(new BouncyCastleProvider());
         this.privateKey = (RSAPrivateKey) privKey;
         this.publicKey = (RSAPublicKey) pubKey;
         this.oracleType = oracleType;
@@ -58,6 +57,7 @@ public class StandardOracle extends ATestOracle {
 
         return result;
     }
+
     
     public byte[] decrypt(final byte[] msg) {
         byte[] result = new byte[0];
@@ -65,7 +65,7 @@ public class StandardOracle extends ATestOracle {
             cipher = Cipher.getInstance("RSA/None/NoPadding");
             cipher.init(Cipher.DECRYPT_MODE, this.privateKey);
             result = cipher.doFinal(msg);
-            
+
         } catch (NoSuchAlgorithmException ex) {
             ex.printStackTrace();
         } catch (NoSuchPaddingException ex) {
@@ -92,15 +92,12 @@ public class StandardOracle extends ATestOracle {
 
         // fresh init
         try {
-//            cipher = Cipher.getInstance("RSA/None/PKCS1Padding");
             cipher = Cipher.getInstance("RSA/None/NoPadding");
-            
+
             cipher.init(Cipher.DECRYPT_MODE, this.privateKey);
             byte[] toCheck = cipher.doFinal(msg);
-            
-            if(checkDecryptedBytes(toCheck)) {
-                result = true;
-            }
+
+            result = checkDecryptedBytes(toCheck);
         } catch (NoSuchAlgorithmException ex) {
             ex.printStackTrace();
             result = false;

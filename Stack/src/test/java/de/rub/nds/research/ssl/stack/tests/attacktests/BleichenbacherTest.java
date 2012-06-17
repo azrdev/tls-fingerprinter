@@ -87,22 +87,22 @@ public class BleichenbacherTest implements Observer {
         return new Object[][]{
                     {"OK case", new byte[]{0x00, 0x02}, new byte[]{0x00},
                         protocolVersion, false, SSLTestUtils.POSITIONS.FIRST},
-//                    {"Wrong protocol version in PreMasterSecret", new byte[]{
-//                            0x00, 0x02},
-//                        new byte[]{0x00}, EProtocolVersion.SSL_3_0, false, SSLTestUtils.POSITIONS.FIRST},
-//                    {"Seperate byte not 0x00", new byte[]{0x00, 0x02},
-//                        new byte[]{0x01}, protocolVersion, false, SSLTestUtils.POSITIONS.FIRST},
-//                    {"Mode changed (first two bytes)", new byte[]{0x00, 0x01},
-//                        new byte[]{0x00}, protocolVersion, false, SSLTestUtils.POSITIONS.FIRST},
-//                    {"Zero byte at first position in padding", new byte[]{0x00,
-//                            0x02},
-//                        new byte[]{0x00}, protocolVersion, true, SSLTestUtils.POSITIONS.FIRST},
-//                    {"Zero byte in the middle of the padding string",
-//                        new byte[]{0x00, 0x02}, new byte[]{0x00},
-//                        protocolVersion, true, SSLTestUtils.POSITIONS.MIDDLE},
-//                    {"Zero byte at the end of the padding string", new byte[]{
-//                            0x00, 0x02},
-//                        new byte[]{0x00}, protocolVersion, true, SSLTestUtils.POSITIONS.LAST},
+                    {"Wrong protocol version in PreMasterSecret", new byte[]{
+                            0x00, 0x02},
+                        new byte[]{0x00}, EProtocolVersion.SSL_3_0, false, SSLTestUtils.POSITIONS.FIRST},
+                    {"Seperate byte not 0x00", new byte[]{0x00, 0x02},
+                        new byte[]{0x01}, protocolVersion, false, SSLTestUtils.POSITIONS.FIRST},
+                    {"Mode changed (first two bytes)", new byte[]{0x00, 0x01},
+                        new byte[]{0x00}, protocolVersion, false, SSLTestUtils.POSITIONS.FIRST},
+                    {"Zero byte at first position in padding", new byte[]{0x00,
+                            0x02},
+                        new byte[]{0x00}, protocolVersion, true, SSLTestUtils.POSITIONS.FIRST},
+                    {"Zero byte in the middle of the padding string",
+                        new byte[]{0x00, 0x02}, new byte[]{0x00},
+                        protocolVersion, true, SSLTestUtils.POSITIONS.MIDDLE},
+                    {"Zero byte at the end of the padding string", new byte[]{
+                            0x00, 0x02},
+                        new byte[]{0x00}, protocolVersion, true, SSLTestUtils.POSITIONS.LAST},
                         };
     }
 
@@ -242,6 +242,7 @@ public class BleichenbacherTest implements Observer {
      */
     @BeforeMethod
     public void setUp() {
+            System.setProperty("javax.net.debug", "ssl");
         serverHandler.startTestServer();
     }
 
