@@ -1,10 +1,8 @@
 package de.rub.nds.research.ssl.stack.tests.attacks.bleichenbacher;
 
-import de.rub.nds.research.ssl.stack.tests.attacks.bleichenbacher.oracles.JSSEOracle;
-import de.rub.nds.research.ssl.stack.tests.attacks.bleichenbacher.BleichenbacherAttack;
 import de.rub.nds.research.ssl.stack.tests.attacks.bleichenbacher.oracles.AOracle;
+import de.rub.nds.research.ssl.stack.tests.attacks.bleichenbacher.oracles.JSSEOracle;
 import de.rub.nds.research.ssl.stack.tests.common.SSLServer;
-import java.security.interfaces.RSAPublicKey;
 import javax.net.ssl.SSLException;
 import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
