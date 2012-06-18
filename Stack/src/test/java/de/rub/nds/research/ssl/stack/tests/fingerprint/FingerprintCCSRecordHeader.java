@@ -12,26 +12,25 @@ import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import de.rub.nds.research.ssl.stack.protocols.commons.EProtocolVersion;
-import de.rub.nds.research.ssl.stack.protocols.handshake.ClientKeyExchange;
+import de.rub.nds.research.ssl.stack.protocols.msgs.ChangeCipherSpec;
 import de.rub.nds.research.ssl.stack.tests.analyzer.RecordHeaderParameters;
 import de.rub.nds.research.ssl.stack.tests.analyzer.TestHashAnalyzer;
 import de.rub.nds.research.ssl.stack.tests.analyzer.common.AFingerprintAnalyzer;
-import de.rub.nds.research.ssl.stack.tests.common.MessageBuilder;
-import de.rub.nds.research.ssl.stack.tests.workflows.SSLHandshakeWorkflow;
 import de.rub.nds.research.ssl.stack.tests.common.TestConfiguration;
-import de.rub.nds.research.ssl.stack.tests.workflows.SSLHandshakeWorkflow.EStates;
 import de.rub.nds.research.ssl.stack.tests.trace.Trace;
 import de.rub.nds.research.ssl.stack.tests.workflows.ObservableBridge;
+import de.rub.nds.research.ssl.stack.tests.workflows.SSLHandshakeWorkflow;
+import de.rub.nds.research.ssl.stack.tests.workflows.SSLHandshakeWorkflow.EStates;
 
 /**
- * Fingerprint the ClientKeyExchange record header. Perform Tests by
+ * Fingerprint the ChangeCipherSpec record header. Perform Tests by
  * manipulating the message type, protocol version and length
  * bytes in the record header.
  * @author Eugen Weiss - eugen.weiss@ruhr-uni-bochum.de
  * @version 0.1
- * Jun 04, 2012
+ * Jun 06, 2012
  */
-public class FingerprintCKERecordHeader implements Observer {
+public class FingerprintCCSRecordHeader implements Observer {
 	
 	/**
      * Handshake workflow to observe.
@@ -72,7 +71,7 @@ public class FingerprintCKERecordHeader implements Observer {
     	PropertyConfigurator.configure("logging.properties");
     }
     
-    @DataProvider(name = "ckeHeader")
+    @DataProvider(name = "ccsHeader")
     public Object[][] createData1() {
         return new Object[][]{
         		 {"Wrong message type", new byte[]{(byte)0xff},
@@ -86,8 +85,8 @@ public class FingerprintCKERecordHeader implements Observer {
         };
     }
     
-    @Test(enabled = true, dataProvider = "ckeHeader", invocationCount = 1)
-    public void manipulateCKERecordHeader(String desc, byte [] msgType,
+    @Test(enabled = true, dataProvider = "ccsHeader", invocationCount = 1)
+    public void manipulateCCSRecordHeader(String desc, byte [] msgType,
     		byte [] protocolVersion, byte [] recordLength) {
     	logger.info("++++Start Test No." + counter + "(" + desc +")++++");
         workflow = new SSLHandshakeWorkflow();
@@ -102,8 +101,8 @@ public class FingerprintCKERecordHeader implements Observer {
         	logger.info("Test Server: " + TestConfiguration.HOST +":" + TestConfiguration.PORT);
         }
         //add the observer
-        workflow.addObserver(this, EStates.CLIENT_KEY_EXCHANGE);
-        logger.info(EStates.CLIENT_KEY_EXCHANGE.name() + " state is observed");
+        workflow.addObserver(this, EStates.CLIENT_CHANGE_CIPHER_SPEC);
+        logger.info(EStates.CLIENT_CHANGE_CIPHER_SPEC.name() + " state is observed");
         
         //set the test parameters
         parameters.setMsgType(msgType);
@@ -131,7 +130,6 @@ public class FingerprintCKERecordHeader implements Observer {
      */
     @Override
     public void update(final Observable o, final Object arg) {
-    	MessageBuilder msgBuilder = new MessageBuilder();
         Trace trace = null;
         EStates states = null;
         ObservableBridge obs;
@@ -140,10 +138,9 @@ public class FingerprintCKERecordHeader implements Observer {
             states = (EStates) obs.getState();
             trace = (Trace) arg;
         }
-        if (states == EStates.CLIENT_KEY_EXCHANGE) {
-        	ClientKeyExchange cke = msgBuilder.createClientKeyExchange(
-        			protocolVersion, workflow);
-        	byte [] payload = cke.encode(true);
+        if (states == EStates.CLIENT_CHANGE_CIPHER_SPEC) {
+        	ChangeCipherSpec ccs = new ChangeCipherSpec(protocolVersion);
+        	byte [] payload = ccs.encode(true);
             //change msgType of the message
             if (parameters.getMsgType() != null) {
             	byte [] msgType = parameters.getMsgType();
@@ -161,7 +158,7 @@ public class FingerprintCKERecordHeader implements Observer {
             }
             //update the trace object
             trace.setCurrentRecordBytes(payload);
-        	trace.setCurrentRecord(cke);
+        	trace.setCurrentRecord(ccs);
         }
     }
     
@@ -172,5 +169,4 @@ public class FingerprintCKERecordHeader implements Observer {
     public void tearDown() {
         workflow.closeSocket();
     }
-    
 }

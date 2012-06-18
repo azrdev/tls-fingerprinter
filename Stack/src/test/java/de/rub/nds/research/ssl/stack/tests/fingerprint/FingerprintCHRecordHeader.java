@@ -113,6 +113,7 @@ public class FingerprintCHRecordHeader implements Observer {
         parameters.setProtocolVersion(protocolVersion);
         parameters.setRecordLength(recordLength);
         parameters.setTestClassName(this.getClass().getName());
+        parameters.setDescription(desc);
         
         //start the handshake
         workflow.start();

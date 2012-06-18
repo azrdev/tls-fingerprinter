@@ -161,6 +161,7 @@ public class FingerprintClientHello implements Observer {
         parameters.setCipherLen(cipherLength);
         parameters.setCompMethod(compMethod);
         parameters.setTestClassName(this.getClass().getName());
+        parameters.setDescription(desc);
         workflow.start();
         
         AFingerprintAnalyzer analyzer = new TestHashAnalyzer(parameters);
