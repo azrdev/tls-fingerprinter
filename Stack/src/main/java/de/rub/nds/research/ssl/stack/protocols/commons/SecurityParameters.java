@@ -61,7 +61,7 @@ public final class SecurityParameters {
      * Get the connection end - client/server - of the message.
      * @return Connection end
      */
-    public EConnectionEnd getConnectionEnd() {
+    public synchronized EConnectionEnd getConnectionEnd() {
         return entity;
     }
 
@@ -69,7 +69,7 @@ public final class SecurityParameters {
      * Set the connection end - client/server - of the message.
      * @param connEnd Connection end
      */
-    public void setConnectionEnd(final EConnectionEnd connEnd) {
+    public synchronized void setConnectionEnd(final EConnectionEnd connEnd) {
         this.entity = EConnectionEnd.valueOf(connEnd.name());
     }
 
@@ -77,7 +77,7 @@ public final class SecurityParameters {
      * Get the bulk cipher defined in the chosen cipher suite.
      * @return Bulk cipher used for encryption / decryption
      */
-    public EBulkCipherAlgorithm getBulkCipherAlgorithm() {
+    public synchronized EBulkCipherAlgorithm getBulkCipherAlgorithm() {
         return bulkCipher;
     }
 
@@ -85,7 +85,7 @@ public final class SecurityParameters {
      * Set the bulk cipher defined in the chosen cipher suite.
      * @param algorithm Bulk cipher used for encryption/decryption
      */
-    public void setBulkCipherAlgorithm(final EBulkCipherAlgorithm algorithm) {
+    public synchronized void setBulkCipherAlgorithm(final EBulkCipherAlgorithm algorithm) {
         this.bulkCipher = EBulkCipherAlgorithm.valueOf(algorithm.name());
     }
 
@@ -93,7 +93,7 @@ public final class SecurityParameters {
      * Get the cipher type of the block cipher.
      * @return Cipher type - block/stream
      */
-    public ECipherType getCipherType() {
+    public synchronized ECipherType getCipherType() {
         return cipherType;
     }
 
@@ -101,7 +101,7 @@ public final class SecurityParameters {
      * Set the cipher type of the block cipher.
      * @param type Cipher type - block/stream
      */
-    public void setCipherType(final ECipherType type) {
+    public synchronized void setCipherType(final ECipherType type) {
         this.cipherType = ECipherType.valueOf(type.name());
     }
 
@@ -109,7 +109,7 @@ public final class SecurityParameters {
      * Get the key size of the bulk cipher.
      * @return Key size
      */
-    public int getKeySize() {
+    public synchronized int getKeySize() {
         return keySize;
     }
 
@@ -117,7 +117,7 @@ public final class SecurityParameters {
      * Set the key size of the bulk cipher.
      * @param size Key size
      */
-    public void setKeySize(final int size) {
+    public synchronized void setKeySize(final int size) {
         this.keySize = size;
     }
 
@@ -126,7 +126,7 @@ public final class SecurityParameters {
      * computed applying the PseudoRandomFunction.
      * @return Key material length
      */
-    public int getKeyMaterialLength() {
+    public synchronized int getKeyMaterialLength() {
         return keyMatLength;
     }
 
@@ -135,7 +135,7 @@ public final class SecurityParameters {
      * computed applying the PseudoRandomFunction.
      * @param length Key material length
      */
-    public void setKeyMaterialLength(final int length) {
+    public synchronized void setKeyMaterialLength(final int length) {
         this.keyMatLength = length;
     }
 
@@ -143,7 +143,7 @@ public final class SecurityParameters {
      * Signalizes if an "EXPORT" cipher suite is used.
      * @return True if cipher suite is exportable
      */
-    public boolean isExportable() {
+    public synchronized boolean isExportable() {
         return isExportable;
     }
 
@@ -151,7 +151,7 @@ public final class SecurityParameters {
      * Set the exportable flag for a cipher suite.
      * @param export True if cipher suite is exportable
      */
-    public void setExportable(final boolean export) {
+    public synchronized void setExportable(final boolean export) {
         this.isExportable = export;
     }
 
@@ -159,7 +159,7 @@ public final class SecurityParameters {
      * Get MAC algorithm used for MAC computation in the handshake.
      * @return MAC algorithm
      */
-    public EMACAlgorithm getMacAlgorithm() {
+    public synchronized EMACAlgorithm getMacAlgorithm() {
         return macAlg;
     }
 
@@ -167,7 +167,7 @@ public final class SecurityParameters {
      * Set MAC algorithm used for MAC computation in the handshake.
      * @param mac MAC algorithm
      */
-    public void setMacAlgorithm(final EMACAlgorithm mac) {
+    public synchronized void setMacAlgorithm(final EMACAlgorithm mac) {
         this.macAlg = EMACAlgorithm.valueOf(mac.name());
     }
 
@@ -175,7 +175,7 @@ public final class SecurityParameters {
      * Get the compression method of the handshake.
      * @return Compression method
      */
-    public CompressionMethod getCompressionMethod() {
+    public synchronized CompressionMethod getCompressionMethod() {
         return compMethod;
     }
 
@@ -183,7 +183,7 @@ public final class SecurityParameters {
      * Set the compression method of the handshake.
      * @param comp Compression method
      */
-    public void setCompressionMethod(final CompressionMethod comp) {
+    public synchronized void setCompressionMethod(final CompressionMethod comp) {
         this.compMethod = new CompressionMethod(comp.encode(
                 false));
     }
@@ -192,7 +192,7 @@ public final class SecurityParameters {
      * Get the hash value size.
      * @return Hash size
      */
-    public int getHashSize() {
+    public synchronized int getHashSize() {
         return hashSize;
     }
 
@@ -200,7 +200,7 @@ public final class SecurityParameters {
      * Set the hash value size.
      * @param size Hash size
      */
-    public void setHashSize(final int size) {
+    public synchronized void setHashSize(final int size) {
         this.hashSize = size;
     }
 
@@ -209,7 +209,7 @@ public final class SecurityParameters {
      * pre_master_secret applying the PseudoRandomFunction.
      * @return Master secret
      */
-    public MasterSecret getMasterSecret() {
+    public synchronized MasterSecret getMasterSecret() {
         return masterSecret;
     }
 
@@ -218,7 +218,7 @@ public final class SecurityParameters {
      * pre_master_secret applying the PseudoRandomFunction.
      * @param masterSec Master secret
      */
-    public void setMasterSecret(final MasterSecret masterSec) {
+    public synchronized void setMasterSecret(final MasterSecret masterSec) {
         this.masterSecret = masterSec;
     }
 
@@ -226,7 +226,7 @@ public final class SecurityParameters {
      * Get the client random of the ClientHello message.
      * @return Client random value
      */
-    public byte[] getClientRandom() {
+    public synchronized byte[] getClientRandom() {
         return clientRandom.clone();
     }
 
@@ -234,7 +234,7 @@ public final class SecurityParameters {
      * Set the client random of the ClientHello message.
      * @param clientRand Client random value
      */
-    public void setClientRandom(final byte[] clientRand) {
+    public synchronized void setClientRandom(final byte[] clientRand) {
         this.clientRandom = clientRand.clone();
     }
 
@@ -242,7 +242,7 @@ public final class SecurityParameters {
      * Get the server random of the ServerHello message.
      * @return Server random value
      */
-    public byte[] getServerRandom() {
+    public synchronized byte[] getServerRandom() {
         return serverRandom.clone();
     }
 
@@ -250,7 +250,7 @@ public final class SecurityParameters {
      * Set the server random of the ServerHello message.
      * @param serverRand Client random value
      */
-    public void setServerRandom(final byte[] serverRand) {
+    public synchronized void setServerRandom(final byte[] serverRand) {
         this.serverRandom = serverRand.clone();
     }
 
@@ -258,7 +258,7 @@ public final class SecurityParameters {
      * Get the mode operation used for the block cipher.
      * @return Mode of operation
      */
-    public EModeOfOperation getModeOfOperation() {
+    public synchronized EModeOfOperation getModeOfOperation() {
         return modeOfOp;
     }
 
@@ -266,7 +266,7 @@ public final class SecurityParameters {
      * Set the mode operation used for the block cipher.
      * @param mode Mode of operation
      */
-    public void setModeOfOperation(final EModeOfOperation mode) {
+    public synchronized void setModeOfOperation(final EModeOfOperation mode) {
         this.modeOfOp = EModeOfOperation.valueOf(mode.name());
     }
 }

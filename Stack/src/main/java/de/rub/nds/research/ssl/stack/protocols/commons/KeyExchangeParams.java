@@ -55,7 +55,7 @@ public final class KeyExchangeParams {
      * Set the PublicKey which was extracted from the Certificate.
      * @param publicKey Public key
      */
-    public void setPublicKey(final PublicKey publicKey) {
+    public synchronized void setPublicKey(final PublicKey publicKey) {
         this.pk = publicKey;
     }
 
@@ -63,7 +63,7 @@ public final class KeyExchangeParams {
      * Get the PublicKey which was extracted from the Certificate.
      * @return PublicKey
      */
-    public PublicKey getPublicKey() {
+    public synchronized PublicKey getPublicKey() {
         return this.pk;
     }
 
@@ -71,7 +71,7 @@ public final class KeyExchangeParams {
      * Set the key exchange algorithm defined in the cipher suite.
      * @param alg Key exchange algorithm
      */
-    public void setKeyExchangeAlgorithm(
+    public synchronized void setKeyExchangeAlgorithm(
             final EKeyExchangeAlgorithm alg) {
         this.algorithm = alg;
     }
@@ -80,7 +80,7 @@ public final class KeyExchangeParams {
      * Get the key exchange algorithm defined in the cipher suite.
      * @return Key exchange algorithm
      */
-    public EKeyExchangeAlgorithm getKeyExchangeAlgorithm() {
+    public synchronized EKeyExchangeAlgorithm getKeyExchangeAlgorithm() {
         return this.algorithm;
     }
 
@@ -88,7 +88,7 @@ public final class KeyExchangeParams {
      * Set the signature algorithm defined in the cipher suite.
      * @param sig Signature algorithm
      */
-    public void setSignatureAlgorithm(
+    public synchronized void setSignatureAlgorithm(
             final ESignatureAlgorithm sig) {
         this.sigAlg = sig;
     }
@@ -97,7 +97,7 @@ public final class KeyExchangeParams {
      * Get the signature algorithm defined in the cipher suite.
      * @return Signature algorithm
      */
-    public ESignatureAlgorithm getSignatureAlgorithm() {
+    public synchronized ESignatureAlgorithm getSignatureAlgorithm() {
         return this.sigAlg;
     }
 
@@ -105,7 +105,7 @@ public final class KeyExchangeParams {
      * Get the Diffie-Hellman generator.
      * @return Diffie-Hellman generator
      */
-    public byte[] getDHGenerator() {
+    public synchronized byte[] getDHGenerator() {
         return this.dhGen.clone();
     }
 
@@ -113,7 +113,7 @@ public final class KeyExchangeParams {
      * Set the Diffie-Hellman generator.
      * @param gen Diffie-Hellman generator
      */
-    public void setDHGenerator(final byte[] gen) {
+    public synchronized void setDHGenerator(final byte[] gen) {
         this.dhGen = gen.clone();
     }
 
@@ -121,7 +121,7 @@ public final class KeyExchangeParams {
      * Get the Diffie-Hellman prime modulus.
      * @return Diffie-Hellman prime modulus
      */
-    public byte[] getDHPrime() {
+    public synchronized byte[] getDHPrime() {
         return dhPrime.clone();
     }
 
@@ -129,7 +129,7 @@ public final class KeyExchangeParams {
      * Set the Diffie-Hellman prime modulus.
      * @param mod Diffie-Hellman prime modulus
      */
-    public void setDHPrime(final byte[] mod) {
+    public synchronized void setDHPrime(final byte[] mod) {
         this.dhPrime = mod.clone();
     }
 
@@ -137,7 +137,7 @@ public final class KeyExchangeParams {
      * Get the Diffie-Hellman public value.
      * @return Diffie-Hellman public value
      */
-    public byte[] getDhPublic() {
+    public synchronized byte[] getDhPublic() {
         return dhPublic.clone();
     }
 
@@ -145,7 +145,7 @@ public final class KeyExchangeParams {
      * Set the Diffie-Hellman public value.
      * @param pub Diffie-Hellman public value
      */
-    public void setDhPublic(final byte[] pub) {
+    public synchronized void setDhPublic(final byte[] pub) {
         this.dhPublic = pub.clone();
     }
 }
