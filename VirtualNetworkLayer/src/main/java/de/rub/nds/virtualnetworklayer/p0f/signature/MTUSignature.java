@@ -1,0 +1,16 @@
+package de.rub.nds.virtualnetworklayer.p0f.signature;
+
+import de.rub.nds.virtualnetworklayer.fingerprint.Fingerprint;
+import de.rub.nds.virtualnetworklayer.util.Util;
+
+/**
+ * Property format: mtu
+ *
+ * @see de.rub.nds.virtualnetworklayer.util.IniTokenizer.Property
+ */
+public class MTUSignature extends Fingerprint.Signature {
+
+    public MTUSignature(String value) {
+        addSign("mtu", Util.readBoundedInteger(value, 0, 65535));
+    }
+}
