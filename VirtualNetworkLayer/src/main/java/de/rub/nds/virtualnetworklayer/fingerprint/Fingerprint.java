@@ -39,8 +39,8 @@ public abstract class Fingerprint {
 
             for (Map.Entry<String, Object> entry : other.signs.entrySet()) {
                 Object value = signs.get(entry.getKey());
+                logger.fine(entry.getKey() + " " + entry.getValue() + " " + value);
 
-                //logger.info(entry.getKey() + " " + entry.getValue() + " " + value);
                 if (value == null || !value.equals(entry.getValue())) {
                     if (!(fuzzy && value instanceof Comparable)) {
                         return false;
@@ -55,7 +55,7 @@ public abstract class Fingerprint {
             }
 
             for (Quirk quirk : other.quirks) {
-                //logger.info(quirk + " true "+quirks.contains(quirk));
+                logger.fine(quirk + " true " + quirks.contains(quirk));
 
                 if (!quirks.contains(quirk)) {
                     if (!(fuzzy && (quirk.equals(Quirk.DF) || quirk.equals(Quirk.NZ_ID) ||

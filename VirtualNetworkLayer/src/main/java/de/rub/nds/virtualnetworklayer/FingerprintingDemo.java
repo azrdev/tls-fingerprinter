@@ -8,16 +8,11 @@ import de.rub.nds.virtualnetworklayer.packet.header.transport.TcpHeader;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 public class FingerprintingDemo {
     private static String path = FingerprintingDemo.class.getResource("").getPath();
 
     public static void main(String[] args) {
-        Logger logger = Logger.getLogger("de.rub.nds.virtualnetworklayer");
-        logger.setLevel(Level.OFF);
-
         try {
             ConnectionHandler.registerP0fFile(new File(path, "p0f.fp"));
 
@@ -38,6 +33,8 @@ public class FingerprintingDemo {
             String response = new String(tcpHeader.getPayload());
             System.out.println("Tcp Payload");
             System.out.println(response);
+
+            connection.close();
         } catch (IOException e) {
             e.printStackTrace();
         }

@@ -21,4 +21,6 @@ public interface Connection {
     public Packet write(byte[] data) throws IOException;
 
     public Trace getTrace();
+
+    public void close() throws IOException;
 }

@@ -2,12 +2,25 @@ package de.rub.nds.virtualnetworklayer.util;
 
 import de.rub.nds.virtualnetworklayer.packet.header.transport.TcpHeader;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.InetAddress;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.util.List;
+import java.util.logging.LogManager;
+import java.util.logging.Logger;
 
 public class Util {
+    static {
+        try {
+            InputStream inputStream = Util.class.getResourceAsStream("/de/rub/nds/virtualnetworklayer/logging.properties");
+            LogManager.getLogManager().readConfiguration(inputStream);
+        } catch (final IOException e) {
+            Logger.getAnonymousLogger().severe("Could not load default logging.properties file");
+            Logger.getAnonymousLogger().severe(e.getMessage());
+        }
+    }
 
     public static <T extends Enum<T>> T readEnum(Class<T> clazz, String value) {
         for (T enumeration : clazz.getEnumConstants()) {

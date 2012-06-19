@@ -1,5 +1,6 @@
 package de.rub.nds.virtualnetworklayer.pcap;
 
+import de.rub.nds.virtualnetworklayer.connection.ConnectionHandler;
 import de.rub.nds.virtualnetworklayer.pcap.structs.bpf_program;
 import de.rub.nds.virtualnetworklayer.pcap.structs.pcap_if;
 import de.rub.nds.virtualnetworklayer.pcap.structs.pcap_t;
@@ -22,6 +23,7 @@ public class Pcap {
     private Loop loop;
     private File file;
     private Device device;
+    private int referenceCount = 0;
 
     private static int snaplen = 65535;
     private static int mode = 0;
@@ -104,6 +106,28 @@ public class Pcap {
 
             return null;
         }
+    }
+
+    public static Pcap getInstance(byte[] address) {
+        for (Pcap pcap : Pcap.getInstances()) {
+            if (pcap.getDevice() != null && pcap.getDevice().isBound(address) && pcap.getHandler() instanceof ConnectionHandler) {
+                pcap.referenceCount++;
+
+                return pcap;
+            }
+        }
+
+        for (Device device : Pcap.getDevices()) {
+            if (device.isBound(address)) {
+                Pcap pcap = Pcap.openLive(device);
+                pcap.loop(new ConnectionHandler.Quiet(), true);
+
+                return pcap;
+            }
+        }
+
+
+        throw new IllegalArgumentException();
     }
 
     private Pcap(pcap_t pcap_t) {
@@ -196,6 +220,8 @@ public class Pcap {
             new Thread(loop).start();
         }
 
+        referenceCount++;
+
         return status;
     }
 
@@ -287,8 +313,16 @@ public class Pcap {
     }
 
     @Override
-    protected void finalize() throws Throwable {
-        PcapLibrary.pcap_close(pcap_t);
-        instances.remove(this);
+    public void finalize() {
+        referenceCount--;
+
+        if (referenceCount == 0) {
+            if (loop != null) {
+                breakloop();
+            }
+
+            PcapLibrary.pcap_close(pcap_t);
+            instances.remove(this);
+        }
     }
 }

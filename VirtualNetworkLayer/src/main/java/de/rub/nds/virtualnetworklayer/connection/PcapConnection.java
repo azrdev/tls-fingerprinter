@@ -5,7 +5,6 @@ import de.rub.nds.virtualnetworklayer.p0f.Label;
 import de.rub.nds.virtualnetworklayer.packet.Packet;
 import de.rub.nds.virtualnetworklayer.packet.PcapPacket;
 import de.rub.nds.virtualnetworklayer.packet.header.transport.TcpHeader;
-import de.rub.nds.virtualnetworklayer.pcap.Device;
 import de.rub.nds.virtualnetworklayer.pcap.Pcap;
 import de.rub.nds.virtualnetworklayer.util.Signature;
 import de.rub.nds.virtualnetworklayer.util.Util;
@@ -46,7 +45,7 @@ public class PcapConnection implements Connection {
         Signature session = new TcpHeader.Session(localAddress, remoteAddress,
                 localSocketAddress.getPort(), remoteSocketAddress.getPort());
 
-        Pcap pcap = getPcapInstance(localAddress);
+        Pcap pcap = Pcap.getInstance(localAddress);
         PcapConnection connection = ((ConnectionHandler) pcap.getHandler()).getConnection(session);
         connection.socket = socket;
         connection.pcap = pcap;
@@ -73,25 +72,6 @@ public class PcapConnection implements Connection {
         server.close();
 
         return port;
-    }
-
-    private static Pcap getPcapInstance(byte[] address) {
-        for (Pcap pcap : Pcap.getInstances()) {
-            if (pcap.getDevice() != null && pcap.getDevice().isBound(address) && pcap.getHandler() instanceof ConnectionHandler) {
-                return pcap;
-            }
-        }
-
-        for (Device device : Pcap.getDevices()) {
-            if (device.isBound(address)) {
-                Pcap pcap = Pcap.openLive(device);
-                pcap.loop(new ConnectionHandler.Quiet(), true);
-
-                return pcap;
-            }
-        }
-
-        throw new IllegalArgumentException();
     }
 
     PcapConnection(Signature session) {
@@ -162,6 +142,17 @@ public class PcapConnection implements Connection {
         return trace;
     }
 
+    @Override
+    public void close() throws IOException {
+        if (socket != null && socket.isClosed()) {
+            socket.close();
+        }
+
+        if (pcap != null) {
+            pcap.finalize();
+        }
+    }
+
     public Label getLabel(Packet.Direction direction, int id) {
         return labels[direction.ordinal()][id];
     }
@@ -172,5 +163,10 @@ public class PcapConnection implements Connection {
 
     public Signature getSession() {
         return session;
+    }
+
+    @Override
+    protected void finalize() throws Throwable {
+        close();
     }
 }
