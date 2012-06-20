@@ -2,9 +2,10 @@ package de.rub.nds.virtualnetworklayer.connection;
 
 import de.rub.nds.virtualnetworklayer.packet.Packet;
 
+import java.io.Closeable;
 import java.io.IOException;
 
-public interface Connection {
+public interface Connection extends Closeable {
 
     public static abstract class Trace<T extends Packet> implements Iterable<T> {
 
@@ -22,5 +23,5 @@ public interface Connection {
 
     public Trace getTrace();
 
-    public void close() throws IOException;
+    public void close();
 }

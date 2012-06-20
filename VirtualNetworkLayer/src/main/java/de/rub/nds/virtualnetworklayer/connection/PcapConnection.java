@@ -24,7 +24,7 @@ public class PcapConnection implements Connection {
     private Socket socket;
     private Pcap pcap;
     private static int defaultTimeout = 1000;
-    private int last;
+    private int lastPacketId;
 
     public static PcapConnection create(String host, int port) throws IOException {
         InetSocketAddress remoteSocketAddress = new InetSocketAddress(host, port);
@@ -50,8 +50,14 @@ public class PcapConnection implements Connection {
         connection.socket = socket;
         connection.pcap = pcap;
 
-        socket.setSoTimeout(defaultTimeout);
-        socket.connect(remoteSocketAddress, defaultTimeout);
+        try {
+            socket.setSoTimeout(defaultTimeout);
+            socket.connect(remoteSocketAddress, defaultTimeout);
+        } catch (IOException e) {
+            pcap.finalize();
+
+            throw e;
+        }
 
         synchronized (connection) {
             try {
@@ -90,25 +96,31 @@ public class PcapConnection implements Connection {
 
     @Override
     public int available() throws IOException {
-        return trace.size() - last;
+        return trace.size() - lastPacketId;
     }
 
     public PcapPacket read(int timeout) throws IOException {
         checkSocket();
 
         int next;
+        long start = Util.now();
 
         synchronized (this) {
-            while ((next = trace.getNext(last, Packet.Direction.Response)) == last) {
+            while ((next = trace.getNext(lastPacketId, Packet.Direction.Response)) == lastPacketId) {
                 try {
                     this.wait(timeout);
+
+                    if ((Util.now() - start) >= timeout) {
+                        break;
+                    }
+
                 } catch (InterruptedException e) {
                     break;
                 }
             }
         }
 
-        last = next;
+        lastPacketId = next;
 
         return trace.get(next);
     }
@@ -116,13 +128,13 @@ public class PcapConnection implements Connection {
     public PcapPacket write(byte[] data) throws IOException {
         checkSocket();
 
-        last = trace.getLast(Packet.Direction.Request);
+        lastPacketId = trace.getLast(Packet.Direction.Request);
         socket.getOutputStream().write(data);
 
         int next;
 
         synchronized (this) {
-            while ((next = trace.getNext(last, Packet.Direction.Request)) == last) {
+            while ((next = trace.getNext(lastPacketId, Packet.Direction.Request)) == lastPacketId) {
                 try {
                     this.wait();
                 } catch (InterruptedException e) {
@@ -143,9 +155,13 @@ public class PcapConnection implements Connection {
     }
 
     @Override
-    public void close() throws IOException {
+    public void close() {
         if (socket != null && socket.isClosed()) {
-            socket.close();
+            try {
+                socket.close();
+            } catch (IOException e) {
+                socket = null;
+            }
         }
 
         if (pcap != null) {

@@ -1,6 +1,7 @@
 package de.rub.nds.virtualnetworklayer;
 
 import de.rub.nds.virtualnetworklayer.connection.ConnectionHandler;
+import de.rub.nds.virtualnetworklayer.connection.FragmentSequence;
 import de.rub.nds.virtualnetworklayer.connection.PcapConnection;
 import de.rub.nds.virtualnetworklayer.connection.PcapTrace;
 import de.rub.nds.virtualnetworklayer.fingerprint.MtuFingerprint;
@@ -68,10 +69,10 @@ public class ConnectionHandlerTest {
         packet = iterator.next();
         assertEquals(1337775365978L, packet.getTimeStamp());
 
-        List<PcapTrace.FragmentSequence> fragmentSequences = pcapTrace.getFragmentSequences();
+        List<FragmentSequence> fragmentSequences = pcapTrace.getFragmentSequences();
         assertEquals(1, fragmentSequences.size());
 
-        PcapTrace.FragmentSequence sequence = fragmentSequences.get(0);
+        FragmentSequence sequence = fragmentSequences.get(0);
         assertEquals(2, sequence.getPackets().size());
         assertEquals(1601, sequence.getReassembledPayloadLength());
 

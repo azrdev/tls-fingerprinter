@@ -68,9 +68,13 @@ public class SocketConnection implements Connection {
     }
 
     @Override
-    public void close() throws IOException {
+    public void close() {
         if (socket.isConnected()) {
-            socket.close();
+            try {
+                socket.close();
+            } catch (IOException e) {
+                socket = null;
+            }
         }
     }
 

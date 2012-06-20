@@ -211,6 +211,10 @@ public class Pcap {
         return loop(handler, false);
     }
 
+    public Status loopAsynchronous(PcapHandler handler) {
+        return loop(handler, true);
+    }
+
     public Status loop(final PcapHandler handler, boolean asynchronous) {
         loop = new Loop(handler);
 

@@ -6,7 +6,7 @@ import de.rub.nds.virtualnetworklayer.fingerprint.TcpFingerprint;
 import de.rub.nds.virtualnetworklayer.p0f.Group;
 import de.rub.nds.virtualnetworklayer.p0f.Label;
 import de.rub.nds.virtualnetworklayer.p0f.P0fFile;
-import de.rub.nds.virtualnetworklayer.packet.PacketHandler;
+import de.rub.nds.virtualnetworklayer.packet.header.PacketHandler;
 import de.rub.nds.virtualnetworklayer.packet.PcapPacket;
 import de.rub.nds.virtualnetworklayer.util.Signature;
 

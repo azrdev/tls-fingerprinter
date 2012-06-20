@@ -1,93 +1,12 @@
 package de.rub.nds.virtualnetworklayer.connection;
 
 import de.rub.nds.virtualnetworklayer.packet.Packet;
-import de.rub.nds.virtualnetworklayer.packet.PacketHandler;
 import de.rub.nds.virtualnetworklayer.packet.PcapPacket;
-import de.rub.nds.virtualnetworklayer.packet.header.Header;
 import de.rub.nds.virtualnetworklayer.packet.header.transport.TcpHeader;
 
-import java.nio.ByteBuffer;
 import java.util.*;
 
 public class PcapTrace extends Connection.Trace<PcapPacket> {
-
-    public class FragmentSequence {
-        private LinkedList<PcapPacket> packets = new LinkedList<PcapPacket>();
-        private LinkedList<Integer> lengths = new LinkedList<Integer>();
-        private Header fragmentedHeader;
-        private ByteBuffer payload;
-
-        public FragmentSequence(PcapPacket packet) {
-            fragmentedHeader = packet.getFragmentedHeader();
-            payload = ByteBuffer.allocate(getReassembledPayloadLength());
-            add(packet, fragmentedHeader.getOffset());
-        }
-
-        public byte[] getReassembledPayload() {
-            return Arrays.copyOfRange(payload.array(), 0, getReassembledPayloadLength());
-        }
-
-        void add(PcapPacket packet) {
-            Header tcpHeader = packet.getHeader(TcpHeader.Id);
-            add(packet, tcpHeader.getPayloadOffset());
-        }
-
-        void add(PcapPacket packet, int offset) {
-            int length = Math.min(packet.getLength() - offset, payload.remaining());
-            lengths.add(length);
-
-            payload.put(packet.getContent(), offset, length);
-            packets.add(packet);
-        }
-
-        public PcapPacket getCroppedPacket() {
-            PcapPacket firstPacket = packets.getFirst();
-            Header tcpHeader = firstPacket.getHeader(TcpHeader.Id);
-
-            if (fragmentedHeader.getOffset() != tcpHeader.getPayloadOffset()) {
-                int length = fragmentedHeader.getOffset();
-                ByteBuffer byteBuffer = ByteBuffer.allocate(length);
-                byteBuffer.put(firstPacket.getContent(), 0, length);
-                byteBuffer.flip();
-
-                return new PcapPacket(byteBuffer, firstPacket.getTimeStamp(), PacketHandler.getPacketHeaders(byteBuffer));
-            }
-
-            return null;
-        }
-
-        public PcapPacket getExtendedPacket() {
-            PcapPacket lastPacket = packets.getLast();
-            Header tcpHeader = lastPacket.getHeader(TcpHeader.Id);
-
-            int length = lengths.getLast() + tcpHeader.getPayloadOffset();
-            int remaining = lastPacket.getLength() - length;
-
-            ByteBuffer byteBuffer = ByteBuffer.allocate(tcpHeader.getPayloadOffset() + getReassembledPayloadLength() + remaining);
-            byteBuffer.put(lastPacket.getContent(), 0, tcpHeader.getPayloadOffset());
-            byteBuffer.put(getReassembledPayload());
-
-            if (remaining > 0) {
-                byteBuffer.put(lastPacket.getContent(), length, remaining);
-            }
-
-            byteBuffer.flip();
-
-            return new PcapPacket(byteBuffer, lastPacket.getTimeStamp(), PacketHandler.getPacketHeaders(byteBuffer));
-        }
-
-        public boolean isComplete() {
-            return !payload.hasRemaining();
-        }
-
-        public List<PcapPacket> getPackets() {
-            return packets;
-        }
-
-        public int getReassembledPayloadLength() {
-            return fragmentedHeader.getLength() + fragmentedHeader.getPayloadLength();
-        }
-    }
 
     private PriorityQueue<PcapPacket> sequenceOrder;
     private ArrayList<PcapPacket> arrivalOrder = new ArrayList<PcapPacket>();
@@ -107,19 +26,29 @@ public class PcapTrace extends Connection.Trace<PcapPacket> {
 
         FragmentSequence sequence;
 
-        if (fragmentSequences.containsKey(tcpHeader.getSequenceNumber())
-                && !(sequence = fragmentSequences.get(tcpHeader.getSequenceNumber())).isComplete()) {
-            sequence.add(packet);
+        if (fragmentSequences.containsKey(tcpHeader.getSequenceNumber())) {
+            sequence = fragmentSequences.get(tcpHeader.getSequenceNumber());
 
-            fragmentSequences.put(tcpHeader.getNextSequenceNumber(), sequence);
-            fragmentSequences.remove(tcpHeader.getSequenceNumber());
+            if (!sequence.isComplete()) {
+                sequence.add(packet);
+
+                fragmentSequences.put(tcpHeader.getNextSequenceNumber(), sequence);
+                fragmentSequences.remove(tcpHeader.getSequenceNumber());
+
+                if (sequence.isComplete()) {
+                    if (sequence.getCroppedPacket() != null) {
+                        sequenceOrder.add(sequence.getCroppedPacket());
+                    }
+
+                    sequenceOrder.add(sequence.getExtendedPacket());
+                }
+
+            }
 
         } else if (packet.isFragmented()) {
             sequence = new FragmentSequence(packet);
             fragmentSequences.put(tcpHeader.getNextSequenceNumber(), sequence);
-        }
-
-        if (!sequenceOrder.contains(packet)) {
+        } else if (!sequenceOrder.contains(packet)) {
             sequenceOrder.add(packet);
         }
 
@@ -134,7 +63,7 @@ public class PcapTrace extends Connection.Trace<PcapPacket> {
 
     @Override
     public Iterator<PcapPacket> iterator() {
-        return getArrivalOrder();
+        return getSequenceOrder();
     }
 
     public Iterator<PcapPacket> getSequenceOrder() {

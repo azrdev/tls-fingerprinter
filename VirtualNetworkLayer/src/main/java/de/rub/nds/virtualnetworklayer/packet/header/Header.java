@@ -51,10 +51,6 @@ public abstract class Header implements Cloneable {
         return Arrays.copyOfRange(this.payload.array(), this.offset + offset, this.offset + offset + length);
     }
 
-    public void peer(ByteBuffer payload) {
-        this.payload = payload;
-    }
-
     public int getOffset() {
         return offset;
     }
@@ -79,7 +75,7 @@ public abstract class Header implements Cloneable {
         return getPayloadLength() > payload.limit();
     }
 
-    public Header clone(Header previousHeader, int offset) {
+    Header clone(Header previousHeader, int offset) {
 
         try {
             Header newHeader = (Header) super.clone();
@@ -89,6 +85,10 @@ public abstract class Header implements Cloneable {
         } catch (CloneNotSupportedException e) {
             return null;
         }
+    }
+
+    void peer(ByteBuffer payload) {
+        this.payload = payload;
     }
 
     public abstract int getLength();

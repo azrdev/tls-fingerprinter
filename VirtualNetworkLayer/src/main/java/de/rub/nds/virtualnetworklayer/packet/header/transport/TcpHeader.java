@@ -189,8 +189,8 @@ public class TcpHeader extends Header implements Session {
             TcpHeader tcpHeader = pcapPacket.getHeader(Id);
             TcpHeader tcpHeader1 = pcapPacket1.getHeader(Id);
 
-            return (int) (tcpHeader1.getSequenceNumber() % initalSequenceNumber -
-                    tcpHeader.getSequenceNumber() % initalSequenceNumber);
+            return (int) ((tcpHeader.getSequenceNumber() - initalSequenceNumber) -
+                    (tcpHeader1.getSequenceNumber() - initalSequenceNumber));
         }
     }
 
@@ -283,10 +283,10 @@ public class TcpHeader extends Header implements Session {
         return options;
     }
 
-    public Option getOption(Option wanted) {
-        for (Option option : getOptions()) {
-            if (option.id == wanted.id) {
-                return option;
+    public Option getOption(Option option) {
+        for (Option o : getOptions()) {
+            if (o.id == option.id) {
+                return o;
             }
         }
 
