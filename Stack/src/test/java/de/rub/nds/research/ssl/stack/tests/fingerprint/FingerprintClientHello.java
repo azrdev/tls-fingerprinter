@@ -1,6 +1,5 @@
 package de.rub.nds.research.ssl.stack.tests.fingerprint;
 
-import java.io.IOException;
 import java.util.Observable;
 import java.util.Observer;
 

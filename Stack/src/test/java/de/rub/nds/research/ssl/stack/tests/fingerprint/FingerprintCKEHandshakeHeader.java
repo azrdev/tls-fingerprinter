@@ -11,7 +11,7 @@ import org.testng.annotations.Test;
 
 import de.rub.nds.research.ssl.stack.protocols.commons.EProtocolVersion;
 import de.rub.nds.research.ssl.stack.protocols.handshake.ClientKeyExchange;
-import de.rub.nds.research.ssl.stack.tests.analyzer.RecordHeaderParameters;
+import de.rub.nds.research.ssl.stack.tests.analyzer.HeaderParameters;
 import de.rub.nds.research.ssl.stack.tests.analyzer.TestHashAnalyzer;
 import de.rub.nds.research.ssl.stack.tests.analyzer.common.AFingerprintAnalyzer;
 import de.rub.nds.research.ssl.stack.tests.common.MessageBuilder;
@@ -47,7 +47,7 @@ public class FingerprintCKEHandshakeHeader implements Observer {
     /**
      * Test parameters.
      */
-    private RecordHeaderParameters parameters = new RecordHeaderParameters();
+    private HeaderParameters parameters = new HeaderParameters();
     
     /**
      * Log4j logger initialization.

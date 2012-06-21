@@ -24,10 +24,6 @@ public class ClientHelloParameters extends AParameters {
 	private byte[] cipherLen = null;
 	/**Compression method.*/
 	private byte[] compMethod = null;
-	/**Test class name.*/
-	private String name;
-	/**Description of the test case*/
-	private String desc;
 
 	
 	/**
@@ -160,38 +156,6 @@ public class ClientHelloParameters extends AParameters {
 		else {
 			this.compMethod = null;
 		}
-	}
-	
-	/**
-	 * Get the name of the test class.
-	 * @return Test class name
-	 */
-	public String getTestClassName() {
-		return name;
-	}
-	
-	/**
-	 * Set the name of the test class.
-	 * @param className Test class name
-	 */
-	public void setTestClassName(String name) {
-		this.name = name;
-	}
-	
-	/**
-	 * Get the description of a test case.
-	 * @return Description of the test case
-	 */
-	public String getDescription() {
-		return this.desc;
-	}
-	
-	/**
-	 * Set the description of a test case.
-	 * @param desc Decription of the test case
-	 */
-	public void setDescription(String desc) {
-		this.desc = desc;
 	}
 	
 	/**

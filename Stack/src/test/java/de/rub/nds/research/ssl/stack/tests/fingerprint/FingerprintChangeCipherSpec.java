@@ -1,21 +1,23 @@
 package de.rub.nds.research.ssl.stack.tests.fingerprint;
 
 import java.io.IOException;
-import java.security.PublicKey;
 import java.util.Observable;
 import java.util.Observer;
 
+import org.apache.log4j.Logger;
+import org.apache.log4j.PropertyConfigurator;
 import org.testng.annotations.AfterMethod;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import de.rub.nds.research.ssl.stack.protocols.commons.EProtocolVersion;
-import de.rub.nds.research.ssl.stack.protocols.handshake.ClientKeyExchange;
-import de.rub.nds.research.ssl.stack.protocols.handshake.datatypes.EncryptedPreMasterSecret;
-import de.rub.nds.research.ssl.stack.protocols.handshake.datatypes.PreMasterSecret;
 import de.rub.nds.research.ssl.stack.protocols.msgs.ChangeCipherSpec;
 import de.rub.nds.research.ssl.stack.tests.workflows.SSLHandshakeWorkflow;
-import de.rub.nds.research.ssl.stack.tests.common.SSLTestUtils;
+import de.rub.nds.research.ssl.stack.tests.analyzer.ChangeCipherSpecParameters;
+import de.rub.nds.research.ssl.stack.tests.analyzer.TestHashAnalyzer;
+import de.rub.nds.research.ssl.stack.tests.analyzer.common.AFingerprintAnalyzer;
+import de.rub.nds.research.ssl.stack.tests.common.TestConfiguration;
 import de.rub.nds.research.ssl.stack.tests.workflows.SSLHandshakeWorkflow.EStates;
 import de.rub.nds.research.ssl.stack.tests.trace.Trace;
 import de.rub.nds.research.ssl.stack.tests.workflows.ObservableBridge;
@@ -27,51 +29,89 @@ public class FingerprintChangeCipherSpec implements Observer {
      */
     private SSLHandshakeWorkflow workflow;
     /**
-     * Help utilities for testing.
-     */
-    private SSLTestUtils utils = new SSLTestUtils();
-    /**
      * Test host.
      */
     private static final String HOST = "localhost";
     /**
      * Test port.
      */
-    private static final int PORT = 8443;
+    private static final int PORT = 443;
+    /**
+     * Test counter.
+     */
+    private int counter = 1;
+    /**
+     * Default protocol version.
+     */
+    private EProtocolVersion protocolVersion = EProtocolVersion.TLS_1_0;
     /**
      * Test parameters.
      */
-    private EProtocolVersion pVersion;
-    private byte[] payload;
+    private ChangeCipherSpecParameters parameters = new ChangeCipherSpecParameters();
+    
+    /**
+     * Log4j logger initialization.
+     */
+    static Logger logger = Logger.getRootLogger();
+    
+    /**
+     * Load the logging properties.
+     */
+    @BeforeClass
+    public void setUp() {
+    	PropertyConfigurator.configure("logging.properties");
+    }
+    
 
     /**
      * Test parameters for ChangeCipherSpec fingerprinting.
-     *
      * @return List of parameters
      */
     @DataProvider(name = "changeCipherSpec")
     public Object[][] createData1() {
         return new Object[][]{
-                    //				{EProtocolVersion.TLS_1_0, new byte[]{0x01}}, 	//ok case
-                    {EProtocolVersion.TLS_1_0, new byte[]{0x02, 0x01}} //wrong payload
+                    {"Wrong payload", new byte[]{(byte)0xff}},
+                    {"Invalid payload", new byte[]{0x02, 0x01}}
                 };
     }
 
     /**
-     * Start SSL handshake.
-     *
+     * Fingerprint the ChangeCipherSpec message.
      * @throws InterruptedException
      * @throws IOException
      */
     @Test(enabled = true, dataProvider = "changeCipherSpec")
-    public void fingerprintClientHello(EProtocolVersion protocolVersion,
+    public void fingerprintChangeCipherSpec(String desc,
             byte[] payload) {
+    	logger.info("++++Start Test No." + counter + "(" + desc +")++++");
         workflow = new SSLHandshakeWorkflow();
-        workflow.connectToTestServer(HOST, PORT);
+      //connect to test server
+        if (TestConfiguration.HOST.isEmpty() || TestConfiguration.PORT == 0) {
+        	workflow.connectToTestServer(HOST, PORT);
+        	logger.info("Test Server: " + HOST +":" +PORT);
+        }
+        else {
+        	workflow.connectToTestServer(TestConfiguration.HOST,
+        			TestConfiguration.PORT);
+        	logger.info("Test Server: " + TestConfiguration.HOST +":" + TestConfiguration.PORT);
+        }
+        //add the observer
         workflow.addObserver(this, EStates.CLIENT_CHANGE_CIPHER_SPEC);
-        this.pVersion = protocolVersion;
-        this.payload = payload;
+        logger.info(EStates.CLIENT_FINISHED.name() + " state is observed");
+        
+        //set the test parameters
+        parameters.setPayload(payload);
+        parameters.setTestClassName(this.getClass().getName());
+        parameters.setDescription(desc);
+        
         workflow.start();
+        
+        //analyze the handshake trace
+        AFingerprintAnalyzer analyzer = new TestHashAnalyzer(parameters);
+        analyzer.analyze(workflow.getTraceList());
+        
+        this.counter++;
+        logger.info("++++Test finished.++++");
     }
 
     /**
@@ -91,8 +131,20 @@ public class FingerprintChangeCipherSpec implements Observer {
             trace = (Trace) arg;
         }
         if (states == EStates.CLIENT_CHANGE_CIPHER_SPEC) {
-            ChangeCipherSpec ccs = new ChangeCipherSpec(pVersion);
-            ccs.setContent(payload);
+            ChangeCipherSpec ccs = new ChangeCipherSpec(protocolVersion);
+            byte [] payload = ccs.encode(true);
+            byte [] tmp = null;
+            if (parameters.getPayload() != null) {
+            	byte [] testContent = parameters.getPayload();
+            	tmp = new byte[payload.length + testContent.length -1];
+            	//copy header
+            	System.arraycopy(payload, 0, tmp, 0, payload.length-1);
+            	//copy test parameter
+            	System.arraycopy(testContent, 0, tmp, payload.length -1,
+            			testContent.length);
+            }
+            //update the trace object
+            trace.setCurrentRecordBytes(tmp);
             trace.setCurrentRecord(ccs);
         }
 

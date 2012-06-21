@@ -82,7 +82,7 @@ public class FingerprintFinished implements Observer {
     }
     
     @DataProvider(name = "finished")
-    public Object[][] createData1() {
+    public Object[][] createFinishedData() {
         return new Object[][]{
         		 {"Destroy MAC", true, false, false, false},
         		 {"Destroy hash value", false, true, false, false},

@@ -304,7 +304,7 @@ public class BleichenbacherTimingTest implements Observer {
                      * is [<Modulus length> - <Data length> -3])
                      */
                     utils.setPaddingLength((modLength - encodedPMS.length - 3));
-                    utils.setSeperateByte(this.separateByte);
+                    utils.setSeparateByte(this.separateByte);
                     utils.setMode(this.pkcsMode);
                     //generate the PKCS#1 padding string
                     byte[] padding = utils.createPaddingString(utils.

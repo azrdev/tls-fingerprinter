@@ -14,7 +14,7 @@ import de.rub.nds.research.ssl.stack.protocols.commons.EProtocolVersion;
 import de.rub.nds.research.ssl.stack.protocols.handshake.Finished;
 import de.rub.nds.research.ssl.stack.protocols.handshake.datatypes.MasterSecret;
 import de.rub.nds.research.ssl.stack.protocols.msgs.TLSCiphertext;
-import de.rub.nds.research.ssl.stack.tests.analyzer.RecordHeaderParameters;
+import de.rub.nds.research.ssl.stack.tests.analyzer.HeaderParameters;
 import de.rub.nds.research.ssl.stack.tests.analyzer.TestHashAnalyzer;
 import de.rub.nds.research.ssl.stack.tests.analyzer.common.AFingerprintAnalyzer;
 import de.rub.nds.research.ssl.stack.tests.common.MessageBuilder;
@@ -58,7 +58,7 @@ public class FingerprintFinishedRecordHeader implements Observer {
     /**
      * Test parameters.
      */
-    private RecordHeaderParameters parameters = new RecordHeaderParameters();
+    private HeaderParameters parameters = new HeaderParameters();
     
     /**
      * Log4j logger initialization.

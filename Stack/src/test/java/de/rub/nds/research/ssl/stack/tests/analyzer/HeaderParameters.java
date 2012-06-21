@@ -7,59 +7,23 @@ import de.rub.nds.research.ssl.stack.Utility;
 import de.rub.nds.research.ssl.stack.tests.analyzer.common.AParameters;
 
 /**
- * Defines the record header parameters for fingerprinting tests.
+ * Defines the record/handshake header parameters.
  * @author Eugen Weiss - eugen.weiss@ruhr-uni-bochum.de
  * @version 0.1
  * Jun 01, 2012
  */
-public class RecordHeaderParameters extends AParameters {
+public class HeaderParameters extends AParameters {
 
 	
-	/**Record header message type.*/
+	/**Header message type.*/
 	private byte [] msgType;
-	/**Record header protocol version.*/
+	/**Protocol version.*/
 	private byte [] protocolVersion;
-	/**Record header length field.*/
+	/**Header length field.*/
 	private byte [] recordLength;
-	/**Test class name.*/
-	private String name;
-	/**Decription of the test case*/
-	private String desc;
 	
 	/**
-	 * Get the name of the test class.
-	 * @return Test class name
-	 */
-	public String getTestClassName() {
-		return this.name;
-	}
-	
-	/**
-	 * Set the name of the test class.
-	 * @param className Test class name
-	 */
-	public void setTestClassName(String className) {
-		this.name = className;
-	}
-	
-	/**
-	 * Get the description of a test case.
-	 * @return Description of the test case
-	 */
-	public String getDescription() {
-		return this.desc;
-	}
-	
-	/**
-	 * Set the description of a test case.
-	 * @param desc Decription of the test case
-	 */
-	public void setDescription(String desc) {
-		this.desc = desc;
-	}
-	
-	/**
-	 * Get the record header message type.
+	 * Get the header message type.
 	 * @return Message type
 	 */
 	public byte[] getMsgType() {
@@ -72,7 +36,7 @@ public class RecordHeaderParameters extends AParameters {
 	}
 
 	/**
-	 * Set the record header message type.
+	 * Set the header message type.
 	 * @param msgType Message type
 	 */
 	public void setMsgType(byte[] msgType) {
@@ -85,7 +49,7 @@ public class RecordHeaderParameters extends AParameters {
 	}
 
 	/**
-	 * Get the record header protocol version.
+	 * Get the protocol version.
 	 * @return Protocol version
 	 */
 	public byte[] getProtocolVersion() {
@@ -98,7 +62,7 @@ public class RecordHeaderParameters extends AParameters {
 	}
 
 	/**
-	 * Set the record header protocol version.
+	 * Set the protocol version.
 	 * @param protocolVersion Protocol version
 	 */
 	public void setProtocolVersion(byte[] protocolVersion) {
@@ -111,7 +75,7 @@ public class RecordHeaderParameters extends AParameters {
 	}
 
 	/**
-	 * Get the length field value of the record header.
+	 * Get the length field value of a header.
 	 * @return Length of the record
 	 */
 	public byte[] getRecordLength() {
@@ -124,7 +88,7 @@ public class RecordHeaderParameters extends AParameters {
 	}
 
 	/**
-	 * Set the length field value of the record header.
+	 * Set the length field value of the a header.
 	 * @param recordLength Length of the record
 	 */
 	public void setRecordLength(byte[] recordLength) {

@@ -25,7 +25,7 @@ public class SSLTestUtils {
     /**
      * The separate byte between padding and data in a PKCS#1 message.
      */
-    private byte[] seperateByte = new byte[]{0x00};
+    private byte[] separateByte = new byte[]{0x00};
     /**
      * First two bytes of a PKCS#1 message which defines the operation mode.
      */
@@ -105,7 +105,7 @@ public class SSLTestUtils {
         System.arraycopy(padding, 0, tmp, pointer, padding.length);
         pointer += padding.length;
         //add the zero byte
-        System.arraycopy(seperateByte, 0, tmp, pointer, 1);
+        System.arraycopy(separateByte, 0, tmp, pointer, 1);
         pointer += 1;
         //add the data block
         System.arraycopy(data, 0, tmp, pointer, data.length);
@@ -299,10 +299,14 @@ public class SSLTestUtils {
     /**
      * Set the separate byte between padding and data in a PKCS#1 message.
      *
-     *  @param seperateByte The separate byte
+     *  @param separateByte The separate byte
      */
-    public final void setSeperateByte(byte[] seperateByte) {
-        this.seperateByte = seperateByte;
+    public final void setSeparateByte(byte[] separateByte) {
+    	if (separateByte == null) {
+            throw new IllegalArgumentException(
+                    "Separate byte must not be null!");
+        }
+    		this.separateByte = separateByte;
     }
 
     /**
@@ -310,8 +314,8 @@ public class SSLTestUtils {
      *
      * @return The separate byte
      */
-    public final byte[] getSeperateByte() {
-        return seperateByte;
+    public final byte[] getSeparateByte() {
+        return separateByte.clone();
     }
 
     /**
@@ -321,10 +325,22 @@ public class SSLTestUtils {
      * @param mode Operation mode
      */
     public final void setMode(final byte[] mode) {
+    	if (mode == null) {
+            throw new IllegalArgumentException(
+                    "Mode bytes must not be null!");
+        }
         this.mode = mode;
     }
 
+    /**
+     * Set the padding string of a PKCS#1 message.
+     * @param newPadding Padding string
+     */
     public final void setPadding(final byte[] newPadding) {
+    	if (newPadding == null) {
+    		throw new IllegalArgumentException(
+                    "Padding bytes must not be null!");
+    	}
         this.padding = newPadding.clone();
     }
 

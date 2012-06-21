@@ -22,10 +22,6 @@ public class FinishedParameters extends AParameters {
 	private boolean destroyVerify = false;
 	/**Change the length byte of the padding string.*/
 	private boolean changePadLength = false;
-	/**Test class name.*/
-	private String name;
-	/**Description of the test case*/
-	private String desc;
 	
 	
 	/**
@@ -90,38 +86,6 @@ public class FinishedParameters extends AParameters {
 	 */
 	public void setChangePadLength(boolean changePadLength) {
 		this.changePadLength = changePadLength;
-	}
-	
-	/**
-	 * Get the name of the test class.
-	 * @return Test class name
-	 */
-	public String getTestClassName() {
-		return name;
-	}
-	
-	/**
-	 * Set the name of the test class.
-	 * @param className Test class name
-	 */
-	public void setTestClassName(String name) {
-		this.name = name;
-	}
-	
-	/**
-	 * Get the description of a test case.
-	 * @return Description of the test case
-	 */
-	public String getDescription() {
-		return this.desc;
-	}
-	
-	/**
-	 * Set the description of a test case.
-	 * @param desc Decription of the test case
-	 */
-	public void setDescription(String desc) {
-		this.desc = desc;
 	}
 
 	/**
