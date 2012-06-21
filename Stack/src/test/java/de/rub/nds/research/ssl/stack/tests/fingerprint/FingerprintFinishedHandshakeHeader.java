@@ -1,6 +1,5 @@
 package de.rub.nds.research.ssl.stack.tests.fingerprint;
 
-import java.io.IOException;
 import java.util.Observable;
 import java.util.Observer;
 
@@ -14,7 +13,6 @@ import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
-import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import de.rub.nds.research.ssl.stack.protocols.commons.EConnectionEnd;
@@ -76,27 +74,8 @@ public class FingerprintFinishedHandshakeHeader implements Observer {
 		PropertyConfigurator.configure("logging.properties");
 	}
 
-	@DataProvider(name = "finishedHandHeader")
-	public Object[][] createData1() {
-		return new Object[][]{
-				{"Wrong message type", new byte[]{(byte)0xff},
-					null, null},
-				{"Invalid protocol version 0xff,0xff",
-					null, new byte[]{(byte)0xff,(byte)0xff},null},
-				{"Invalid protocol version 0x00,0x00",
-					null, new byte[]{(byte)0x00,(byte)0x00},null},
-				{"Invalid protocol version SSLv3",
-					null, new byte[]{(byte)0x03,(byte)0x00},null},
-				{"Invalid protocol version TLSv1.2",
-					null, new byte[]{(byte)0x03,(byte)0x03},null},
-				{"Invalid length 0x00,0x00,0x00",
-					null, null, new byte[]{(byte)0x00,(byte)0x00,(byte)0x00}},
-				{"Invalid length 0xff,0xff,0xff",
-					null, null, new byte[]{(byte)0xff,(byte)0xff,(byte)0xff}},
-		};
-	}
-
-	@Test(enabled = true, dataProvider = "finishedHandHeader", invocationCount = 1)
+	@Test(enabled = true, dataProviderClass=FingerprintDataProviders.class,
+			dataProvider = "handshakeHeader", invocationCount = 1)
 	public void manipulateFinishedHandshakeHeader(String desc, byte [] msgType,
 			byte [] protocolVersion, byte [] recordLength) {
 		logger.info("++++Start Test No." + counter + "(" + desc +")++++");
