@@ -6,7 +6,7 @@ import de.rub.nds.research.ssl.stack.protocols.commons.EProtocolVersion;
 
 import de.rub.nds.research.ssl.stack.tests.analyzer.BleichenbacherParameters;
 import de.rub.nds.research.ssl.stack.tests.analyzer.ClientHelloParameters;
-import de.rub.nds.research.ssl.stack.tests.analyzer.RecordHeaderParameters;
+import de.rub.nds.research.ssl.stack.tests.analyzer.HeaderParameters;
 import de.rub.nds.research.ssl.stack.tests.common.SSLTestUtils;
 import de.rub.nds.research.ssl.stack.tests.fingerprint.FingerprintCKERecordHeader;
 import de.rub.nds.research.ssl.stack.tests.fingerprint.FingerprintClientHello;
@@ -67,7 +67,7 @@ public class FillBehaviourDB {
 		Connection conn = db.getConnection();
 		java.sql.PreparedStatement prepared = conn.prepareStatement("insert into tls_fingerprint_hash"
 				+ " values (default,?,?,?,?,?,?,?)");
-		RecordHeaderParameters parameters = new RecordHeaderParameters();
+		HeaderParameters parameters = new HeaderParameters();
 		parameters.setTestClassName(FingerprintCKERecordHeader.class.getName());
 		parameters.setMsgType(null);
 		parameters.setProtocolVersion(null);
