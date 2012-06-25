@@ -94,7 +94,7 @@ public class FingerprintClientKeyExchange implements Observer {
      * @throws IOException
      */
     @Test(enabled = true, dataProvider = "clientKeyExchange")
-    public void fingerprintClientHello(String desc, 
+    public void fingerprintClientKeyExchange(String desc, 
     		ECipherSuite[] cipherSuite, byte[] payload) {
     	logger.info("++++Start Test No." + counter + "(" + desc +")++++");
         workflow = new SSLHandshakeWorkflow();

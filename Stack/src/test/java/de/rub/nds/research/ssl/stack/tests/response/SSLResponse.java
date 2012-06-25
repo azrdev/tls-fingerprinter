@@ -64,7 +64,7 @@ public class SSLResponse extends ARecordFrame implements Observer {
             	logger.info("Change Cipher Spec message received");
                 ChangeCipherSpec ccs = new ChangeCipherSpec(response, true);
                 trace.setCurrentRecord(ccs);
-                workflow.switchToNextState(trace);
+                workflow.switchToState(trace, EStates.SERVER_CHANGE_CIPHER_SPEC);
                 trace.setState(EStates.getStateById(workflow.getCurrentState()));
                 workflow.addToList(trace);
                 break;
