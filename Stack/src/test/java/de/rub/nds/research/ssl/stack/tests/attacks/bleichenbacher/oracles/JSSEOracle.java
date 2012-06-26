@@ -11,6 +11,7 @@ import de.rub.nds.research.ssl.stack.tests.workflows.SSLHandshakeWorkflow;
 import de.rub.nds.research.ssl.stack.tests.trace.Trace;
 import de.rub.nds.research.ssl.stack.tests.workflows.ObservableBridge;
 import java.io.IOException;
+import java.net.ConnectException;
 import java.security.GeneralSecurityException;
 import java.security.PublicKey;
 import java.security.cert.Certificate;
@@ -48,13 +49,11 @@ public class JSSEOracle extends AOracle implements Observer {
     private byte[] encPMStoCheck;
     private boolean oracleResult = false;
 
-    public JSSEOracle(final String serverAddress, final int serverPort)
-    {
-        this.publicKey = null;
+    public JSSEOracle(final String serverAddress, final int serverPort) {
         this.host = serverAddress;
         this.port = serverPort;
+        this.publicKey = (RSAPublicKey) getPublicKey();
         this.blockSize = computeBlockSize();
-
         workflow = new SSLHandshakeWorkflow(false);
         workflow.addObserver(this,
                 SSLHandshakeWorkflow.EStates.CLIENT_KEY_EXCHANGE);
@@ -99,13 +98,13 @@ public class JSSEOracle extends AOracle implements Observer {
     public boolean checkPKCSConformity(final byte[] msg) {
         workflow.reset();
         workflow.connectToTestServer(this.host, this.port);
-        
+
         numberOfQueries++;
 
         encPMStoCheck = msg;
         workflow.start();
         workflow.closeSocket();
-        
+
         return oracleResult;
     }
 
@@ -113,7 +112,7 @@ public class JSSEOracle extends AOracle implements Observer {
         byte[] tmp = publicKey.getModulus().toByteArray();
         int result = tmp.length;
         int remainder = tmp.length % 8;
-        
+
         if (remainder > 0 && tmp[0] == 0x0) {
             // extract signing byte if present
             byte[] tmp2 = new byte[tmp.length - 1];
@@ -123,11 +122,11 @@ public class JSSEOracle extends AOracle implements Observer {
             result = tmp.length;
         }
 
-        while(remainder > 0) {
+        while (remainder > 0) {
             result++;
             remainder = result % 8;
         }
-        
+
         return result;
     }
 
@@ -138,13 +137,14 @@ public class JSSEOracle extends AOracle implements Observer {
                 this.publicKey = (RSAPublicKey) fetchServerPublicKey(this.host,
                         this.port);
             } catch (GeneralSecurityException ex) {
-                //throw new SSLException(ex);
                 ex.printStackTrace();
+            } catch (ConnectException e) {
+                e.printStackTrace();
             } catch (IOException ex) {
-                //throw new SSLException(ex);
                 ex.printStackTrace();
             }
         }
+
         return this.publicKey;
     }
 
