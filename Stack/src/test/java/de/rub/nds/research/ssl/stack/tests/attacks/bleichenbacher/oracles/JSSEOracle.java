@@ -52,8 +52,6 @@ public class JSSEOracle extends AOracle implements Observer {
     public JSSEOracle(final String serverAddress, final int serverPort) {
         this.host = serverAddress;
         this.port = serverPort;
-        this.publicKey = (RSAPublicKey) getPublicKey();
-        this.blockSize = computeBlockSize();
         workflow = new SSLHandshakeWorkflow(false);
         workflow.addObserver(this,
                 SSLHandshakeWorkflow.EStates.CLIENT_KEY_EXCHANGE);
@@ -109,7 +107,7 @@ public class JSSEOracle extends AOracle implements Observer {
     }
 
     private int computeBlockSize() {
-        byte[] tmp = publicKey.getModulus().toByteArray();
+        byte[] tmp = ((RSAPublicKey) getPublicKey()).getModulus().toByteArray();
         int result = tmp.length;
         int remainder = tmp.length % 8;
 
@@ -130,6 +128,15 @@ public class JSSEOracle extends AOracle implements Observer {
         return result;
     }
 
+    @Override
+    public int getBlockSize() {
+        if(this.blockSize == 0) {
+            this.blockSize = computeBlockSize();
+        }
+        
+        return this.blockSize;
+    }
+    
     @Override
     public PublicKey getPublicKey() {
         if (this.publicKey == null) {

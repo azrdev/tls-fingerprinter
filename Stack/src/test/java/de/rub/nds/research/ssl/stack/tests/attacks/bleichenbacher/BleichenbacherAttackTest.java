@@ -201,17 +201,12 @@ public class BleichenbacherAttackTest {
     @BeforeClass
     public void setUpClass() {
         PropertyConfigurator.configure("logging.properties");
-        /*
-         * dirrty hack, but the SSL Server has to be started BEFORE the 
-         * oracle is instantiated
-         */
-        setUp();
     }
 
     /**
      * Start the target SSL Server.
      */
-    //@BeforeMethod
+    @BeforeMethod
     public void setUp() {
         try {
 //            System.setProperty("javax.net.debug", "ssl");
