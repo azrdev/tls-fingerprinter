@@ -28,6 +28,11 @@ import javax.net.ssl.*;
  * Conditions: keylength >= 2048bit and 0x00 byte in the padding String
  * (additional to the separation 0x00 byte) of the PKCS construct as part of the
  * ClientKeyExchange message.
+ * 
+ * Successfully tested on 
+ * java version "1.6.0_20"
+ * OpenJDK Runtime Environment (IcedTea6 1.9.13) (6b20-1.9.13-0ubuntu1~10.10.1)
+ * OpenJDK 64-Bit Server VM (build 19.0-b09, mixed mode)
  *
  * @author Christopher Meyer - christopher.meyer@rub.de
  * @version 0.1
