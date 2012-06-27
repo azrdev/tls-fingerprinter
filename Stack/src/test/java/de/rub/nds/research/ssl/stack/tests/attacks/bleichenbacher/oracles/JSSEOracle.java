@@ -99,7 +99,13 @@ public class JSSEOracle extends AOracle implements Observer {
 
     @Override
     public boolean checkPKCSConformity(final byte[] msg) {
-        workflow.reset();
+        // TODO seit Einführung de ResponseFetcher funktioniert reset() leider nicht mehr... wo liegt das Problem? kann es auch nach mehreren Stunden debuggen nicht finden
+//        workflow.reset();
+        workflow = new SSLHandshakeWorkflow(false);
+        workflow.addObserver(this,
+                SSLHandshakeWorkflow.EStates.CLIENT_KEY_EXCHANGE);
+        workflow.addObserver(this, SSLHandshakeWorkflow.EStates.ALERT);
+        
         workflow.connectToTestServer(this.host, this.port);
 
         numberOfQueries++;
@@ -107,7 +113,7 @@ public class JSSEOracle extends AOracle implements Observer {
         encPMStoCheck = msg;
         workflow.start();
         workflow.closeSocket();
-
+        
         return oracleResult;
     }
 
@@ -180,16 +186,16 @@ public class JSSEOracle extends AOracle implements Observer {
     @Override
     public void update(final Observable o, final Object arg) {
         Trace trace = null;
-        SSLHandshakeWorkflow.EStates states = null;
+        SSLHandshakeWorkflow.EStates state = null;
         oracleResult = false;
         ObservableBridge obs;
         if (o != null && o instanceof ObservableBridge) {
             obs = (ObservableBridge) o;
-            states = (SSLHandshakeWorkflow.EStates) obs.getState();
+            state = (SSLHandshakeWorkflow.EStates) obs.getState();
             trace = (Trace) arg;
         }
-        if (states != null) {
-            switch (states) {
+        if (state != null) {
+            switch (state) {
                 case CLIENT_KEY_EXCHANGE:
                     KeyExchangeParams keyParams =
                             KeyExchangeParams.getInstance();

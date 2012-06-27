@@ -17,7 +17,10 @@ import de.rub.nds.research.timingsocket.TimingSocket;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.net.*;
+import java.net.InetSocketAddress;
+import java.net.Socket;
+import java.net.SocketAddress;
+import java.net.SocketException;
 import java.security.DigestException;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
@@ -32,7 +35,7 @@ import org.apache.log4j.Logger;
  */
 public final class SSLHandshakeWorkflow extends AWorkflow {
 
-    private EProtocolVersion protocolVersion = EProtocolVersion.TLS_1_0;
+    private final EProtocolVersion protocolVersion = EProtocolVersion.TLS_1_0;
     private Socket so = null;
     private InputStream in = null;
     private OutputStream out = null;
@@ -43,7 +46,7 @@ public final class SSLHandshakeWorkflow extends AWorkflow {
     private boolean encrypted = false;
     private boolean timingEnabled = false;
     private boolean waitingForTime = false;
-    static Logger logger = Logger.getRootLogger();
+    private final static Logger logger = Logger.getRootLogger();
     private HandshakeHashBuilder hashBuilder = null;
 
     /**
@@ -51,17 +54,6 @@ public final class SSLHandshakeWorkflow extends AWorkflow {
      */
     public enum EStates implements WorkflowState {
 
-//        CLIENT_HELLO,
-//        SERVER_HELLO,
-//        CLIENT_CERTIFICATE,
-//        SERVER_CERTIFICATE,
-//        SERVER_KEY_EXCHANGE,
-//        SERVER_HELLO_DONE,
-//        CLIENT_KEY_EXCHANGE,
-//        CLIENT_CHANGE_CIPHER_SPEC,
-//        CLIENT_FINISHED,
-//        SERVER_CHANGE_CIPHER_SPEC,
-//        SERVER_FINISHED;
         CLIENT_HELLO,
         SERVER_HELLO,
         SERVER_CERTIFICATE,
@@ -122,14 +114,15 @@ public final class SSLHandshakeWorkflow extends AWorkflow {
     @Override
     public void reset() {
         closeSocket();
-        resetState();
-
         traceList.clear();
+     
         pms = null;
         handshakeHashes = null;
         encrypted = false;
         waitingForTime = false;
-
+        hashBuilder = null;
+        
+        super.reset();
         if (timingEnabled) {
             try {
                 so = new TimingSocket();
@@ -552,24 +545,27 @@ public final class SSLHandshakeWorkflow extends AWorkflow {
                 out.close();
             } catch (IOException e) {
                 e.printStackTrace();
+            } finally {
+                out = null;
             }
-            out = null;
         }
         if (in != null) {
             try {
                 in.close();
             } catch (IOException e) {
                 e.printStackTrace();
+            } finally {
+                in = null;
             }
-            in = null;
         }
         if (so != null) {
             try {
                 so.close();
             } catch (IOException e) {
                 e.printStackTrace();
+            } finally {
+                so = null;
             }
-            so = null;
         }
     }
 
