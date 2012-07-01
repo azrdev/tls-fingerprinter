@@ -8,6 +8,7 @@ import de.rub.nds.virtualnetworklayer.util.Util;
 import org.bridj.Pointer;
 
 import java.io.File;
+import java.lang.ref.WeakReference;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
@@ -25,13 +26,14 @@ import java.util.Set;
  * <li>radio frequence monitoring: {@link #openRadioFrequencyMonitor()}, {@link #openRadioFrequencyMonitor(Device)}</li>
  * </ul>
  * The wrapper does reference counting, so a instance might be also looked up by address {@link #getInstance(byte[])}.
- * If a instance was not closed, when the Java virtual machine is shutting down,
- * a {@link Pcap.GarbageCollector} kicks in.
+ * If a instance was not closed or garbage collected, when the Java virtual machine is shutting down,
+ * {@link Pcap.GarbageCollector} kicks in.
  * </p>
  * Then register a callback {@link PcapHandler} with {@link #loopAsynchronous(PcapHandler)} or {@link #loop(PcapHandler)}.
  *
  * @author Marco Faltermeier <faltermeier@me.com>
  * @see Runtime#addShutdownHook(Thread)
+ * @see PcapLibrary
  */
 public class Pcap {
     private static Pointer<Byte> errbuf = Pointer.allocateBytes(256);
@@ -42,11 +44,12 @@ public class Pcap {
     private File file;
     private Device device;
     private int referenceCount = 0;
+    private int referencePosition = 0;
 
     private static int snaplen = 65535;
     private static int mode = 0;
     private static int timeout = 250;
-    private static List<Pcap> instances = new LinkedList<Pcap>();
+    private static List<WeakReference<Pcap>> references = new LinkedList<WeakReference<Pcap>>();
 
     private class Loop implements Runnable {
         private PcapHandler handler;
@@ -70,9 +73,9 @@ public class Pcap {
     private static class GarbageCollector implements Runnable {
         @Override
         public void run() {
-            for (Pcap instance : instances) {
-                instance.referenceCount = 0;
-                instance.close();
+            for (WeakReference<Pcap> reference : references) {
+                Pcap instance = reference.get();
+                instance.finalize();
             }
         }
     }
@@ -187,7 +190,6 @@ public class Pcap {
         if (Status.valueOf(PcapLibrary.pcap_set_rfmon(pcap_t, 1)) != Status.Success) {
             throw new IllegalArgumentException();
         }
-        ;
 
         PcapLibrary.pcap_set_snaplen(pcap_t, snaplen);
         PcapLibrary.pcap_set_promisc(pcap_t, mode);
@@ -276,11 +278,12 @@ public class Pcap {
      * @throws IllegalArgumentException if none device is bound to address
      */
     public static Pcap getInstance(byte[] address) {
-        for (Pcap pcap : instances) {
-            if (pcap.getDevice() != null && pcap.getDevice().isBound(address) && pcap.getHandler() instanceof ConnectionHandler) {
-                pcap.referenceCount++;
+        for (WeakReference<Pcap> reference : references) {
+            Pcap instance = reference.get();
+            if (instance.getDevice() != null && instance.getDevice().isBound(address) && instance.getHandler() instanceof ConnectionHandler) {
+                instance.referenceCount++;
 
-                return pcap;
+                return instance;
             }
         }
 
@@ -298,7 +301,8 @@ public class Pcap {
         this.pcap_t = pcap_t;
         pcap_datalink.set(PcapLibrary.pcap_datalink(pcap_t));
 
-        instances.add(this);
+        referencePosition = references.size();
+        references.add(new WeakReference<Pcap>(this));
     }
 
     private Pcap(pcap_t pcap_t, Device device) {
@@ -517,12 +521,13 @@ public class Pcap {
             }
 
             PcapLibrary.pcap_close(pcap_t);
-            instances.remove(this);
+            references.remove(referencePosition);
         }
     }
 
     @Override
     protected void finalize() {
+        referenceCount = 0;
         close();
     }
 

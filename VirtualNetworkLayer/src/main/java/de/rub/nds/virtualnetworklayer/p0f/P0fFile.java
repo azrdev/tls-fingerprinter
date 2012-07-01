@@ -12,25 +12,27 @@ import java.util.logging.Logger;
 
 /**
  * p0f.fp layout:
- * {@code
+ * <pre>
  * classes              allowed classes in label
- * modules              n modules
- * - mtu
- * group
- * label
- * signature        single signature only
- * - tcp:request
- * group
- * label
- * signature       n signatures
- * ...
- * - tcp:response
- * group
- * label
- * signature       n signatures
- * ...
- * }
  *
+ * modules              n modules
+ *  - mtu
+ *      group
+ *      label
+ *      signature       single signature only
+ *
+ *  - tcp:request
+ *      group
+ *          label
+ *          signature   n signatures
+ *
+ *  - tcp:response
+ *      group
+ *          label
+ *          signature   n signatures
+ * </pre>
+ *
+ * @author Marco Faltermeier <faltermeier@me.com>
  * @see Module
  * @see Group
  * @see Label

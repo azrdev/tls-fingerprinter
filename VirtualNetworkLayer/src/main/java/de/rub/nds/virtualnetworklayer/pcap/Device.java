@@ -22,11 +22,16 @@ import static de.rub.nds.virtualnetworklayer.packet.header.link.family.Family.Ad
  * @see Family
  */
 public class Device {
+    /**
+     * Captures packets from all devices. Only works on linux.
+     */
+    public static Device Any = new Device("any");
+
     private String description = "";
     private List<byte[]> addresses = new ArrayList<byte[]>();
     private String name;
 
-    public Device(pcap_if pcap_if, int net, int mask) {
+    Device(pcap_if pcap_if, int net, int mask) {
         name = pcap_if.name().getCString();
 
         if (pcap_if.description() != Pointer.NULL) {
@@ -50,6 +55,10 @@ public class Device {
 
             address = address.get().next();
         }
+    }
+
+    private Device(String name) {
+        this.name = name;
     }
 
     public String getDescription() {
