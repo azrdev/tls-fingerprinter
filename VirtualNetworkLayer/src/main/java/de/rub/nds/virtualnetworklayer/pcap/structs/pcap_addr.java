@@ -4,6 +4,9 @@ import org.bridj.Pointer;
 import org.bridj.StructObject;
 import org.bridj.ann.Field;
 
+/**
+ * @author Marco Faltermeier <faltermeier@me.com>
+ */
 public class pcap_addr extends StructObject {
     public pcap_addr() {
         super();

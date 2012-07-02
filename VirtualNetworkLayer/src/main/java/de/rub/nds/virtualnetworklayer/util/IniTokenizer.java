@@ -6,7 +6,11 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 
 /**
+ * The Ini file format is an informal standard for configuration files.
+ * Ini files are simple text files with a basic structure composed of {@link Section} and {@link Property}.
+ *
  * @author Marco Faltermeier <faltermeier@me.com>
+ * @see <a href="http://en.wikipedia.org/wiki/INI_file">en.wikipedia.org/wiki/INI_file</a>
  */
 public class IniTokenizer {
 

@@ -10,6 +10,9 @@ import org.bridj.Pointer;
 import org.bridj.ann.Library;
 import org.bridj.ann.Runtime;
 
+/**
+ * @author Marco Faltermeier <faltermeier@me.com>
+ */
 @Library("pcap")
 @Runtime(CRuntime.class)
 public class PcapLibrary {

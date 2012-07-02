@@ -8,9 +8,17 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
+ * Utility class
+ * </p>
+ * Using all static methods enforces the class to have no state.
+ *
  * @author Marco Faltermeier <faltermeier@me.com>
  */
 public class Util {
+
+    private Util() {
+    }
+
     public static <T extends Enum<T>> T readEnum(Class<T> clazz, String value) {
         for (T enumeration : clazz.getEnumConstants()) {
             if (enumeration.toString().equals(value)) {

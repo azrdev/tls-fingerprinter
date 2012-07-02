@@ -73,7 +73,7 @@ public class Pcap {
     private static class GarbageCollector implements Runnable {
         @Override
         public void run() {
-            for (WeakReference<Pcap> reference : references) {
+            for (WeakReference<Pcap> reference : new LinkedList<WeakReference<Pcap>>(references)) {
                 Pcap instance = reference.get();
                 instance.finalize();
             }
@@ -280,7 +280,8 @@ public class Pcap {
     public static Pcap getInstance(byte[] address) {
         for (WeakReference<Pcap> reference : references) {
             Pcap instance = reference.get();
-            if (instance.getDevice() != null && instance.getDevice().isBound(address) && instance.getHandler() instanceof ConnectionHandler) {
+
+            if (instance != null && instance.getDevice() != null && instance.getDevice().isBound(address) && instance.getHandler() instanceof ConnectionHandler) {
                 instance.referenceCount++;
 
                 return instance;

@@ -4,7 +4,13 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 
 /**
+ * String formatter uses {@link sun.reflect.Reflection} for printing all <i>getters</i> of an {@link Object}.
+ * Annotate with {@link Format} for custom formatting.
+ * A Formatter has to subclass {@link StringFormatter} and provide a
+ * static {@code toString()} method, whose signature is the same as the return value type of the annotated <i>getter</i>.
+ *
  * @author Marco Faltermeier <faltermeier@me.com>
+ * @see Format
  */
 public abstract class StringFormatter {
 

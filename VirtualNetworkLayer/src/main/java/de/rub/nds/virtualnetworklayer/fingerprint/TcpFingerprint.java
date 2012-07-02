@@ -15,6 +15,9 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
+/**
+ * @author Marco Faltermeier <faltermeier@me.com>
+ */
 public class TcpFingerprint extends IpFingerprint {
     public static int Id = Fingerprints.Tcp.getId();
 

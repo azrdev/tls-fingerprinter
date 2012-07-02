@@ -1,5 +1,16 @@
 package de.rub.nds.virtualnetworklayer.util.formatter;
 
+/**
+ * Formatter for Ip addresses.
+ * </p>
+ * exemplary output Ip Version 4: {@code 127.0.0.1}
+ * </p>
+ * exemplary output Ip Version 6: {@code fe80::116b:9d3d:4d13:5273}</br>
+ * Ip Version 6 addresses are compressed: replacing an sequence
+ * of empty octets with a colon (:).
+ *
+ * @author Marco Faltermeier <faltermeier@me.com>
+ */
 public class IpFormatter extends StringFormatter {
 
     public static String toString(byte[] data) {

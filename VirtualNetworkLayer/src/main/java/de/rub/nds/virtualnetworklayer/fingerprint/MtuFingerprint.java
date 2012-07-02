@@ -8,9 +8,7 @@ import de.rub.nds.virtualnetworklayer.packet.header.transport.TcpHeader;
 import java.util.Set;
 
 /**
- * This class represents a mtu fingerprint.
- * <p/>
- * Many operating systems derive the maximum segment size specified in TCP options
+ * Many operating systems derive the maximum segment size specified in Tcp options
  * from the mtu of their network interface; that value, in turn, normally depends
  * on the design of the link-layer protocol.
  *
@@ -28,7 +26,7 @@ public class MtuFingerprint extends Fingerprint {
     }
 
     /**
-     * p0f uses minimal tcp length in p0f.fp for normalization.
+     * p0f uses minimal tcp length for normalization in p0f.fp.
      *
      * @param packet
      * @return minimal offset of tcp payload

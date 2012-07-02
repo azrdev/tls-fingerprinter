@@ -28,9 +28,8 @@ public class ReportingDemo {
             @Override
             public void newConnection(Event event, PcapConnection connection) {
                 if (event == Event.Update) {
-                    System.out.println(connection);
 
-                    if (connection.getLabel(Packet.Direction.Request, Fingerprints.Tcp) != null) {
+                    if (connection.getLabel(Packet.Direction.Response, Fingerprints.Tcp) != null) {
                         System.out.println(connection.getLabels(Packet.Direction.Response));
                     }
 
@@ -39,6 +38,8 @@ public class ReportingDemo {
                         if (packet != null) {
                             System.out.println(packet.toFormattedString());
                         }
+                    } else {
+                        System.out.println(connection);
                     }
                 }
 

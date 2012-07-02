@@ -5,6 +5,9 @@ import org.bridj.StructObject;
 import org.bridj.TimeT;
 import org.bridj.ann.Field;
 
+/**
+ * @author Marco Faltermeier <faltermeier@me.com>
+ */
 public class pcap_pkthdr extends StructObject {
     public pcap_pkthdr() {
         super();

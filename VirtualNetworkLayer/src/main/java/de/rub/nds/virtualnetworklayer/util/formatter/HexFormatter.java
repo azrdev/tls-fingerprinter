@@ -1,5 +1,8 @@
 package de.rub.nds.virtualnetworklayer.util.formatter;
 
+/**
+ * @author Marco Faltermeier <faltermeier@me.com>
+ */
 public class HexFormatter extends StringFormatter {
 
     public static String toString(byte[] buffer) {

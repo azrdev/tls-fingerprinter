@@ -1,5 +1,12 @@
 package de.rub.nds.virtualnetworklayer.util.formatter;
 
+/**
+ * Formatter for Mac addresses.
+ * </p>
+ * exemplary output: {@code 00:80:41:ae:fd:7e}
+ *
+ * @author Marco Faltermeier <faltermeier@me.com>
+ */
 public class MacFormatter extends StringFormatter {
 
     public static String toString(byte[] data) {

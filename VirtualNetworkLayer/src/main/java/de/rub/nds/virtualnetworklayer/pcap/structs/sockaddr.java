@@ -5,6 +5,9 @@ import org.bridj.StructObject;
 import org.bridj.ann.Array;
 import org.bridj.ann.Field;
 
+/**
+ * @author Marco Faltermeier <faltermeier@me.com>
+ */
 public class sockaddr extends StructObject {
     public sockaddr() {
         super();
