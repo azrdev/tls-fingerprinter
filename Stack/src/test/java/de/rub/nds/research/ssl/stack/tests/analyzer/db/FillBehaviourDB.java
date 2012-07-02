@@ -66,7 +66,7 @@ public class FillBehaviourDB {
 	public static void insertBehaviour() throws Exception {
 		Connection conn = db.getConnection();
 		java.sql.PreparedStatement prepared = conn.prepareStatement("insert into tls_fingerprint_hash"
-				+ " values (default,?,?,?,?,?,?,?)");
+				+ " values (default,?,?,?,?,?,?)");
 		HeaderParameters parameters = new HeaderParameters();
 		parameters.setTestClassName(FingerprintCKERecordHeader.class.getName());
 		parameters.setMsgType(null);
@@ -77,10 +77,9 @@ public class FillBehaviourDB {
 		prepared.setString(1, fingerprint);
 		prepared.setString(2, "ALERT");
 		prepared.setString(3, "BAD_RECORD_MAC");
-		prepared.setString(4, "CLIENT_FINISHED");
-		prepared.setString(5, "OPENSSL");
-		prepared.setInt(6, 2);
-		prepared.setInt(7, 26);
+		prepared.setString(4, "OPENSSL");
+		prepared.setInt(5, 2);
+		prepared.setInt(6, 26);
 		prepared.executeUpdate();
 	}
 

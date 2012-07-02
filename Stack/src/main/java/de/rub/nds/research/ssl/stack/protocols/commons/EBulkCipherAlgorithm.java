@@ -20,7 +20,7 @@ public enum EBulkCipherAlgorithm {
     /**DES bulk cipher.*/
     DES("DES"),
     /**3DES bulk cipher.*/
-    TRIPLE_DES("3DES"),
+    TripleDES("3DES"),
     /**DES40 bulk cipher.*/
     DES40("DES40"),
     /**AES bulk cipher.*/

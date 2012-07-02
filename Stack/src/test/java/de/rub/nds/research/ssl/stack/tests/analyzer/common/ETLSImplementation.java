@@ -9,5 +9,6 @@ public enum ETLSImplementation {
 	OPENSSL,
 	JSSE_STANDARD,
 	JSSE_BOUNCY,
-	MICROSOFT
+	MICROSOFT,
+	GNUTLS
 }

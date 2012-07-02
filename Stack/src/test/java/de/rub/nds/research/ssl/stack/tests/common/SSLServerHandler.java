@@ -68,8 +68,8 @@ public class SSLServerHandler {
 				sslServerThread.interrupt();
 				sslServerThread = null;
 			}
-
-
+			Thread.interrupted();
+			
 			Thread.currentThread().sleep(5000);
 		} catch (Exception e) {
 			e.printStackTrace();

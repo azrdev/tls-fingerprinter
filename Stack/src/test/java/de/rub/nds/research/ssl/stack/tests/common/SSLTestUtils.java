@@ -161,6 +161,23 @@ public class SSLTestUtils {
 
         return newPadding;
     }
+    
+    /**
+     * Change a byte[] on arbitrary position
+     *
+     * @param array The byte[] array to change
+     * @param position The position within the array
+     * @param to Change byte
+     * @return changed array
+     */
+    public final byte[] changeArbitraryPos(final byte[] array,
+            int position, final byte to) {
+        byte[] newPadding = array.clone();
+        if (position < newPadding.length) {
+        	newPadding[position] = to;
+        }
+        return newPadding;
+    }
 
     /**
      * Padding as described in Chapter 6.2.3.2 of RFC 2246

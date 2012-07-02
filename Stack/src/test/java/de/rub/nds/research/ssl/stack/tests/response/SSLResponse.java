@@ -33,6 +33,10 @@ public class SSLResponse extends ARecordFrame implements Observer {
      * Handshake workflow
      */
     private SSLHandshakeWorkflow workflow;
+    /**
+     * Response bytes;
+     */
+    private byte [] response;
     
     static Logger logger = Logger.getLogger(SSLResponse.class.getName());
 
@@ -45,6 +49,7 @@ public class SSLResponse extends ARecordFrame implements Observer {
             SSLHandshakeWorkflow workflow) {
         super(response);
         this.workflow = workflow;
+        this.response = response;
     }
 
     /**
@@ -117,11 +122,18 @@ public class SSLResponse extends ARecordFrame implements Observer {
         Trace trace = new Trace();
         trace.setNanoTime(this.trace.getNanoTime());
         trace.setTimestamp(this.trace.getTimestamp());
-        AHandshakeRecord handRecord;
+        AHandshakeRecord handRecord = null;
         if (o instanceof MessageObservable) {
             handRecord = (AHandshakeRecord) arg;
             new HandshakeResponse(handRecord, trace, workflow);
             setTrace(trace);
+        }
+        if (handRecord != null) {
+        	int recordSize = handRecord.getPayload().length + AHandshakeRecord.LENGTH_MINIMUM_ENCODED
+        			+ARecordFrame.LENGTH_MINIMUM_ENCODED;
+        	if (recordSize < this.response.length) {
+        		trace.setContinued(true);
+        	}
         }
         trace.setState(EStates.getStateById(workflow.getCurrentState()));
         workflow.addToList(trace);

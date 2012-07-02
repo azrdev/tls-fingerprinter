@@ -36,7 +36,27 @@ public class BleichenbacherParameters extends AParameters {
 	 * Position where padding is changed.
 	 */
 	private SSLTestUtils.POSITIONS position;
+	/**
+	 * Arbitrary position in padding.
+	 */
+	private int anyPosition;
 	
+	/**
+	 * Get the position where padding is changed.
+	 * @return Position
+	 */
+	public int getAnyPosition() {
+		return anyPosition;
+	}
+
+	/**
+	 * Set an arbitrary position where padding is changed.
+	 * @param anyPosition Position
+	 */
+	public void setAnyPosition(int anyPosition) {
+		this.anyPosition = anyPosition;
+	}
+
 	/**
 	 * Get the mode as defined in PKCS#1 standard.
 	 * @return Mode

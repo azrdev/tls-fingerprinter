@@ -78,9 +78,6 @@ public class GenericBlockCipher extends APubliclySerializable implements
      */
     public final void encryptData(final SecretKey key,
             String cipherName, final byte[] iv) {
-        if (cipherName.equals("TRIPLE_DES")) {
-            cipherName = "DESede";
-        }
         Cipher blockCipher = null;
         int blockSize = 0;
         try {

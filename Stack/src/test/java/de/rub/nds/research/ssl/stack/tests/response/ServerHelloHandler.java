@@ -214,9 +214,9 @@ public class ServerHelloHandler implements IHandshakeStates {
     						EModeOfOperation.valueOf(suiteList.get(0)));
     				suiteList.remove(0);
     				break;
-    	case TRIPLE_DES: 
+    	case TripleDES: 
     				param.setBulkCipherAlgorithm(
-    						EBulkCipherAlgorithm.TRIPLE_DES);
+    						EBulkCipherAlgorithm.TripleDES);
     				param.setKeySize(KEY_SIZE_3DES);
     				suiteList.remove(0);
     				suiteList.remove(0);
