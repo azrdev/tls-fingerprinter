@@ -8,6 +8,7 @@ import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
@@ -17,6 +18,7 @@ import de.rub.nds.research.ssl.stack.protocols.handshake.ClientHello;
 import de.rub.nds.research.ssl.stack.protocols.handshake.datatypes.CipherSuites;
 import de.rub.nds.research.ssl.stack.protocols.handshake.datatypes.RandomValue;
 import de.rub.nds.research.ssl.stack.tests.common.MessageBuilder;
+import de.rub.nds.research.ssl.stack.tests.common.SSLServerHandler;
 import de.rub.nds.research.ssl.stack.tests.trace.Trace;
 import de.rub.nds.research.ssl.stack.tests.workflows.ObservableBridge;
 import de.rub.nds.research.ssl.stack.tests.workflows.SSLHandshakeWorkflow;
@@ -41,7 +43,7 @@ public class TestGoodCase implements Observer {
     /**
      * Test port.
      */
-    private static final int PORT = 9443;
+    private static final int PORT = 10443;
     /**
      * Default protocol version.
      */
@@ -55,12 +57,16 @@ public class TestGoodCase implements Observer {
      * Cipher suite.
      */
     private ECipherSuite[] suite;
+    /**
+     * Handler to start/stop a test server.
+     */
+    private SSLServerHandler serverHandler = new SSLServerHandler();
     
     /**
      * Load the logging properties.
      */
     @BeforeClass
-    public void setUp() {
+    public void setUpClass() {
     	PropertyConfigurator.configure("logging.properties");
     }
     
@@ -118,11 +124,21 @@ public class TestGoodCase implements Observer {
     }
     
     /**
+     * Start the target SSL Server.
+     */
+    @BeforeMethod
+    public void setUp() {
+            System.setProperty("javax.net.debug", "ssl");
+        serverHandler.startTestServer();
+    }
+    
+    /**
      * Close the Socket after the test run.
      */
     @AfterMethod
     public void tearDown() {
         workflow.closeSocket();
+        serverHandler.shutdownTestServer();
     }
 
 }

@@ -353,7 +353,7 @@ public final class SSLHandshakeWorkflow extends AWorkflow implements Observer {
      * @param hashBuilder HashBuilder to be utilized
      * @param trace Trace holding the record to hash
      */
-    private void updateHash(final HandshakeHashBuilder hashBuilder,
+    private synchronized void updateHash(final HandshakeHashBuilder hashBuilder,
             final Trace trace) {
         byte[] message = trace.getCurrentRecordBytes();
         updateHash(hashBuilder, message);
@@ -523,7 +523,7 @@ public final class SSLHandshakeWorkflow extends AWorkflow implements Observer {
      *
      * @param trace Trace object to be added
      */
-    public void addToList(final Trace trace) {
+    public synchronized void addToList(final Trace trace) {
         this.traceList.add(trace);
     }
 
