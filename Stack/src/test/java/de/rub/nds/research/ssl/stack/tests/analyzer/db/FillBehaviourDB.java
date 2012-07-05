@@ -4,9 +4,9 @@ import java.sql.Connection;
 
 import de.rub.nds.research.ssl.stack.protocols.commons.EProtocolVersion;
 
-import de.rub.nds.research.ssl.stack.tests.analyzer.BleichenbacherParameters;
-import de.rub.nds.research.ssl.stack.tests.analyzer.ClientHelloParameters;
-import de.rub.nds.research.ssl.stack.tests.analyzer.HeaderParameters;
+import de.rub.nds.research.ssl.stack.tests.analyzer.parameters.BleichenbacherParameters;
+import de.rub.nds.research.ssl.stack.tests.analyzer.parameters.ClientHelloParameters;
+import de.rub.nds.research.ssl.stack.tests.analyzer.parameters.HeaderParameters;
 import de.rub.nds.research.ssl.stack.tests.common.SSLTestUtils;
 import de.rub.nds.research.ssl.stack.tests.fingerprint.FingerprintCKERecordHeader;
 import de.rub.nds.research.ssl.stack.tests.fingerprint.FingerprintClientHello;

@@ -7,16 +7,13 @@ import de.rub.nds.research.ssl.stack.protocols.commons.SecurityParameters;
 import de.rub.nds.research.ssl.stack.protocols.handshake.Finished;
 import de.rub.nds.research.ssl.stack.protocols.msgs.TLSCiphertext;
 import de.rub.nds.research.ssl.stack.protocols.msgs.datatypes.GenericBlockCipher;
-import de.rub.nds.research.ssl.stack.tests.analyzer.common.TraceListAnalyzer;
 import de.rub.nds.research.ssl.stack.tests.common.KeyMaterial;
 import de.rub.nds.research.ssl.stack.tests.workflows.SSLHandshakeWorkflow;
 import de.rub.nds.research.ssl.stack.tests.workflows.SSLHandshakeWorkflow.EStates;
-import de.rub.nds.research.ssl.stack.tests.common.SSLServer;
 import de.rub.nds.research.ssl.stack.tests.common.SSLServerHandler;
 import de.rub.nds.research.ssl.stack.tests.common.SSLTestUtils;
 import de.rub.nds.research.ssl.stack.tests.trace.Trace;
 import de.rub.nds.research.ssl.stack.tests.workflows.ObservableBridge;
-import java.io.IOException;
 import java.security.InvalidKeyException;
 import java.util.Observable;
 import java.util.Observer;
@@ -26,8 +23,8 @@ import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 
+import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
-import org.testng.Reporter;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
@@ -70,6 +67,10 @@ public class VaudenayTest implements Observer {
      * Handler to start/stop a test server.
      */
     private SSLServerHandler serverHandler = new SSLServerHandler();
+    /**
+     * Initialize the log4j logger.
+     */
+    static Logger logger = Logger.getRootLogger();
 
     /**
      * Test parameters for the Vaudenay Tests.
@@ -108,10 +109,8 @@ public class VaudenayTest implements Observer {
         this.changePadding = changePadding;
         workflow.start();
 
-        Reporter.log("Test No." + this.counter + " : " + desc);
-        TraceListAnalyzer analyze = new TraceListAnalyzer();
-        analyze.logOutput(workflow.getTraceList());
-        Reporter.log("------------------------------");
+        logger.info("Test No." + this.counter + " : " + desc);
+        logger.info("------------------------------");
         this.counter++;
     }
 

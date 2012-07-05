@@ -25,9 +25,9 @@ import de.rub.nds.research.ssl.stack.protocols.handshake.datatypes.EncryptedPreM
 import de.rub.nds.research.ssl.stack.protocols.handshake.datatypes.PreMasterSecret;
 import de.rub.nds.research.ssl.stack.protocols.handshake.datatypes.RandomValue;
 import de.rub.nds.research.ssl.stack.tests.workflows.SSLHandshakeWorkflow;
-import de.rub.nds.research.ssl.stack.tests.analyzer.ClientKeyExchangeParameters;
+import de.rub.nds.research.ssl.stack.tests.analyzer.AFingerprintAnalyzer;
 import de.rub.nds.research.ssl.stack.tests.analyzer.TestHashAnalyzer;
-import de.rub.nds.research.ssl.stack.tests.analyzer.common.AFingerprintAnalyzer;
+import de.rub.nds.research.ssl.stack.tests.analyzer.parameters.ClientKeyExchangeParameters;
 import de.rub.nds.research.ssl.stack.tests.common.MessageBuilder;
 import de.rub.nds.research.ssl.stack.tests.common.SSLTestUtils;
 import de.rub.nds.research.ssl.stack.tests.common.TestConfiguration;

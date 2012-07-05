@@ -10,7 +10,7 @@ import de.rub.nds.research.ssl.stack.protocols.handshake.datatypes.EncryptedPreM
 import de.rub.nds.research.ssl.stack.protocols.handshake.datatypes.PreMasterSecret;
 import de.rub.nds.research.ssl.stack.protocols.handshake.datatypes.RandomValue;
 import de.rub.nds.research.ssl.stack.protocols.msgs.datatypes.RsaUtil;
-import de.rub.nds.research.ssl.stack.tests.analyzer.BleichenbacherParameters;
+import de.rub.nds.research.ssl.stack.tests.analyzer.parameters.BleichenbacherParameters;
 import de.rub.nds.research.ssl.stack.tests.common.MessageBuilder;
 import de.rub.nds.research.ssl.stack.tests.workflows.SSLHandshakeWorkflow;
 import de.rub.nds.research.ssl.stack.tests.workflows.SSLHandshakeWorkflow.EStates;
@@ -138,8 +138,6 @@ public class BleichenbacherTest implements Observer {
         parameters.setPosition(position);
         
         workflow.start();
-//        AFingerprintAnalyzer analyzer = new TestHashAnalyzer(parameters);
-//        analyzer.analyze(workflow.getTraceList());
         logger.info("------------------------------");
         this.counter++;
     }

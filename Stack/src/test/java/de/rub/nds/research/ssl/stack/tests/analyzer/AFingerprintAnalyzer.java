@@ -1,4 +1,4 @@
-package de.rub.nds.research.ssl.stack.tests.analyzer.common;
+package de.rub.nds.research.ssl.stack.tests.analyzer;
 
 import java.util.ArrayList;
 

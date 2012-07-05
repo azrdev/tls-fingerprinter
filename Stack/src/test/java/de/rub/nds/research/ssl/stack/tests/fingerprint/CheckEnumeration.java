@@ -7,8 +7,8 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import de.rub.nds.research.ssl.stack.protocols.commons.ECipherSuite;
+import de.rub.nds.research.ssl.stack.tests.analyzer.AFingerprintAnalyzer;
 import de.rub.nds.research.ssl.stack.tests.analyzer.HandshakeEnumCheck;
-import de.rub.nds.research.ssl.stack.tests.analyzer.common.AFingerprintAnalyzer;
 import de.rub.nds.research.ssl.stack.tests.common.TestConfiguration;
 import de.rub.nds.research.ssl.stack.tests.workflows.SSLHandshakeWorkflow;
 

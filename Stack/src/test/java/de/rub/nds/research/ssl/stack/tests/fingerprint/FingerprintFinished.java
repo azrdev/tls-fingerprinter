@@ -25,9 +25,9 @@ import de.rub.nds.research.ssl.stack.protocols.commons.SecurityParameters;
 import de.rub.nds.research.ssl.stack.protocols.handshake.Finished;
 import de.rub.nds.research.ssl.stack.protocols.msgs.TLSCiphertext;
 import de.rub.nds.research.ssl.stack.protocols.msgs.datatypes.GenericBlockCipher;
-import de.rub.nds.research.ssl.stack.tests.analyzer.FinishedParameters;
+import de.rub.nds.research.ssl.stack.tests.analyzer.AFingerprintAnalyzer;
 import de.rub.nds.research.ssl.stack.tests.analyzer.TestHashAnalyzer;
-import de.rub.nds.research.ssl.stack.tests.analyzer.common.AFingerprintAnalyzer;
+import de.rub.nds.research.ssl.stack.tests.analyzer.parameters.FinishedParameters;
 import de.rub.nds.research.ssl.stack.tests.common.KeyMaterial;
 import de.rub.nds.research.ssl.stack.tests.common.SSLTestUtils;
 import de.rub.nds.research.ssl.stack.tests.common.TestConfiguration;
@@ -53,7 +53,7 @@ public class FingerprintFinished implements Observer {
     /**
      * Test port.
      */
-    private static final int PORT = 9443;
+    private static final int PORT = 443;
     /**
      * Test counter.
      */

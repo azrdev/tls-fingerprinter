@@ -1,10 +1,9 @@
-package de.rub.nds.research.ssl.stack.tests.analyzer;
+package de.rub.nds.research.ssl.stack.tests.analyzer.parameters;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
 import de.rub.nds.research.ssl.stack.Utility;
-import de.rub.nds.research.ssl.stack.tests.analyzer.common.AParameters;
 
 /**
  * Defines the client hello parameters for fingerprinting tests.

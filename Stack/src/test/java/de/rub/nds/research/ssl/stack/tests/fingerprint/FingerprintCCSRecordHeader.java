@@ -11,9 +11,9 @@ import org.testng.annotations.Test;
 
 import de.rub.nds.research.ssl.stack.protocols.commons.EProtocolVersion;
 import de.rub.nds.research.ssl.stack.protocols.msgs.ChangeCipherSpec;
-import de.rub.nds.research.ssl.stack.tests.analyzer.HeaderParameters;
+import de.rub.nds.research.ssl.stack.tests.analyzer.AFingerprintAnalyzer;
 import de.rub.nds.research.ssl.stack.tests.analyzer.TestHashAnalyzer;
-import de.rub.nds.research.ssl.stack.tests.analyzer.common.AFingerprintAnalyzer;
+import de.rub.nds.research.ssl.stack.tests.analyzer.parameters.HeaderParameters;
 import de.rub.nds.research.ssl.stack.tests.common.TestConfiguration;
 import de.rub.nds.research.ssl.stack.tests.trace.Trace;
 import de.rub.nds.research.ssl.stack.tests.workflows.ObservableBridge;

@@ -7,7 +7,6 @@ import org.testng.IReporter;
 import org.testng.ISuite;
 import org.testng.xml.XmlSuite;
 
-import de.rub.nds.research.ssl.stack.tests.analyzer.counter.ScoreCounter;
 
 public class AnalyzeResults implements IReporter {
 

@@ -1,6 +1,5 @@
-package de.rub.nds.research.ssl.stack.tests.analyzer.counter;
+package de.rub.nds.research.ssl.stack.tests.analyzer.common;
 
-import de.rub.nds.research.ssl.stack.tests.analyzer.common.ETLSImplementation;
 
 /**
  * Counts the points of the fingerprint analyzers,

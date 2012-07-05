@@ -3,9 +3,8 @@ package de.rub.nds.research.ssl.stack.tests.analyzer;
 import java.util.ArrayList;
 
 import de.rub.nds.research.ssl.stack.protocols.alert.Alert;
-import de.rub.nds.research.ssl.stack.tests.analyzer.common.AFingerprintAnalyzer;
 import de.rub.nds.research.ssl.stack.tests.analyzer.common.ETLSImplementation;
-import de.rub.nds.research.ssl.stack.tests.analyzer.counter.ScoreCounter;
+import de.rub.nds.research.ssl.stack.tests.analyzer.common.ScoreCounter;
 import de.rub.nds.research.ssl.stack.tests.trace.Trace;
 import de.rub.nds.research.ssl.stack.tests.workflows.SSLHandshakeWorkflow.EStates;
 
