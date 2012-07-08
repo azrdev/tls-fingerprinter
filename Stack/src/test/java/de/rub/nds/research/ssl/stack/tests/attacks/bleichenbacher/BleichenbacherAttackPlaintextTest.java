@@ -15,7 +15,9 @@ import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
 import javax.net.ssl.SSLException;
 import org.apache.log4j.Logger;
+import org.apache.log4j.PropertyConfigurator;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
@@ -30,28 +32,6 @@ public class BleichenbacherAttackPlaintextTest {
      * Initialize the log4j logger.
      */
     static Logger logger = Logger.getRootLogger();
-    
-
-    
-    private static byte[] generatePKCS1Message(KeyPair keyPair) throws 
-            BadPaddingException, IllegalBlockSizeException, InvalidKeyException, 
-            NoSuchAlgorithmException, NoSuchPaddingException {
-        
-        SecureRandom sr = new SecureRandom();
-        byte[] plainBytes = new byte[PREMASTER_SECRET_LENGTH];
-        sr.nextBytes(plainBytes);
-        byte[] cipherBytes;
-
-        Cipher cipher = Cipher.getInstance("RSA/None/PKCS1Padding");
-        cipher.init(Cipher.ENCRYPT_MODE, keyPair.getPublic());
-        cipherBytes = cipher.doFinal(plainBytes);
-        
-        cipher = Cipher.getInstance("RSA/None/NoPadding");
-        cipher.init(Cipher.DECRYPT_MODE, keyPair.getPrivate());
-        plainBytes = cipher.doFinal(cipherBytes);
-        
-        return plainBytes;
-    }
     
     @Test(enabled = true)
     public final void testBleichenbacherAttack() 
@@ -76,12 +56,20 @@ public class BleichenbacherAttackPlaintextTest {
         byte[] message = cipher.doFinal(cipherBytes);
         
         AOracle oracle = new StandardPlaintextOracle(keyPair.getPublic(),
-                ATestOracle.OracleType.FFF, cipher.getBlockSize());
+                ATestOracle.OracleType.TTT, cipher.getBlockSize());
 
         BleichenbacherAttack attacker = new BleichenbacherAttack(message,
                 oracle, true);
         attacker.attack();
 
         logger.info("------------------------------");
+    }
+    
+    /**
+     * Initialize logging properties
+     */
+    @BeforeClass
+    public void setUpClass() {
+        PropertyConfigurator.configure("logging.properties");
     }
 }
