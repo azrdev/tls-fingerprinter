@@ -9,14 +9,16 @@ import java.security.interfaces.RSAPublicKey;
 
 /**
  *
- * @author juraj
+ * @author Juraj Somorovsky - juraj.somorovsky@rub.de
  */
 public class StandardPlaintextOracle extends ATestOracle {
     
     public StandardPlaintextOracle(final PublicKey pubKey, 
-            ATestOracle.OracleType oracleType) {
+            ATestOracle.OracleType oracleType, int blockSize) {
         this.publicKey = (RSAPublicKey) pubKey;
         this.oracleType = oracleType;
+        this.isPlaintextOracle = true;
+        this.blockSize = blockSize;
     }
 
     @Override

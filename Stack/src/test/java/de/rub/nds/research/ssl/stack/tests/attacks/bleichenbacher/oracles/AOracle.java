@@ -19,6 +19,11 @@ public abstract class AOracle {
     protected int blockSize;
     /* public key of the oracle */
     protected RSAPublicKey publicKey;
+    /* a boolean value indicating if the oracle is a plaintext oracle (oracle
+     * used for testing purposes) or a real oracle needing to decrypt each 
+     * ciphertext.
+     */
+    protected boolean isPlaintextOracle = false;
     
     /**
      * Gets the blocksize of the encryption algorithm.
@@ -54,5 +59,16 @@ public abstract class AOracle {
      * @return True if PKCS conforming, else false
      */
     public abstract boolean checkPKCSConformity(final byte[] msg);
+    
+   
+    /**
+     * Returns true if the oracle is a plaintext oracle (does not decrypt 
+     * the data received)
+     * 
+     * @return isPlaintextOracle
+     */
+    public boolean isPlaintextOracle() {
+        return isPlaintextOracle;
+    }
 
 }

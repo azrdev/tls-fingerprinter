@@ -68,15 +68,15 @@ public class BleichenbacherAttack {
         boolean solutionFound = false;
 
         System.out.println("Step 1: Blinding");
-        if(this.msgIsPKCS) {
+        if (this.msgIsPKCS) {
             System.out.println("Step skipped --> "
                     + "Message is considered as PKCS compliant.");
             s0 = BigInteger.ONE;
             c0 = new BigInteger(1, encryptedMsg);
             m = new Interval[]{
-            new Interval(BigInteger.valueOf(2).multiply(bigB),
-            (BigInteger.valueOf(3).multiply(bigB)).subtract(BigInteger.ONE))};
-        }else {
+                new Interval(BigInteger.valueOf(2).multiply(bigB),
+                (BigInteger.valueOf(3).multiply(bigB)).subtract(BigInteger.ONE))};
+        } else {
             stepOne();
         }
         i++;
@@ -295,10 +295,10 @@ public class BleichenbacherAttack {
             solution = solution.multiply(m[0].upper).mod(publicKey.getModulus());
 
             //if(solution.compareTo(new BigInteger(1, decryptedMsg)) == 0) {
-                System.out.println("====> Solution found!\n" + Utility.bytesToHex(solution.toByteArray()));
+            System.out.println("====> Solution found!\n" + Utility.bytesToHex(solution.toByteArray()));
             //    System.out.println("original decrypted message: \n" + Utility.bytesToHex(decryptedMsg));
             //}
-            
+
             result = true;
         }
 
@@ -348,15 +348,30 @@ public class BleichenbacherAttack {
         return upperBound;
     }
 
-    protected byte[] prepareMsg(final BigInteger factor,
-            final BigInteger toEncrypt) {
+    /**
+     * 
+     * @param originalMessage original message to be changed
+     * @param si factor
+     * @return 
+     */
+    protected byte[] prepareMsg(final BigInteger originalMessage,
+            final BigInteger si) {
         byte[] msg;
         BigInteger tmp;
-        // encrypt: si^e mod n
-        tmp = toEncrypt.modPow(publicKey.getPublicExponent(),
-                publicKey.getModulus());
+
+        // if we use a real oracle (not a plaintext oracle), the si value has
+        // to be encrypted first.
+        if (!oracle.isPlaintextOracle()) {
+            // encrypt: si^e mod n
+            tmp = si.modPow(publicKey.getPublicExponent(),
+                    publicKey.getModulus());
+        } else {
+            tmp = si;
+        }
+
         // blind: c0*(si^e) mod n
-        tmp = factor.multiply(tmp);
+        // or: m*si mod n (in case of plaintext oracle)
+        tmp = originalMessage.multiply(tmp);
         tmp = tmp.mod(publicKey.getModulus());
         // get bytes
         msg = Utility.correctSize(tmp.toByteArray(), blockSize, true);
