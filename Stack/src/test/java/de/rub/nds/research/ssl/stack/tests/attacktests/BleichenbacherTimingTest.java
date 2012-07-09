@@ -11,12 +11,12 @@ import de.rub.nds.research.ssl.stack.protocols.handshake.datatypes.EncryptedPreM
 import de.rub.nds.research.ssl.stack.protocols.handshake.datatypes.PreMasterSecret;
 import de.rub.nds.research.ssl.stack.protocols.handshake.datatypes.RandomValue;
 import de.rub.nds.research.ssl.stack.tests.common.MessageBuilder;
-import de.rub.nds.research.ssl.stack.tests.workflows.SSLHandshakeWorkflow;
-import de.rub.nds.research.ssl.stack.tests.workflows.SSLHandshakeWorkflow.EStates;
 import de.rub.nds.research.ssl.stack.tests.common.SSLServer;
 import de.rub.nds.research.ssl.stack.tests.common.SSLTestUtils;
 import de.rub.nds.research.ssl.stack.tests.trace.Trace;
 import de.rub.nds.research.ssl.stack.tests.workflows.ObservableBridge;
+import de.rub.nds.research.ssl.stack.tests.workflows.SSLHandshakeWorkflow;
+import de.rub.nds.research.ssl.stack.tests.workflows.SSLHandshakeWorkflow.EStates;
 import static java.lang.Thread.sleep;
 import java.math.BigInteger;
 import java.security.PublicKey;
@@ -25,12 +25,9 @@ import java.util.List;
 import java.util.Observable;
 import java.util.Observer;
 import javax.crypto.BadPaddingException;
-
-import org.testng.Reporter;
-import org.testng.annotations.AfterMethod;
-import org.testng.annotations.BeforeMethod;
-import org.testng.annotations.DataProvider;
-import org.testng.annotations.Test;
+import org.apache.log4j.Logger;
+import org.apache.log4j.PropertyConfigurator;
+import org.testng.annotations.*;
 import sun.security.rsa.RSACore;
 
 /**
@@ -55,9 +52,13 @@ public class BleichenbacherTimingTest implements Observer {
      */
     private SSLTestUtils utils = new SSLTestUtils();
     /**
-     * TLS protocol version.
+     * TLS protocol version of the record frame.
      */
-    private EProtocolVersion protocolVersion = EProtocolVersion.TLS_1_0;
+    private EProtocolVersion protocolVersionRecord = EProtocolVersion.TLS_1_0;
+    /**
+     * TLS protocol version of the premaster secret.
+     */
+    private EProtocolVersion protocolVersionPMS = EProtocolVersion.TLS_1_0;
     /**
      * Protocol short name.
      */
@@ -85,7 +86,7 @@ public class BleichenbacherTimingTest implements Observer {
     /**
      * Position in padding to change.
      */
-    private SSLTestUtils.POSITIONS positionOfPaddignChange;
+    private SSLTestUtils.POSITIONS positionOfPaddingChange;
     /**
      * Test Server Thread.
      */
@@ -109,15 +110,23 @@ public class BleichenbacherTimingTest implements Observer {
     /**
      * Number of repetitions.
      */
-    private static final int NUMBER_OF_REPETIIONS = 1;
+    private static final int NUMBER_OF_REPETIIONS = 100;
     /**
      * Detailed Info print out.
      */
     private static final boolean PRINT_INFO = false;
     /*
-     * Identifier if MAC should be invalidated
+     * Flags if MAC should be invalidated
      */
     private boolean destroyMAC = false;
+    /**
+     * Flags if the TimingSocket for accurate timing should be used
+     */
+    private static final boolean ACCURATE_TIMING = false;
+    /**
+     * Initialize the log4j logger.
+     */
+    static Logger logger = Logger.getRootLogger();
 
     /**
      * Test parameters for the Bleichenbacher Tests.
@@ -128,61 +137,72 @@ public class BleichenbacherTimingTest implements Observer {
     public Object[][] createData1() {
         return new Object[][]{
                     // ok case
-//                    {new byte[]{0x00, 0x02}, new byte[]{0x00}, protocolVersion,
-//                        false, SSLTestUtils.POSITIONS.FIRST, "OK", false},
-//                    // wrong protocol version in PreMasterSecret
-//                    {new byte[]{0x00, 0x02}, new byte[]{0x00},
-//                        EProtocolVersion.SSL_3_0, false, SSLTestUtils.POSITIONS.FIRST,
-//                        "Wrong protocol version in PreMasterSecret", false},
-//                    // seperate byte is not 0x00
-//                    {new byte[]{0x00, 0x02}, new byte[]{0x01}, protocolVersion,
-//                        false, SSLTestUtils.POSITIONS.FIRST, "Seperate byte is not 0x00",
-//                        false},
-//                    // mode changed
-//                    {new byte[]{0x00, 0x01}, new byte[]{0x00}, protocolVersion,
-//                        false, SSLTestUtils.POSITIONS.FIRST, "Mode changed to 0x01", false},
+                    {new byte[]{0x00, 0x02}, new byte[]{0x00}, protocolVersionRecord,
+                        false, SSLTestUtils.POSITIONS.FIRST, "OK", false},
+                    // wrong protocol version in PreMasterSecret
+                    {new byte[]{0x00, 0x02}, new byte[]{0x00},
+                        EProtocolVersion.SSL_3_0, false,
+                        SSLTestUtils.POSITIONS.FIRST,
+                        "Wrong protocol version in PreMasterSecret", false},
+                    // seperate byte is not 0x00
+                    {new byte[]{0x00, 0x02}, new byte[]{0x01}, protocolVersionRecord,
+                        false, SSLTestUtils.POSITIONS.FIRST,
+                        "Seperate byte is not 0x00",
+                        false},
+                    // mode changed
+                    {new byte[]{0x00, 0x01}, new byte[]{0x00}, protocolVersionRecord,
+                        false, SSLTestUtils.POSITIONS.FIRST,
+                        "Mode changed to 0x01", false},
                     // zero byte at the first position of the padding
-//                    {new byte[]{0x00, 0x02}, new byte[]{0x00}, protocolVersion,
-//                        true, SSLTestUtils.POSITIONS.FIRST, "Zero byte at the first "
-//                            + "position of the padding", false},
+                    {new byte[]{0x00, 0x02}, new byte[]{0x00}, protocolVersionRecord,
+                        true, SSLTestUtils.POSITIONS.FIRST,
+                        "Zero byte at the first "
+                        + "position of the padding", false},
                     // zero byte in the middle of the padding string
-                    {new byte[]{0x00, 0x02}, new byte[]{0x00}, protocolVersion,
-                        true, SSLTestUtils.POSITIONS.MIDDLE, "Zero byte in the middle of the "
-                            + "padding string", false},
+                    {new byte[]{0x00, 0x02}, new byte[]{0x00}, protocolVersionRecord,
+                        true, SSLTestUtils.POSITIONS.MIDDLE,
+                        "Zero byte in the middle of the "
+                        + "padding string", false},
                     // zero byte at the end of the padding string
-//                    {new byte[]{0x00, 0x02}, new byte[]{0x00}, protocolVersion,
-//                        true, SSLTestUtils.POSITIONS.LAST, "Zero byte at the end of the "
-//                            + "padding string", false},
-//                    // ok case, MAC tampered
-//                    {new byte[]{0x00, 0x02}, new byte[]{0x00}, protocolVersion,
-//                        false, SSLTestUtils.POSITIONS.FIRST, "MSG ok, MAC tampered", true},
-//                    // wrong protocol version in PreMasterSecret, MAC tampered
-//                    {new byte[]{0x00, 0x02}, new byte[]{0x00},
-//                        EProtocolVersion.SSL_3_0, false, 0, "Wrong protocol "
-//                            + "version in PreMasterSecret, MAC tampered", true},
-//                    // seperate byte is not 0x00
-//                    {new byte[]{0x00, 0x02}, new byte[]{0x01}, protocolVersion,
-//                        false, SSLTestUtils.POSITIONS.FIRST, "Seperate byte is not 0x00, "
-//                            + "MAC tampered", true},
-//                    // mode changed, MAC tampered
-//                    {new byte[]{0x00, 0x01}, new byte[]{0x00}, protocolVersion,
-//                        false, SSLTestUtils.POSITIONS.FIRST, "Mode changed to 0x01, MAC "
-//                            + "tampered", true},
-//                    // zero byte at the first position of the padding, 
-//                    // MAC tampered
-//                    {new byte[]{0x00, 0x02}, new byte[]{0x00}, protocolVersion,
-//                        true, SSLTestUtils.POSITIONS.FIRST, "Zero byte at the first "
-//                            + "position of the padding, MAC tampered", true},
-//                    // zero byte in the middle of the padding string, 
-//                    // MAC tampered
-//                    {new byte[]{0x00, 0x02}, new byte[]{0x00}, protocolVersion,
-//                        true, SSLTestUtils.POSITIONS.MIDDLE, "Zero byte in the middle of the "
-//                            + "padding string, MAC tampered", true},
-//                    // zero byte at the end of the padding string, MAC tampered
-//                    {new byte[]{0x00, 0x02}, new byte[]{0x00}, protocolVersion,
-//                        true, SSLTestUtils.POSITIONS.LAST,
-//                        "Zero byte at the end of the padding string, MAC "
-//                            + "tampered", true}
+                    {new byte[]{0x00, 0x02}, new byte[]{0x00}, protocolVersionRecord,
+                        true, SSLTestUtils.POSITIONS.LAST,
+                        "Zero byte at the end of the "
+                        + "padding string", false},
+                    // ok case, MAC tampered
+                    {new byte[]{0x00, 0x02}, new byte[]{0x00}, protocolVersionRecord,
+                        false, SSLTestUtils.POSITIONS.FIRST,
+                        "MSG ok, MAC tampered", true},
+                    // wrong protocol version in PreMasterSecret, MAC tampered
+                    {new byte[]{0x00, 0x02}, new byte[]{0x00},
+                        EProtocolVersion.SSL_3_0, false, 0, "Wrong protocol "
+                        + "version in PreMasterSecret, MAC tampered", true},
+                    // seperate byte is not 0x00
+                    {new byte[]{0x00, 0x02}, new byte[]{0x01}, protocolVersionRecord,
+                        false, SSLTestUtils.POSITIONS.FIRST,
+                        "Seperate byte is not 0x00, "
+                        + "MAC tampered", true},
+                    // mode changed, MAC tampered
+                    {new byte[]{0x00, 0x01}, new byte[]{0x00}, protocolVersionRecord,
+                        false, SSLTestUtils.POSITIONS.FIRST,
+                        "Mode changed to 0x01, MAC "
+                        + "tampered", true},
+                    // zero byte at the first position of the padding, 
+                    // MAC tampered
+                    {new byte[]{0x00, 0x02}, new byte[]{0x00}, protocolVersionRecord,
+                        true, SSLTestUtils.POSITIONS.FIRST,
+                        "Zero byte at the first "
+                        + "position of the padding, MAC tampered", true},
+                    // zero byte in the middle of the padding string, 
+                    // MAC tampered
+                    {new byte[]{0x00, 0x02}, new byte[]{0x00}, protocolVersionRecord,
+                        true, SSLTestUtils.POSITIONS.MIDDLE,
+                        "Zero byte in the middle of the "
+                        + "padding string, MAC tampered", true},
+                    // zero byte at the end of the padding string, MAC tampered
+                    {new byte[]{0x00, 0x02}, new byte[]{0x00}, protocolVersionRecord,
+                        true, SSLTestUtils.POSITIONS.LAST,
+                        "Zero byte at the end of the padding string, MAC "
+                        + "tampered", true}
                 };
     }
 
@@ -204,21 +224,20 @@ public class BleichenbacherTimingTest implements Observer {
             final String description, boolean tamperMAC) {
         this.pkcsMode = mode.clone();
         this.separateByte = separate.clone();
-        this.protocolVersion = version;
+        this.protocolVersionPMS = version;
         this.chgPadding = changePadding;
-        this.positionOfPaddignChange = position;
+        this.positionOfPaddingChange = position;
         this.destroyMAC = tamperMAC;
         boolean canceled = false;
 
-        Reporter.log("Test description: " + description);
-        Reporter.log("Test repeated:" + NUMBER_OF_REPETIIONS + " times");
-        Reporter.log("Time measurement:"
+        logger.info("Test description: " + description);
+        logger.info("Test repeated:" + NUMBER_OF_REPETIIONS + " times");
+        logger.info("Time measurement:"
                 + "Time between CLIENT_KEY_EXCHANGE and SERVER_CHANGE_CIPHER_SPEC"
                 + " or ALERT");
         try {
-                workflow = new SSLHandshakeWorkflow(false);
             for (int i = 0; i < NUMBER_OF_REPETIIONS; i++) {
-                workflow.reset();
+                workflow = new SSLHandshakeWorkflow(ACCURATE_TIMING);
                 workflow.connectToTestServer(HOST, PORT);
                 workflow.addObserver(this, EStates.CLIENT_HELLO);
                 workflow.addObserver(this, EStates.CLIENT_KEY_EXCHANGE);
@@ -233,13 +252,13 @@ public class BleichenbacherTimingTest implements Observer {
         }
 
         Long averagedTime = doStatistics(delays);
-        Reporter.log("Averaged time (ns):");
+        logger.info("Averaged time (ns):");
         if (canceled) {
-            Reporter.log("computation not possible");
+            logger.info("computation not possible");
         } else {
-            Reporter.log(averagedTime.toString());
+            logger.info(averagedTime.toString());
         }
-        Reporter.log("------------------------------");
+        logger.info("------------------------------");
     }
 
     /**
@@ -278,11 +297,11 @@ public class BleichenbacherTimingTest implements Observer {
                             KeyExchangeParams.getInstance();
                     PublicKey pk = keyParams.getPublicKey();
                     ClientKeyExchange cke = new ClientKeyExchange(
-                            protocolVersion,
+                            protocolVersionRecord,
                             keyParams.getKeyExchangeAlgorithm());
-                    PreMasterSecret pms = new PreMasterSecret(protocolVersion);
+                    PreMasterSecret pms = new PreMasterSecret(protocolVersionPMS);
                     workflow.setPreMasterSecret(pms);
-                    pms.setProtocolVersion(this.protocolVersion);
+                    pms.setProtocolVersion(this.protocolVersionPMS);
                     byte[] encodedPMS = pms.encode(false);
 
                     //encrypt the PreMasterSecret
@@ -311,10 +330,10 @@ public class BleichenbacherTimingTest implements Observer {
                             getPaddingLength());
                     if (this.chgPadding) {
                         padding = utils.changeByteArray(padding,
-                                this.positionOfPaddignChange, (byte)0x00);  
+                                this.positionOfPaddingChange, (byte) 0x00);
                         utils.setPadding(padding);
                     }
-                    
+
                     //put the PKCS#1 pieces together
                     byte[] clear = utils.buildPKCS1Msg(encodedPMS);
 
@@ -364,6 +383,7 @@ public class BleichenbacherTimingTest implements Observer {
                 sslServerThread = null;
             }
 
+            Thread.interrupted();
             sleep(5000);
         } catch (Exception e) {
             e.printStackTrace();
@@ -376,7 +396,7 @@ public class BleichenbacherTimingTest implements Observer {
     @BeforeMethod
     public final void setUp() {
         try {
-            System.setProperty("javax.net.debug", "ssl");
+//            System.setProperty("javax.net.debug", "ssl");
             sslServer = new SSLServer(PATH_TO_JKS, JKS_PASSWORD,
                     protocolShortName, PORT, PRINT_INFO);
             sslServerThread = new Thread(sslServer);
@@ -400,7 +420,12 @@ public class BleichenbacherTimingTest implements Observer {
 
         for (Trace trace : traces) {
             if (trace.getState() != null) {
-                timestamp = trace.getAccurateTime();
+                if (ACCURATE_TIMING) {
+                    timestamp = trace.getAccurateTime();
+                } else {
+                    timestamp = trace.getNanoTime();
+                }
+
                 switch (trace.getState()) {
                     case CLIENT_KEY_EXCHANGE:
                         delay = timestamp;
@@ -433,5 +458,13 @@ public class BleichenbacherTimingTest implements Observer {
         overall /= delayValues.length;
 
         return overall;
+    }
+
+    /**
+     * Initialize logging properties
+     */
+    @BeforeClass
+    public void setUpClass() {
+        PropertyConfigurator.configure("logging.properties");
     }
 }

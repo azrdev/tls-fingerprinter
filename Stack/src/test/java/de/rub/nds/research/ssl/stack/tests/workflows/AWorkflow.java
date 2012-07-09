@@ -41,13 +41,6 @@ public abstract class AWorkflow {
     public abstract void start();
 
     /**
-     * Resets the class
-     */
-    public void reset() {
-        resetState();
-    }
-    
-    /**
      * Add an observer for a specific workflow state.
      *
      * @param observer Observer to be registered

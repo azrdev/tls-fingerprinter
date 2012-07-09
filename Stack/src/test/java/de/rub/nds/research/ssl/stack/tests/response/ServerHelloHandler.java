@@ -79,7 +79,7 @@ public class ServerHelloHandler implements IHandshakeStates {
 	@Override
 	public final void handleResponse(final AHandshakeRecord handRecord) {
 		serverHello = (ServerHello) handRecord;
-		logger.info("Chosen cipher: " + serverHello.getCipherSuite().name());
+		logger.debug("Chosen cipher: " + serverHello.getCipherSuite().name());
 		this.setServerRandom();
 		this.setSecurityParameters(serverHello.getCipherSuite());
 	}

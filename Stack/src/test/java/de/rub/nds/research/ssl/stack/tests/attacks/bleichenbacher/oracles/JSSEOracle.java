@@ -12,6 +12,7 @@ import de.rub.nds.research.ssl.stack.tests.trace.Trace;
 import de.rub.nds.research.ssl.stack.tests.workflows.ObservableBridge;
 import java.io.IOException;
 import java.net.ConnectException;
+import java.net.SocketException;
 import java.security.GeneralSecurityException;
 import java.security.PublicKey;
 import java.security.cert.Certificate;
@@ -22,17 +23,17 @@ import java.util.List;
 import java.util.Observable;
 import java.util.Observer;
 import javax.net.ssl.*;
+import org.apache.log4j.Logger;
 
 /**
  * JSSE Bleichenbacher oracle - Alert:Internal_Error in special cases.
  * Conditions: keylength >= 2048bit and 0x00 byte in the padding String
  * (additional to the separation 0x00 byte) of the PKCS construct as part of the
  * ClientKeyExchange message.
- * 
- * Successfully tested on 
- * java version "1.6.0_20"
- * OpenJDK Runtime Environment (IcedTea6 1.9.13) (6b20-1.9.13-0ubuntu1~10.10.1)
- * OpenJDK 64-Bit Server VM (build 19.0-b09, mixed mode)
+ *
+ * Successfully tested on java version "1.6.0_20" OpenJDK Runtime Environment
+ * (IcedTea6 1.9.13) (6b20-1.9.13-0ubuntu1~10.10.1) OpenJDK 64-Bit Server VM
+ * (build 19.0-b09, mixed mode)
  *
  * @author Christopher Meyer - christopher.meyer@rub.de
  * @version 0.1
@@ -54,13 +55,14 @@ public class JSSEOracle extends AOracle implements Observer {
     private byte[] encPMStoCheck;
     private boolean oracleResult = false;
 
-    public JSSEOracle(final String serverAddress, final int serverPort) {
+    public JSSEOracle(final String serverAddress, final int serverPort)
+            throws SocketException {
         this.host = serverAddress;
         this.port = serverPort;
-        workflow = new SSLHandshakeWorkflow(false);
-        workflow.addObserver(this,
-                SSLHandshakeWorkflow.EStates.CLIENT_KEY_EXCHANGE);
-        workflow.addObserver(this, SSLHandshakeWorkflow.EStates.ALERT);
+//        workflow = new SSLHandshakeWorkflow(false);
+//        workflow.addObserver(this,
+//                SSLHandshakeWorkflow.EStates.CLIENT_KEY_EXCHANGE);
+//        workflow.addObserver(this, SSLHandshakeWorkflow.EStates.ALERT);
     }
 
     public static PublicKey fetchServerPublicKey(String serverHost,
@@ -99,21 +101,24 @@ public class JSSEOracle extends AOracle implements Observer {
 
     @Override
     public boolean checkPKCSConformity(final byte[] msg) {
-        // TODO seit Einführung de ResponseFetcher funktioniert reset() leider nicht mehr... wo liegt das Problem? kann es auch nach mehreren Stunden debuggen nicht finden
-//        workflow.reset();
-        workflow = new SSLHandshakeWorkflow(false);
-        workflow.addObserver(this,
-                SSLHandshakeWorkflow.EStates.CLIENT_KEY_EXCHANGE);
-        workflow.addObserver(this, SSLHandshakeWorkflow.EStates.ALERT);
-        
-        workflow.connectToTestServer(this.host, this.port);
+        try {
+            workflow = new SSLHandshakeWorkflow(false);
+            workflow.addObserver(this,
+                    SSLHandshakeWorkflow.EStates.CLIENT_KEY_EXCHANGE);
+            workflow.addObserver(this, SSLHandshakeWorkflow.EStates.ALERT);
 
-        numberOfQueries++;
+            workflow.connectToTestServer(this.host, this.port);
 
-        encPMStoCheck = msg;
-        workflow.start();
-        workflow.closeSocket();
-        
+            numberOfQueries++;
+
+            encPMStoCheck = msg;
+            workflow.start();
+            workflow.closeSocket();
+        } catch (SocketException e) {
+            Logger logger = Logger.getRootLogger();
+            logger.info("Exception occured: " + e.getMessage());
+        }
+
         return oracleResult;
     }
 
@@ -141,13 +146,13 @@ public class JSSEOracle extends AOracle implements Observer {
 
     @Override
     public int getBlockSize() {
-        if(this.blockSize == 0) {
+        if (this.blockSize == 0) {
             this.blockSize = computeBlockSize();
         }
-        
+
         return this.blockSize;
     }
-    
+
     @Override
     public PublicKey getPublicKey() {
         if (this.publicKey == null) {

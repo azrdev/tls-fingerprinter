@@ -23,6 +23,7 @@ import de.rub.nds.research.ssl.stack.tests.common.TestConfiguration;
 import de.rub.nds.research.ssl.stack.tests.workflows.SSLHandshakeWorkflow.EStates;
 import de.rub.nds.research.ssl.stack.tests.trace.Trace;
 import de.rub.nds.research.ssl.stack.tests.workflows.ObservableBridge;
+import java.net.SocketException;
 
 /**
  * Fingerprint the Client Hello handshake header. Perform Tests by manipulating
@@ -64,10 +65,10 @@ public class FingerprintCHHandshakeHeader implements Observer {
         PropertyConfigurator.configure("logging.properties");
     }
 
-    @Test(enabled = true, dataProviderClass=FingerprintDataProviders.class,
-    		dataProvider = "handshakeHeader", invocationCount = 1)
+    @Test(enabled = true, dataProviderClass = FingerprintDataProviders.class,
+    dataProvider = "handshakeHeader", invocationCount = 1)
     public void manipulateCHHandshakeHeader(String desc, byte[] msgType,
-            byte[] protocolVersion, byte[] recordLength) {
+            byte[] protocolVersion, byte[] recordLength) throws SocketException {
         logger.info("++++Start Test No." + counter + "(" + desc + ")++++");
         logger.info("Following test parameters are used:");
         workflow = new SSLHandshakeWorkflow();

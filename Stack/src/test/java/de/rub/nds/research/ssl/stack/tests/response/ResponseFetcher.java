@@ -32,7 +32,7 @@ public class ResponseFetcher extends Observable implements Runnable {
      * Signalizes if further bytes should be fetched.
      */
     private boolean fetchBytes = true;
-    static Logger logger = Logger.getRootLogger();
+    //static Logger logger = Logger.getRootLogger();
 
 
     /**

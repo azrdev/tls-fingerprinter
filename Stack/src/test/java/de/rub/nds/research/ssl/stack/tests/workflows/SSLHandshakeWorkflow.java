@@ -28,7 +28,6 @@ import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Observable;
 import java.util.Observer;
-
 import org.apache.log4j.Logger;
 
 /**
@@ -40,7 +39,7 @@ import org.apache.log4j.Logger;
  */
 public final class SSLHandshakeWorkflow extends AWorkflow implements Observer {
 
-	/**
+    /**
      * Test Server Thread.
      */
     private Thread respFetchThread;
@@ -81,7 +80,6 @@ public final class SSLHandshakeWorkflow extends AWorkflow implements Observer {
         SERVER_CHANGE_CIPHER_SPEC,
         SERVER_FINISHED,
         ALERT;
-        
 
         @Override
         public int getID() {
@@ -101,10 +99,15 @@ public final class SSLHandshakeWorkflow extends AWorkflow implements Observer {
      * @param enableTiming Enable time measurement capabilities
      */
     public SSLHandshakeWorkflow(WorkflowState[] workflowStates,
-            boolean enableTiming) {
+            boolean enableTiming) throws SocketException {
         super(workflowStates);
         timingEnabled = enableTiming;
-        reset();
+
+        if (timingEnabled) {
+            so = new TimingSocket();
+        } else {
+            so = new Socket();
+        }
     }
 
     /**
@@ -112,38 +115,15 @@ public final class SSLHandshakeWorkflow extends AWorkflow implements Observer {
      *
      * @param enableTiming Enable time measurement capabilities
      */
-    public SSLHandshakeWorkflow(boolean enableTiming) {
+    public SSLHandshakeWorkflow(boolean enableTiming) throws SocketException {
         this(EStates.values(), enableTiming);
     }
 
     /**
      * Initialize the handshake workflow with the state values
      */
-    public SSLHandshakeWorkflow() {
+    public SSLHandshakeWorkflow() throws SocketException {
         this(EStates.values(), false);
-    }
-
-    @Override
-    public void reset() {
-        closeSocket();
-        traceList.clear();
-     
-        pms = null;
-        handshakeHashes = null;
-        encrypted = false;
-        waitingForTime = false;
-        hashBuilder = null;
-        
-        super.reset();
-        if (timingEnabled) {
-            try {
-                so = new TimingSocket();
-            } catch (SocketException e) {
-                e.printStackTrace();
-            }
-        } else {
-            so = new Socket();
-        }
     }
 
     /**
@@ -151,7 +131,7 @@ public final class SSLHandshakeWorkflow extends AWorkflow implements Observer {
      */
     @Override
     public void start() {
-        logger.info(">>> Start TLS handshake");
+        logger.debug(">>> Start TLS handshake");
         ResponseFetcher fetcher = new ResponseFetcher(this.so, this);
         respFetchThread = new Thread(fetcher);
         respFetchThread.start();
@@ -181,47 +161,30 @@ public final class SSLHandshakeWorkflow extends AWorkflow implements Observer {
         try {
             prepareAndSend(trace);
         } catch (IOException e) {
-            logger.info("### Connection reset by peer.");
+            logger.debug("### Connection reset by peer.");
             closeSocket();
             return;
         }
-        logger.info("Client Hello message send");
+        logger.debug("Client Hello message send");
         // hash current record
         updateHash(hashBuilder, trace);
         // add trace to ArrayList
         addToList(new Trace(EStates.CLIENT_HELLO, trace.getCurrentRecord(),
                 trace.getOldRecord(), false));
-        while(getCurrentState() != EStates.SERVER_HELLO_DONE.getID()) {
-//        	respFetchThread.interrupt();
-        	if (respFetchThread.isAlive()) {
-        		try {
-					Thread.sleep(1000);
-				} catch (InterruptedException e) {
-					Thread.interrupted();
-					continue;
-				}
-        		continue;
-        	}
-        	else {
-        		logger.info("###Workflow: Connection reset by peer.");
-        		return;
-        	}
-		}
-        // fetch the response(s)
-//        while (getCurrentState() != EStates.SERVER_HELLO_DONE.getID()) {
-//            if (getCurrentState() == EStates.ALERT.getID()) {
-//                logger.info("### Connection reset due to FATAL_ALERT.");
-//                closeSocket();
-//                return;
-//            }
-//
-//            try {
-//                getResponses(hashBuilder);
-//            } catch (IOException e) {
-//                e.printStackTrace();
-//                return;
-//            }
-//        }
+        while (getCurrentState() != EStates.SERVER_HELLO_DONE.getID()) {
+            if (respFetchThread.isAlive()) {
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                    Thread.interrupted();
+                    continue;
+                }
+                continue;
+            } else {
+                logger.debug("###Workflow: Connection reset by peer.");
+                return;
+            }
+        }
 
         /*
          * create ClientKeyExchange
@@ -233,17 +196,17 @@ public final class SSLHandshakeWorkflow extends AWorkflow implements Observer {
         switchToState(trace, EStates.CLIENT_KEY_EXCHANGE);
         // drop it on the wire!
         try {
-        	if(out != null) {
-        		prepareAndSend(trace);
-        	}
-        	else
-        		return;
+            if (out != null) {
+                prepareAndSend(trace);
+            } else {
+                return;
+            }
         } catch (IOException e) {
-            logger.info("### Connection reset by peer.");
+            logger.debug("### Connection reset by peer.");
             closeSocket();
             return;
         }
-        logger.info("Client Key Exchange message send");
+        logger.debug("Client Key Exchange message send");
         // hash current record
         updateHash(hashBuilder, trace);
         // add trace to ArrayList
@@ -261,17 +224,17 @@ public final class SSLHandshakeWorkflow extends AWorkflow implements Observer {
         switchToState(trace, EStates.CLIENT_CHANGE_CIPHER_SPEC);
         // drop it on the wire!
         try {
-        	if (out != null) {
-        		prepareAndSend(trace);
-        	}
-        	else
-        		return;
+            if (out != null) {
+                prepareAndSend(trace);
+            } else {
+                return;
+            }
         } catch (IOException e) {
-            logger.info("### Connection reset by peer.");
+            logger.debug("### Connection reset by peer.");
             closeSocket();
             return;
         }
-        logger.info("Change Cipher Spec message send");
+        logger.debug("Change Cipher Spec message send");
         // switch to encrypted mode
         encrypted = true;
         // add trace to ArrayList
@@ -299,52 +262,36 @@ public final class SSLHandshakeWorkflow extends AWorkflow implements Observer {
         switchToState(trace, EStates.CLIENT_FINISHED);
         // drop it on the wire!
         try {
-        	if (out != null) {
-        		prepareAndSend(trace);
-        	}
-        	else
-        		return;
+            if (out != null) {
+                prepareAndSend(trace);
+            } else {
+                return;
+            }
         } catch (IOException e) {
-            logger.info("### Connection reset by peer.");
+            logger.debug("### Connection reset by peer.");
             closeSocket();
             return;
         }
-        logger.info("Finished message send");
+        logger.debug("Finished message send");
         // add trace to ArrayList
         addToList(new Trace(EStates.CLIENT_FINISHED, trace.getCurrentRecord(),
                 trace.getOldRecord(), false));
-        while(getCurrentState() != EStates.SERVER_FINISHED.getID()) {
-        	if (respFetchThread.isAlive()) {
-        		try {
-					Thread.sleep(100);
-				} catch (InterruptedException e) {
-					Thread.interrupted();
-					continue;
-				}
-        		continue;
-        	}
-        	else {
-        		logger.info("###Workflow: Connection reset by peer.");
-        		return;
-        	}
-		}
-		fetcher.stopFetching();
-        // fetch the response(s)
-//        while (getCurrentState() != EStates.SERVER_FINISHED.getID()) {
-//            if (getCurrentState() == EStates.ALERT.getID()) {
-//                logger.info("### Connection reset due to FATAL_ALERT.");
-//                closeSocket();
-//                return;
-//            }
-//
-//            try {
-//                getResponses(hashBuilder);
-//            } catch (IOException e) {
-//                e.printStackTrace();
-//                return;
-//            }
-//        }
-        logger.info("<<< TLS Handshake finished");
+        while (getCurrentState() != EStates.SERVER_FINISHED.getID()) {
+            if (respFetchThread.isAlive()) {
+                try {
+                    Thread.sleep(100);
+                } catch (InterruptedException e) {
+                    Thread.interrupted();
+                    continue;
+                }
+                continue;
+            } else {
+                logger.debug("###Workflow: Connection reset by peer.");
+                return;
+            }
+        }
+        fetcher.stopFetching();
+        logger.debug("<<< TLS Handshake finished");
     }
 
     /**
@@ -371,29 +318,32 @@ public final class SSLHandshakeWorkflow extends AWorkflow implements Observer {
                 ARecordFrame.LENGTH_MINIMUM_ENCODED,
                 encodedRecord.length - ARecordFrame.LENGTH_MINIMUM_ENCODED);
     }
-    
+
     /**
      * Get the Thread of the handshake workflow.
+     *
      * @return Workflow thread.
      */
     public void weakUp() {
-    	this.mainThread.interrupt();
+        this.mainThread.interrupt();
     }
-    
+
     /**
      * Set the main Thread.
+     *
      * @param thread Main Thread
      */
     public void setMainThread(Thread thread) {
-    	this.mainThread = thread;
+        this.mainThread = thread;
     }
-    
+
     /**
      * Get the main Thread.
+     *
      * @return Main thread
      */
     public Thread getMainThread() {
-    	return this.mainThread;
+        return this.mainThread;
     }
 
     /**
@@ -500,7 +450,6 @@ public final class SSLHandshakeWorkflow extends AWorkflow implements Observer {
 //            updateHash(hashBuilder, responseBytes);
 //        } while (in.available() != 0);
 //    }
-
     /**
      * Wait for response bytes (max. 500ms).
      *
@@ -517,7 +466,6 @@ public final class SSLHandshakeWorkflow extends AWorkflow implements Observer {
 //            }
 //        }
 //    }
-
     /**
      * Add a new Trace object to the ArrayList.
      *
@@ -587,18 +535,18 @@ public final class SSLHandshakeWorkflow extends AWorkflow implements Observer {
     public boolean isTimingEnabled() {
         return this.timingEnabled;
     }
-    
+
     /**
      * Checks if waiting is enabled.
-     * 
+     *
      * @return True if waiting is enabled
      */
     public boolean isWaitingForTime() {
-    	return this.waitingForTime;
+        return this.waitingForTime;
     }
-    
+
     public void setWaitingForTime(boolean waitingForTime) {
-    	this.waitingForTime = waitingForTime;
+        this.waitingForTime = waitingForTime;
     }
 
     /**
@@ -644,45 +592,45 @@ public final class SSLHandshakeWorkflow extends AWorkflow implements Observer {
     public boolean isEncrypted() {
         return this.encrypted;
     }
-    
+
     public Socket getSocket() {
-    	return this.so;
+        return this.so;
     }
-    
+
     public HandshakeHashBuilder getHashBuilder() {
-    	return this.hashBuilder;
+        return this.hashBuilder;
     }
-    
-	@Override
-	public void update(Observable o, Object arg) {
-		byte[] responseBytes = null;
-		ResponseFetcher fetcher = null;
-		if (o instanceof ResponseFetcher) {
-			fetcher = (ResponseFetcher)o;
-			responseBytes = (byte [])arg;
-		}
-		Trace trace = new Trace();
-		//set the Timestamp and exact time of message arrival
-		trace.setTimestamp(new Timestamp(System.currentTimeMillis()));
-		trace.setNanoTime(System.nanoTime());
 
-		if (timingEnabled && waitingForTime) {
-			waitingForTime = false;
-			trace.setAccurateTime(((TimingSocket) so).getTiming());
-		}
+    @Override
+    public void update(Observable o, Object arg) {
+        byte[] responseBytes = null;
+        ResponseFetcher fetcher = null;
+        if (o instanceof ResponseFetcher) {
+            fetcher = (ResponseFetcher) o;
+            responseBytes = (byte[]) arg;
+        }
+        Trace trace = new Trace();
+        //set the Timestamp and exact time of message arrival
+        trace.setTimestamp(new Timestamp(System.currentTimeMillis()));
+        trace.setNanoTime(System.nanoTime());
 
-		//fetch the input bytes
+        if (timingEnabled && waitingForTime) {
+            waitingForTime = false;
+            trace.setAccurateTime(((TimingSocket) so).getTiming());
+        }
+
+        //fetch the input bytes
 //		responseBytes = utils.fetchResponse(in);
-		SSLResponse response = new SSLResponse(responseBytes, this);
-		response.handleResponse(trace, responseBytes);
-		if (getCurrentState() == EStates.ALERT.getID()) {
-          logger.info("### Connection reset due to FATAL_ALERT.");
-          fetcher.stopFetching();
-          closeSocket();
-          return;
-      }
-		//hash current record
-		updateHash(hashBuilder, responseBytes);
-		Thread.currentThread().interrupt();
-	}
+        SSLResponse response = new SSLResponse(responseBytes, this);
+        response.handleResponse(trace, responseBytes);
+        if (getCurrentState() == EStates.ALERT.getID()) {
+            logger.debug("### Connection reset due to FATAL_ALERT.");
+            fetcher.stopFetching();
+            closeSocket();
+            return;
+        }
+        //hash current record
+        updateHash(hashBuilder, responseBytes);
+        Thread.currentThread().interrupt();
+    }
 }

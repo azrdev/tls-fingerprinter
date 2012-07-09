@@ -3,6 +3,7 @@ package de.rub.nds.research.ssl.stack.tests.attacks.bleichenbacher;
 import de.rub.nds.research.ssl.stack.tests.attacks.bleichenbacher.oracles.AOracle;
 import de.rub.nds.research.ssl.stack.tests.attacks.bleichenbacher.oracles.JSSEOracle;
 import de.rub.nds.research.ssl.stack.tests.common.SSLServer;
+import java.net.SocketException;
 import javax.net.ssl.SSLException;
 import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
@@ -177,7 +178,7 @@ public class BleichenbacherAttackTest {
      * @return List of parameters
      */
     @DataProvider(name = "bleichenbacher")
-    public Object[][] createData1() throws SSLException {
+    public Object[][] createData1() throws SSLException, SocketException {
         return new Object[][]{
                     {"JSSE Internal_Error Test", new JSSEOracle(HOST, PORT)}
                 };

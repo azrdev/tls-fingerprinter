@@ -43,28 +43,28 @@ public class HandshakeResponse {
 	public HandshakeResponse(AHandshakeRecord handRecord,
 			Trace trace, SSLHandshakeWorkflow workflow) {
 		if (handRecord instanceof ServerHello) {
-			logger.info("Server Hello message received");
+			logger.debug("Server Hello message received");
 			serverHello = new ServerHelloHandler();
 			serverHello.handleResponse(handRecord);
 			workflow.switchToState(trace, EStates.SERVER_HELLO);
 			trace.setCurrentRecord((ServerHello) handRecord);
 		}
 		if (handRecord instanceof Certificate) {
-			logger.info("Cerificate message received");
+			logger.debug("Cerificate message received");
 			certificate = new CertificateHandler();
 			certificate.handleResponse(handRecord);
 			workflow.switchToState(trace, EStates.SERVER_CERTIFICATE);
 			trace.setCurrentRecord((Certificate) handRecord);
 		}
 		if (handRecord instanceof ServerKeyExchange) {
-			logger.info("Server Key Exchange message received");
+			logger.debug("Server Key Exchange message received");
 			serverKeyExchange = new ServerKeyExchangeHandler();
 			serverKeyExchange.handleResponse(handRecord);
 			workflow.switchToState(trace, EStates.SERVER_KEY_EXCHANGE);
 			trace.setCurrentRecord((ServerKeyExchange) handRecord);
 		}
 		if (handRecord instanceof ServerHelloDone) {
-			logger.info("Server Hello Done message received");
+			logger.debug("Server Hello Done message received");
 			workflow.switchToState(trace, EStates.SERVER_HELLO_DONE);
 			trace.setCurrentRecord((ServerHelloDone) handRecord);
 		}

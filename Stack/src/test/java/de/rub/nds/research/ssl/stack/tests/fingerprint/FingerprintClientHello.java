@@ -24,6 +24,7 @@ import de.rub.nds.research.ssl.stack.tests.common.TestConfiguration;
 import de.rub.nds.research.ssl.stack.tests.workflows.SSLHandshakeWorkflow.EStates;
 import de.rub.nds.research.ssl.stack.tests.trace.Trace;
 import de.rub.nds.research.ssl.stack.tests.workflows.ObservableBridge;
+import java.net.SocketException;
 
 /**
  * Fingerprint the ClientHello SSL message.
@@ -37,7 +38,6 @@ public class FingerprintClientHello implements Observer {
      * Handshake workflow to observe.
      */
     private SSLHandshakeWorkflow workflow;
-
     /**
      * Test host.
      */
@@ -54,56 +54,90 @@ public class FingerprintClientHello implements Observer {
      * Defualt protocol version.
      */
     private EProtocolVersion protocolVersion = EProtocolVersion.TLS_1_0;
-    
     /**
      * Test parameters.
      */
     private ClientHelloParameters parameters = new ClientHelloParameters();
-    
     static Logger logger = Logger.getRootLogger();
-    
-    byte [] sessionID = new byte []{(byte)0xff,(byte)0x0f,(byte)0x0f,(byte)0x0f,(byte)0x0f,
-    		(byte)0x0f,(byte)0x0f,(byte)0x0f,(byte)0x0f,(byte)0x0f,(byte)0x0f,(byte)0x0f,
-    		(byte)0x0f,(byte)0x0f,(byte)0x0f,(byte)0x0f,(byte)0x0f,(byte)0x0f,(byte)0x0f,
-    		(byte)0x0f,(byte)0x0f,(byte)0x0f,(byte)0x0f,(byte)0x0f,(byte)0x0f,(byte)0x0f,
-    		(byte)0x0f,(byte)0x0f,(byte)0x0f,(byte)0x0f,(byte)0x0f,(byte)0x0f,(byte)0x0f,
-    		(byte)0x0f,(byte)0x0f,(byte)0x0f,(byte)0x0f,(byte)0x0f,(byte)0x0f,(byte)0x0f,
-    		(byte)0x0f,(byte)0x0f,(byte)0x0f,(byte)0x0f,(byte)0x0f,(byte)0x0f,(byte)0x0f,
-    		(byte)0x0f,(byte)0x0f,(byte)0x0f,(byte)0x0f,(byte)0x0f,(byte)0x0f,(byte)0x0f,
-    		(byte)0x0f,(byte)0x0f,(byte)0x0f,(byte)0x0f,(byte)0x0f,(byte)0x0f,(byte)0x0f,
-    		(byte)0x0f,(byte)0x0f,(byte)0x0f,(byte)0x0f,(byte)0x0f,(byte)0x0f,(byte)0x0f,
-    		(byte)0x0f,(byte)0x0f,(byte)0x0f,(byte)0x0f,(byte)0x0f,(byte)0x0f,(byte)0x0f,
-    		(byte)0x0f,(byte)0x0f,(byte)0x0f,(byte)0x0f,(byte)0x0f,(byte)0x0f,(byte)0x0f,
-    		(byte)0x0f,(byte)0x0f,(byte)0x0f,(byte)0x0f,(byte)0x0f,(byte)0x0f,(byte)0x0f,
-    		(byte)0x0f,(byte)0x0f,(byte)0x0f,(byte)0x0f,(byte)0x0f,(byte)0x0f,(byte)0x0f,
-    		(byte)0x0f,(byte)0x0f,(byte)0x0f,(byte)0x0f,(byte)0x0f,(byte)0x0f,(byte)0x0f,
-    		(byte)0x0f,(byte)0x0f,(byte)0x0f,(byte)0x0f,(byte)0x0f,(byte)0x0f,(byte)0x0f,
-    		(byte)0x0f,(byte)0x0f,(byte)0x0f,(byte)0x0f,(byte)0x0f,(byte)0x0f,(byte)0x0f,
-    		(byte)0x0f,(byte)0x0f,(byte)0x0f,(byte)0x0f,(byte)0x0f,(byte)0x0f,(byte)0x0f,
-    		(byte)0x0f,(byte)0x0f,(byte)0x0f,(byte)0x0f,(byte)0x0f,(byte)0x0f,(byte)0x0f,
-    		(byte)0x0f,(byte)0x0f,(byte)0x0f,(byte)0x0f,(byte)0x0f,(byte)0x0f,(byte)0x0f,
-    		(byte)0x0f,(byte)0x0f,(byte)0x0f,(byte)0x0f,(byte)0x0f,(byte)0x0f,(byte)0x0f,
-    		(byte)0x0f,(byte)0x0f,(byte)0x0f,(byte)0x0f,(byte)0x0f,(byte)0x0f,(byte)0x0f,
-    		(byte)0x0f,(byte)0x0f,(byte)0x0f,(byte)0x0f,(byte)0x0f,(byte)0x0f,(byte)0x0f,
-    		(byte)0x0f,(byte)0x0f,(byte)0x0f,(byte)0x0f,(byte)0x0f,(byte)0x0f,(byte)0x0f,
-    		(byte)0x0f,(byte)0x0f,(byte)0x0f,(byte)0x0f,(byte)0x0f,(byte)0x0f,(byte)0x0f,
-    		(byte)0x0f,(byte)0x0f,(byte)0x0f,(byte)0x0f,(byte)0x0f,(byte)0x0f,(byte)0x0f,
-    		(byte)0x0f,(byte)0x0f,(byte)0x0f,(byte)0x0f,(byte)0x0f,(byte)0x0f,(byte)0x0f,
-    		(byte)0x0f,(byte)0x0f,(byte)0x0f,(byte)0x0f,(byte)0x0f,(byte)0x0f,(byte)0x0f,
-    		(byte)0x0f,(byte)0x0f,(byte)0x0f,(byte)0x0f,(byte)0x0f,(byte)0x0f,(byte)0x0f,
-    		(byte)0x0f,(byte)0x0f,(byte)0x0f,(byte)0x0f,(byte)0x0f,(byte)0x0f,(byte)0x0f,
-    		(byte)0x0f,(byte)0x0f,(byte)0x0f,(byte)0x0f,(byte)0x0f,(byte)0x0f,(byte)0x0f,
-    		(byte)0x0f,(byte)0x0f,(byte)0x0f,(byte)0x0f,(byte)0x0f,(byte)0x0f,(byte)0x0f,
-    		(byte)0x0f,(byte)0x0f,(byte)0x0f,(byte)0x0f,(byte)0x0f,(byte)0x0f,(byte)0x0f,
-    		(byte)0x0f,(byte)0x0f,(byte)0x0f,(byte)0x0f,(byte)0x0f,(byte)0x0f,(byte)0x0f,
-    		(byte)0x0f,(byte)0x0f,(byte)0x0f,(byte)0x0f,(byte)0x0f,(byte)0x0f,(byte)0x0f,
-    		(byte)0x0f,(byte)0x0f,(byte)0x0f,(byte)0x0f,(byte)0x0f,(byte)0x0f,(byte)0x0f,
-    		(byte)0x0f,(byte)0x0f,(byte)0x0f,(byte)0x0f,(byte)0x0f,(byte)0x0f
+    byte[] sessionID = new byte[]{(byte) 0xff, (byte) 0x0f, (byte) 0x0f,
+        (byte) 0x0f, (byte) 0x0f,
+        (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f,
+        (byte) 0x0f, (byte) 0x0f,
+        (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f,
+        (byte) 0x0f, (byte) 0x0f,
+        (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f,
+        (byte) 0x0f, (byte) 0x0f,
+        (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f,
+        (byte) 0x0f, (byte) 0x0f,
+        (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f,
+        (byte) 0x0f, (byte) 0x0f,
+        (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f,
+        (byte) 0x0f, (byte) 0x0f,
+        (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f,
+        (byte) 0x0f, (byte) 0x0f,
+        (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f,
+        (byte) 0x0f, (byte) 0x0f,
+        (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f,
+        (byte) 0x0f, (byte) 0x0f,
+        (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f,
+        (byte) 0x0f, (byte) 0x0f,
+        (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f,
+        (byte) 0x0f, (byte) 0x0f,
+        (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f,
+        (byte) 0x0f, (byte) 0x0f,
+        (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f,
+        (byte) 0x0f, (byte) 0x0f,
+        (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f,
+        (byte) 0x0f, (byte) 0x0f,
+        (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f,
+        (byte) 0x0f, (byte) 0x0f,
+        (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f,
+        (byte) 0x0f, (byte) 0x0f,
+        (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f,
+        (byte) 0x0f, (byte) 0x0f,
+        (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f,
+        (byte) 0x0f, (byte) 0x0f,
+        (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f,
+        (byte) 0x0f, (byte) 0x0f,
+        (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f,
+        (byte) 0x0f, (byte) 0x0f,
+        (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f,
+        (byte) 0x0f, (byte) 0x0f,
+        (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f,
+        (byte) 0x0f, (byte) 0x0f,
+        (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f,
+        (byte) 0x0f, (byte) 0x0f,
+        (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f,
+        (byte) 0x0f, (byte) 0x0f,
+        (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f,
+        (byte) 0x0f, (byte) 0x0f,
+        (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f,
+        (byte) 0x0f, (byte) 0x0f,
+        (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f,
+        (byte) 0x0f, (byte) 0x0f,
+        (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f,
+        (byte) 0x0f, (byte) 0x0f,
+        (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f,
+        (byte) 0x0f, (byte) 0x0f,
+        (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f,
+        (byte) 0x0f, (byte) 0x0f,
+        (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f,
+        (byte) 0x0f, (byte) 0x0f,
+        (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f,
+        (byte) 0x0f, (byte) 0x0f,
+        (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f,
+        (byte) 0x0f, (byte) 0x0f,
+        (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f,
+        (byte) 0x0f, (byte) 0x0f,
+        (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f,
+        (byte) 0x0f, (byte) 0x0f,
+        (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f,
+        (byte) 0x0f
     };
-    
+
     @BeforeClass
     public void setUp() {
-    	PropertyConfigurator.configure("logging.properties");
+        PropertyConfigurator.configure("logging.properties");
     }
 
     /**
@@ -114,23 +148,26 @@ public class FingerprintClientHello implements Observer {
     @DataProvider(name = "clientHello")
     public Object[][] createData1() {
         return new Object[][]{
-        			{"No session ID defined but value is set to 0xff", new byte[]{(byte)0xff},
-        				null, null, null, null},
-        			{"256 Byte sessionID", null,
-        				sessionID, null, null, null},
-            		{"256 Byte sessionID and sessionID length 0x00", null,
-            			sessionID, new byte[]{(byte)0x00}, null, null},
-                    {"Compression method 0xa1", null , null, null,
+                    {"No session ID defined but value is set to 0xff",
+                        new byte[]{(byte) 0xff},
+                        null, null, null, null},
+                    {"256 Byte sessionID", null,
+                        sessionID, null, null, null},
+                    {"256 Byte sessionID and sessionID length 0x00", null,
+                        sessionID, new byte[]{(byte) 0x00}, null, null},
+                    {"Compression method 0xa1", null, null, null,
                         null, new byte[]{(byte) 0xa1}},
-                    {"Wrong value for cipher suite length 0x01", null , null, null,
+                    {"Wrong value for cipher suite length 0x01", null, null,
+                        null,
                         new byte[]{(byte) 0x01}, null},
-                    {"Wrong value for cipher suite length 0x00", null , null, null,
-                        new byte[]{(byte) 0x00}, null},
-                    };
+                    {"Wrong value for cipher suite length 0x00", null, null,
+                        null,
+                        new byte[]{(byte) 0x00}, null},};
     }
 
     /**
      * Manipulate Client Hello message to perform fingerprinting tests
+     *
      * @param desc Test description
      * @param protocolVersion TLS protocol version
      * @param random Random value
@@ -139,18 +176,18 @@ public class FingerprintClientHello implements Observer {
      */
     @Test(enabled = true, dataProvider = "clientHello", invocationCount = 1)
     public void fingerprintClientHello(String desc,
-            byte[] noSessionValue, byte [] session, byte[] sessionIdLength,
-            byte [] cipherLength, byte[] compMethod) {
-    	logger.info("++++Start Test No." + counter + "(" + desc +")++++");
+            byte[] noSessionValue, byte[] session, byte[] sessionIdLength,
+            byte[] cipherLength, byte[] compMethod) throws SocketException {
+        logger.info("++++Start Test No." + counter + "(" + desc + ")++++");
         workflow = new SSLHandshakeWorkflow();
         if (TestConfiguration.HOST.isEmpty() || TestConfiguration.PORT == 0) {
-        	workflow.connectToTestServer(HOST, PORT);
-        	logger.info("Test Server: " + HOST +":" +PORT);
-        }
-        else {
-        	workflow.connectToTestServer(TestConfiguration.HOST,
-        			TestConfiguration.PORT);
-        	logger.info("Test Server: " + TestConfiguration.HOST +":" + TestConfiguration.PORT);
+            workflow.connectToTestServer(HOST, PORT);
+            logger.info("Test Server: " + HOST + ":" + PORT);
+        } else {
+            workflow.connectToTestServer(TestConfiguration.HOST,
+                    TestConfiguration.PORT);
+            logger.info(
+                    "Test Server: " + TestConfiguration.HOST + ":" + TestConfiguration.PORT);
         }
         workflow.addObserver(this, EStates.CLIENT_HELLO);
         logger.info(EStates.CLIENT_HELLO.name() + " state is observed");
@@ -162,14 +199,13 @@ public class FingerprintClientHello implements Observer {
         parameters.setTestClassName(this.getClass().getName());
         parameters.setDescription(desc);
         workflow.start();
-        
+
         AFingerprintAnalyzer analyzer = new TestHashAnalyzer(parameters);
         analyzer.analyze(workflow.getTraceList());
-        
+
         this.counter++;
         logger.info("++++Test finished.++++");
     }
-    
 
     /**
      * Update observed object.
@@ -179,48 +215,51 @@ public class FingerprintClientHello implements Observer {
      */
     @Override
     public void update(Observable o, Object arg) {
-    	MessageBuilder msgBuilder = new MessageBuilder();
-    	Trace trace = null;
-    	EStates states = null;
-    	ObservableBridge obs;
-    	if (o instanceof ObservableBridge) {
-    		obs = (ObservableBridge) o;
-    		states = (EStates) obs.getState();
-    		trace = (Trace) arg;
-    	}
-    	if (states == EStates.CLIENT_HELLO) {
-    		ECipherSuite[] suites = new ECipherSuite[]{
-    				ECipherSuite.TLS_RSA_WITH_AES_128_CBC_SHA};
-    		CipherSuites cipherSuites = new CipherSuites();
-    		cipherSuites.setSuites(suites);
-    		RandomValue random = new RandomValue();
-    		byte [] compMethod = new byte[]{0x00};
-    		ClientHello clientHello = msgBuilder.createClientHello(this.protocolVersion.getId(),
-    				random.encode(false), cipherSuites.encode(false), compMethod);
-    		byte [] payload;
-    		if (parameters.getSessionId() != null) {
-    			byte [] session = parameters.getSessionId();
-    			clientHello.setSessionID(session);
-    		}
-    		if (parameters.getCompMethod() != null) {
-    			clientHello.setCompressionMethod(parameters.getCompMethod());
-    		}
-    		payload = clientHello.encode(true);
-    		if (parameters.getNoSessionIdValue() != null) {
-    			byte [] value = parameters.getNoSessionIdValue();
-    			System.arraycopy(value, 0, payload, payload.length - 7, value.length);
-    		}
-    		if (parameters.getSessionIdLen() != null) {
-    			byte [] sLen = parameters.getSessionIdLen();
-    			System.arraycopy(sLen, 0, payload, 43, sLen.length);
-    		}
-    		if (parameters.getCipherLen() != null) {
-    			byte [] cLen = parameters.getCipherLen();
-    			System.arraycopy(cLen, 0, payload, payload.length - 5, cLen.length);
-    		}
-    		trace.setCurrentRecordBytes(payload);
-    		trace.setCurrentRecord(clientHello);
-    	}
+        MessageBuilder msgBuilder = new MessageBuilder();
+        Trace trace = null;
+        EStates states = null;
+        ObservableBridge obs;
+        if (o instanceof ObservableBridge) {
+            obs = (ObservableBridge) o;
+            states = (EStates) obs.getState();
+            trace = (Trace) arg;
+        }
+        if (states == EStates.CLIENT_HELLO) {
+            ECipherSuite[] suites = new ECipherSuite[]{
+                ECipherSuite.TLS_RSA_WITH_AES_128_CBC_SHA};
+            CipherSuites cipherSuites = new CipherSuites();
+            cipherSuites.setSuites(suites);
+            RandomValue random = new RandomValue();
+            byte[] compMethod = new byte[]{0x00};
+            ClientHello clientHello = msgBuilder.createClientHello(this.protocolVersion.
+                    getId(),
+                    random.encode(false), cipherSuites.encode(false), compMethod);
+            byte[] payload;
+            if (parameters.getSessionId() != null) {
+                byte[] session = parameters.getSessionId();
+                clientHello.setSessionID(session);
+            }
+            if (parameters.getCompMethod() != null) {
+                clientHello.setCompressionMethod(parameters.getCompMethod());
+            }
+            payload = clientHello.encode(true);
+            if (parameters.getNoSessionIdValue() != null) {
+                byte[] value = parameters.getNoSessionIdValue();
+                System.arraycopy(value, 0, payload, payload.length - 7,
+                        value.length);
+            }
+            if (parameters.getSessionIdLen() != null) {
+                byte[] sLen = parameters.getSessionIdLen();
+                System.arraycopy(sLen, 0, payload, 43, sLen.length);
+            }
+            if (parameters.getCipherLen() != null) {
+                byte[] cLen = parameters.getCipherLen();
+                System.arraycopy(cLen, 0, payload, payload.length - 5,
+                        cLen.length);
+            }
+            trace.setCurrentRecordBytes(payload);
+            trace.setCurrentRecord(clientHello);
+        }
     }
 
     /**

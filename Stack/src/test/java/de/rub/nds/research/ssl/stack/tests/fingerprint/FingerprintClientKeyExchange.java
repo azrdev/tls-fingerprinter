@@ -34,6 +34,7 @@ import de.rub.nds.research.ssl.stack.tests.common.TestConfiguration;
 import de.rub.nds.research.ssl.stack.tests.workflows.SSLHandshakeWorkflow.EStates;
 import de.rub.nds.research.ssl.stack.tests.trace.Trace;
 import de.rub.nds.research.ssl.stack.tests.workflows.ObservableBridge;
+import java.net.SocketException;
 
 public class FingerprintClientKeyExchange implements Observer {
 
@@ -57,7 +58,6 @@ public class FingerprintClientKeyExchange implements Observer {
      * Test parameters.
      */
     private ClientKeyExchangeParameters parameters = new ClientKeyExchangeParameters();
-    
     /**
      * Log4j logger initialization.
      */
@@ -66,24 +66,26 @@ public class FingerprintClientKeyExchange implements Observer {
      * Default protocol version.
      */
     private EProtocolVersion protocolVersion = EProtocolVersion.TLS_1_0;
-    
+
     /**
      * Load the logging properties.
      */
     @BeforeClass
     public void setUp() {
-    	PropertyConfigurator.configure("logging.properties");
+        PropertyConfigurator.configure("logging.properties");
     }
 
     /**
      * Test parameters for ClientKeyExchange fingerprinting.
+     *
      * @return List of parameters
      */
     @DataProvider(name = "clientKeyExchange")
     public Object[][] createData1() {
         return new Object[][]{
                     {"Invalid payload for RSA key exchange", new ECipherSuite[]{
-            				ECipherSuite.TLS_DHE_RSA_WITH_AES_128_CBC_SHA}, new byte[]{(byte)0x00,(byte)0x00}}
+                            ECipherSuite.TLS_DHE_RSA_WITH_AES_128_CBC_SHA},
+                        new byte[]{(byte) 0x00, (byte) 0x00}}
                 };
     }
 
@@ -94,37 +96,37 @@ public class FingerprintClientKeyExchange implements Observer {
      * @throws IOException
      */
     @Test(enabled = true, dataProvider = "clientKeyExchange")
-    public void fingerprintClientKeyExchange(String desc, 
-    		ECipherSuite[] cipherSuite, byte[] payload) {
-    	logger.info("++++Start Test No." + counter + "(" + desc +")++++");
+    public void fingerprintClientKeyExchange(String desc,
+            ECipherSuite[] cipherSuite, byte[] payload) throws SocketException {
+        logger.info("++++Start Test No." + counter + "(" + desc + ")++++");
         workflow = new SSLHandshakeWorkflow();
         //connect to test server
         if (TestConfiguration.HOST.isEmpty() || TestConfiguration.PORT == 0) {
-        	workflow.connectToTestServer(HOST, PORT);
-        	logger.info("Test Server: " + HOST +":" +PORT);
-        }
-        else {
-        	workflow.connectToTestServer(TestConfiguration.HOST,
-        			TestConfiguration.PORT);
-        	logger.info("Test Server: " + TestConfiguration.HOST +":" + TestConfiguration.PORT);
+            workflow.connectToTestServer(HOST, PORT);
+            logger.info("Test Server: " + HOST + ":" + PORT);
+        } else {
+            workflow.connectToTestServer(TestConfiguration.HOST,
+                    TestConfiguration.PORT);
+            logger.info(
+                    "Test Server: " + TestConfiguration.HOST + ":" + TestConfiguration.PORT);
         }
         //add the observer
         workflow.addObserver(this, EStates.CLIENT_HELLO);
         workflow.addObserver(this, EStates.CLIENT_KEY_EXCHANGE);
         logger.info(EStates.CLIENT_FINISHED.name() + " state is observed");
-        
+
         //set the test parameters
         parameters.setCipherSuite(cipherSuite);
         parameters.setPayload(payload);
         parameters.setTestClassName(this.getClass().getName());
         parameters.setDescription(desc);
-        
+
         workflow.start();
-        
+
         //analyze the handshake trace
         AFingerprintAnalyzer analyzer = new TestHashAnalyzer(parameters);
         analyzer.analyze(workflow.getTraceList());
-        
+
         this.counter++;
         logger.info("++++Test finished.++++");
     }
@@ -137,7 +139,7 @@ public class FingerprintClientKeyExchange implements Observer {
      */
     @Override
     public void update(Observable o, Object arg) {
-    	MessageBuilder msgBuilder = new MessageBuilder();
+        MessageBuilder msgBuilder = new MessageBuilder();
         Trace trace = null;
         EStates states = null;
         ObservableBridge obs;
@@ -147,19 +149,20 @@ public class FingerprintClientKeyExchange implements Observer {
             trace = (Trace) arg;
         }
         if (states != null) {
-        	switch (states) {
-        	case CLIENT_HELLO:
-        		CipherSuites suites = new CipherSuites();
-        		RandomValue random = new RandomValue();
-        		suites.setSuites(parameters.getCipherSuite());
-        		ClientHello clientHello = msgBuilder.createClientHello(EProtocolVersion.TLS_1_0.getId(),
-        				random.encode(false),
-        				suites.encode(false), new byte[]{0x00});
-        		trace.setCurrentRecord(clientHello);
-        		break;
-        	case CLIENT_KEY_EXCHANGE:
-        		ClientKeyExchange cke = msgBuilder.createClientKeyExchange(
-        				protocolVersion, this.workflow);
+            switch (states) {
+                case CLIENT_HELLO:
+                    CipherSuites suites = new CipherSuites();
+                    RandomValue random = new RandomValue();
+                    suites.setSuites(parameters.getCipherSuite());
+                    ClientHello clientHello = msgBuilder.createClientHello(EProtocolVersion.TLS_1_0.
+                            getId(),
+                            random.encode(false),
+                            suites.encode(false), new byte[]{0x00});
+                    trace.setCurrentRecord(clientHello);
+                    break;
+                case CLIENT_KEY_EXCHANGE:
+                    ClientKeyExchange cke = msgBuilder.createClientKeyExchange(
+                            protocolVersion, this.workflow);
 //        		byte [] payload = cke.encode(true);
 //                byte [] tmp = null;
 //                if (parameters.getPayload() != null) {
@@ -173,15 +176,15 @@ public class FingerprintClientKeyExchange implements Observer {
 //                	System.arraycopy(testContent, 0, tmp, ARecordFrame.LENGTH_MINIMUM_ENCODED,
 //                			testContent.length);
 //                }
-        		ClientDHPublic clientDHPublic = new ClientDHPublic();
-        		clientDHPublic.setDhyc(parameters.getPayload());
-        		cke.setExchangeKeys(clientDHPublic);
-        		//update the trace object
+                    ClientDHPublic clientDHPublic = new ClientDHPublic();
+                    clientDHPublic.setDhyc(parameters.getPayload());
+                    cke.setExchangeKeys(clientDHPublic);
+                    //update the trace object
 //                trace.setCurrentRecordBytes(tmp);
-                trace.setCurrentRecord(cke);
-        	default:
-        		break;
-        	}
+                    trace.setCurrentRecord(cke);
+                default:
+                    break;
+            }
         }
     }
 

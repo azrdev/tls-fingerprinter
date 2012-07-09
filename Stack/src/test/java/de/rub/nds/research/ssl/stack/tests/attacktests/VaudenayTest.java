@@ -14,6 +14,7 @@ import de.rub.nds.research.ssl.stack.tests.common.SSLServerHandler;
 import de.rub.nds.research.ssl.stack.tests.common.SSLTestUtils;
 import de.rub.nds.research.ssl.stack.tests.trace.Trace;
 import de.rub.nds.research.ssl.stack.tests.workflows.ObservableBridge;
+import java.net.SocketException;
 import java.security.InvalidKeyException;
 import java.util.Observable;
 import java.util.Observer;
@@ -101,7 +102,8 @@ public class VaudenayTest implements Observer {
      */
     @Test(enabled = true, dataProvider = "vaudenay")
     public final void testVaudenay(String desc,
-            EProtocolVersion version, boolean changePadding) {
+            EProtocolVersion version, boolean changePadding) throws
+            SocketException {
         workflow = new SSLHandshakeWorkflow();
         workflow.connectToTestServer(HOST, PORT);
         workflow.addObserver(this, EStates.CLIENT_FINISHED);
@@ -196,13 +198,13 @@ public class VaudenayTest implements Observer {
             }
         }
     }
-    
+
     /**
      * Initialize logging properties
      */
     @BeforeClass
     public void setUpClass() {
-    	PropertyConfigurator.configure("logging.properties");
+        PropertyConfigurator.configure("logging.properties");
     }
 
     /**
@@ -210,7 +212,7 @@ public class VaudenayTest implements Observer {
      */
     @BeforeMethod
     public void setUp() {
-    	 serverHandler.startTestServer();
+        serverHandler.startTestServer();
     }
 
     /**

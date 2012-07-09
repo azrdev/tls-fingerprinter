@@ -23,16 +23,17 @@ import de.rub.nds.research.ssl.stack.tests.trace.Trace;
 import de.rub.nds.research.ssl.stack.tests.workflows.ObservableBridge;
 import de.rub.nds.research.ssl.stack.tests.workflows.SSLHandshakeWorkflow;
 import de.rub.nds.research.ssl.stack.tests.workflows.SSLHandshakeWorkflow.EStates;
+import java.net.SocketException;
 
 /**
  * Execute the handshake with valid parameters.
+ *
  * @author Eugen Weiss - eugen.weiss@ruhr-uni-bochum.de
- * @version 0.1
- * Jun 30, 2012
+ * @version 0.1 Jun 30, 2012
  */
 public class TestGoodCase implements Observer {
-	
-	/**
+
+    /**
      * Handshake workflow to observe.
      */
     private SSLHandshakeWorkflow workflow;
@@ -48,7 +49,6 @@ public class TestGoodCase implements Observer {
      * Default protocol version.
      */
     private EProtocolVersion protocolVersion = EProtocolVersion.TLS_1_0;
-    
     /**
      * Log4j logger initialization.
      */
@@ -61,39 +61,39 @@ public class TestGoodCase implements Observer {
      * Handler to start/stop a test server.
      */
     private SSLServerHandler serverHandler = new SSLServerHandler();
-    
+
     /**
      * Load the logging properties.
      */
     @BeforeClass
     public void setUpClass() {
-    	PropertyConfigurator.configure("logging.properties");
+        PropertyConfigurator.configure("logging.properties");
     }
-    
+
     /**
      * Cipher suites for ClientHello.
+     *
      * @return List of parameters
      */
     @DataProvider(name = "cipher")
     public Object[][] createData1() {
         return new Object[][]{
                     {new ECipherSuite[]{
-                            ECipherSuite.TLS_RSA_WITH_AES_128_CBC_SHA}},
-                };
+                            ECipherSuite.TLS_RSA_WITH_AES_128_CBC_SHA}},};
     }
-    
+
     /**
      * Execute handshake.
      */
     @Test(enabled = true, dataProvider = "cipher")
-    public void executeHandshake(ECipherSuite[] suite) {
+    public void executeHandshake(ECipherSuite[] suite) throws SocketException {
         workflow = new SSLHandshakeWorkflow();
         workflow.connectToTestServer(HOST, PORT);
         workflow.addObserver(this, EStates.CLIENT_HELLO);
-        this.suite=suite;
+        this.suite = suite;
         workflow.start();
     }
-    
+
     /**
      * Update observed object.
      *
@@ -111,27 +111,28 @@ public class TestGoodCase implements Observer {
             trace = (Trace) arg;
         }
         if (states == EStates.CLIENT_HELLO) {
-        	MessageBuilder builder = new MessageBuilder();
+            MessageBuilder builder = new MessageBuilder();
             CipherSuites suites = new CipherSuites();
             RandomValue random = new RandomValue();
             suites.setSuites(this.suite);
-            ClientHello clientHello = builder.createClientHello(protocolVersion.getId(),
+            ClientHello clientHello = builder.createClientHello(protocolVersion.
+                    getId(),
                     random.encode(false),
                     suites.encode(false), new byte[]{0x00});
             trace.setCurrentRecord(clientHello);
         }
 
     }
-    
+
     /**
      * Start the target SSL Server.
      */
     @BeforeMethod
     public void setUp() {
-            System.setProperty("javax.net.debug", "ssl");
+        System.setProperty("javax.net.debug", "ssl");
         serverHandler.startTestServer();
     }
-    
+
     /**
      * Close the Socket after the test run.
      */
@@ -140,5 +141,4 @@ public class TestGoodCase implements Observer {
         workflow.closeSocket();
         serverHandler.shutdownTestServer();
     }
-
 }
