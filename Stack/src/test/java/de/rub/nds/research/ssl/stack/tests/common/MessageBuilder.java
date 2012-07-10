@@ -156,6 +156,7 @@ public class MessageBuilder {
             e.printStackTrace();
         }
         finished.encode(true);
+        
         return finished;
     }
     
@@ -189,6 +190,7 @@ public class MessageBuilder {
             streamCipher.encryptData(symmKey, cipherName);
             rec.setGenericCipher(streamCipher);
         }
+        
     	return rec;
     }
     

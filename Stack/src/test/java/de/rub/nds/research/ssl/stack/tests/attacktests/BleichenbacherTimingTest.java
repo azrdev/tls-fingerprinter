@@ -230,6 +230,7 @@ public class BleichenbacherTimingTest implements Observer {
         this.destroyMAC = tamperMAC;
         boolean canceled = false;
 
+        System.out.println("Test description: " + description);
         logger.info("Test description: " + description);
         logger.info("Test repeated:" + NUMBER_OF_REPETIIONS + " times");
         logger.info("Time measurement:"
@@ -356,7 +357,7 @@ public class BleichenbacherTimingTest implements Observer {
                         ARecordFrame finished = trace.getCurrentRecord();
                         byte[] payload = finished.encode(true);
                         // frag the mac
-                        payload[24] = 1;
+//                        payload[24] = 1;
                         trace.setCurrentRecordBytes(payload);
                     }
                     break;

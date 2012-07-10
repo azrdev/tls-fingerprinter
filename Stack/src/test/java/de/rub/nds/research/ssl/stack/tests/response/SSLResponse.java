@@ -38,7 +38,7 @@ public class SSLResponse extends ARecordFrame implements Observer {
      */
     private byte [] response;
     
-    static Logger logger = Logger.getLogger(SSLResponse.class.getName());
+    static Logger logger = Logger.getRootLogger();
 
     /**
      * Initialize a SSL response.
