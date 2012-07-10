@@ -106,7 +106,16 @@ public abstract class Header implements Cloneable, StringFormattable {
     }
 
     protected final byte[] getBytes(int offset, int length) {
-        return Arrays.copyOfRange(this.payload.array(), getOffset() + offset, getOffset() + offset + length);
+        if (payload.hasArray()) {
+            return Arrays.copyOfRange(this.payload.array(), getOffset() + offset, getOffset() + offset + length);
+        }
+
+        byte[] array = new byte[length];
+        for (int i = 0; i < length; i++) {
+            array[i] = payload.get(offset + i);
+        }
+
+        return array;
     }
 
     protected final int getBufferLength() {
@@ -114,7 +123,11 @@ public abstract class Header implements Cloneable, StringFormattable {
     }
 
     public final int getOffset() {
-        return payload.arrayOffset();
+        if (payload.hasArray()) {
+            return payload.arrayOffset();
+        }
+
+        return 0;
     }
 
     public final int getPayloadOffset() {
@@ -128,7 +141,7 @@ public abstract class Header implements Cloneable, StringFormattable {
         return getBytes(getLength(), getPayloadLength());
     }
 
-    public final Header clone() {
+    public Header clone() {
         try {
             return (Header) super.clone();
         } catch (CloneNotSupportedException e) {
@@ -138,6 +151,16 @@ public abstract class Header implements Cloneable, StringFormattable {
 
     public final void peer(ByteBuffer payload) {
         this.payload = decode(payload);
+        payload.position(0);
+    }
+
+    public boolean isCorrupted() {
+        if (this instanceof Checksum) {
+            Checksum checksum = (Checksum) this;
+            return !Arrays.equals(checksum.getCalcuatedChecksum(), checksum.getChecksum());
+        }
+
+        return false;
     }
 
     /**

@@ -1,18 +1,17 @@
 package de.rub.nds.virtualnetworklayer.packet;
 
 import de.rub.nds.virtualnetworklayer.packet.header.Header;
-import de.rub.nds.virtualnetworklayer.packet.header.application.DhcpHeader;
-import de.rub.nds.virtualnetworklayer.packet.header.application.HttpHeader;
-import de.rub.nds.virtualnetworklayer.packet.header.application.TlsHeader;
+import de.rub.nds.virtualnetworklayer.packet.header.application.*;
 import de.rub.nds.virtualnetworklayer.packet.header.internet.Ip4Header;
 import de.rub.nds.virtualnetworklayer.packet.header.internet.Ip6Header;
-import de.rub.nds.virtualnetworklayer.packet.header.link.ethernet.EthernetHeader;
-import de.rub.nds.virtualnetworklayer.packet.header.link.ethernet.SllHeader;
+import de.rub.nds.virtualnetworklayer.packet.header.link.ArpHeader;
+import de.rub.nds.virtualnetworklayer.packet.header.link.ethernet.*;
 import de.rub.nds.virtualnetworklayer.packet.header.link.family.NullHeader;
 import de.rub.nds.virtualnetworklayer.packet.header.link.family.PfLogHeader;
 import de.rub.nds.virtualnetworklayer.packet.header.link.ppp.PPPHeader;
 import de.rub.nds.virtualnetworklayer.packet.header.link.ppp.PPPoEHeader;
 import de.rub.nds.virtualnetworklayer.packet.header.link.wlan.IEEE802_11Header;
+import de.rub.nds.virtualnetworklayer.packet.header.link.wlan.PrismHeader;
 import de.rub.nds.virtualnetworklayer.packet.header.link.wlan.RadiotapHeader;
 import de.rub.nds.virtualnetworklayer.packet.header.transport.TcpHeader;
 import de.rub.nds.virtualnetworklayer.packet.header.transport.UdpHeader;
@@ -35,22 +34,32 @@ import java.util.Set;
 public abstract class PacketHandler extends PcapHandler {
     private static List<Header> headers = new LinkedList<Header>();
     private static Set<Header> greedyHeaders = new HashSet<Header>();
+    private boolean deepCopy;
 
     static {
         registerHeader(new EthernetHeader());
+        registerHeader(new IEEE802_2Header(), true);
+        registerHeader(new IEEE802_3Header());
+        registerHeader(new SnapHeader());
         registerHeader(new NullHeader());
         registerHeader(new PPPHeader());
         registerHeader(new SllHeader());
         registerHeader(new PfLogHeader());
         registerHeader(new RadiotapHeader());
+        registerHeader(new PrismHeader());
         registerHeader(new IEEE802_11Header());
         registerHeader(new PPPoEHeader());
+        registerHeader(new GreHeader());
+        registerHeader(new IEEE802_1QHeader());
+        registerHeader(new ArpHeader());
         registerHeader(new Ip4Header());
         registerHeader(new Ip6Header());
         registerHeader(new TcpHeader());
         registerHeader(new UdpHeader());
-        registerHeader(new TlsHeader(false), true);
+        registerHeader(new SmtpHeader());
         registerHeader(new HttpHeader(false));
+        registerHeader(new SipHeader(false));
+        registerHeader(new TlsHeader(false), true);
         registerHeader(new DhcpHeader());
     }
 
@@ -83,6 +92,14 @@ public abstract class PacketHandler extends PcapHandler {
 
     public static int getHeaderCount() {
         return headers.size();
+    }
+
+    protected PacketHandler(boolean deepCopy) {
+        this.deepCopy = deepCopy;
+    }
+
+    protected PacketHandler() {
+        this(true);
     }
 
     private static Header getHeader(LinkedList<Header> packetHeaders, ByteBuffer byteBuffer, int offset, int limit, Pcap.DataLinkType dataLinkType) {
@@ -133,10 +150,13 @@ public abstract class PacketHandler extends PcapHandler {
 
     @Override
     protected final void newByteBuffer(long timeStamp, int length, ByteBuffer byteBuffer) {
-        ByteBuffer deepCopy = Util.clone(byteBuffer);
-        LinkedList<Header> packetHeaders = getPacketHeaders(deepCopy, length, dataLinkType);
+        if (deepCopy) {
+            byteBuffer = Util.clone(byteBuffer);
+        }
 
-        newPacket(new PcapPacket(deepCopy, timeStamp, packetHeaders));
+        LinkedList<Header> packetHeaders = getPacketHeaders(byteBuffer, length, dataLinkType);
+
+        newPacket(new PcapPacket(byteBuffer, timeStamp, packetHeaders));
     }
 
     protected abstract void newPacket(PcapPacket packet);

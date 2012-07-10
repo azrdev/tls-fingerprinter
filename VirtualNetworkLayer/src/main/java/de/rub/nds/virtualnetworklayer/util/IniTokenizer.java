@@ -14,39 +14,37 @@ import java.io.InputStreamReader;
  */
 public class IniTokenizer {
 
-    public interface Token {
+    public static interface Token {
+        public class Property implements Token {
+            private String key;
+            private String value;
 
-    }
+            public Property(String line) {
+                String[] array = line.split("=");
+                key = array[0].trim();
+                value = array[1].trim();
+            }
 
-    public class Property implements Token {
-        private String key;
-        private String value;
+            public String getKey() {
+                return key;
+            }
 
-        public Property(String line) {
-            String[] array = line.split("=");
-            key = array[0].trim();
-            value = array[1].trim();
+            public String getValue() {
+                return value;
+            }
+
         }
 
-        public String getKey() {
-            return key;
-        }
+        public class Section implements Token {
+            private String name;
 
-        public String getValue() {
-            return value;
-        }
+            public Section(String line) {
+                name = line.replace("[", "").replace("]", "");
+            }
 
-    }
-
-    public class Section implements Token {
-        private String name;
-
-        public Section(String line) {
-            name = line.replace("[", "").replace("]", "");
-        }
-
-        public String getName() {
-            return name;
+            public String getName() {
+                return name;
+            }
         }
     }
 
@@ -79,9 +77,9 @@ public class IniTokenizer {
 
     private Token readLine(String line) {
         if (line.startsWith("[")) {
-            return new Section(line);
+            return new Token.Section(line);
         } else if (line.contains("=")) {
-            return new Property(line);
+            return new Token.Property(line);
         }
 
         return null;

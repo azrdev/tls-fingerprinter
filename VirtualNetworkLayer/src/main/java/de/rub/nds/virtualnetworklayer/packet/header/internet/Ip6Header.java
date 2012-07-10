@@ -80,7 +80,7 @@ public class Ip6Header extends Ip {
 
         if (previousHeaders.getLast() instanceof Family) {
             Family header = (Family) previousHeaders.getLast();
-            return header.getAddressFamily() == Family.AddressFamily.INET6;
+            return header.getAddressFamily().isINet6();
         }
 
         return dataLinkType == Pcap.DataLinkType.Raw && getVersion() == 6;

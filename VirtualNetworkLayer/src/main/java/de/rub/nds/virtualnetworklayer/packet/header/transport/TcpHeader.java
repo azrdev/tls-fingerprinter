@@ -113,6 +113,7 @@ public class TcpHeader extends Header implements Session, Port {
                 }
             }
         }
+
         return flags;
     }
 
@@ -187,6 +188,15 @@ public class TcpHeader extends Header implements Session, Port {
     @Override
     public int getId() {
         return Id;
+    }
+
+    @Override
+    public Header clone() {
+        TcpHeader header = (TcpHeader) super.clone();
+        header.flags = null;
+        header.options = null;
+
+        return header;
     }
 
     @Override

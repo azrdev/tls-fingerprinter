@@ -15,8 +15,12 @@ import java.lang.reflect.Modifier;
 public abstract class StringFormatter {
 
     public static String toString(Object object) {
+        return toString(object, object.toString() + ":\n");
+    }
+
+    public static String toString(Object object, String prepend) {
         Class clazz = object.getClass();
-        StringBuffer buffer = new StringBuffer(object.toString() + ":\n");
+        StringBuffer buffer = new StringBuffer(prepend);
 
         for (Method method : clazz.getDeclaredMethods()) {
             if (method.getName().startsWith("get") && method.getParameterTypes().length == 0
@@ -24,19 +28,27 @@ public abstract class StringFormatter {
                 try {
                     Object field = method.invoke(object, null);
 
-                    if (method.isAnnotationPresent(Format.class)) {
-                        Format format = method.getAnnotation(Format.class);
-                        Method formatter = format.with().getMethod("toString", method.getReturnType());
-                        field = formatter.invoke(null, field);
+                    if (field != null) {
+                        if (method.isAnnotationPresent(Format.class)) {
+                            Format format = method.getAnnotation(Format.class);
+
+                            if (format.with() == StringFormatter.class) {
+                                String nestedObject = StringFormatter.toString(field, "\n");
+                                buffer.append("+ ").append(method.getName().substring(3) + ":");
+                                buffer.append(StringFormatter.toString(field, "\n"));
+                                continue;
+
+                            } else {
+                                Method formatter = format.with().getMethod("toString", method.getReturnType());
+                                field = formatter.invoke(null, field);
+                            }
+                        }
+
+                        buffer.append("- " + method.getName().substring(3) + ": " + field + "\n");
                     }
 
-                    if (field.equals("")) {
-                        field = "<empty>";
-                    }
-
-                    buffer.append("- " + method.getName().substring(3) + ": " + field + "\n");
                 } catch (Exception e) {
-
+                    e.printStackTrace();
                 }
             }
         }

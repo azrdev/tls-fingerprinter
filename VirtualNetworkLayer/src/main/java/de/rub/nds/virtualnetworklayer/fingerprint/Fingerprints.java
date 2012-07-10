@@ -8,8 +8,7 @@ package de.rub.nds.virtualnetworklayer.fingerprint;
  */
 public enum Fingerprints {
     Mtu,
-    Tcp,
-    Mac;
+    Tcp;
 
     public int getId() {
         return this.ordinal();

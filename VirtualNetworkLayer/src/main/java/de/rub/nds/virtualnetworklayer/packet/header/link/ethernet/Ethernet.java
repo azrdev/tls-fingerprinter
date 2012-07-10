@@ -14,8 +14,10 @@ public interface Ethernet {
     public static enum Type {
         Ip4(0x800),
         Ip6(0x86DD),
+        Arp(0x0806),
         PPPoE_Discovery(0x8863),
-        PPPoE_Session(0x8864);
+        PPPoE_Session(0x8864),
+        IEEE802_1Q(0x8100);
 
         private int id;
 

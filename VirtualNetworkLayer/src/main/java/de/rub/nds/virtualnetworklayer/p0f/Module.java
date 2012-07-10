@@ -36,7 +36,7 @@ public class Module {
     private String name;
     private Direction direction;
 
-    public Module(IniTokenizer.Section section) {
+    public Module(IniTokenizer.Token.Section section) {
         if (section.getName().contains(":")) {
             String[] parts = section.getName().split(":");
             name = parts[0];

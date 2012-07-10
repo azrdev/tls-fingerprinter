@@ -47,7 +47,7 @@ public class Device {
 
             byte[] sa_data = addr.get().sa_data().getBytes(4);
 
-            if (family == AddressFamily.INET6) {
+            if (family != null && family.isINet6()) {
                 sa_data = addr.get().sa_data().getBytes();
             }
 

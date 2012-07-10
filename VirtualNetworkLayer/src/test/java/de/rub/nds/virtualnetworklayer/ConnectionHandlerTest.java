@@ -8,9 +8,12 @@ import de.rub.nds.virtualnetworklayer.fingerprint.MtuFingerprint;
 import de.rub.nds.virtualnetworklayer.fingerprint.TcpFingerprint;
 import de.rub.nds.virtualnetworklayer.p0f.Label;
 import de.rub.nds.virtualnetworklayer.p0f.P0fFile;
+import de.rub.nds.virtualnetworklayer.packet.Headers;
 import de.rub.nds.virtualnetworklayer.packet.Packet;
 import de.rub.nds.virtualnetworklayer.packet.PcapPacket;
 import de.rub.nds.virtualnetworklayer.packet.header.application.HttpHeader;
+import de.rub.nds.virtualnetworklayer.packet.header.application.SipHeader;
+import de.rub.nds.virtualnetworklayer.packet.header.application.SmtpHeader;
 import de.rub.nds.virtualnetworklayer.packet.header.application.TlsHeader;
 import de.rub.nds.virtualnetworklayer.pcap.Pcap;
 import org.junit.BeforeClass;
@@ -19,6 +22,7 @@ import org.junit.Test;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 
 import static org.junit.Assert.*;
@@ -107,6 +111,60 @@ public class ConnectionHandlerTest {
         assertEquals(24456, extendedPacket.getLength());
 
         assertNull(sequence.getCroppedPacket());
+    }
+
+    @Test
+    public void udpSip() {
+        File file = new File(path, "udpSip.pcap");
+        Pcap pcap = Pcap.openOffline(file);
+
+        pcap.loop(new ConnectionHandler() {
+            @Override
+            public void newConnection(Event event, PcapConnection connection) {
+                pcapConnection = connection;
+            }
+        });
+
+        PcapTrace trace = pcapConnection.getTrace();
+        assertEquals(1, trace.size());
+
+        SipHeader header = trace.get(0).getHeader(Headers.Sip);
+        assertEquals(Packet.Direction.Response, header.getDirection());
+        assertEquals(8, header.getHeaders().size());
+        assertEquals(180, header.getStatusCode());
+    }
+
+    @Test
+    public void smtpStartTls() {
+        File file = new File(path, "smtpStartTls.pcap");
+        Pcap pcap = Pcap.openOffline(file);
+
+        pcap.loop(new ConnectionHandler() {
+            @Override
+            public void newConnection(Event event, PcapConnection connection) {
+                pcapConnection = connection;
+            }
+        });
+
+        PcapTrace trace = pcapConnection.getTrace();
+        assertEquals(5, trace.size());
+
+        SmtpHeader header = trace.get(0).getHeader(Headers.Smtp);
+        LinkedList<SmtpHeader.Command> commands = header.getCommands();
+        assertEquals(220, commands.getFirst().getStatusCode());
+
+        header = trace.get(1).getHeader(Headers.Smtp);
+        commands = header.getCommands();
+        assertEquals("EHLO", commands.getFirst().getAction());
+
+        header = trace.get(2).getHeader(Headers.Smtp);
+        for (SmtpHeader.Command command : header.getCommands()) {
+            assertEquals(250, command.getStatusCode());
+        }
+
+        header = trace.get(3).getHeader(Headers.Smtp);
+        commands = header.getCommands();
+        assertEquals("STARTTLS", commands.getFirst().getAction());
     }
 
     @Test

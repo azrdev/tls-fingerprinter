@@ -63,18 +63,18 @@ public class P0fFile {
 
         IniTokenizer.Token token;
         while ((token = tokenizer.next()) != null) {
-            if (token instanceof IniTokenizer.Property) {
-                readProperty((IniTokenizer.Property) token);
+            if (token instanceof IniTokenizer.Token.Property) {
+                readProperty((IniTokenizer.Token.Property) token);
 
-            } else if (token instanceof IniTokenizer.Section) {
-                actualModule = new Module((IniTokenizer.Section) token);
+            } else if (token instanceof IniTokenizer.Token.Section) {
+                actualModule = new Module((IniTokenizer.Token.Section) token);
             }
         }
 
         logger.info(getSignatureCount() + " signatures read.");
     }
 
-    private void readProperty(IniTokenizer.Property property) {
+    private void readProperty(IniTokenizer.Token.Property property) {
         String key = property.getKey();
 
         if (key.equals("classes")) {

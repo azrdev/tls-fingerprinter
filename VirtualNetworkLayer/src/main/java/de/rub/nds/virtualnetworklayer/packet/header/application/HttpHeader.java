@@ -66,6 +66,7 @@ public class HttpHeader extends EncodedHeader {
     }
 
     private boolean bindToDefaultPorts;
+    private int length = -1;
     private Map<String, String> headers;
 
 
@@ -90,12 +91,14 @@ public class HttpHeader extends EncodedHeader {
     }
 
     public Map<String, String> getHeaders() {
-        headers = new HashMap<String, String>();
+        if (headers == null) {
+            headers = new HashMap<String, String>();
 
-        for (StringTokenizer tokenizer = new StringTokenizer(getString(0, getLength()), "\r\n"); tokenizer.hasMoreElements(); ) {
-            String[] parts = tokenizer.nextToken().split(": ");
-            if (parts.length == 2) {
-                headers.put(parts[0].trim(), parts[1].trim());
+            for (StringTokenizer tokenizer = new StringTokenizer(getString(0, getLength()), "\r\n"); tokenizer.hasMoreElements(); ) {
+                String[] parts = tokenizer.nextToken().split(": ");
+                if (parts.length == 2) {
+                    headers.put(parts[0].trim(), parts[1].trim());
+                }
             }
         }
 
@@ -104,12 +107,16 @@ public class HttpHeader extends EncodedHeader {
 
     @Override
     public int getLength() {
-        Matcher matcher = getMatcher(Delimiter);
-        if (matcher.find()) {
-            return matcher.end();
-        } else {
-            return 0;
+        if (length == -1) {
+            Matcher matcher = getMatcher(Delimiter);
+            if (matcher.find()) {
+                length = matcher.end();
+            } else {
+                length = 0;
+            }
         }
+
+        return length;
     }
 
     @Override
@@ -156,17 +163,24 @@ public class HttpHeader extends EncodedHeader {
     }
 
     @Override
+    public Header clone() {
+        HttpHeader header = (HttpHeader) super.clone();
+        header.headers = null;
+        header.length = -1;
+
+        return header;
+    }
+
+    @Override
     public boolean isBound(LinkedList<Header> previousHeaders, Pcap.DataLinkType dataLinkType) {
         if (previousHeaders.getLast() instanceof TcpHeader) {
             TcpHeader header = (TcpHeader) previousHeaders.getLast();
 
-            if (bindToDefaultPorts) {
-                return header.getDestinationPort() == 80 || header.getSourcePort() == 80;
+            if (bindToDefaultPorts && !(header.getDestinationPort() == 80 || header.getSourcePort() == 80)) {
+                return false;
             }
 
-            if (getDirection() != null) {
-                return true;
-            }
+            return getDirection() != null;
         }
 
         return false;

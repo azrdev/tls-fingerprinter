@@ -4,7 +4,7 @@ package de.rub.nds.virtualnetworklayer.packet;
 import de.rub.nds.virtualnetworklayer.util.Util;
 
 /**
- * Implements a packet solely containing raw byte data.
+ * Implements a packet solely containing raw byte content.
  *
  * @author Marco Faltermeier <faltermeier@me.com>
  */

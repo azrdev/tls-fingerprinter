@@ -1,5 +1,7 @@
 package de.rub.nds.virtualnetworklayer.util.formatter;
 
+import java.util.List;
+
 /**
  * Formatter for Mac addresses.
  * </p>
@@ -19,6 +21,22 @@ public class MacFormatter extends StringFormatter {
 
             builder.append(String.format("%02x", b));
         }
+
+        return builder.toString();
+    }
+
+    public static String toString(List<byte[]> addresses) {
+        StringBuilder builder = new StringBuilder(addresses.size() * 6);
+        builder.append("[");
+
+        for (byte[] address : addresses) {
+            if (builder.length() != 1) {
+                builder.append(", ");
+            }
+            builder.append(toString(address));
+        }
+
+        builder.append("]");
 
         return builder.toString();
     }

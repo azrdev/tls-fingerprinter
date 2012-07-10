@@ -3,10 +3,10 @@ package de.rub.nds.virtualnetworklayer;
 import de.rub.nds.virtualnetworklayer.packet.Headers;
 import de.rub.nds.virtualnetworklayer.packet.PacketHandler;
 import de.rub.nds.virtualnetworklayer.packet.PcapPacket;
-import de.rub.nds.virtualnetworklayer.packet.header.link.wlan.IEEE802_11Header;
 import de.rub.nds.virtualnetworklayer.pcap.Pcap;
 
 import java.io.IOException;
+import java.util.HashMap;
 
 /**
  * This class demonstrates radio frequency monitoring.
@@ -15,15 +15,18 @@ import java.io.IOException;
  */
 public class RFMonDemo {
 
+    private static HashMap<String, String> bssids = new HashMap<String, String>();
+
     public static void main(String[] args) throws IOException, InterruptedException {
         //open pcap on local rfmon
         Pcap pcap = Pcap.openRadioFrequencyMonitor();
 
-        pcap.loopAsynchronous(new PacketHandler() {
+        pcap.loopAsynchronous(new PacketHandler(false) {
             @Override
             public void newPacket(PcapPacket packet) {
-                IEEE802_11Header header = packet.getHeader(Headers.IEEE802_11);
-                System.out.println(header.toFormattedString());
+                if (packet.hasHeader(Headers.IEEE802_11)) {
+                    System.out.println(packet.toFormattedString());
+                }
             }
         });
     }

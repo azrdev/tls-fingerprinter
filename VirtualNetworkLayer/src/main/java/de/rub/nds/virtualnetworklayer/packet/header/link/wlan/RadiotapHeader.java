@@ -7,7 +7,9 @@ import de.rub.nds.virtualnetworklayer.util.formatter.Protocol;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.util.EnumSet;
 import java.util.LinkedList;
+import java.util.Set;
 
 /**
  * Radiotap
@@ -19,30 +21,29 @@ import java.util.LinkedList;
 public class RadiotapHeader extends Header {
     private final static int Id = Headers.Radiotap.getId();
 
-    public static enum Type {
-        TSFT(0),
-        Flags(1),
-        Rate(2),
-        Channel(3),
-        FHSS(4),
-        dBmAntennaSignal(5),
-        dBmAntennaNoise(6),
-        LockQuality(7),
-        TxAttenuation(8),
-        dbTxAttenuation(9),
-        dBmTxPower(10),
-        Antenna(11),
-        dbAntennaSignal(12),
-        dbAntennaNoise(13),
-        RxFlags(14),
-        TxFlags(15),
-        RtsRetries(16),
-        DataRetries(17),
-        Ext(31);
+    public static enum Flag {
+        TSFT(0x01),
+        Flags(0x02),
+        Rate(0x04),
+        Channel(0x08),
+        FHSS(0x10),
+        dBmAntennaSignal(0x20),
+        dBmAntennaNoise(0x40),
+        LockQuality(0x80),
+        TxAttenuation(0x100),
+        dbTxAttenuation(0x200),
+        dBmTxPower(0x400),
+        Antenna(0x800),
+        dbAntennaSignal(0x1000),
+        dbAntennaNoise(0x2000),
+        RxFlags(0x4000),
+        TxFlags(0x8000),
+        RtsRetries(0x10000),
+        DataRetries(0x20000);
 
         private int position;
 
-        private Type(int position) {
+        private Flag(int position) {
             this.position = position;
         }
     }
@@ -60,9 +61,19 @@ public class RadiotapHeader extends Header {
         return getUShort(2);
     }
 
-    public long getPresent() {
-        return getUInteger(4);
+    public Set<Flag> getPresent() {
+        Set<Flag> flags = EnumSet.noneOf(Flag.class);
+        long mask = getUInteger(4);
+
+        for (Flag flag : Flag.values()) {
+            if ((mask & flag.position) == flag.position) {
+                flags.add(flag);
+            }
+        }
+
+        return flags;
     }
+
 
     @Override
     public int getId() {

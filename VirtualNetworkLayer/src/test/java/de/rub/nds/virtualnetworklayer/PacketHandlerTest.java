@@ -8,12 +8,17 @@ import de.rub.nds.virtualnetworklayer.packet.header.application.DhcpHeader;
 import de.rub.nds.virtualnetworklayer.packet.header.application.TlsHeader;
 import de.rub.nds.virtualnetworklayer.packet.header.internet.Ip4Header;
 import de.rub.nds.virtualnetworklayer.packet.header.internet.Ip6Header;
+import de.rub.nds.virtualnetworklayer.packet.header.link.ArpHeader;
+import de.rub.nds.virtualnetworklayer.packet.header.link.ethernet.Ethernet;
 import de.rub.nds.virtualnetworklayer.packet.header.link.ethernet.EthernetHeader;
+import de.rub.nds.virtualnetworklayer.packet.header.link.ethernet.IEEE802_2Header;
+import de.rub.nds.virtualnetworklayer.packet.header.link.ethernet.IEEE802_3Header;
 import de.rub.nds.virtualnetworklayer.packet.header.link.ppp.PPPoEHeader;
 import de.rub.nds.virtualnetworklayer.packet.header.transport.TcpHeader;
 import de.rub.nds.virtualnetworklayer.packet.header.transport.UdpHeader;
 import de.rub.nds.virtualnetworklayer.pcap.Pcap;
 import de.rub.nds.virtualnetworklayer.util.formatter.IpFormatter;
+import de.rub.nds.virtualnetworklayer.util.formatter.MacFormatter;
 import org.junit.Test;
 
 import java.io.File;
@@ -99,6 +104,53 @@ public class PacketHandlerTest {
             }
         });
     }
+
+    @Test
+    public void arp() {
+        File file = new File(path, "arp.pcap");
+        Pcap pcap = Pcap.openOffline(file);
+
+        pcap.loop(new PacketHandler() {
+            @Override
+            public void newPacket(PcapPacket packet) {
+                ArpHeader header = packet.getHeader(Headers.Arp);
+                if (header.getOperation() == 1) {
+                    assertEquals(1, header.getHardwareType());
+                    assertEquals(Ethernet.Type.Ip4, header.getProtocolType());
+                    assertEquals(6, header.getHardwareAddressLength());
+                    assertEquals(4, header.getProtocolAddressLength());
+                    assertEquals(1, header.getOperation());
+                    assertEquals("60:33:4b:0b:42:16", MacFormatter.toString(header.getSenderHardwareAddress()));
+                    assertEquals("00:00:00:00:00:00", MacFormatter.toString(header.getTargetHardwareAddress()));
+                    assertEquals("192.168.6.20", IpFormatter.toIp4String(header.getSenderProtocolAddress()));
+                    assertEquals("192.168.6.1", IpFormatter.toIp4String(header.getTargetProtocolAddress()));
+                }
+            }
+        });
+    }
+
+    @Test
+    public void logicalLinkControl() {
+        File file = new File(path, "logicalLinkControl.pcap");
+        Pcap pcap = Pcap.openOffline(file);
+
+        pcap.loop(new PacketHandler() {
+            @Override
+            public void newPacket(PcapPacket packet) {
+                IEEE802_3Header ethernet = packet.getHeader(Headers.IEEE802_3);
+                assertEquals(235, ethernet.getPayloadLength());
+                assertEquals("ff:ff:ff:ff:ff:ff", MacFormatter.toString(ethernet.getDestinationMac()));
+                assertEquals("00:40:68:5b:ea:69", MacFormatter.toString(ethernet.getSourceMac()));
+
+                IEEE802_2Header llcHeader = packet.getHeader(Headers.IEEE802_2);
+                assertEquals(0xba, llcHeader.getDestinationServiceAccessPoint());
+                assertEquals(0xba, llcHeader.getSourceServiceAccessPoint());
+                assertEquals(0x03, llcHeader.getControl());
+                assertEquals(232, llcHeader.getPayload().length);
+            }
+        });
+    }
+
 
     @Test
     public void ipDhcp() {

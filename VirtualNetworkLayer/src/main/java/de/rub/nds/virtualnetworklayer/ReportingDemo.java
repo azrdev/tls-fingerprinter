@@ -9,6 +9,7 @@ import de.rub.nds.virtualnetworklayer.packet.PcapPacket;
 import de.rub.nds.virtualnetworklayer.pcap.Pcap;
 
 import java.io.IOException;
+import java.util.EnumSet;
 
 /**
  * This class demonstrates connection reporting.
@@ -19,10 +20,17 @@ import java.io.IOException;
 public class ReportingDemo {
     //set true for printing formatted packets
     private static boolean verbose = true;
+    private static boolean promiscuous = false;
 
     public static void main(String[] args) throws IOException, InterruptedException {
         ConnectionHandler.registerP0fFile(P0fFile.Embedded);
-        Pcap pcap = Pcap.openLive();
+
+        Pcap pcap = null;
+        if (promiscuous) {
+            pcap = Pcap.openLive(Pcap.getLiveDevice(), EnumSet.of(Pcap.OpenFlag.Promiscuous));
+        } else {
+            pcap = Pcap.openLive();
+        }
 
         pcap.loopAsynchronous(new ConnectionHandler() {
             @Override

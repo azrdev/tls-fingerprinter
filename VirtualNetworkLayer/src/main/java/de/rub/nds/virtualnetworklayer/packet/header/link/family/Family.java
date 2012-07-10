@@ -10,7 +10,9 @@ public interface Family {
     public static enum AddressFamily {
         INET(2),
         APPLETALK(16),
-        INET6(24);
+        INET6OpenBSD(24),
+        INET6FreeBSD(28),
+        INET6OSX(30);
 
         private int id;
 
@@ -26,6 +28,10 @@ public interface Family {
             }
 
             return null;
+        }
+
+        public boolean isINet6() {
+            return this == INET6OSX || this == INET6FreeBSD || this == INET6OpenBSD;
         }
 
     }

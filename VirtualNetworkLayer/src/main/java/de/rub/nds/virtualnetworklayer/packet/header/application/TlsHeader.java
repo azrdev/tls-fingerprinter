@@ -37,6 +37,7 @@ public class TlsHeader extends Header {
         DefaultPorts.add(993); //imaps
         DefaultPorts.add(994); //ircs
         DefaultPorts.add(995); //pop3s
+        DefaultPorts.add(5061); //sips
     }
 
     public static enum ContentType {

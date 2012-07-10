@@ -13,7 +13,8 @@ public abstract class Ip extends Header {
         Icmp(1),
         Igmp(2),
         Tcp(6),
-        Udp(17);
+        Udp(17),
+        Gre(47);
 
         private int id;
 

@@ -31,7 +31,7 @@ public abstract class EncodedHeader extends Header {
     }
 
     protected final CharSequence getSequence(int offset, int length) {
-        if (decodedPayload.remaining() > offset + length) {
+        if (decodedPayload.limit() >= offset + length) {
             return decodedPayload.subSequence(offset, offset + length);
         }
 
@@ -49,6 +49,10 @@ public abstract class EncodedHeader extends Header {
         }
 
         return payload;
+    }
+
+    public String getContent() {
+        return getString(getLength(), getPayloadLength());
     }
 
     /**

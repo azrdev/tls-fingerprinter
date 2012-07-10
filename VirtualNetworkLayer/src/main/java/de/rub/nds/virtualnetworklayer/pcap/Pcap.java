@@ -19,7 +19,7 @@ import java.util.Set;
 /**
  * Pcap wrapper
  * </p>
- * To create a new instance, use one of the following factory methods:
+ * To create a new instance use one of the following factory methods:
  * <ul>
  * <li>live capturing: {@link #openLive()}, {@link #openLive(Device)}, {@link #openLive(Device, java.util.Set)}</li>
  * <li>opening an pcap dump: {@link #openOffline(java.io.File)}</li>
@@ -29,7 +29,7 @@ import java.util.Set;
  * If a instance was not closed or garbage collected, when the Java virtual machine is shutting down,
  * {@link Pcap.GarbageCollector} kicks in.
  * </p>
- * Then register a callback {@link PcapHandler} with {@link #loopAsynchronous(PcapHandler)} or {@link #loop(PcapHandler)}.
+ * Register a callback {@link PcapHandler} with {@link #loopAsynchronous(PcapHandler)} or {@link #loop(PcapHandler)}.
  *
  * @author Marco Faltermeier <faltermeier@me.com>
  * @see Runtime#addShutdownHook(Thread)
@@ -75,7 +75,9 @@ public class Pcap {
         public void run() {
             for (WeakReference<Pcap> reference : new LinkedList<WeakReference<Pcap>>(references)) {
                 Pcap instance = reference.get();
-                instance.finalize();
+                if (instance != null) {
+                    instance.finalize();
+                }
             }
         }
     }
@@ -136,7 +138,9 @@ public class Pcap {
         IEEE802_11(105),
         Sll(113),
         PfLog(117),
-        Radiotap(127);
+        Prism(119),
+        Radiotap(127),
+        Avs(163);
 
         private int id;
 
@@ -522,7 +526,9 @@ public class Pcap {
             }
 
             PcapLibrary.pcap_close(pcap_t);
-            references.remove(referencePosition);
+            if (referencePosition < references.size()) {
+                references.remove(referencePosition);
+            }
         }
     }
 
