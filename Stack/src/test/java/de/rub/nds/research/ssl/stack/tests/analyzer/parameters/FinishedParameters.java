@@ -21,8 +21,25 @@ public class FinishedParameters extends AParameters {
 	private boolean destroyVerify = false;
 	/**Change the length byte of the padding string.*/
 	private boolean changePadLength = false;
+	/**Change the padding string.*/
+	private boolean changePadding = false;
 	
-	
+	/**
+	 * Signalizes if padding string should be changed.
+	 * @return True if padding string should be changed.
+	 */
+	public boolean isChangePadding() {
+		return changePadding;
+	}
+
+	/**
+	 * Set true if padding string should be changed.
+	 * @param changePadding True if padding string should be changed.
+	 */
+	public void setChangePadding(boolean changePadding) {
+		this.changePadding = changePadding;
+	}
+
 	/**
 	 * Signalizes if MAC value should be destroyed.
 	 * @return True if MAC is destroyed.
@@ -102,7 +119,8 @@ public class FinishedParameters extends AParameters {
 		updateHash(sha1, getDescription().getBytes());
 		updateHash(sha1, String.valueOf(isDestroyMAC()).getBytes());
 		updateHash(sha1, String.valueOf(isDestroyHash()).getBytes());
-		updateHash(sha1, String.valueOf(isDestroyVerify()).getBytes());
+		updateHash(sha1, String.valueOf(isChangePadLength()).getBytes());
+		updateHash(sha1, String.valueOf(isChangePadding()).getBytes());
 		byte [] hash = sha1.digest();
 		String hashValue = Utility.bytesToHex(hash);
 		hashValue = hashValue.replace(" ", "");

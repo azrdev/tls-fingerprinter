@@ -1,19 +1,27 @@
 package de.rub.nds.research.ssl.stack.tests.attacktests;
 
+import de.rub.nds.research.ssl.stack.Utility;
+import de.rub.nds.research.ssl.stack.protocols.commons.ECipherSuite;
 import de.rub.nds.research.ssl.stack.protocols.commons.EConnectionEnd;
 import de.rub.nds.research.ssl.stack.protocols.commons.EContentType;
 import de.rub.nds.research.ssl.stack.protocols.commons.EProtocolVersion;
 import de.rub.nds.research.ssl.stack.protocols.commons.SecurityParameters;
+import de.rub.nds.research.ssl.stack.protocols.handshake.ClientHello;
 import de.rub.nds.research.ssl.stack.protocols.handshake.Finished;
+import de.rub.nds.research.ssl.stack.protocols.handshake.datatypes.CipherSuites;
+import de.rub.nds.research.ssl.stack.protocols.handshake.datatypes.RandomValue;
 import de.rub.nds.research.ssl.stack.protocols.msgs.TLSCiphertext;
 import de.rub.nds.research.ssl.stack.protocols.msgs.datatypes.GenericBlockCipher;
+import de.rub.nds.research.ssl.stack.tests.analyzer.parameters.FinishedParameters;
 import de.rub.nds.research.ssl.stack.tests.common.KeyMaterial;
 import de.rub.nds.research.ssl.stack.tests.workflows.SSLHandshakeWorkflow;
 import de.rub.nds.research.ssl.stack.tests.workflows.SSLHandshakeWorkflow.EStates;
+import de.rub.nds.research.ssl.stack.tests.common.MessageBuilder;
 import de.rub.nds.research.ssl.stack.tests.common.SSLServerHandler;
 import de.rub.nds.research.ssl.stack.tests.common.SSLTestUtils;
 import de.rub.nds.research.ssl.stack.tests.trace.Trace;
 import de.rub.nds.research.ssl.stack.tests.workflows.ObservableBridge;
+
 import java.net.SocketException;
 import java.security.InvalidKeyException;
 import java.util.Observable;
@@ -72,6 +80,10 @@ public class VaudenayTest implements Observer {
      * Initialize the log4j logger.
      */
     static Logger logger = Logger.getRootLogger();
+    /**
+     * Test parameters for finished message.
+     */
+    private FinishedParameters parameters = new FinishedParameters();
 
     /**
      * Test parameters for the Vaudenay Tests.
@@ -79,39 +91,40 @@ public class VaudenayTest implements Observer {
      * @return List of parameters
      */
     @DataProvider(name = "vaudenay")
-    public final Object[][] createData1() {
+    public final Object[][] createData() {
         return new Object[][]{
-                    {"OK case", protocolVersion, false},
-                    {"Wrong padding", protocolVersion, true}
+//                    {"OK case", false, false, false, false, false},
+                    {"Wrong padding", true, false, false, false, false},
+//                    {"Destroy MAC", false, true, false, false, false},
+//        		 	{"Destroy hash value", false, false, true, false, false},
+//        		 	{"Destroy Verify", false, false, false, true, false},
+//        		 	{"Change length byte of padding", false, false, false, false, true}
                 };
     }
-    /**
-     * Protocol version.
-     */
-    private EProtocolVersion pVersion;
-    /**
-     * Signalizes if padding should be changed.
-     */
-    private boolean changePadding;
 
     /**
      * Test Vaudenay attack.
      *
      * @param version Protocol version
      * @param changeByteArray True if padding should be changed
+     * @throws SocketException 
      */
     @Test(enabled = true, dataProvider = "vaudenay")
-    public final void testVaudenay(String desc,
-            EProtocolVersion version, boolean changePadding) throws
-            SocketException {
+    public final void testVaudenay(String desc, boolean changePadding, boolean destroyMAC,
+    		boolean destroyHash, boolean destroyVerify, boolean changePadLength) throws SocketException {
+    	logger.info("Test No." + this.counter + " : " + desc);
         workflow = new SSLHandshakeWorkflow();
         workflow.connectToTestServer(HOST, PORT);
+        workflow.addObserver(this, EStates.CLIENT_HELLO);
         workflow.addObserver(this, EStates.CLIENT_FINISHED);
-        pVersion = version;
-        this.changePadding = changePadding;
+        //set parameters
+        parameters.setChangePadding(changePadding);
+        parameters.setChangePadLength(changePadLength);
+        parameters.setDestroyHash(destroyHash);
+        parameters.setDestroyVerify(destroyVerify);
+        parameters.setDestroyMAC(destroyMAC);
+        //start workflow
         workflow.start();
-
-        logger.info("Test No." + this.counter + " : " + desc);
         logger.info("------------------------------");
         this.counter++;
     }
@@ -134,16 +147,30 @@ public class VaudenayTest implements Observer {
         }
         if (states != null) {
             switch (states) {
+            	case CLIENT_HELLO:
+            		MessageBuilder builder = new MessageBuilder();
+            		CipherSuites suites = new CipherSuites();
+            		RandomValue random = new RandomValue();
+            		suites.setSuites(new ECipherSuite[]{
+            				ECipherSuite.TLS_RSA_WITH_AES_256_CBC_SHA});
+            		ClientHello clientHello = builder.createClientHello(EProtocolVersion.TLS_1_0.getId(),
+            				random.encode(false),
+            				suites.encode(false), new byte[]{0x00});
+            		trace.setCurrentRecord(clientHello);
+                break;
                 case CLIENT_FINISHED:
                     SecurityParameters param = SecurityParameters.getInstance();
                     byte[] handshakeHashes = workflow.getHash();
-
+                    if (parameters.isDestroyHash()){
+                   	 handshakeHashes[5]=(byte)0x00;
+                    }
+                    
                     //create the key material
                     KeyMaterial keyMat = new KeyMaterial();
 
                     //create Finished message
                     byte[] data = null;
-                    Finished finished = new Finished(pVersion,
+                    Finished finished = new Finished(protocolVersion,
                             EConnectionEnd.CLIENT);
                     if (param.getMasterSecret() != null
                             && handshakeHashes != null) {
@@ -151,6 +178,9 @@ public class VaudenayTest implements Observer {
                             finished.createVerifyData(param.getMasterSecret(),
                                     handshakeHashes);
                             data = finished.encode(true);
+                            if (parameters.isDestroyVerify()){
+                           	 data[8]=(byte)0x00;
+                            }
                         } catch (InvalidKeyException e1) {
                             e1.printStackTrace();
                         }
@@ -174,6 +204,9 @@ public class VaudenayTest implements Observer {
                         try {
                             byte[] payloadMAC, plaintext;
                             payloadMAC = blockCipher.getMAC();
+                            if (parameters.isDestroyMAC()){
+                           	 payloadMAC[5]=(byte)0x00;
+                            }
                             plaintext = blockCipher.concatenateDataMAC(data,
                                     payloadMAC);
                             Cipher symmCipher = blockCipher.initBlockCipher(
@@ -182,7 +215,11 @@ public class VaudenayTest implements Observer {
                             byte[] paddedData, encryptedData = null;
                             int blockSize = symmCipher.getBlockSize();
                             paddedData = utils.addPadding(plaintext, blockSize,
-                                    this.changePadding);
+                                    parameters.isChangePadding());
+                            if(parameters.isChangePadLength()){
+                           	 	paddedData[paddedData.length-1]=0x00;
+                           	 	logger.debug("Padded data: " + Utility.bytesToHex(paddedData));
+                            }
                             encryptedData = symmCipher.doFinal(paddedData);
                             rec.setGenericCipher(encryptedData);
                         } catch (IllegalBlockSizeException e1) {
@@ -198,13 +235,13 @@ public class VaudenayTest implements Observer {
             }
         }
     }
-
+    
     /**
      * Initialize logging properties
      */
     @BeforeClass
     public void setUpClass() {
-        PropertyConfigurator.configure("logging.properties");
+    	PropertyConfigurator.configure("logging.properties");
     }
 
     /**
@@ -212,7 +249,7 @@ public class VaudenayTest implements Observer {
      */
     @BeforeMethod
     public void setUp() {
-        serverHandler.startTestServer();
+    	 serverHandler.startTestServer();
     }
 
     /**
