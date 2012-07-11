@@ -12,26 +12,21 @@ import de.rub.nds.research.ssl.stack.protocols.handshake.datatypes.RandomValue;
 import de.rub.nds.research.ssl.stack.protocols.msgs.datatypes.RsaUtil;
 import de.rub.nds.research.ssl.stack.tests.analyzer.parameters.BleichenbacherParameters;
 import de.rub.nds.research.ssl.stack.tests.common.MessageBuilder;
-import de.rub.nds.research.ssl.stack.tests.workflows.SSLHandshakeWorkflow;
-import de.rub.nds.research.ssl.stack.tests.workflows.SSLHandshakeWorkflow.EStates;
 import de.rub.nds.research.ssl.stack.tests.common.SSLServerHandler;
 import de.rub.nds.research.ssl.stack.tests.common.SSLTestUtils;
 import de.rub.nds.research.ssl.stack.tests.trace.Trace;
 import de.rub.nds.research.ssl.stack.tests.workflows.ObservableBridge;
+import de.rub.nds.research.ssl.stack.tests.workflows.SSLHandshakeWorkflow;
+import de.rub.nds.research.ssl.stack.tests.workflows.SSLHandshakeWorkflow.EStates;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.security.PublicKey;
 import java.security.interfaces.RSAPublicKey;
 import java.util.Observable;
 import java.util.Observer;
-
 import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
-import org.testng.annotations.AfterMethod;
-import org.testng.annotations.BeforeClass;
-import org.testng.annotations.BeforeMethod;
-import org.testng.annotations.DataProvider;
-import org.testng.annotations.Test;
+import org.testng.annotations.*;
 
 /**
  * Test for Bleichenbacher attack.
@@ -64,7 +59,7 @@ public class BleichenbacherTest implements Observer {
     /**
      * Test counter.
      */
-    private int counter = 1;  
+    private int counter = 1;
     /**
      * Initialize the log4j logger.
      */
@@ -80,30 +75,40 @@ public class BleichenbacherTest implements Observer {
 
     /**
      * Test parameters for the Bleichenbacher Tests.
+     *
      * @return List of parameters
      */
     @DataProvider(name = "bleichenbacher")
     public Object[][] createData1() {
         return new Object[][]{
-                    {"OK case", new byte[]{0x00, 0x02}, new byte[]{0x00},
-                        protocolVersion, false, SSLTestUtils.POSITIONS.FIRST},
-                    {"Wrong protocol version in PreMasterSecret", new byte[]{
-                            0x00, 0x02},
-                        new byte[]{0x00}, EProtocolVersion.SSL_3_0, false, SSLTestUtils.POSITIONS.FIRST},
-                    {"Seperate byte not 0x00", new byte[]{0x00, 0x02},
-                        new byte[]{0x01}, protocolVersion, false, SSLTestUtils.POSITIONS.FIRST},
-                    {"Mode changed (first two bytes)", new byte[]{0x00, 0x01},
-                        new byte[]{0x00}, protocolVersion, false, SSLTestUtils.POSITIONS.FIRST},
-                    {"Zero byte at first position in padding", new byte[]{0x00,
-                            0x02},
-                        new byte[]{0x00}, protocolVersion, true, SSLTestUtils.POSITIONS.FIRST},
+                    {"OK case",
+                        new byte[]{0x00, 0x02}, new byte[]{0x00},
+                        protocolVersion, false,
+                        SSLTestUtils.POSITIONS.FIRST},
+                    {"Wrong protocol version in PreMasterSecret",
+                        new byte[]{0x00, 0x02}, new byte[]{0x00},
+                        EProtocolVersion.SSL_3_0, false,
+                        SSLTestUtils.POSITIONS.FIRST},
+                    {"Seperate byte not 0x00",
+                        new byte[]{0x00, 0x02}, new byte[]{0x01},
+                        protocolVersion, false,
+                        SSLTestUtils.POSITIONS.FIRST},
+                    {"Mode changed (first two bytes)",
+                        new byte[]{0x00, 0x01}, new byte[]{0x00},
+                        protocolVersion, false,
+                        SSLTestUtils.POSITIONS.FIRST},
+                    {"Zero byte at first position in padding",
+                        new byte[]{0x00, 0x02}, new byte[]{0x00},
+                        protocolVersion, true,
+                        SSLTestUtils.POSITIONS.FIRST},
                     {"Zero byte in the middle of the padding string",
                         new byte[]{0x00, 0x02}, new byte[]{0x00},
-                        protocolVersion, true, SSLTestUtils.POSITIONS.MIDDLE},
-                    {"Zero byte at the end of the padding string", new byte[]{
-                            0x00, 0x02},
-                        new byte[]{0x00}, protocolVersion, true, SSLTestUtils.POSITIONS.LAST},
-                        };
+                        protocolVersion, true,
+                        SSLTestUtils.POSITIONS.MIDDLE},
+                    {"Zero byte at the end of the padding string",
+                        new byte[]{0x00, 0x02}, new byte[]{0x00},
+                        protocolVersion, true,
+                        SSLTestUtils.POSITIONS.LAST},};
     }
 
     /**
@@ -122,21 +127,21 @@ public class BleichenbacherTest implements Observer {
             final EProtocolVersion version, final boolean changePadding,
             final SSLTestUtils.POSITIONS position)
             throws IOException {
-    	logger.info("++++Start Test No." + counter + "(" + desc +")++++");
+        logger.info("++++Start Test No." + counter + "(" + desc + ")++++");
         workflow = new SSLHandshakeWorkflow(false);
         workflow.connectToTestServer(HOST, PORT);
-        logger.info("Test Server: " + HOST +":" +PORT);
+        logger.info("Test Server: " + HOST + ":" + PORT);
         workflow.addObserver(this, EStates.CLIENT_HELLO);
         workflow.addObserver(this, EStates.CLIENT_KEY_EXCHANGE);
         logger.info(EStates.CLIENT_HELLO.name() + " state is observed");
         logger.info(EStates.CLIENT_KEY_EXCHANGE.name() + " state is observed");
-        
+
         parameters.setMode(mode);
         parameters.setSeparate(separate);
         parameters.setProtocolVersion(version);
         parameters.setChangePadding(changePadding);
         parameters.setPosition(position);
-        
+
         workflow.start();
         logger.info("------------------------------");
         this.counter++;
@@ -161,12 +166,13 @@ public class BleichenbacherTest implements Observer {
         if (states != null) {
             switch (states) {
                 case CLIENT_HELLO:
-                	MessageBuilder builder = new MessageBuilder();
+                    MessageBuilder builder = new MessageBuilder();
                     CipherSuites suites = new CipherSuites();
                     RandomValue random = new RandomValue();
                     suites.setSuites(new ECipherSuite[]{
                                 ECipherSuite.TLS_RSA_WITH_AES_128_CBC_SHA});
-                    ClientHello clientHello = builder.createClientHello(EProtocolVersion.TLS_1_0.getId(),
+                    ClientHello clientHello = builder.createClientHello(EProtocolVersion.TLS_1_0.
+                            getId(),
                             random.encode(false),
                             suites.encode(false), new byte[]{0x00});
                     trace.setCurrentRecord(clientHello);
@@ -209,7 +215,7 @@ public class BleichenbacherTest implements Observer {
                             getPaddingLength());
                     if (parameters.isChangePadding()) {
                         padding = utils.changeByteArray(padding,
-                                parameters.getPosition(), (byte)0x00);  
+                                parameters.getPosition(), (byte) 0x00);
                         utils.setPadding(padding);
                     }
                     //put the PKCS#1 pieces together
@@ -226,13 +232,13 @@ public class BleichenbacherTest implements Observer {
             }
         }
     }
-    
+
     /**
      * Initialize logging properties
      */
     @BeforeClass
     public void setUpClass() {
-    	PropertyConfigurator.configure("logging.properties");
+        PropertyConfigurator.configure("logging.properties");
     }
 
     /**
@@ -240,7 +246,7 @@ public class BleichenbacherTest implements Observer {
      */
     @BeforeMethod
     public void setUp() {
-            System.setProperty("javax.net.debug", "ssl");
+//            System.setProperty("javax.net.debug", "ssl");
         serverHandler.startTestServer();
     }
 

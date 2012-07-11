@@ -78,7 +78,7 @@ public class ResponseFetcher extends Observable implements Runnable {
 		        	//set changed Flag and notify the observer
 		        	this.setChanged();
 		        	this.notifyObservers(answer);
-		        	handFlow.weakUp();
+		        	handFlow.wakeUp();
 		        }
 		        else
 		        	//cancel fetching bytes if end of stream is reached

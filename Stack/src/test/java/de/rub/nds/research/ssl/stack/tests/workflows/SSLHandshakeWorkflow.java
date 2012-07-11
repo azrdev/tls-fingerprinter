@@ -324,7 +324,7 @@ public final class SSLHandshakeWorkflow extends AWorkflow implements Observer {
      *
      * @return Workflow thread.
      */
-    public void weakUp() {
+    public void wakeUp() {
         this.mainThread.interrupt();
     }
 
