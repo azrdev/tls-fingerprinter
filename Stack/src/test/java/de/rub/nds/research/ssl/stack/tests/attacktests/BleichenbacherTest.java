@@ -246,7 +246,6 @@ public class BleichenbacherTest implements Observer {
      */
     @BeforeMethod
     public void setUp() {
-//            System.setProperty("javax.net.debug", "ssl");
         serverHandler.startTestServer();
     }
 

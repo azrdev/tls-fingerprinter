@@ -42,7 +42,6 @@ public class SSLServerHandler {
      */
 	public void startTestServer() {
 		try {
-            System.setProperty("javax.net.debug", "ssl");
             sslServer = new SSLServer(PATH_TO_JKS, JKS_PASSWORD,
                     protocolShortName, PORT, PRINT_INFO);
             sslServerThread = new Thread(sslServer);
