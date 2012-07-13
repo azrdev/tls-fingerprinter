@@ -8,7 +8,5 @@ package de.rub.nds.research.ssl.stack.tests.analyzer.common;
 public enum ETLSImplementation {
 	OPENSSL,
 	JSSE_STANDARD,
-	JSSE_BOUNCY,
-	MICROSOFT,
 	GNUTLS
 }

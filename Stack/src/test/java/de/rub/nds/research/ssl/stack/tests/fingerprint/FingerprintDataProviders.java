@@ -38,20 +38,12 @@ public class FingerprintDataProviders {
     public static Object[][] createHandshakeHeaderData() {
         return new Object[][]{
                     {"Wrong message type", new byte[]{(byte) 0xff},
-                        null, null},
-                    {"Invalid protocol version 0xff,0xff",
-                        null, new byte[]{(byte) 0xff, (byte) 0xff}, null},
-                    {"Invalid protocol version 0x00,0x00",
-                        null, new byte[]{(byte) 0x00, (byte) 0x00}, null},
-                    {"Invalid protocol version SSLv3",
-                        null, new byte[]{(byte) 0x03, (byte) 0x00}, null},
-                    {"Invalid protocol version TLSv1.2",
-                        null, new byte[]{(byte) 0x03, (byte) 0x03}, null},
+                        null},
                     {"Invalid length 0x00,0x00,0x00",
-                        null, null, new byte[]{(byte) 0x00, (byte) 0x00,
+                        null, new byte[]{(byte) 0x00, (byte) 0x00,
                             (byte) 0x00}},
                     {"Invalid length 0xff,0xff,0xff",
-                        null, null, new byte[]{(byte) 0xff, (byte) 0xff,
+                        null, new byte[]{(byte) 0xff, (byte) 0xff,
                             (byte) 0xff}},
           };
     }

@@ -76,7 +76,7 @@ public class FingerprintFinishedHandshakeHeader implements Observer {
     @Test(enabled = true, dataProviderClass = FingerprintDataProviders.class,
     dataProvider = "handshakeHeader", invocationCount = 1)
     public void manipulateFinishedHandshakeHeader(String desc, byte[] msgType,
-            byte[] protocolVersion, byte[] recordLength) throws SocketException {
+            byte[] recordLength) throws SocketException {
         logger.info("++++Start Test No." + counter + "(" + desc + ")++++");
         workflow = new SSLHandshakeWorkflow();
         //connect to test server
@@ -95,7 +95,6 @@ public class FingerprintFinishedHandshakeHeader implements Observer {
 
         //set the test parameters
         parameters.setMsgType(msgType);
-        parameters.setProtocolVersion(protocolVersion);
         parameters.setRecordLength(recordLength);
         parameters.setTestClassName(this.getClass().getName());
         parameters.setDescription(desc);
@@ -147,11 +146,6 @@ public class FingerprintFinishedHandshakeHeader implements Observer {
                 byte[] recordLength = parameters.getRecordLength();
                 System.arraycopy(recordLength, 0, payload, 1,
                         recordLength.length);
-            }
-            //change protocol version of the message
-            if (parameters.getProtocolVersion() != null) {
-                byte[] protVersion = parameters.getProtocolVersion();
-                System.arraycopy(protVersion, 0, payload, 4, protVersion.length);
             }
 
             //encrypt Finished message

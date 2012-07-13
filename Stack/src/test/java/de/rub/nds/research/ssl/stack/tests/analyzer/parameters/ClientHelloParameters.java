@@ -13,6 +13,7 @@ import de.rub.nds.research.ssl.stack.Utility;
  */
 public class ClientHelloParameters extends AParameters {
 	
+	private byte[] protocolVersion = null;
 	/**Byte to separate random from the rest of the message.*/
 	private byte[] noSessionValue = null;
 	/**Session Id of the ClientHello message.*/
@@ -25,6 +26,24 @@ public class ClientHelloParameters extends AParameters {
 	private byte[] compMethod = null;
 
 	
+	public byte[] getProtocolVersion() {
+		if (this.protocolVersion != null){
+			return this.protocolVersion.clone();
+		}
+		else {
+			return null;
+		}
+	}
+
+	public void setProtocolVersion(byte[] protocolVersion) {
+		if (protocolVersion != null) {
+			this.protocolVersion = protocolVersion;
+		}
+		else {
+			this.protocolVersion = null;
+		}
+	}
+
 	/**
 	 * Get the session ID value if no sessionID is defined.
 	 * (Default is 0x00)
@@ -170,6 +189,7 @@ public class ClientHelloParameters extends AParameters {
 		}
 		updateHash(sha1, getTestClassName().getBytes());
 		updateHash(sha1, getDescription().getBytes());
+		updateHash(sha1, getProtocolVersion());
 		updateHash(sha1, getNoSessionIdValue());
 		updateHash(sha1, getSessionId());
 		updateHash(sha1, getSessionIdLen());

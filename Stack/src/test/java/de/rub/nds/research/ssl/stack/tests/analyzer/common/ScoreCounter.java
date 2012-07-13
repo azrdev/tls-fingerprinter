@@ -12,8 +12,6 @@ public class ScoreCounter {
 	
 	private int openSSLScore = 0;
 	private int jsseStandardScore = 0;
-	private int jsseBouncyScore = 0;
-	private int microsoftScore = 0;
 	private int gnutlsScore = 0;
 	private int totalCounter = 0;
 	private int noHit = 0;
@@ -41,10 +39,6 @@ public class ScoreCounter {
 		break;
 		case JSSE_STANDARD: this.jsseStandardScore += score;
 		break;
-		case JSSE_BOUNCY: this.jsseBouncyScore += score;
-		break;
-		case MICROSOFT: this.microsoftScore += score;
-		break;
 		case GNUTLS: this.gnutlsScore += score;
 		break;
 		default: break;
@@ -62,14 +56,6 @@ public class ScoreCounter {
 	
 	public int getJSSEStandardScore() {
 		return this.jsseStandardScore;
-	}
-	
-	public int getJSSEBouncyScore() {
-		return this.jsseBouncyScore;
-	}
-	
-	public int getMicrosoftScore() {
-		return this.microsoftScore;
 	}
 	
 	public int getGNUtlsScore() {

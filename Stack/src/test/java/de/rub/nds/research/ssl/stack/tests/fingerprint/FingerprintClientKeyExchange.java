@@ -163,24 +163,10 @@ public class FingerprintClientKeyExchange implements Observer {
                 case CLIENT_KEY_EXCHANGE:
                     ClientKeyExchange cke = msgBuilder.createClientKeyExchange(
                             protocolVersion, this.workflow);
-//        		byte [] payload = cke.encode(true);
-//                byte [] tmp = null;
-//                if (parameters.getPayload() != null) {
-//                	byte [] testContent = parameters.getPayload();
-//                	tmp = new byte[ARecordFrame.LENGTH_MINIMUM_ENCODED + testContent.length];
-//                	//copy header
-//                	System.arraycopy(payload, 0, tmp, 0, ARecordFrame.LENGTH_MINIMUM_ENCODED);
-//                	//set length
-//                	tmp[4]=0x02;
-//                	//copy test parameter
-//                	System.arraycopy(testContent, 0, tmp, ARecordFrame.LENGTH_MINIMUM_ENCODED,
-//                			testContent.length);
-//                }
                     ClientDHPublic clientDHPublic = new ClientDHPublic();
                     clientDHPublic.setDhyc(parameters.getPayload());
                     cke.setExchangeKeys(clientDHPublic);
                     //update the trace object
-//                trace.setCurrentRecordBytes(tmp);
                     trace.setCurrentRecord(cke);
                 default:
                     break;

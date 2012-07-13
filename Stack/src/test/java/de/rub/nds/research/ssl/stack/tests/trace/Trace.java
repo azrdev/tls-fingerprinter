@@ -1,6 +1,5 @@
 package de.rub.nds.research.ssl.stack.tests.trace;
 
-import java.io.Serializable;
 import java.sql.Timestamp;
 
 import de.rub.nds.research.ssl.stack.protocols.ARecordFrame;
@@ -12,12 +11,8 @@ import de.rub.nds.research.ssl.stack.tests.workflows.SSLHandshakeWorkflow.EState
  * @author Eugen Weiss - eugen.weiss@ruhr-uni-bochum.de
  * @version 0.1 Apr 10, 2012
  */
-public final class Trace extends ATrace implements Serializable {
+public final class Trace extends ATrace {
 
-    /**
-     * Serial ID.
-     */
-    private static final long serialVersionUID = 1L;
     /**
      * Newly constructed SSL record.
      */

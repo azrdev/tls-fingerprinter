@@ -68,7 +68,7 @@ public class FingerprintCHHandshakeHeader implements Observer {
     @Test(enabled = true, dataProviderClass = FingerprintDataProviders.class,
     dataProvider = "handshakeHeader", invocationCount = 1)
     public void manipulateCHHandshakeHeader(String desc, byte[] msgType,
-            byte[] protocolVersion, byte[] recordLength) throws SocketException {
+           byte[] recordLength) throws SocketException {
         logger.info("++++Start Test No." + counter + "(" + desc + ")++++");
         logger.info("Following test parameters are used:");
         workflow = new SSLHandshakeWorkflow();
@@ -85,7 +85,6 @@ public class FingerprintCHHandshakeHeader implements Observer {
         logger.info(EStates.CLIENT_HELLO.name() + " state is observed");
 
         parameters.setMsgType(msgType);
-        parameters.setProtocolVersion(protocolVersion);
         parameters.setRecordLength(recordLength);
         parameters.setTestClassName(this.getClass().getName());
         parameters.setDescription(desc);
@@ -135,10 +134,6 @@ public class FingerprintCHHandshakeHeader implements Observer {
                 byte[] recordLength = parameters.getRecordLength();
                 System.arraycopy(recordLength, 0, payload, 6,
                         recordLength.length);
-            }
-            if (parameters.getProtocolVersion() != null) {
-                byte[] protVersion = parameters.getProtocolVersion();
-                System.arraycopy(protVersion, 0, payload, 9, protVersion.length);
             }
             trace.setCurrentRecordBytes(payload);
             trace.setCurrentRecord(clientHello);
