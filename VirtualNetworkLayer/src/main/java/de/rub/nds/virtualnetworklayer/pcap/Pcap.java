@@ -76,7 +76,12 @@ public class Pcap {
             for (WeakReference<Pcap> reference : new LinkedList<WeakReference<Pcap>>(references)) {
                 Pcap instance = reference.get();
                 if (instance != null) {
-                    instance.finalize();
+                    try {
+                        Thread.sleep(10L);
+                        instance.finalize();
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
                 }
             }
         }
@@ -525,7 +530,10 @@ public class Pcap {
                 breakloop();
             }
 
-            PcapLibrary.pcap_close(pcap_t);
+            if (pcap_t != null) {
+                PcapLibrary.pcap_close(pcap_t);
+            }
+
             if (referencePosition < references.size()) {
                 references.remove(referencePosition);
             }

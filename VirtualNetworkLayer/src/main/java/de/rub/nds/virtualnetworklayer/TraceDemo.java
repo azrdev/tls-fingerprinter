@@ -45,7 +45,7 @@ public class TraceDemo {
 
             //wait until http response reassembly is complete
             synchronized (connection) {
-                while (connection.available() < 7 || connection.getTrace().hasIncompleteSequences()) {
+                while (connection.available() < 8 || connection.getTrace().hasIncompleteSequences()) {
                     connection.wait();
                 }
             }
