@@ -184,7 +184,7 @@ public class BleichenbacherAttackTest {
                 };
     }
 
-    @Test(enabled = true, dataProvider = "bleichenbacher", invocationCount = 1)
+    @Test(enabled = false, dataProvider = "bleichenbacher", invocationCount = 1)
     public final void testBleichenbacherAttack(String desc, AOracle oracle) {
         logger.info("++++Start Test No." + counter + "(" + desc + ")++++");
 

@@ -6,19 +6,13 @@ package de.rub.nds.research.ssl.stack.tests.attacks.bleichenbacher;
 
 import de.rub.nds.research.ssl.stack.tests.attacks.bleichenbacher.oracles.AOracle;
 import de.rub.nds.research.ssl.stack.tests.attacks.bleichenbacher.oracles.ATestOracle;
-import de.rub.nds.research.ssl.stack.tests.attacks.bleichenbacher.oracles.JSSEOracle;
 import de.rub.nds.research.ssl.stack.tests.attacks.bleichenbacher.oracles.StandardPlaintextOracle;
 import java.security.*;
-import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
-import javax.crypto.IllegalBlockSizeException;
-import javax.crypto.NoSuchPaddingException;
-import javax.net.ssl.SSLException;
 import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.testng.annotations.BeforeClass;
-import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 /**
@@ -33,7 +27,7 @@ public class BleichenbacherAttackPlaintextTest {
      */
     static Logger logger = Logger.getRootLogger();
     
-    @Test(enabled = true)
+    @Test(enabled = false)
     public final void testBleichenbacherAttack() 
             throws Exception {
         
@@ -58,8 +52,8 @@ public class BleichenbacherAttackPlaintextTest {
         AOracle oracle = new StandardPlaintextOracle(keyPair.getPublic(),
                 ATestOracle.OracleType.TTT, cipher.getBlockSize());
 
-        BleichenbacherAttack attacker = new BleichenbacherAttack(message,
-                oracle, true);
+        BleichenbacherAttackCrypto attacker = new BleichenbacherAttackCrypto(message,
+                oracle, 500,  false);
         attacker.attack();
 
         logger.info("------------------------------");
