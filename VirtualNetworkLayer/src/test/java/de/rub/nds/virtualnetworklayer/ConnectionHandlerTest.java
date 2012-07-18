@@ -28,8 +28,6 @@ import java.util.List;
 import static org.junit.Assert.*;
 
 public class ConnectionHandlerTest {
-
-    private static String path = PacketHandlerTest.class.getResource("").getPath();
     private static PcapConnection pcapConnection;
 
     @BeforeClass
@@ -39,7 +37,7 @@ public class ConnectionHandlerTest {
 
     @Test
     public void serverHelloTlsFragmented() {
-        File file = new File(path, "serverHelloTlsFragmented.pcap");
+        File file = new File(getClass().getResource("serverHelloTlsFragmented.pcap").getPath());
         Pcap pcap = Pcap.openOffline(file);
 
         pcap.loop(new ConnectionHandler() {
@@ -90,7 +88,7 @@ public class ConnectionHandlerTest {
 
     @Test
     public void tcpSegmentLost() {
-        File file = new File(path, "tcpSegmentLost.pcap");
+        File file = new File(getClass().getResource("tcpSegmentLost.pcap").getPath());
         Pcap pcap = Pcap.openOffline(file);
 
         pcap.loop(new ConnectionHandler() {
@@ -115,7 +113,7 @@ public class ConnectionHandlerTest {
 
     @Test
     public void udpSip() {
-        File file = new File(path, "udpSip.pcap");
+        File file = new File(getClass().getResource("udpSip.pcap").getPath());
         Pcap pcap = Pcap.openOffline(file);
 
         pcap.loop(new ConnectionHandler() {
@@ -136,7 +134,7 @@ public class ConnectionHandlerTest {
 
     @Test
     public void smtpStartTls() {
-        File file = new File(path, "smtpStartTls.pcap");
+        File file = new File(getClass().getResource("smtpStartTls.pcap").getPath());
         Pcap pcap = Pcap.openOffline(file);
 
         pcap.loop(new ConnectionHandler() {
@@ -169,7 +167,7 @@ public class ConnectionHandlerTest {
 
     @Test
     public void pcapTraceIterator() throws FileNotFoundException {
-        File file = new File(path, "tcpHandshake.pcap");
+        File file = new File(getClass().getResource("tcpHandshake.pcap").getPath());
         Pcap pcap = Pcap.openOffline(file);
 
         pcap.loop(new ConnectionHandler() {
@@ -195,7 +193,7 @@ public class ConnectionHandlerTest {
 
     @Test
     public void tcpHandshakeFingerprint() throws FileNotFoundException {
-        File file = new File(path, "tcpHandshake.pcap");
+        File file = new File(getClass().getResource("tcpHandshake.pcap").getPath());
         Pcap pcap = Pcap.openOffline(file);
 
         pcap.loop(new ConnectionHandler() {
@@ -226,7 +224,7 @@ public class ConnectionHandlerTest {
 
     @Test
     public void httpsGoogleFingerprint() throws FileNotFoundException {
-        File file = new File(path, "httpsGoogle.pcap");
+        File file = new File(getClass().getResource("httpsGoogle.pcap").getPath());
         Pcap pcap = Pcap.openOffline(file);
 
         ConnectionHandler handler = new ConnectionHandler.Quiet();
@@ -237,7 +235,7 @@ public class ConnectionHandlerTest {
 
     @Test
     public void httpFreeBSDFingerprint() throws FileNotFoundException {
-        File file = new File(path, "httpFreeBSD.pcap");
+        File file = new File(getClass().getResource("httpFreeBSD.pcap").getPath());
         Pcap pcap = Pcap.openOffline(file);
 
         pcap.loop(new ConnectionHandler() {
@@ -258,7 +256,7 @@ public class ConnectionHandlerTest {
 
     @Test
     public void tcpSynMacOSXFingerprint() throws FileNotFoundException {
-        File file = new File(path, "tcpSynMacOSX.pcap");
+        File file = new File(getClass().getResource("tcpSynMacOSX.pcap").getPath());
         Pcap pcap = Pcap.openOffline(file);
 
         pcap.loop(new ConnectionHandler() {
@@ -279,7 +277,7 @@ public class ConnectionHandlerTest {
 
     @Test
     public void tcpSynAckCiscoFingerprint() throws FileNotFoundException {
-        File file = new File(path, "tcpSynAckCisco.pcap");
+        File file = new File(getClass().getResource("tcpSynAckCisco.pcap").getPath());
         Pcap pcap = Pcap.openOffline(file);
 
         pcap.loop(new ConnectionHandler() {

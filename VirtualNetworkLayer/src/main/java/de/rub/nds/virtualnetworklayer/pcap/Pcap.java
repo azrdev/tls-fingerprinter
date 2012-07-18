@@ -45,6 +45,7 @@ public class Pcap {
     private Device device;
     private int referenceCount = 0;
     private int referencePosition = 0;
+    private String filter = "";
 
     private static int snaplen = 65535;
     private static int mode = 0;
@@ -290,7 +291,8 @@ public class Pcap {
         for (WeakReference<Pcap> reference : references) {
             Pcap instance = reference.get();
 
-            if (instance != null && instance.getDevice() != null && instance.getDevice().isBound(address) && instance.getHandler() instanceof ConnectionHandler) {
+            if (instance != null && instance.getDevice() != null && instance.getDevice().isBound(address)
+                    && !instance.filter.isEmpty() && instance.getHandler() instanceof ConnectionHandler) {
                 instance.referenceCount++;
 
                 return instance;
@@ -344,6 +346,7 @@ public class Pcap {
      * @see <a href="http://www.cs.ucr.edu/~marios/ethereal-tcpdump.pdf">cs.ucr.edu/~marios/ethereal-tcpdump.pdf</a>
      */
     public Status filter(String filter) {
+        this.filter = filter;
         Pointer<bpf_program> bpf_program = Pointer.allocate(bpf_program.class);
 
         if (Status.valueOf(PcapLibrary.pcap_compile(pcap_t, bpf_program, Pointer.pointerToCString(filter), 0, 0)) == Status.Success) {

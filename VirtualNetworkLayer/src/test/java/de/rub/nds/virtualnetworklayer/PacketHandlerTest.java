@@ -30,8 +30,6 @@ import java.util.concurrent.ArrayBlockingQueue;
 import static junit.framework.Assert.*;
 
 public class PacketHandlerTest {
-    private static String path = PacketHandlerTest.class.getResource("").getPath();
-
     public class CountingPacketHandler extends PacketHandler {
         private int[] headerCount;
         private int fragmentCount = 0;
@@ -78,7 +76,7 @@ public class PacketHandlerTest {
 
     @Test
     public void ipPPPoE() {
-        File file = new File(path, "ipPPPoE.pcap");
+        File file = new File(getClass().getResource("ipPPPoE.pcap").getPath());
         Pcap pcap = Pcap.openOffline(file);
 
         CountingPacketHandler packetHandler = new CountingPacketHandler();
@@ -91,7 +89,7 @@ public class PacketHandlerTest {
 
     @Test
     public void ethernetTrailer() {
-        File file = new File(path, "ethernetTrailer.pcap");
+        File file = new File(getClass().getResource("ethernetTrailer.pcap").getPath());
         Pcap pcap = Pcap.openOffline(file);
 
         pcap.loop(new PacketHandler() {
@@ -107,7 +105,7 @@ public class PacketHandlerTest {
 
     @Test
     public void arp() {
-        File file = new File(path, "arp.pcap");
+        File file = new File(getClass().getResource("arp.pcap").getPath());
         Pcap pcap = Pcap.openOffline(file);
 
         pcap.loop(new PacketHandler() {
@@ -131,7 +129,7 @@ public class PacketHandlerTest {
 
     @Test
     public void logicalLinkControl() {
-        File file = new File(path, "logicalLinkControl.pcap");
+        File file = new File(getClass().getResource("logicalLinkControl.pcap").getPath());
         Pcap pcap = Pcap.openOffline(file);
 
         pcap.loop(new PacketHandler() {
@@ -154,7 +152,7 @@ public class PacketHandlerTest {
 
     @Test
     public void ipDhcp() {
-        File file = new File(path, "ipDhcp.pcap");
+        File file = new File(getClass().getResource("ipDhcp.pcap").getPath());
         Pcap pcap = Pcap.openOffline(file);
 
         pcap.loop(new PacketHandler() {
@@ -189,7 +187,7 @@ public class PacketHandlerTest {
 
     @Test
     public void httpsGoogle() {
-        File file = new File(path, "httpsGoogle.pcap");
+        File file = new File(getClass().getResource("httpsGoogle.pcap").getPath());
         Pcap pcap = Pcap.openOffline(file);
 
         CountingPacketHandler packetHandler = new CountingPacketHandler();
@@ -207,7 +205,7 @@ public class PacketHandlerTest {
 
     @Test
     public void serverHelloTlsFragmented() {
-        File file = new File(path, "serverHelloTlsFragmented.pcap");
+        File file = new File(getClass().getResource("serverHelloTlsFragmented.pcap").getPath());
         Pcap pcap = Pcap.openOffline(file);
 
         QueueingPacketHandler packetHandler = new QueueingPacketHandler();
@@ -228,7 +226,7 @@ public class PacketHandlerTest {
 
     @Test
     public void clientHelloTls() {
-        File file = new File(path, "clientHelloTls.pcap");
+        File file = new File(getClass().getResource("clientHelloTls.pcap").getPath());
         Pcap pcap = Pcap.openOffline(file);
 
         pcap.loop(new PacketHandler() {

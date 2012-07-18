@@ -18,7 +18,10 @@ public class SsidSniffingDemo {
     public static void main(String[] args) throws IOException, InterruptedException {
         Pcap pcap = Pcap.openRadioFrequencyMonitor();
 
-        pcap.loopAsynchronous(new PacketHandler(false) {
+        //deactivate deep package copying for performance reasons
+        boolean deepCopy = false;
+
+        pcap.loopAsynchronous(new PacketHandler(deepCopy) {
             @Override
             public void newPacket(PcapPacket packet) {
                 if (packet.hasHeader(Headers.IEEE802_11)) {

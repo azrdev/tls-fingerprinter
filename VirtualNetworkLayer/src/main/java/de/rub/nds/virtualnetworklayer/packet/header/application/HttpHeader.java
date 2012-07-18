@@ -79,7 +79,11 @@ public class HttpHeader extends EncodedHeader {
     }
 
     public String getVersion() {
-        return getString(5, 3);
+        if (getDirection() == Packet.Direction.Response) {
+            return getString(5, 3);
+        }
+
+        return null;
     }
 
     public Status getStatus() {
@@ -87,7 +91,11 @@ public class HttpHeader extends EncodedHeader {
     }
 
     public int getStatusCode() {
-        return Integer.parseInt(getString(9, 3));
+        if (getDirection() == Packet.Direction.Response) {
+            return Integer.parseInt(getString(9, 3));
+        }
+
+        return 0;
     }
 
     public Map<String, String> getHeaders() {
