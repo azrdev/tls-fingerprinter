@@ -292,7 +292,7 @@ public class Pcap {
             Pcap instance = reference.get();
 
             if (instance != null && instance.getDevice() != null && instance.getDevice().isBound(address)
-                    && !instance.filter.isEmpty() && instance.getHandler() instanceof ConnectionHandler) {
+                    && instance.filter.isEmpty() && instance.getHandler() instanceof ConnectionHandler) {
                 instance.referenceCount++;
 
                 return instance;
