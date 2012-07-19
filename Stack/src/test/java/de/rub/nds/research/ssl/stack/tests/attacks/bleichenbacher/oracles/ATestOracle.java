@@ -10,23 +10,12 @@ package de.rub.nds.research.ssl.stack.tests.attacks.bleichenbacher.oracles;
  */
 public abstract class ATestOracle extends AOracle {
 
-    protected OracleType oracleType;
-
     /**
-     * Oracle types defined in the Crypto'12 paper + specific oracles found
-     * during our research
+     * checks the message and its PKCS#1 conformity according to the oracle type
      * 
-     * TTT checks only 0x00 0x02
-     * ...
-     * 
-     * FFF checks 0x00 0x02 on the beginning, the first 8 bytes cannot include
-     * 0x00 and the 0x00 byte has to be set on a correct position
+     * @param msg
+     * @return 
      */
-    public enum OracleType {
-
-        TTT, TFT, FTT, FFT, FFF, JSSE
-    }
-
     boolean checkDecryptedBytes(byte[] msg) {
 
         boolean conform = false;
