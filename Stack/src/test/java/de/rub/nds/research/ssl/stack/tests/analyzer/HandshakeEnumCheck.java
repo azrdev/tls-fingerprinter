@@ -2,6 +2,8 @@ package de.rub.nds.research.ssl.stack.tests.analyzer;
 
 import java.util.ArrayList;
 
+import org.testng.Reporter;
+
 import de.rub.nds.research.ssl.stack.protocols.alert.Alert;
 import de.rub.nds.research.ssl.stack.tests.analyzer.common.ETLSImplementation;
 import de.rub.nds.research.ssl.stack.tests.analyzer.common.ScoreCounter;
@@ -24,10 +26,13 @@ public class HandshakeEnumCheck extends AFingerprintAnalyzer {
 			if (currentTrace.getState() == EStates.SERVER_HELLO) {
 				if(currentTrace.isContinued()) {
 					counter.countResult(ETLSImplementation.JSSE_STANDARD, 2);
+					Reporter.log("Found fingerprint hit for " + ETLSImplementation.JSSE_STANDARD.name());
 				}
 				else {
 					counter.countResult(ETLSImplementation.GNUTLS, 1);
 					counter.countResult(ETLSImplementation.OPENSSL, 1);
+					Reporter.log("Found fingerprint hit for " + ETLSImplementation.GNUTLS.name() +
+							" and " + ETLSImplementation.OPENSSL.name());
 				}
 			}
 		}

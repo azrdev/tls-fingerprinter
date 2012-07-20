@@ -1,5 +1,6 @@
 package de.rub.nds.research.ssl.stack.tests.attacktests;
 
+import de.rub.nds.research.ssl.stack.Utility;
 import de.rub.nds.research.ssl.stack.protocols.commons.ECipherSuite;
 import de.rub.nds.research.ssl.stack.protocols.commons.EProtocolVersion;
 import de.rub.nds.research.ssl.stack.protocols.commons.KeyExchangeParams;
@@ -10,10 +11,13 @@ import de.rub.nds.research.ssl.stack.protocols.handshake.datatypes.EncryptedPreM
 import de.rub.nds.research.ssl.stack.protocols.handshake.datatypes.PreMasterSecret;
 import de.rub.nds.research.ssl.stack.protocols.handshake.datatypes.RandomValue;
 import de.rub.nds.research.ssl.stack.protocols.msgs.datatypes.RsaUtil;
+import de.rub.nds.research.ssl.stack.tests.analyzer.AFingerprintAnalyzer;
+import de.rub.nds.research.ssl.stack.tests.analyzer.TestHashAnalyzer;
 import de.rub.nds.research.ssl.stack.tests.analyzer.parameters.BleichenbacherParameters;
 import de.rub.nds.research.ssl.stack.tests.common.MessageBuilder;
 import de.rub.nds.research.ssl.stack.tests.common.SSLServerHandler;
 import de.rub.nds.research.ssl.stack.tests.common.SSLTestUtils;
+import de.rub.nds.research.ssl.stack.tests.common.TestConfiguration;
 import de.rub.nds.research.ssl.stack.tests.trace.Trace;
 import de.rub.nds.research.ssl.stack.tests.workflows.ObservableBridge;
 import de.rub.nds.research.ssl.stack.tests.workflows.SSLHandshakeWorkflow;
@@ -81,34 +85,43 @@ public class BleichenbacherTest implements Observer {
     @DataProvider(name = "bleichenbacher")
     public Object[][] createData1() {
         return new Object[][]{
-                    {"OK case",
-                        new byte[]{0x00, 0x02}, new byte[]{0x00},
-                        protocolVersion, false,
-                        SSLTestUtils.POSITIONS.FIRST},
+//                    {"OK case",
+//                        new byte[]{0x00, 0x02}, new byte[]{0x00},
+//                        protocolVersion.getId(), false,
+//                        SSLTestUtils.POSITIONS.FIRST},
                     {"Wrong protocol version in PreMasterSecret",
                         new byte[]{0x00, 0x02}, new byte[]{0x00},
-                        EProtocolVersion.SSL_3_0, false,
-                        SSLTestUtils.POSITIONS.FIRST},
+                        EProtocolVersion.SSL_3_0.getId(), false,
+                        SSLTestUtils.POSITIONS.FIRST, 0},
+                   {"Invalid protocol version in PreMasterSecret",
+                        new byte[]{0x00, 0x02}, new byte[]{0x00},
+                        new byte[]{(byte)0xff,(byte)0xff}, false,
+                        SSLTestUtils.POSITIONS.FIRST, 0},
                     {"Seperate byte not 0x00",
                         new byte[]{0x00, 0x02}, new byte[]{0x01},
-                        protocolVersion, false,
-                        SSLTestUtils.POSITIONS.FIRST},
+                        protocolVersion.getId(), false,
+                        SSLTestUtils.POSITIONS.FIRST, 0},
                     {"Mode changed (first two bytes)",
                         new byte[]{0x00, 0x01}, new byte[]{0x00},
-                        protocolVersion, false,
-                        SSLTestUtils.POSITIONS.FIRST},
+                        protocolVersion.getId(), false,
+                        SSLTestUtils.POSITIONS.FIRST, 0},
                     {"Zero byte at first position in padding",
                         new byte[]{0x00, 0x02}, new byte[]{0x00},
-                        protocolVersion, true,
-                        SSLTestUtils.POSITIONS.FIRST},
+                        protocolVersion.getId(), true,
+                        SSLTestUtils.POSITIONS.FIRST, 0},
                     {"Zero byte in the middle of the padding string",
                         new byte[]{0x00, 0x02}, new byte[]{0x00},
-                        protocolVersion, true,
-                        SSLTestUtils.POSITIONS.MIDDLE},
+                        protocolVersion.getId(), true,
+                        SSLTestUtils.POSITIONS.MIDDLE, 0},
                     {"Zero byte at the end of the padding string",
                         new byte[]{0x00, 0x02}, new byte[]{0x00},
-                        protocolVersion, true,
-                        SSLTestUtils.POSITIONS.LAST},};
+                        protocolVersion.getId(), true,
+                        SSLTestUtils.POSITIONS.LAST, 0},
+//                    {"Zero byte at custom position of the padding string",
+//                          new byte[]{0x00, 0x02}, new byte[]{0x00},
+//                          protocolVersion.getId(), true,
+//                          null, 5},
+                        };
     }
 
     /**
@@ -124,25 +137,40 @@ public class BleichenbacherTest implements Observer {
     @Test(enabled = true, dataProvider = "bleichenbacher", invocationCount = 1)
     public final void testBleichenbacherPossible(String desc,
             final byte[] mode, final byte[] separate,
-            final EProtocolVersion version, final boolean changePadding,
-            final SSLTestUtils.POSITIONS position)
+            final byte [] version, final boolean changePadding,
+            final SSLTestUtils.POSITIONS position, final Integer anyPosition)
             throws IOException {
         logger.info("++++Start Test No." + counter + "(" + desc + ")++++");
         workflow = new SSLHandshakeWorkflow(false);
-        workflow.connectToTestServer(HOST, PORT);
-        logger.info("Test Server: " + HOST + ":" + PORT);
+        //connect to test server
+        if (TestConfiguration.HOST.isEmpty() || TestConfiguration.PORT == 0) {
+            workflow.connectToTestServer(HOST, PORT);
+            logger.info("Test Server: " + HOST + ":" + PORT);
+        } else {
+            workflow.connectToTestServer(TestConfiguration.HOST,
+                    TestConfiguration.PORT);
+            logger.info(
+                    "Test Server: " + TestConfiguration.HOST + ":" + TestConfiguration.PORT);
+        }
         workflow.addObserver(this, EStates.CLIENT_HELLO);
         workflow.addObserver(this, EStates.CLIENT_KEY_EXCHANGE);
         logger.info(EStates.CLIENT_HELLO.name() + " state is observed");
         logger.info(EStates.CLIENT_KEY_EXCHANGE.name() + " state is observed");
-
         parameters.setMode(mode);
         parameters.setSeparate(separate);
         parameters.setProtocolVersion(version);
         parameters.setChangePadding(changePadding);
         parameters.setPosition(position);
+        parameters.setAnyPosition(anyPosition);
+        parameters.setTestClassName(this.getClass().getName());
+        parameters.setDescription(desc);
 
         workflow.start();
+        
+        //analyze the handshake trace
+//        AFingerprintAnalyzer analyzer = new TestHashAnalyzer(parameters);
+//        analyzer.analyze(workflow.getTraceList());
+        
         logger.info("------------------------------");
         this.counter++;
     }
@@ -186,9 +214,13 @@ public class BleichenbacherTest implements Observer {
                             keyParams.getKeyExchangeAlgorithm());
                     PreMasterSecret pms = new PreMasterSecret(protocolVersion);
                     workflow.setPreMasterSecret(pms);
-                    pms.setProtocolVersion(parameters.getProtocolVersion());
+                    pms.setProtocolVersion(protocolVersion);
                     byte[] encodedPMS = pms.encode(false);
-
+                    if (parameters.getProtocolVersion() != null) {
+                    	byte [] version = parameters.getProtocolVersion();
+                    	System.arraycopy(version, 0, encodedPMS, 0, version.length);
+                    }
+                    logger.debug("PreMasterSecret: "+Utility.bytesToHex(encodedPMS));
                     //encrypt the PreMasterSecret
                     EncryptedPreMasterSecret encPMS =
                             new EncryptedPreMasterSecret(pk);
@@ -214,9 +246,16 @@ public class BleichenbacherTest implements Observer {
                     byte[] padding = utils.createPaddingString(utils.
                             getPaddingLength());
                     if (parameters.isChangePadding()) {
-                        padding = utils.changeByteArray(padding,
-                                parameters.getPosition(), (byte) 0x00);
-                        utils.setPadding(padding);
+                    	if (parameters.getPosition() !=  null) {
+                    		padding = utils.changeByteArray(padding,
+                    				parameters.getPosition(), (byte) 0x00);
+                    		utils.setPadding(padding);
+                    	}
+                    	else if (parameters.getAnyPosition() > 0) {
+                        	padding = utils.changeArbitraryPos(padding,
+                                    parameters.getAnyPosition(), (byte) 0x00);
+                            utils.setPadding(padding);
+                        }
                     }
                     //put the PKCS#1 pieces together
                     byte[] clear = utils.buildPKCS1Msg(encodedPMS);
@@ -224,7 +263,8 @@ public class BleichenbacherTest implements Observer {
                     byte[] ciphertext = RsaUtil.pubOp(clear, rsaPK);
                     encPMS.setEncryptedPreMasterSecret(ciphertext);
                     cke.setExchangeKeys(encPMS);
-
+                    
+                    trace.setOldRecord(trace.getCurrentRecord());
                     trace.setCurrentRecord(cke);
                     break;
                 default:
@@ -246,6 +286,7 @@ public class BleichenbacherTest implements Observer {
      */
     @BeforeMethod
     public void setUp() {
+    	System.setProperty("javax.net.debug", "all");
         serverHandler.startTestServer();
     }
 

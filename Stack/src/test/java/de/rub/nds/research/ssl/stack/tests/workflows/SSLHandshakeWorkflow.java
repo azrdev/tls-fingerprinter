@@ -26,6 +26,8 @@ import java.security.DigestException;
 import java.security.NoSuchAlgorithmException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.Observable;
 import java.util.Observer;
 import org.apache.log4j.Logger;
@@ -53,6 +55,7 @@ public final class SSLHandshakeWorkflow extends AWorkflow implements Observer {
     private OutputStream out = null;
     private SSLTestUtils utils = new SSLTestUtils();
     private ArrayList<Trace> traceList = new ArrayList<Trace>();
+    List<Trace> list = Collections.synchronizedList(traceList);
     private PreMasterSecret pms = null;
     private byte[] handshakeHashes = null;
     private boolean encrypted = false;
@@ -198,10 +201,20 @@ public final class SSLHandshakeWorkflow extends AWorkflow implements Observer {
         try {
             if (out != null) {
                 prepareAndSend(trace);
+                // add trace to ArrayList
+                addToList(new Trace(EStates.CLIENT_KEY_EXCHANGE,
+                        trace.getCurrentRecord(),
+                        trace.getOldRecord(), false));
             } else {
                 return;
             }
         } catch (IOException e) {
+        	if (respFetchThread.isAlive()) {
+        		try {
+					Thread.sleep(100);
+				} catch (InterruptedException e1) {
+				}
+        	}
             logger.debug("### Connection reset by peer.");
             closeSocket();
             return;
@@ -209,10 +222,6 @@ public final class SSLHandshakeWorkflow extends AWorkflow implements Observer {
         logger.debug("Client Key Exchange message send");
         // hash current record
         updateHash(hashBuilder, trace);
-        // add trace to ArrayList
-        addToList(new Trace(EStates.CLIENT_KEY_EXCHANGE,
-                trace.getCurrentRecord(),
-                trace.getOldRecord(), false));
 
         /*
          * create ChangeCipherSepc
@@ -230,6 +239,12 @@ public final class SSLHandshakeWorkflow extends AWorkflow implements Observer {
                 return;
             }
         } catch (IOException e) {
+        	if (respFetchThread.isAlive()) {
+        		try {
+					Thread.sleep(100);
+				} catch (InterruptedException e1) {
+				}
+        	}
             logger.debug("### Connection reset by peer.");
             closeSocket();
             return;
@@ -472,7 +487,7 @@ public final class SSLHandshakeWorkflow extends AWorkflow implements Observer {
      * @param trace Trace object to be added
      */
     public synchronized void addToList(final Trace trace) {
-        this.traceList.add(trace);
+        list.add(trace);
     }
 
     /**
@@ -593,14 +608,9 @@ public final class SSLHandshakeWorkflow extends AWorkflow implements Observer {
         return this.encrypted;
     }
 
-    public Socket getSocket() {
-        return this.so;
-    }
-
-    public HandshakeHashBuilder getHashBuilder() {
-        return this.hashBuilder;
-    }
-
+    /**
+	 * {@inheritDoc}
+	 */
     @Override
     public void update(Observable o, Object arg) {
         byte[] responseBytes = null;

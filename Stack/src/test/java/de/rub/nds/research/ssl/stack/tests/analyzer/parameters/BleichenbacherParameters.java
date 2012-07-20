@@ -26,7 +26,7 @@ public class BleichenbacherParameters extends AParameters {
 	/**
 	 * PreMasterSecret protocol version
 	 */
-	private EProtocolVersion protocolVersion;
+	private byte [] protocolVersion;
 	/**
 	 * Signalizes if padding should be changed.
 	 */
@@ -91,7 +91,7 @@ public class BleichenbacherParameters extends AParameters {
 	 * Get the protocol version of the PreMasterSecret.
 	 * @return Protocol version of PreMasterSecret
 	 */
-	public EProtocolVersion getProtocolVersion() {
+	public byte [] getProtocolVersion() {
 		return protocolVersion;
 	}
 	
@@ -99,7 +99,7 @@ public class BleichenbacherParameters extends AParameters {
 	 * Set the protocol version of the PreMasterSecret.
 	 * @param protocolVersion Protocol version of PreMasterSecret
 	 */
-	public void setProtocolVersion(EProtocolVersion protocolVersion) {
+	public void setProtocolVersion(byte[] protocolVersion) {
 		this.protocolVersion = protocolVersion;
 	}
 	
@@ -146,9 +146,11 @@ public class BleichenbacherParameters extends AParameters {
 		} catch (NoSuchAlgorithmException e) {
 			e.printStackTrace();
 		}
+		updateHash(sha1, getTestClassName().getBytes());
+		updateHash(sha1, getDescription().getBytes());
 		updateHash(sha1, getMode());
 		updateHash(sha1, getSeparate());
-		updateHash(sha1, getProtocolVersion().getId());
+		updateHash(sha1, getProtocolVersion());
 		updateHash(sha1, String.valueOf(getPosition()).getBytes());
 		updateHash(sha1, String.valueOf(isChangePadding()).getBytes());
 		byte [] hash = sha1.digest();

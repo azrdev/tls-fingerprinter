@@ -9,6 +9,7 @@ import de.rub.nds.research.ssl.stack.protocols.commons.SecurityParameters;
 import de.rub.nds.research.ssl.stack.protocols.handshake.ClientHello;
 import de.rub.nds.research.ssl.stack.protocols.handshake.Finished;
 import de.rub.nds.research.ssl.stack.protocols.handshake.datatypes.CipherSuites;
+import de.rub.nds.research.ssl.stack.protocols.handshake.datatypes.MasterSecret;
 import de.rub.nds.research.ssl.stack.protocols.handshake.datatypes.RandomValue;
 import de.rub.nds.research.ssl.stack.protocols.msgs.TLSCiphertext;
 import de.rub.nds.research.ssl.stack.protocols.msgs.datatypes.GenericBlockCipher;
@@ -93,12 +94,12 @@ public class VaudenayTest implements Observer {
     @DataProvider(name = "vaudenay")
     public final Object[][] createData() {
         return new Object[][]{
-//                    {"OK case", false, false, false, false, false},
+                    {"OK case", false, false, false, false, false},
                     {"Wrong padding", true, false, false, false, false},
-//                    {"Destroy MAC", false, true, false, false, false},
-//        		 	{"Destroy hash value", false, false, true, false, false},
-//        		 	{"Destroy Verify", false, false, false, true, false},
-//        		 	{"Change length byte of padding", false, false, false, false, true}
+                    {"Destroy MAC", false, true, false, false, false},
+        		 	{"Destroy hash value", false, false, true, false, false},
+        		 	{"Destroy Verify", false, false, false, true, false},
+        		 	{"Change length byte of padding", false, false, false, false, true}
                 };
     }
 
@@ -177,10 +178,12 @@ public class VaudenayTest implements Observer {
                         try {
                             finished.createVerifyData(param.getMasterSecret(),
                                     handshakeHashes);
-                            data = finished.encode(true);
                             if (parameters.isDestroyVerify()){
-                           	 data[8]=(byte)0x00;
+                              	 byte [] tmp = finished.getVerifyData();
+                              	 tmp[8]=0x00;
+                              	 finished.setVerifyData(tmp);
                             }
+                            data = finished.encode(true);
                         } catch (InvalidKeyException e1) {
                             e1.printStackTrace();
                         }
@@ -249,6 +252,7 @@ public class VaudenayTest implements Observer {
      */
     @BeforeMethod
     public void setUp() {
+    	System.setProperty("javax.net.debug", "all");
     	 serverHandler.startTestServer();
     }
 

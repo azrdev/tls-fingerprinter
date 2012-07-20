@@ -63,7 +63,6 @@ public class ResponseFetcher extends Observable implements Runnable {
 	@Override
 	public void run() {
 		byte[] header = new byte[ARecordFrame.LENGTH_MINIMUM_ENCODED];
-		int readBytes = 0;
 		DataInputStream dis = new DataInputStream(in);
 		while (this.fetchBytes) {
 			try {
@@ -73,16 +72,11 @@ public class ResponseFetcher extends Observable implements Runnable {
 		        int length = (header[3] & 0xff) << 8 | (header[4] & 0xff);
 		        byte[] answer = new byte[length + header.length];
 		        System.arraycopy(header, 0, answer, 0, header.length);
-		        readBytes = dis.read(answer, header.length, length);
-		        if (readBytes != -1) {
-		        	//set changed Flag and notify the observer
-		        	this.setChanged();
-		        	this.notifyObservers(answer);
-		        	handFlow.wakeUp();
-		        }
-		        else
-		        	//cancel fetching bytes if end of stream is reached
-		        	stopFetching();
+		        dis.readFully(answer, header.length, length);
+		        //set changed Flag and notify the observer
+		        this.setChanged();
+		        this.notifyObservers(answer);
+		        handFlow.wakeUp();
 			} catch (IOException e) {
 				//cancel fetching bytes if e.g. Socket is not available
 				stopFetching();

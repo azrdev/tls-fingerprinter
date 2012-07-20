@@ -166,10 +166,12 @@ public class FingerprintFinished implements Observer {
                  try {
                      finished.createVerifyData(param.getMasterSecret(),
                              handshakeHashes);
-                     data = finished.encode(true);
                      if (parameters.isDestroyVerify()){
-                    	 data[8]=(byte)0x00;
+                      	 byte [] tmp = finished.getVerifyData();
+                      	 tmp[8]=0x00;
+                      	 finished.setVerifyData(tmp);
                      }
+                     data = finished.encode(true);
                  } catch (InvalidKeyException e1) {
                      e1.printStackTrace();
                  }

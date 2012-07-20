@@ -53,7 +53,7 @@ public class FingerprintClientKeyExchange implements Observer {
     /**
      * Test port.
      */
-    private static final int PORT = 9443;
+    private static final int PORT = 443;
     /**
      * Test parameters.
      */
@@ -83,7 +83,7 @@ public class FingerprintClientKeyExchange implements Observer {
     @DataProvider(name = "clientKeyExchange")
     public Object[][] createData1() {
         return new Object[][]{
-                    {"Invalid payload for RSA key exchange", new ECipherSuite[]{
+                    {"Invalid payload for DH key exchange", new ECipherSuite[]{
                             ECipherSuite.TLS_DHE_RSA_WITH_AES_128_CBC_SHA},
                         new byte[]{(byte) 0x00, (byte) 0x00}}
                 };

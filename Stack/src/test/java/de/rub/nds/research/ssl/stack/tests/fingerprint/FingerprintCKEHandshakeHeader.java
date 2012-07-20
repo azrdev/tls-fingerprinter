@@ -63,7 +63,7 @@ public class FingerprintCKEHandshakeHeader implements Observer {
 
     @Test(enabled = true, dataProviderClass = FingerprintDataProviders.class,
     dataProvider = "handshakeHeader", invocationCount = 1)
-    public void manipulateCKERecordHeader(String desc, byte[] msgType,
+    public void manipulateCKEHandshakeHeader(String desc, byte[] msgType,
             byte[] recordLength) throws SocketException {
         logger.info("++++Start Test No." + counter + "(" + desc + ")++++");
         workflow = new SSLHandshakeWorkflow();
