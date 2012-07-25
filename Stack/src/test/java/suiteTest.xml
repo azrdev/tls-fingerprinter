@@ -3,7 +3,7 @@
 <suite name="aSuite" verbose="1" >
   <test name="Attacks">
     <classes>
-      <class name="de.rub.nds.research.ssl.stack.attacks.BleichenbacherTest"/>
+      <class name="de.rub.nds.ssl.stack.attacks.BleichenbacherTest"/>
     </classes>
   </test>
 </suite>

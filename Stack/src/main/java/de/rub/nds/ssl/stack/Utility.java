@@ -1,14 +1,12 @@
-package de.rub.nds.research.ssl.stack;
+package de.rub.nds.ssl.stack;
 
 import java.io.IOException;
 import java.math.BigInteger;
 import java.security.GeneralSecurityException;
 import java.security.KeyPair;
-import java.security.PrivateKey;
 import java.security.cert.X509Certificate;
 import java.util.Date;
 import java.util.List;
-import java.util.Random;
 import sun.security.x509.*;
 
 /**
