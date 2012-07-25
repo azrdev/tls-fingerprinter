@@ -86,7 +86,7 @@ public class BleichenbacherTest implements Observer {
                     {"OK case",
                         new byte[]{0x00, 0x02}, new byte[]{0x00},
                         protocolVersion.getId(), false,
-                        SSLTestUtils.POSITIONS.FIRST},
+                        SSLTestUtils.POSITIONS.FIRST, 0},
                     {"Wrong protocol version in PreMasterSecret",
                         new byte[]{0x00, 0x02}, new byte[]{0x00},
                         EProtocolVersion.SSL_3_0.getId(), false,
@@ -118,7 +118,7 @@ public class BleichenbacherTest implements Observer {
                     {"Zero byte at custom position of the padding string",
                         new byte[]{0x00, 0x02}, new byte[]{0x00},
                         protocolVersion.getId(), true,
-                        null, 5},};
+                        null, 5}};
     }
 
     /**
@@ -166,7 +166,7 @@ public class BleichenbacherTest implements Observer {
         workflow.start();
 
         //analyze the handshake trace
-//        AFingerprintAnalyzer analyzer = new TestHashAnalyzer(parameters);
+//        AFingerprintAnalyzer analyzer = new TestHashAnalyzer(params);
 //        analyzer.analyze(workflow.getTraceList());
 
         logger.info("------------------------------");
