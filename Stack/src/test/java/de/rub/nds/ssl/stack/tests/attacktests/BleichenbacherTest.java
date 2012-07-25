@@ -284,7 +284,7 @@ public class BleichenbacherTest implements Observer {
      */
     @BeforeMethod
     public void setUp() {
-        System.setProperty("javax.net.debug", "all");
+//        System.setProperty("javax.net.debug", "all");
         serverHandler.startTestServer();
     }
 
