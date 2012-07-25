@@ -105,7 +105,7 @@ public class VaudenayTest implements Observer {
             boolean destroyMAC,
             boolean destroyHash, boolean destroyVerify, boolean changePadLength)
             throws SocketException {
-        logger.info("++++ Start Test No." + this.counter + "(" + desc + ") ++++");
+        logger.info("++++ Start Test No." + this.counter + " (" + desc + ") ++++");
         workflow = new SSLHandshakeWorkflow();
         workflow.connectToTestServer(HOST, PORT);
         workflow.addObserver(this, EStates.CLIENT_HELLO);

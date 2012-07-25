@@ -252,7 +252,7 @@ public class BleichenbacherTimingTest implements Observer {
         this.destroyMAC = tamperMAC;
         boolean canceled = false;
 
-        logger.info("++++ Start Test No." + counter + "(" + desc + ") ++++");
+        logger.info("++++ Start Test No." + counter + " (" + desc + ") ++++");
         logger.info("Test repeated: " + NUMBER_OF_REPETIIONS + " times");
         logger.info("Time measurement: Time between CLIENT_KEY_EXCHANGE and "
                 + "SERVER_CHANGE_CIPHER_SPEC or ALERT");
