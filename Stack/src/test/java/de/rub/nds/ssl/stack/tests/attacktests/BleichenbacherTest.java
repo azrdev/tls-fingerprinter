@@ -137,7 +137,7 @@ public class BleichenbacherTest implements Observer {
             final byte[] version, final boolean changePadding,
             final SSLTestUtils.POSITIONS position, final Integer anyPosition)
             throws IOException {
-        logger.info("++++Start Test No." + counter + "(" + desc + ")++++");
+        logger.info("++++ Start Test No." + counter + "(" + desc + ") ++++");
         workflow = new SSLHandshakeWorkflow(false);
         //connect to test server
         if (TestConfiguration.HOST.isEmpty() || TestConfiguration.PORT == 0) {
@@ -279,6 +279,9 @@ public class BleichenbacherTest implements Observer {
     @BeforeClass
     public void setUpClass() {
         PropertyConfigurator.configure("logging.properties");
+        logger.info("##################################");
+        logger.info(this.getClass().getSimpleName());
+        logger.info("##################################");
     }
 
     /**

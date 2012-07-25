@@ -252,7 +252,7 @@ public class BleichenbacherTimingTest implements Observer {
         this.destroyMAC = tamperMAC;
         boolean canceled = false;
 
-        logger.info("++++Start Test No." + counter + "(" + desc + ")++++");
+        logger.info("++++ Start Test No." + counter + "(" + desc + ") ++++");
         logger.info("Test repeated: " + NUMBER_OF_REPETIIONS + " times");
         logger.info("Time measurement: Time between CLIENT_KEY_EXCHANGE and "
                 + "SERVER_CHANGE_CIPHER_SPEC or ALERT");
@@ -273,11 +273,10 @@ public class BleichenbacherTimingTest implements Observer {
         }
 
         Long averagedTime = doStatistics(delays);
-        logger.info("Averaged time (ns):");
         if (canceled) {
-            logger.info("computation not possible");
+            logger.info("Averaged time (ns): " + "computation not possible");
         } else {
-            logger.info(averagedTime.toString());
+            logger.info("Averaged time (ns): " + averagedTime.toString());
         }
         logger.info("------------------------------");
         this.counter++;
@@ -391,6 +390,17 @@ public class BleichenbacherTimingTest implements Observer {
     }
 
     /**
+     * Initialize logging properties
+     */
+    @BeforeClass
+    public void setUpClass() {
+        PropertyConfigurator.configure("logging.properties");
+        logger.info("##################################");
+        logger.info(this.getClass().getSimpleName());
+        logger.info("##################################");
+    }
+    
+    /**
      * Close the Socket after the test run.
      */
     @AfterMethod
@@ -481,13 +491,5 @@ public class BleichenbacherTimingTest implements Observer {
         overall /= delayValues.length;
 
         return overall;
-    }
-
-    /**
-     * Initialize logging properties
-     */
-    @BeforeClass
-    public void setUpClass() {
-        PropertyConfigurator.configure("logging.properties");
     }
 }
