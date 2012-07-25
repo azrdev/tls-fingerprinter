@@ -1,17 +1,17 @@
 package de.rub.nds.ssl.stack.protocols.msgs.datatypes;
 
+import de.rub.nds.ssl.stack.protocols.commons.SecurityParameters;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.PublicKey;
 import java.security.interfaces.RSAPublicKey;
 import java.util.Arrays;
 
-import de.rub.nds.ssl.stack.protocols.commons.SecurityParameters;
-
 /**
  * RSA signature computations.
  *
- * @author Eugen Weiss - eugen.weiss@ruhr-uni-bochum.de May 17, 2012
+ * @author Eugen Weiss - eugen.weiss@ruhr-uni-bochum.de
+ * @version 0.1 May 17, 2012
  */
 public class RSASignature implements ISignature {
 

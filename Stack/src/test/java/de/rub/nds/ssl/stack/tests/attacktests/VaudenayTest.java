@@ -88,8 +88,8 @@ public class VaudenayTest implements Observer {
                     {"Destroy MAC", false, true, false, false, false},
                     {"Destroy hash value", false, false, true, false, false},
                     {"Destroy Verify", false, false, false, true, false},
-                    {"Change length byte of padding", false, false, false, false,
-                        true}
+                    {"Change length byte of padding", false, false, false,
+                        false, true}
                 };
     }
 
@@ -105,7 +105,7 @@ public class VaudenayTest implements Observer {
             boolean destroyMAC,
             boolean destroyHash, boolean destroyVerify, boolean changePadLength)
             throws SocketException {
-        logger.info("Test No." + this.counter + " : " + desc);
+        logger.info("++++Start Test No." + this.counter + "(" + desc + ")++++");
         workflow = new SSLHandshakeWorkflow();
         workflow.connectToTestServer(HOST, PORT);
         workflow.addObserver(this, EStates.CLIENT_HELLO);
@@ -146,7 +146,8 @@ public class VaudenayTest implements Observer {
                     RandomValue random = new RandomValue();
                     suites.setSuites(new ECipherSuite[]{
                                 ECipherSuite.TLS_RSA_WITH_AES_256_CBC_SHA});
-                    ClientHello clientHello = builder.createClientHello(EProtocolVersion.TLS_1_0.
+                    ClientHello clientHello =
+                            builder.createClientHello(EProtocolVersion.TLS_1_0.
                             getId(),
                             random.encode(false),
                             suites.encode(false), new byte[]{0x00});

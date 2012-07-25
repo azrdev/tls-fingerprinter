@@ -5,7 +5,8 @@ import java.security.PublicKey;
 /**
  * Signature interface for signature computation.
  *
- * @author Eugen Weiss - eugen.weiss@ruhr-uni-bochum.de May 17, 2012
+ * @author Eugen Weiss - eugen.weiss@ruhr-uni-bochum.de
+ * @version 0.1 May 17, 2012
  */
 public interface ISignature {
 

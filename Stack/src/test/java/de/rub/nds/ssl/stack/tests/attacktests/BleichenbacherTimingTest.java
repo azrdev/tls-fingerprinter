@@ -127,6 +127,10 @@ public class BleichenbacherTimingTest implements Observer {
      * Initialize the log4j logger.
      */
     static Logger logger = Logger.getRootLogger();
+    /**
+     * Test counter.
+     */
+    private int counter = 1;
 
     /**
      * Test parameters for the Bleichenbacher Tests.
@@ -232,14 +236,14 @@ public class BleichenbacherTimingTest implements Observer {
      * @param version Protocol version
      * @param changeByteArray True if padding should be changed
      * @param position Position where padding is changed
-     * @param description Test description
+     * @param desc Test description
      * @param tamperMAC Destroy Finished MAC of RecordFrame
      */
     @Test(enabled = true, dataProvider = "bleichenbacher")
     public final void testBleichenbacherPossible(final byte[] mode,
             final byte[] separate, final EProtocolVersion version,
             final boolean changePadding, final SSLTestUtils.POSITIONS position,
-            final String description, boolean tamperMAC) {
+            final String desc, boolean tamperMAC) {
         this.pkcsMode = mode.clone();
         this.separateByte = separate.clone();
         this.protocolVersionPMS = version;
@@ -248,8 +252,7 @@ public class BleichenbacherTimingTest implements Observer {
         this.destroyMAC = tamperMAC;
         boolean canceled = false;
 
-        System.out.println("Test description: " + description);
-        logger.info("Test description: " + description);
+        logger.info("++++Start Test No." + counter + "(" + desc + ")++++");
         logger.info("Test repeated: " + NUMBER_OF_REPETIIONS + " times");
         logger.info("Time measurement: Time between CLIENT_KEY_EXCHANGE and "
                 + "SERVER_CHANGE_CIPHER_SPEC or ALERT");
@@ -277,6 +280,7 @@ public class BleichenbacherTimingTest implements Observer {
             logger.info(averagedTime.toString());
         }
         logger.info("------------------------------");
+        this.counter++;
     }
 
     /**

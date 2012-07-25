@@ -8,7 +8,8 @@ import java.security.InvalidKeyException;
 /**
  * Creation of the key material for message security.
  *
- * @author Eugen Weiss - eugen.weiss@ruhr-uni-bochum.de Apr 13, 2012
+ * @author Eugen Weiss - eugen.weiss@ruhr-uni-bochum.de
+ * @version 0.1 Apr 13, 2012
  */
 public class KeyMaterial {
 

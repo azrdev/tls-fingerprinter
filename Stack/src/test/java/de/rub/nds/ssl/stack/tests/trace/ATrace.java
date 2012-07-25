@@ -5,7 +5,8 @@ import java.util.Date;
 /**
  * Trace for protocol processing.
  *
- * @author Eugen Weiss - eugen.weiss@ruhr-uni-bochum.de Apr 17, 2012
+ * @author Eugen Weiss - eugen.weiss@ruhr-uni-bochum.de
+ * @version 0.1 Apr 17, 2012
  */
 public abstract class ATrace {
 

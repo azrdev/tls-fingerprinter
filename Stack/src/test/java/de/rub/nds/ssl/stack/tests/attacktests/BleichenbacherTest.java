@@ -69,7 +69,7 @@ public class BleichenbacherTest implements Observer {
     /**
      * Bleichenbacher test parameters.
      */
-    private BleichenbacherParameters parameters = new BleichenbacherParameters();
+    private BleichenbacherParameters params = new BleichenbacherParameters();
     /**
      * Handler to start/stop a test server.
      */
@@ -83,10 +83,10 @@ public class BleichenbacherTest implements Observer {
     @DataProvider(name = "bleichenbacher")
     public Object[][] createData1() {
         return new Object[][]{
-                    //                    {"OK case",
-                    //                        new byte[]{0x00, 0x02}, new byte[]{0x00},
-                    //                        protocolVersion.getId(), false,
-                    //                        SSLTestUtils.POSITIONS.FIRST},
+                    {"OK case",
+                        new byte[]{0x00, 0x02}, new byte[]{0x00},
+                        protocolVersion.getId(), false,
+                        SSLTestUtils.POSITIONS.FIRST},
                     {"Wrong protocol version in PreMasterSecret",
                         new byte[]{0x00, 0x02}, new byte[]{0x00},
                         EProtocolVersion.SSL_3_0.getId(), false,
@@ -114,11 +114,11 @@ public class BleichenbacherTest implements Observer {
                     {"Zero byte at the end of the padding string",
                         new byte[]{0x00, 0x02}, new byte[]{0x00},
                         protocolVersion.getId(), true,
-                        SSLTestUtils.POSITIONS.LAST, 0}, //                    {"Zero byte at custom position of the padding string",
-                //                          new byte[]{0x00, 0x02}, new byte[]{0x00},
-                //                          protocolVersion.getId(), true,
-                //                          null, 5},
-                };
+                        SSLTestUtils.POSITIONS.LAST, 0},
+                    {"Zero byte at custom position of the padding string",
+                        new byte[]{0x00, 0x02}, new byte[]{0x00},
+                        protocolVersion.getId(), true,
+                        null, 5},};
     }
 
     /**
@@ -147,20 +147,21 @@ public class BleichenbacherTest implements Observer {
             workflow.connectToTestServer(TestConfiguration.HOST,
                     TestConfiguration.PORT);
             logger.info(
-                    "Test Server: " + TestConfiguration.HOST + ":" + TestConfiguration.PORT);
+                    "Test Server: " + TestConfiguration.HOST
+                    + ":" + TestConfiguration.PORT);
         }
         workflow.addObserver(this, EStates.CLIENT_HELLO);
         workflow.addObserver(this, EStates.CLIENT_KEY_EXCHANGE);
         logger.info(EStates.CLIENT_HELLO.name() + " state is observed");
         logger.info(EStates.CLIENT_KEY_EXCHANGE.name() + " state is observed");
-        parameters.setMode(mode);
-        parameters.setSeparate(separate);
-        parameters.setProtocolVersion(version);
-        parameters.setChangePadding(changePadding);
-        parameters.setPosition(position);
-        parameters.setAnyPosition(anyPosition);
-        parameters.setTestClassName(this.getClass().getName());
-        parameters.setDescription(desc);
+        params.setMode(mode);
+        params.setSeparate(separate);
+        params.setProtocolVersion(version);
+        params.setChangePadding(changePadding);
+        params.setPosition(position);
+        params.setAnyPosition(anyPosition);
+        params.setTestClassName(this.getClass().getName());
+        params.setDescription(desc);
 
         workflow.start();
 
@@ -196,7 +197,8 @@ public class BleichenbacherTest implements Observer {
                     RandomValue random = new RandomValue();
                     suites.setSuites(new ECipherSuite[]{
                                 ECipherSuite.TLS_RSA_WITH_AES_128_CBC_SHA});
-                    ClientHello clientHello = builder.createClientHello(EProtocolVersion.TLS_1_0.
+                    ClientHello clientHello =
+                            builder.createClientHello(EProtocolVersion.TLS_1_0.
                             getId(),
                             random.encode(false),
                             suites.encode(false), new byte[]{0x00});
@@ -213,8 +215,8 @@ public class BleichenbacherTest implements Observer {
                     workflow.setPreMasterSecret(pms);
                     pms.setProtocolVersion(protocolVersion);
                     byte[] encodedPMS = pms.encode(false);
-                    if (parameters.getProtocolVersion() != null) {
-                        byte[] version = parameters.getProtocolVersion();
+                    if (params.getProtocolVersion() != null) {
+                        byte[] version = params.getProtocolVersion();
                         System.arraycopy(version, 0, encodedPMS, 0,
                                 version.length);
                     }
@@ -239,19 +241,19 @@ public class BleichenbacherTest implements Observer {
                      * is [<Modulus length> - <Data length> -3])
                      */
                     utils.setPaddingLength((modLength - encodedPMS.length - 3));
-                    utils.setSeparateByte(parameters.getSeparate());
-                    utils.setMode(parameters.getMode());
+                    utils.setSeparateByte(params.getSeparate());
+                    utils.setMode(params.getMode());
                     //generate the PKCS#1 padding string
                     byte[] padding = utils.createPaddingString(utils.
                             getPaddingLength());
-                    if (parameters.isChangePadding()) {
-                        if (parameters.getPosition() != null) {
+                    if (params.isChangePadding()) {
+                        if (params.getPosition() != null) {
                             padding = utils.changeByteArray(padding,
-                                    parameters.getPosition(), (byte) 0x00);
+                                    params.getPosition(), (byte) 0x00);
                             utils.setPadding(padding);
-                        } else if (parameters.getAnyPosition() > 0) {
+                        } else if (params.getAnyPosition() > 0) {
                             padding = utils.changeArbitraryPos(padding,
-                                    parameters.getAnyPosition(), (byte) 0x00);
+                                    params.getAnyPosition(), (byte) 0x00);
                             utils.setPadding(padding);
                         }
                     }

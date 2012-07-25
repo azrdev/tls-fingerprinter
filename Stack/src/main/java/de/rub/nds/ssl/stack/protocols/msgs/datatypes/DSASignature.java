@@ -6,7 +6,8 @@ import java.security.*;
 /**
  * DSA signature computations.
  *
- * @author Eugen Weiss - eugen.weiss@ruhr-uni-bochum.de May 17, 2012
+ * @author Eugen Weiss - eugen.weiss@ruhr-uni-bochum.de
+ * @version 0.1 May 17, 2012
  */
 public class DSASignature implements ISignature {
 

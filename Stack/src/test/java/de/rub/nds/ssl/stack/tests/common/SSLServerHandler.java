@@ -3,7 +3,8 @@ package de.rub.nds.ssl.stack.tests.common;
 /**
  * Start/Stop the SSL test server.
  *
- * @author Eugen Weiss - eugen.weiss@ruhr-uni-bochum.de Jun 07, 2012
+ * @author Eugen Weiss - eugen.weiss@ruhr-uni-bochum.de
+ * @version 0.1 Jun 07, 2012
  */
 public class SSLServerHandler {
 

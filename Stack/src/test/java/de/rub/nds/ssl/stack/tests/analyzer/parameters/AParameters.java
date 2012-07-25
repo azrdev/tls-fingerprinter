@@ -5,7 +5,8 @@ import java.security.MessageDigest;
 /**
  * Test Parameters for fingerprint analysis.
  *
- * @author Eugen Weiss - eugen.weiss@ruhr-uni-bochum.de May 26, 2012
+ * @author Eugen Weiss - eugen.weiss@ruhr-uni-bochum.de
+ * @version 0.1 May 26, 2012
  */
 public abstract class AParameters {
 

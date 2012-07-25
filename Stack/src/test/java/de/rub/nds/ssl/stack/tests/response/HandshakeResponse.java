@@ -10,7 +10,8 @@ import org.apache.log4j.Logger;
  * Determine the handshake record in response and invoke the appropriate
  * handler.
  *
- * @author Eugen Weiss - eugen.weiss@ruhr-uni-bochum.de Apr 15, 2012
+ * @author Eugen Weiss - eugen.weiss@ruhr-uni-bochum.de
+ * @version 0.1 Apr 15, 2012
  */
 public class HandshakeResponse {
 

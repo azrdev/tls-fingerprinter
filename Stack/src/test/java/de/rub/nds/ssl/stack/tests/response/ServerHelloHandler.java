@@ -13,7 +13,8 @@ import org.apache.log4j.Logger;
  * Handles a Server Hello message. The handler extract parameters from the
  * message which are used in the following handshake processing.
  *
- * @author Eugen Weiss - eugen.weiss@ruhr-uni-bochum.de May 02, 2012
+ * @author Eugen Weiss - eugen.weiss@ruhr-uni-bochum.de
+ * @version 0.1 May 02, 2012
  */
 public class ServerHelloHandler implements IHandshakeStates {
 
