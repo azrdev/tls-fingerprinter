@@ -1,22 +1,8 @@
-package de.rub.nds.ssl.stack.tests.fingerprint;
+package de.rub.nds.research.ssl.stack.tests.fingerprint;
 
-import de.rub.nds.ssl.stack.protocols.commons.ECipherSuite;
-import de.rub.nds.ssl.stack.protocols.commons.EProtocolVersion;
-import de.rub.nds.ssl.stack.protocols.handshake.ClientHello;
-import de.rub.nds.ssl.stack.protocols.handshake.datatypes.CipherSuites;
-import de.rub.nds.ssl.stack.protocols.handshake.datatypes.RandomValue;
-import de.rub.nds.ssl.stack.tests.analyzer.AFingerprintAnalyzer;
-import de.rub.nds.ssl.stack.tests.analyzer.TestHashAnalyzer;
-import de.rub.nds.ssl.stack.tests.analyzer.parameters.ClientHelloParameters;
-import de.rub.nds.ssl.stack.tests.common.MessageBuilder;
-import de.rub.nds.ssl.stack.tests.common.TestConfiguration;
-import de.rub.nds.ssl.stack.tests.trace.Trace;
-import de.rub.nds.ssl.stack.tests.workflows.ObservableBridge;
-import de.rub.nds.ssl.stack.tests.workflows.SSLHandshakeWorkflow;
-import de.rub.nds.ssl.stack.tests.workflows.SSLHandshakeWorkflow.EStates;
-import java.net.SocketException;
 import java.util.Observable;
 import java.util.Observer;
+
 import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
 import org.testng.annotations.AfterMethod;
@@ -24,119 +10,114 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
+import de.rub.nds.research.ssl.stack.protocols.commons.ECipherSuite;
+import de.rub.nds.research.ssl.stack.protocols.commons.EProtocolVersion;
+import de.rub.nds.research.ssl.stack.protocols.handshake.ClientHello;
+import de.rub.nds.research.ssl.stack.protocols.handshake.datatypes.CipherSuites;
+import de.rub.nds.research.ssl.stack.protocols.handshake.datatypes.RandomValue;
+import de.rub.nds.research.ssl.stack.tests.analyzer.AFingerprintAnalyzer;
+import de.rub.nds.research.ssl.stack.tests.analyzer.TestHashAnalyzer;
+import de.rub.nds.research.ssl.stack.tests.analyzer.parameters.ClientHelloParameters;
+import de.rub.nds.research.ssl.stack.tests.common.MessageBuilder;
+import de.rub.nds.research.ssl.stack.tests.workflows.SSLHandshakeWorkflow;
+import de.rub.nds.research.ssl.stack.tests.common.TestConfiguration;
+import de.rub.nds.research.ssl.stack.tests.workflows.SSLHandshakeWorkflow.EStates;
+import de.rub.nds.research.ssl.stack.tests.trace.Trace;
+import de.rub.nds.research.ssl.stack.tests.workflows.ObservableBridge;
+import java.net.SocketException;
+
 /**
  * Fingerprint the ClientHello SSL message.
  *
  * @author Eugen Weiss -eugen.weiss@ruhr-uni-bochum.de
  * @version 0.1 Apr 18, 2012
  */
-public class FingerprintClientHello implements Observer {
-
-    /**
-     * Handshake workflow to observe.
-     */
-    private SSLHandshakeWorkflow workflow;
-    /**
-     * Test host.
-     */
-    private static final String HOST = "localhost";
+public class FingerprintClientHello extends GenericFingerprintTest implements Observer {
     /**
      * Test port.
      */
-    private static final int PORT = 9443;
-    /**
-     * Test counter.
-     */
-    private int counter = 1;
-    /**
-     * Defualt protocol version.
-     */
-    private EProtocolVersion protocolVersion = EProtocolVersion.TLS_1_0;
+    protected int PORT = 9443;
+
     /**
      * Test parameters.
      */
     private ClientHelloParameters parameters = new ClientHelloParameters();
-    static Logger logger = Logger.getRootLogger();
     byte[] sessionID = new byte[]{(byte) 0xff, (byte) 0x0f, (byte) 0x0f,
-        (byte) 0x0f, (byte) 0x0f,
-        (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f,
-        (byte) 0x0f, (byte) 0x0f,
-        (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f,
-        (byte) 0x0f, (byte) 0x0f,
-        (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f,
-        (byte) 0x0f, (byte) 0x0f,
-        (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f,
-        (byte) 0x0f, (byte) 0x0f,
-        (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f,
-        (byte) 0x0f, (byte) 0x0f,
-        (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f,
-        (byte) 0x0f, (byte) 0x0f,
-        (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f,
-        (byte) 0x0f, (byte) 0x0f,
-        (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f,
-        (byte) 0x0f, (byte) 0x0f,
-        (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f,
-        (byte) 0x0f, (byte) 0x0f,
-        (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f,
-        (byte) 0x0f, (byte) 0x0f,
-        (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f,
-        (byte) 0x0f, (byte) 0x0f,
-        (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f,
-        (byte) 0x0f, (byte) 0x0f,
-        (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f,
-        (byte) 0x0f, (byte) 0x0f,
-        (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f,
-        (byte) 0x0f, (byte) 0x0f,
-        (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f,
-        (byte) 0x0f, (byte) 0x0f,
-        (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f,
-        (byte) 0x0f, (byte) 0x0f,
-        (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f,
-        (byte) 0x0f, (byte) 0x0f,
-        (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f,
-        (byte) 0x0f, (byte) 0x0f,
-        (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f,
-        (byte) 0x0f, (byte) 0x0f,
-        (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f,
-        (byte) 0x0f, (byte) 0x0f,
-        (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f,
-        (byte) 0x0f, (byte) 0x0f,
-        (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f,
-        (byte) 0x0f, (byte) 0x0f,
-        (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f,
-        (byte) 0x0f, (byte) 0x0f,
-        (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f,
-        (byte) 0x0f, (byte) 0x0f,
-        (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f,
-        (byte) 0x0f, (byte) 0x0f,
-        (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f,
-        (byte) 0x0f, (byte) 0x0f,
-        (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f,
-        (byte) 0x0f, (byte) 0x0f,
-        (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f,
-        (byte) 0x0f, (byte) 0x0f,
-        (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f,
-        (byte) 0x0f, (byte) 0x0f,
-        (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f,
-        (byte) 0x0f, (byte) 0x0f,
-        (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f,
-        (byte) 0x0f, (byte) 0x0f,
-        (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f,
-        (byte) 0x0f, (byte) 0x0f,
-        (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f,
-        (byte) 0x0f, (byte) 0x0f,
-        (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f,
-        (byte) 0x0f, (byte) 0x0f,
-        (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f,
-        (byte) 0x0f, (byte) 0x0f,
-        (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f,
-        (byte) 0x0f
+            (byte) 0x0f, (byte) 0x0f,
+            (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f,
+            (byte) 0x0f, (byte) 0x0f,
+            (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f,
+            (byte) 0x0f, (byte) 0x0f,
+            (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f,
+            (byte) 0x0f, (byte) 0x0f,
+            (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f,
+            (byte) 0x0f, (byte) 0x0f,
+            (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f,
+            (byte) 0x0f, (byte) 0x0f,
+            (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f,
+            (byte) 0x0f, (byte) 0x0f,
+            (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f,
+            (byte) 0x0f, (byte) 0x0f,
+            (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f,
+            (byte) 0x0f, (byte) 0x0f,
+            (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f,
+            (byte) 0x0f, (byte) 0x0f,
+            (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f,
+            (byte) 0x0f, (byte) 0x0f,
+            (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f,
+            (byte) 0x0f, (byte) 0x0f,
+            (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f,
+            (byte) 0x0f, (byte) 0x0f,
+            (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f,
+            (byte) 0x0f, (byte) 0x0f,
+            (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f,
+            (byte) 0x0f, (byte) 0x0f,
+            (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f,
+            (byte) 0x0f, (byte) 0x0f,
+            (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f,
+            (byte) 0x0f, (byte) 0x0f,
+            (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f,
+            (byte) 0x0f, (byte) 0x0f,
+            (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f,
+            (byte) 0x0f, (byte) 0x0f,
+            (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f,
+            (byte) 0x0f, (byte) 0x0f,
+            (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f,
+            (byte) 0x0f, (byte) 0x0f,
+            (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f,
+            (byte) 0x0f, (byte) 0x0f,
+            (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f,
+            (byte) 0x0f, (byte) 0x0f,
+            (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f,
+            (byte) 0x0f, (byte) 0x0f,
+            (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f,
+            (byte) 0x0f, (byte) 0x0f,
+            (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f,
+            (byte) 0x0f, (byte) 0x0f,
+            (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f,
+            (byte) 0x0f, (byte) 0x0f,
+            (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f,
+            (byte) 0x0f, (byte) 0x0f,
+            (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f,
+            (byte) 0x0f, (byte) 0x0f,
+            (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f,
+            (byte) 0x0f, (byte) 0x0f,
+            (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f,
+            (byte) 0x0f, (byte) 0x0f,
+            (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f,
+            (byte) 0x0f, (byte) 0x0f,
+            (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f,
+            (byte) 0x0f, (byte) 0x0f,
+            (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f,
+            (byte) 0x0f, (byte) 0x0f,
+            (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f,
+            (byte) 0x0f, (byte) 0x0f,
+            (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f,
+            (byte) 0x0f, (byte) 0x0f,
+            (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f,
+            (byte) 0x0f
     };
 
-    @BeforeClass
-    public void setUp() {
-        PropertyConfigurator.configure("logging.properties");
-    }
 
     /**
      * Test parameters for ClientHello fingerprinting.
@@ -146,18 +127,14 @@ public class FingerprintClientHello implements Observer {
     @DataProvider(name = "clientHello")
     public Object[][] createData1() {
         return new Object[][]{
-                    {"Invalid protocol version 0xff,0xff",
-                        new byte[]{(byte) 0xff, (byte) 0xff}, null, null, null,
-                        null, null},
+                	{"Invalid protocol version 0xff,0xff",
+                		new byte[]{(byte) 0xff, (byte) 0xff},null, null, null, null, null},
                     {"Invalid protocol version 0x00,0x00",
-                        new byte[]{(byte) 0x00, (byte) 0x00}, null, null, null,
-                        null, null},
+                		new byte[]{(byte) 0x00, (byte) 0x00},null, null, null, null, null},
                     {"Invalid protocol version SSLv3",
-                        new byte[]{(byte) 0x03, (byte) 0x00}, null, null, null,
-                        null, null},
+                		new byte[]{(byte) 0x03, (byte) 0x00},null, null, null, null, null},
                     {"Invalid protocol version TLSv1.2",
-                        new byte[]{(byte) 0x03, (byte) 0x03}, null, null, null,
-                        null, null},
+                		new byte[]{(byte) 0x03, (byte) 0x03},null, null, null, null, null},
                     {"No session ID defined but value is set to 0xff",
                         null, new byte[]{(byte) 0xff},
                         null, null, null, null},
@@ -172,7 +149,8 @@ public class FingerprintClientHello implements Observer {
                         new byte[]{(byte) 0x01}, null},
                     {"Wrong value for cipher suite length 0x00", null, null,
                         null, null,
-                        new byte[]{(byte) 0x00}, null},};
+                        new byte[]{(byte) 0x00}, null},
+                        };
     }
 
     /**
@@ -186,8 +164,7 @@ public class FingerprintClientHello implements Observer {
      */
     @Test(enabled = true, dataProvider = "clientHello", invocationCount = 1)
     public void fingerprintClientHello(String desc,
-            byte[] protVersion, byte[] noSessionValue, byte[] session,
-            byte[] sessionIdLength,
+            byte [] protVersion, byte[] noSessionValue, byte[] session, byte[] sessionIdLength,
             byte[] cipherLength, byte[] compMethod) throws SocketException {
         logger.info("++++Start Test No." + counter + "(" + desc + ")++++");
         workflow = new SSLHandshakeWorkflow();

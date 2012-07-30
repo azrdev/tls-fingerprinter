@@ -1,24 +1,28 @@
-package de.rub.nds.ssl.stack.tests.fingerprint;
+package de.rub.nds.research.ssl.stack.tests.fingerprint;
 
-import de.rub.nds.ssl.stack.protocols.commons.EProtocolVersion;
-import de.rub.nds.ssl.stack.protocols.handshake.ClientKeyExchange;
-import de.rub.nds.ssl.stack.tests.analyzer.AFingerprintAnalyzer;
-import de.rub.nds.ssl.stack.tests.analyzer.TestHashAnalyzer;
-import de.rub.nds.ssl.stack.tests.analyzer.parameters.HeaderParameters;
-import de.rub.nds.ssl.stack.tests.common.MessageBuilder;
-import de.rub.nds.ssl.stack.tests.common.TestConfiguration;
-import de.rub.nds.ssl.stack.tests.trace.Trace;
-import de.rub.nds.ssl.stack.tests.workflows.ObservableBridge;
-import de.rub.nds.ssl.stack.tests.workflows.SSLHandshakeWorkflow;
-import de.rub.nds.ssl.stack.tests.workflows.SSLHandshakeWorkflow.EStates;
-import java.net.SocketException;
+import java.io.IOException;
 import java.util.Observable;
 import java.util.Observer;
+
 import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
+
+import de.rub.nds.research.ssl.stack.protocols.commons.EProtocolVersion;
+import de.rub.nds.research.ssl.stack.protocols.handshake.ClientKeyExchange;
+import de.rub.nds.research.ssl.stack.tests.analyzer.AFingerprintAnalyzer;
+import de.rub.nds.research.ssl.stack.tests.analyzer.TestHashAnalyzer;
+import de.rub.nds.research.ssl.stack.tests.analyzer.parameters.HeaderParameters;
+import de.rub.nds.research.ssl.stack.tests.common.MessageBuilder;
+import de.rub.nds.research.ssl.stack.tests.workflows.SSLHandshakeWorkflow;
+import de.rub.nds.research.ssl.stack.tests.common.TestConfiguration;
+import de.rub.nds.research.ssl.stack.tests.workflows.SSLHandshakeWorkflow.EStates;
+import de.rub.nds.research.ssl.stack.tests.trace.Trace;
+import de.rub.nds.research.ssl.stack.tests.workflows.ObservableBridge;
+import java.net.SocketException;
 
 /**
  * Fingerprint the ClientKeyExchange record header. Perform Tests by
@@ -28,47 +32,30 @@ import org.testng.annotations.Test;
  * @author Eugen Weiss - eugen.weiss@ruhr-uni-bochum.de
  * @version 0.1 Jun 04, 2012
  */
-public class FingerprintCKERecordHeader implements Observer {
-
-    /**
-     * Handshake workflow to observe.
-     */
-    private SSLHandshakeWorkflow workflow;
-    /**
-     * Test host.
-     */
-    private static final String HOST = "localhost";
+public class FingerprintCKERecordHeader extends GenericFingerprintTest implements Observer {
     /**
      * Test port.
      */
-    private static final int PORT = 443;
+    protected int PORT = 9443;
     /**
      * Test counter.
      */
     private int counter = 1;
-    /**
-     * Default protocol version.
-     */
-    private EProtocolVersion protocolVersion = EProtocolVersion.TLS_1_0;
-    /**
-     * Test parameters.
-     */
-    private HeaderParameters parameters = new HeaderParameters();
-    /**
-     * Log4j logger initialization.
-     */
-    static Logger logger = Logger.getRootLogger();
 
-    /**
-     * Load the logging properties.
-     */
-    @BeforeClass
-    public void setUp() {
-        PropertyConfigurator.configure("logging.properties");
+    @DataProvider(name = "ckeHeader")
+    public Object[][] createData1() {
+        return new Object[][]{
+                    {"Wrong message type", new byte[]{(byte) 0xff},
+                        null, null},
+                    {"Invalid protocol version 0xff,0xff",
+                        null, new byte[]{(byte) 0xff, (byte) 0xff}, null},
+                    {"Invalid length 0x00,0x00",
+                        null, null, new byte[]{(byte) 0x00, (byte) 0x00}},
+                    {"Invalid length 0xff,0xff",
+                        null, null, new byte[]{(byte) 0xff, (byte) 0xff}},};
     }
 
-    @Test(enabled = true, dataProviderClass = FingerprintDataProviders.class,
-    dataProvider = "recordHeader", invocationCount = 1)
+    @Test(enabled = true, dataProvider = "ckeHeader", invocationCount = 1)
     public void manipulateCKERecordHeader(String desc, byte[] msgType,
             byte[] protocolVersion, byte[] recordLength) throws SocketException {
         logger.info("++++Start Test No." + counter + "(" + desc + ")++++");

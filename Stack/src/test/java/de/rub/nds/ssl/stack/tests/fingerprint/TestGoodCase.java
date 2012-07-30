@@ -1,22 +1,29 @@
-package de.rub.nds.ssl.stack.tests.fingerprint;
+package de.rub.nds.research.ssl.stack.tests.fingerprint;
 
-import de.rub.nds.ssl.stack.protocols.commons.ECipherSuite;
-import de.rub.nds.ssl.stack.protocols.commons.EProtocolVersion;
-import de.rub.nds.ssl.stack.protocols.handshake.ClientHello;
-import de.rub.nds.ssl.stack.protocols.handshake.datatypes.CipherSuites;
-import de.rub.nds.ssl.stack.protocols.handshake.datatypes.RandomValue;
-import de.rub.nds.ssl.stack.tests.common.MessageBuilder;
-import de.rub.nds.ssl.stack.tests.common.SSLServerHandler;
-import de.rub.nds.ssl.stack.tests.trace.Trace;
-import de.rub.nds.ssl.stack.tests.workflows.ObservableBridge;
-import de.rub.nds.ssl.stack.tests.workflows.SSLHandshakeWorkflow;
-import de.rub.nds.ssl.stack.tests.workflows.SSLHandshakeWorkflow.EStates;
-import java.net.SocketException;
+import java.io.IOException;
 import java.util.Observable;
 import java.util.Observer;
+
 import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
-import org.testng.annotations.*;
+import org.testng.annotations.AfterMethod;
+import org.testng.annotations.BeforeClass;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.DataProvider;
+import org.testng.annotations.Test;
+
+import de.rub.nds.research.ssl.stack.protocols.commons.ECipherSuite;
+import de.rub.nds.research.ssl.stack.protocols.commons.EProtocolVersion;
+import de.rub.nds.research.ssl.stack.protocols.handshake.ClientHello;
+import de.rub.nds.research.ssl.stack.protocols.handshake.datatypes.CipherSuites;
+import de.rub.nds.research.ssl.stack.protocols.handshake.datatypes.RandomValue;
+import de.rub.nds.research.ssl.stack.tests.common.MessageBuilder;
+import de.rub.nds.research.ssl.stack.tests.common.SSLServerHandler;
+import de.rub.nds.research.ssl.stack.tests.trace.Trace;
+import de.rub.nds.research.ssl.stack.tests.workflows.ObservableBridge;
+import de.rub.nds.research.ssl.stack.tests.workflows.SSLHandshakeWorkflow;
+import de.rub.nds.research.ssl.stack.tests.workflows.SSLHandshakeWorkflow.EStates;
+import java.net.SocketException;
 
 /**
  * Execute the handshake with valid parameters.
@@ -24,28 +31,11 @@ import org.testng.annotations.*;
  * @author Eugen Weiss - eugen.weiss@ruhr-uni-bochum.de
  * @version 0.1 Jun 30, 2012
  */
-public class TestGoodCase implements Observer {
-
-    /**
-     * Handshake workflow to observe.
-     */
-    private SSLHandshakeWorkflow workflow;
-    /**
-     * Test host.
-     */
-    private static final String HOST = "localhost";
+public class TestGoodCase extends GenericFingerprintTest implements Observer {
     /**
      * Test port.
      */
-    private static final int PORT = 10443;
-    /**
-     * Default protocol version.
-     */
-    private EProtocolVersion protocolVersion = EProtocolVersion.TLS_1_0;
-    /**
-     * Log4j logger initialization.
-     */
-    static Logger logger = Logger.getRootLogger();
+    protected int PORT = 10443;
     /**
      * Cipher suite.
      */
@@ -54,14 +44,6 @@ public class TestGoodCase implements Observer {
      * Handler to start/stop a test server.
      */
     private SSLServerHandler serverHandler = new SSLServerHandler();
-
-    /**
-     * Load the logging properties.
-     */
-    @BeforeClass
-    public void setUpClass() {
-        PropertyConfigurator.configure("logging.properties");
-    }
 
     /**
      * Cipher suites for ClientHello.

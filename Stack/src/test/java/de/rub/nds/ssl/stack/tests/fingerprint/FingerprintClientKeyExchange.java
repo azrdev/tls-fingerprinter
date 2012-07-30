@@ -1,25 +1,10 @@
-package de.rub.nds.ssl.stack.tests.fingerprint;
+package de.rub.nds.research.ssl.stack.tests.fingerprint;
 
-import de.rub.nds.ssl.stack.protocols.commons.ECipherSuite;
-import de.rub.nds.ssl.stack.protocols.commons.EProtocolVersion;
-import de.rub.nds.ssl.stack.protocols.handshake.ClientHello;
-import de.rub.nds.ssl.stack.protocols.handshake.ClientKeyExchange;
-import de.rub.nds.ssl.stack.protocols.handshake.datatypes.CipherSuites;
-import de.rub.nds.ssl.stack.protocols.handshake.datatypes.ClientDHPublic;
-import de.rub.nds.ssl.stack.protocols.handshake.datatypes.RandomValue;
-import de.rub.nds.ssl.stack.tests.analyzer.AFingerprintAnalyzer;
-import de.rub.nds.ssl.stack.tests.analyzer.TestHashAnalyzer;
-import de.rub.nds.ssl.stack.tests.analyzer.parameters.ClientKeyExchangeParams;
-import de.rub.nds.ssl.stack.tests.common.MessageBuilder;
-import de.rub.nds.ssl.stack.tests.common.TestConfiguration;
-import de.rub.nds.ssl.stack.tests.trace.Trace;
-import de.rub.nds.ssl.stack.tests.workflows.ObservableBridge;
-import de.rub.nds.ssl.stack.tests.workflows.SSLHandshakeWorkflow;
-import de.rub.nds.ssl.stack.tests.workflows.SSLHandshakeWorkflow.EStates;
 import java.io.IOException;
-import java.net.SocketException;
+import java.security.PublicKey;
 import java.util.Observable;
 import java.util.Observer;
+
 import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
 import org.testng.annotations.AfterMethod;
@@ -27,44 +12,40 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
-public class FingerprintClientKeyExchange implements Observer {
+import de.rub.nds.research.ssl.stack.protocols.ARecordFrame;
+import de.rub.nds.research.ssl.stack.protocols.commons.APubliclySerializable;
+import de.rub.nds.research.ssl.stack.protocols.commons.ECipherSuite;
+import de.rub.nds.research.ssl.stack.protocols.commons.EProtocolVersion;
+import de.rub.nds.research.ssl.stack.protocols.commons.KeyExchangeParams;
+import de.rub.nds.research.ssl.stack.protocols.handshake.ClientHello;
+import de.rub.nds.research.ssl.stack.protocols.handshake.ClientKeyExchange;
+import de.rub.nds.research.ssl.stack.protocols.handshake.datatypes.CipherSuites;
+import de.rub.nds.research.ssl.stack.protocols.handshake.datatypes.ClientDHPublic;
+import de.rub.nds.research.ssl.stack.protocols.handshake.datatypes.EncryptedPreMasterSecret;
+import de.rub.nds.research.ssl.stack.protocols.handshake.datatypes.PreMasterSecret;
+import de.rub.nds.research.ssl.stack.protocols.handshake.datatypes.RandomValue;
+import de.rub.nds.research.ssl.stack.tests.workflows.SSLHandshakeWorkflow;
+import de.rub.nds.research.ssl.stack.tests.analyzer.AFingerprintAnalyzer;
+import de.rub.nds.research.ssl.stack.tests.analyzer.TestHashAnalyzer;
+import de.rub.nds.research.ssl.stack.tests.analyzer.parameters.ClientKeyExchangeParameters;
+import de.rub.nds.research.ssl.stack.tests.common.MessageBuilder;
+import de.rub.nds.research.ssl.stack.tests.common.SSLTestUtils;
+import de.rub.nds.research.ssl.stack.tests.common.TestConfiguration;
+import de.rub.nds.research.ssl.stack.tests.workflows.SSLHandshakeWorkflow.EStates;
+import de.rub.nds.research.ssl.stack.tests.trace.Trace;
+import de.rub.nds.research.ssl.stack.tests.workflows.ObservableBridge;
+import java.net.SocketException;
 
-    /**
-     * Handshake workflow to observe.
-     */
-    private SSLHandshakeWorkflow workflow;
-    /**
-     * Test host.
-     */
-    private static final String HOST = "localhost";
-    /**
-     * Test counter.
-     */
-    private int counter = 1;
+public class FingerprintClientKeyExchange extends GenericFingerprintTest implements Observer {
     /**
      * Test port.
      */
-    private static final int PORT = 443;
+    protected int PORT = 9443;
     /**
      * Test parameters.
      */
-    private ClientKeyExchangeParams parameters = new ClientKeyExchangeParams();
-    /**
-     * Log4j logger initialization.
-     */
-    static Logger logger = Logger.getRootLogger();
-    /**
-     * Default protocol version.
-     */
-    private EProtocolVersion protocolVersion = EProtocolVersion.TLS_1_0;
+    private ClientKeyExchangeParameters parameters = new ClientKeyExchangeParameters();
 
-    /**
-     * Load the logging properties.
-     */
-    @BeforeClass
-    public void setUp() {
-        PropertyConfigurator.configure("logging.properties");
-    }
 
     /**
      * Test parameters for ClientKeyExchange fingerprinting.
@@ -74,7 +55,7 @@ public class FingerprintClientKeyExchange implements Observer {
     @DataProvider(name = "clientKeyExchange")
     public Object[][] createData1() {
         return new Object[][]{
-                    {"Invalid payload for DH key exchange", new ECipherSuite[]{
+                    {"Invalid payload for RSA key exchange", new ECipherSuite[]{
                             ECipherSuite.TLS_DHE_RSA_WITH_AES_128_CBC_SHA},
                         new byte[]{(byte) 0x00, (byte) 0x00}}
                 };

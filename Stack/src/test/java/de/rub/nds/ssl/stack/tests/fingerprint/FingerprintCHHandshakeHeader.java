@@ -1,27 +1,29 @@
-package de.rub.nds.ssl.stack.tests.fingerprint;
+package de.rub.nds.research.ssl.stack.tests.fingerprint;
 
-import de.rub.nds.ssl.stack.protocols.commons.ECipherSuite;
-import de.rub.nds.ssl.stack.protocols.commons.EProtocolVersion;
-import de.rub.nds.ssl.stack.protocols.handshake.ClientHello;
-import de.rub.nds.ssl.stack.protocols.handshake.datatypes.CipherSuites;
-import de.rub.nds.ssl.stack.protocols.handshake.datatypes.RandomValue;
-import de.rub.nds.ssl.stack.tests.analyzer.AFingerprintAnalyzer;
-import de.rub.nds.ssl.stack.tests.analyzer.TestHashAnalyzer;
-import de.rub.nds.ssl.stack.tests.analyzer.parameters.HeaderParameters;
-import de.rub.nds.ssl.stack.tests.common.MessageBuilder;
-import de.rub.nds.ssl.stack.tests.common.TestConfiguration;
-import de.rub.nds.ssl.stack.tests.trace.Trace;
-import de.rub.nds.ssl.stack.tests.workflows.ObservableBridge;
-import de.rub.nds.ssl.stack.tests.workflows.SSLHandshakeWorkflow;
-import de.rub.nds.ssl.stack.tests.workflows.SSLHandshakeWorkflow.EStates;
-import java.net.SocketException;
 import java.util.Observable;
 import java.util.Observer;
+
 import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+
+import de.rub.nds.research.ssl.stack.protocols.commons.ECipherSuite;
+import de.rub.nds.research.ssl.stack.protocols.commons.EProtocolVersion;
+import de.rub.nds.research.ssl.stack.protocols.handshake.ClientHello;
+import de.rub.nds.research.ssl.stack.protocols.handshake.datatypes.CipherSuites;
+import de.rub.nds.research.ssl.stack.protocols.handshake.datatypes.RandomValue;
+import de.rub.nds.research.ssl.stack.tests.analyzer.AFingerprintAnalyzer;
+import de.rub.nds.research.ssl.stack.tests.analyzer.TestHashAnalyzer;
+import de.rub.nds.research.ssl.stack.tests.analyzer.parameters.HeaderParameters;
+import de.rub.nds.research.ssl.stack.tests.common.MessageBuilder;
+import de.rub.nds.research.ssl.stack.tests.workflows.SSLHandshakeWorkflow;
+import de.rub.nds.research.ssl.stack.tests.common.TestConfiguration;
+import de.rub.nds.research.ssl.stack.tests.workflows.SSLHandshakeWorkflow.EStates;
+import de.rub.nds.research.ssl.stack.tests.trace.Trace;
+import de.rub.nds.research.ssl.stack.tests.workflows.ObservableBridge;
+import java.net.SocketException;
 
 /**
  * Fingerprint the Client Hello handshake header. Perform Tests by manipulating
@@ -30,43 +32,16 @@ import org.testng.annotations.Test;
  * @author Eugen Weiss - eugen.weiss@ruhr-uni-bochum.de
  * @version 0.1 May 31, 2012
  */
-public class FingerprintCHHandshakeHeader implements Observer {
-
-    /**
-     * Handshake workflow to observe.
-     */
-    private SSLHandshakeWorkflow workflow;
-    /**
-     * Test host.
-     */
-    private static final String HOST = "localhost";
+public class FingerprintCHHandshakeHeader extends GenericFingerprintTest implements Observer {
     /**
      * Test port.
      */
-    private static final int PORT = 9443;
-    /**
-     * Test counter.
-     */
-    private int counter = 1;
-    /**
-     * Defualt protocol version.
-     */
-    private EProtocolVersion protocolVersion = EProtocolVersion.TLS_1_0;
-    /**
-     * Test parameters
-     */
-    private HeaderParameters parameters = new HeaderParameters();
-    static Logger logger = Logger.getRootLogger();
-
-    @BeforeClass
-    public void setUp() {
-        PropertyConfigurator.configure("logging.properties");
-    }
+    protected int PORT = 9443;
 
     @Test(enabled = true, dataProviderClass = FingerprintDataProviders.class,
     dataProvider = "handshakeHeader", invocationCount = 1)
     public void manipulateCHHandshakeHeader(String desc, byte[] msgType,
-            byte[] recordLength) throws SocketException {
+           byte[] recordLength) throws SocketException {
         logger.info("++++Start Test No." + counter + "(" + desc + ")++++");
         logger.info("Following test parameters are used:");
         workflow = new SSLHandshakeWorkflow();
