@@ -1,6 +1,8 @@
 package de.rub.nds.virtualnetworklayer.socket;
 
 import de.rub.nds.virtualnetworklayer.connection.Connection.Trace;
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.Socket;
 import java.net.SocketException;
 
@@ -46,5 +48,15 @@ public class VNLSocket extends Socket {
         
         // TODO deep copy or clone
         return vnlSocketImpl.getTrace();
+    }
+    
+    @Override
+    public VNLInputStream getInputStream() throws IOException {        
+        return (VNLInputStream) super.getInputStream();
+    }
+    
+    @Override
+    public VNLOutputStream getOutputStream() throws IOException {        
+        return (VNLOutputStream) super.getOutputStream();
     }
 }
