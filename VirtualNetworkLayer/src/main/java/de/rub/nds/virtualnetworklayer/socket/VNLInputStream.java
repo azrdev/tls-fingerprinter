@@ -41,6 +41,11 @@ public class VNLInputStream extends InputStream {
             IOException {
         int pointer = offset;
         byte[] tmpBytes;
+		/*
+		 * Remember, len is only an upper limit for the number of bytes to read.
+		 * Returning less bytes than len is fine, as long as at least one byte
+		 * is returend.
+		 */
         while (pointer < len) {
             tmpBytes = readPacket().getContent();
             if (tmpBytes.length + pointer < len) {
