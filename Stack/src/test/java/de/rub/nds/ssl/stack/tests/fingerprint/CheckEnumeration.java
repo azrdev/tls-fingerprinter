@@ -1,17 +1,14 @@
-package de.rub.nds.research.ssl.stack.tests.fingerprint;
+package de.rub.nds.ssl.stack.tests.fingerprint;
 
-import org.apache.log4j.Logger;
-import org.apache.log4j.PropertyConfigurator;
+import java.net.SocketException;
+
 import org.testng.annotations.AfterMethod;
-import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import de.rub.nds.research.ssl.stack.protocols.commons.ECipherSuite;
-import de.rub.nds.research.ssl.stack.tests.analyzer.AFingerprintAnalyzer;
-import de.rub.nds.research.ssl.stack.tests.analyzer.HandshakeEnumCheck;
-import de.rub.nds.research.ssl.stack.tests.common.TestConfiguration;
-import de.rub.nds.research.ssl.stack.tests.workflows.SSLHandshakeWorkflow;
-import java.net.SocketException;
+import de.rub.nds.ssl.stack.tests.analyzer.AFingerprintAnalyzer;
+import de.rub.nds.ssl.stack.tests.analyzer.HandshakeEnumCheck;
+import de.rub.nds.ssl.stack.tests.common.TestConfiguration;
+import de.rub.nds.ssl.stack.tests.workflows.SSLHandshakeWorkflow;
 
 /**
  * Check if handshake messages were enumerated.

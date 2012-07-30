@@ -1,4 +1,4 @@
-package de.rub.nds.research.ssl.stack.tests.fingerprint;
+package de.rub.nds.ssl.stack.tests.fingerprint;
 
 import org.testng.annotations.DataProvider;
 
@@ -10,7 +10,6 @@ import org.testng.annotations.DataProvider;
  * Jun 21, 2012
  */
 public class FingerprintDataProviders {
-	
 
 	/**
 	 * Record Header parameters.

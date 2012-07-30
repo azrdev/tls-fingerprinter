@@ -1,29 +1,24 @@
-package de.rub.nds.research.ssl.stack.tests.fingerprint;
+package de.rub.nds.ssl.stack.tests.fingerprint;
 
+import java.net.SocketException;
 import java.util.Observable;
 import java.util.Observer;
 
-import org.apache.log4j.Logger;
-import org.apache.log4j.PropertyConfigurator;
 import org.testng.annotations.AfterMethod;
-import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import de.rub.nds.research.ssl.stack.protocols.commons.EConnectionEnd;
-import de.rub.nds.research.ssl.stack.protocols.commons.EProtocolVersion;
-import de.rub.nds.research.ssl.stack.protocols.handshake.Finished;
-import de.rub.nds.research.ssl.stack.protocols.handshake.datatypes.MasterSecret;
-import de.rub.nds.research.ssl.stack.protocols.msgs.TLSCiphertext;
-import de.rub.nds.research.ssl.stack.tests.analyzer.AFingerprintAnalyzer;
-import de.rub.nds.research.ssl.stack.tests.analyzer.TestHashAnalyzer;
-import de.rub.nds.research.ssl.stack.tests.analyzer.parameters.HeaderParameters;
-import de.rub.nds.research.ssl.stack.tests.common.MessageBuilder;
-import de.rub.nds.research.ssl.stack.tests.common.TestConfiguration;
-import de.rub.nds.research.ssl.stack.tests.trace.Trace;
-import de.rub.nds.research.ssl.stack.tests.workflows.ObservableBridge;
-import de.rub.nds.research.ssl.stack.tests.workflows.SSLHandshakeWorkflow;
-import de.rub.nds.research.ssl.stack.tests.workflows.SSLHandshakeWorkflow.EStates;
-import java.net.SocketException;
+import de.rub.nds.ssl.stack.protocols.commons.EConnectionEnd;
+import de.rub.nds.ssl.stack.protocols.handshake.Finished;
+import de.rub.nds.ssl.stack.protocols.handshake.datatypes.MasterSecret;
+import de.rub.nds.ssl.stack.protocols.msgs.TLSCiphertext;
+import de.rub.nds.ssl.stack.tests.analyzer.AFingerprintAnalyzer;
+import de.rub.nds.ssl.stack.tests.analyzer.TestHashAnalyzer;
+import de.rub.nds.ssl.stack.tests.common.MessageBuilder;
+import de.rub.nds.ssl.stack.tests.common.TestConfiguration;
+import de.rub.nds.ssl.stack.tests.trace.Trace;
+import de.rub.nds.ssl.stack.tests.workflows.ObservableBridge;
+import de.rub.nds.ssl.stack.tests.workflows.SSLHandshakeWorkflow;
+import de.rub.nds.ssl.stack.tests.workflows.SSLHandshakeWorkflow.EStates;
 
 /**
  * Fingerprint the Finished record header. Perform Tests by manipulating the
