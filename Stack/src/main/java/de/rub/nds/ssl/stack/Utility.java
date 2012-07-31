@@ -246,4 +246,17 @@ public abstract class Utility {
 
         return cert;
     }
+    
+    /**
+     * Converts a byte[] to int.
+     *
+     * @param bytes 4 bytes array to be converted
+     * @return Integer representation of the byte[]
+     */
+    public static int bytesToInt(byte... bytes) {
+        return (int) ((0xFF & bytes[0]) << 24
+                | (0xFF & bytes[1]) << 16
+                | (0xFF & bytes[2]) << 8
+                | (0xFF & bytes[3]));
+    }
 }

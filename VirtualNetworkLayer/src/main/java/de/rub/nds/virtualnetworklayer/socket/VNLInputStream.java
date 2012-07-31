@@ -41,23 +41,33 @@ public class VNLInputStream extends InputStream {
             IOException {
         int pointer = offset;
         byte[] tmpBytes;
-		/*
-		 * Remember, len is only an upper limit for the number of bytes to read.
-		 * Returning less bytes than len is fine, as long as at least one byte
-		 * is returend.
-		 */
-        while (pointer < len) {
-            tmpBytes = readPacket().getContent();
-            if (tmpBytes.length + pointer < len) {
-                System.arraycopy(tmpBytes, pointer, bytes, pointer,
-                        tmpBytes.length);
-                pointer += tmpBytes.length;
-            } else {
-                System.arraycopy(tmpBytes, pointer, bytes, pointer,
-                        len - pointer);
-                pointer += len - pointer;
-            }
 
+        if (bytes == null) {
+            throw new NullPointerException();
+        }
+        if (offset < 0 || len < 0) {
+            throw new IllegalArgumentException(
+                    "Only positive values are allowed");
+        } else if (offset > len || bytes.length < len + offset) {
+            throw new IndexOutOfBoundsException();
+        }
+
+        try {
+            while (pointer < len) {
+                tmpBytes = readPacket().getContent();
+                if (tmpBytes.length + pointer < len) {
+                    System.arraycopy(tmpBytes, pointer, bytes, pointer,
+                            tmpBytes.length);
+                    pointer += tmpBytes.length;
+                } else {
+                    System.arraycopy(tmpBytes, pointer, bytes, pointer,
+                            len - pointer);
+                    pointer += len - pointer;
+                }
+
+            }
+        } catch (IOException e) {
+            // something went wrong during read - Timeout? 
         }
 
         return pointer;
@@ -88,17 +98,35 @@ public class VNLInputStream extends InputStream {
      * Reads raw packets.
      *
      * @param packets Packet array to store read packets.
-     * @param off Offset in the passed array where to start storing read packets
+     * @param offset Offset in the passed array where to start storing read
+     * packets
      * @param len Number of read packets.
      * @return Number of read raw packet from the connection.
      * @throws IOException
      */
-    public int readPackets(final Packet[] packets, final int off,
+    public int readPackets(final Packet[] packets, final int offset,
             final int len) throws IOException {
-        for (int i = 0; i < len; i++) {
-            packets[off + i] = readPacket();
+        int i = 0;
+
+        if (packets == null) {
+            throw new NullPointerException();
+        }
+        if (offset < 0 || len < 0) {
+            throw new IllegalArgumentException(
+                    "Only positive values are allowed");
+        } else if (offset > len || packets.length < len + offset) {
+            throw new IndexOutOfBoundsException();
         }
 
-        return len;
+        try {
+            while (i < len) {
+                packets[offset + i] = readPacket();
+                i++;
+            }
+        } catch (IOException e) {
+            // something went wrong during read - Timeout? 
+        }
+        
+        return i;
     }
 }
