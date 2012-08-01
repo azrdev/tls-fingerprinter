@@ -1,9 +1,14 @@
 <!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd" >
  
-<suite name="aSuite" verbose="1" >
-  <test name="Attacks">
+<suite name="fingerprintSuite" verbose="1" >
+  <listeners>
+    <listener class-name="de.rub.nds.ssl.stack.tests.analyzer.common.AnalyzeResults"/>
+  </listeners>
+  <test name="Fingerprint">
     <classes>
-      <class name="de.rub.nds.ssl.stack.attacks.BleichenbacherTest"/>
+	  <class name="de.rub.nds.ssl.stack.tests.common.TestSuiteInit"/>
+	  <class name="de.rub.nds.ssl.stack.tests.fingerprint.CheckEnumeration"/>
+      <class name="de.rub.nds.ssl.stack.tests.fingerprint.FingerprintClientHello"/>
     </classes>
   </test>
 </suite>
