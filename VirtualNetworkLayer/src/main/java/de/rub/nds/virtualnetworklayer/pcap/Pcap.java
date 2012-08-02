@@ -51,6 +51,7 @@ public class Pcap {
     private static int mode = 0;
     private static int timeout = 250;
     private static List<WeakReference<Pcap>> references = new LinkedList<WeakReference<Pcap>>();
+    private static Device liveDevice;
 
     private class Loop implements Runnable {
         private PcapHandler handler;
@@ -166,7 +167,7 @@ public class Pcap {
     }
 
     /**
-     * Creates a pcap instance in radio frequency mode with {@link #getLiveDevice()} and
+     * Creates a pcap instance in radio frequency mode with {@link #getLiveDevice} and
      * default {@link OpenFlag} (all false).
      *
      * @return instance of {@link Pcap}
@@ -246,7 +247,7 @@ public class Pcap {
     }
 
     /**
-     * Creates a pcap instance in live mode with {@link #getLiveDevice()} device and
+     * Creates a pcap instance in live mode with {@link #getLiveDevice} device and
      * default {@link OpenFlag} (all false).
      *
      * @return instance of {@link Pcap}
@@ -305,8 +306,7 @@ public class Pcap {
             }
         }
 
-
-        throw new IllegalArgumentException();
+        return Pcap.openLive();
     }
 
     private Pcap(pcap_t pcap_t) {
@@ -415,25 +415,46 @@ public class Pcap {
     }
 
     /**
-     * Returns the local host device (if any).
+     * Tries to find live device.
      *
-     * @return device otherwise null
+     * @return found device otherwise default device
      * @see InetAddress#getLocalHost()
+     * @see #getDefaultDevice()
+     * @see de.rub.nds.virtualnetworklayer.util.Util#getDefaultRoute()
      */
     public static Device getLiveDevice() {
-        try {
-            byte[] address = Util.toAddress(InetAddress.getLocalHost());
-
-            for (Device device : Pcap.getDevices()) {
-                if (device.isBound(address)) {
-                    return device;
-                }
-            }
-        } catch (UnknownHostException e) {
-            return null;
+        if (liveDevice != null) {
+            return liveDevice;
         }
 
-        return null;
+        try {
+            InetAddress localhost = InetAddress.getLocalHost();
+            if (!localhost.isLinkLocalAddress()) {
+                byte[] address = Util.toAddress(localhost);
+
+                for (Device device : getDevices()) {
+                    if (device.isBound(address)) {
+                        return device;
+                    }
+                }
+            }
+
+        } catch (UnknownHostException e) {
+        }
+
+        String defaultRoute = Util.getDefaultRoute();
+
+        for (Device device : Pcap.getDevices()) {
+            if (device.getName().equals(defaultRoute)) {
+                return device;
+            }
+        }
+
+        return getDefaultDevice();
+    }
+
+    public static void setLiveDevice(Device liveDevice) {
+        Pcap.liveDevice = liveDevice;
     }
 
     /**

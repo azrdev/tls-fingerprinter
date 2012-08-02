@@ -29,6 +29,8 @@ public class Device {
 
     private String description = "";
     private List<byte[]> addresses = new ArrayList<byte[]>();
+    private List<AddressFamily> families = new ArrayList<AddressFamily>();
+
     private String name;
 
     Device(pcap_if pcap_if, int net, int mask) {
@@ -45,13 +47,16 @@ public class Device {
             int sa_family = addr.get().sa_family();
             AddressFamily family = AddressFamily.valueOf(sa_family);
 
-            byte[] sa_data = addr.get().sa_data().getBytes(4);
+            if (family != null) {
+                byte[] sa_data = addr.get().sa_data().getBytes(4);
 
-            if (family != null && family.isINet6()) {
-                sa_data = addr.get().sa_data().getBytes();
+                if (family.isINet6()) {
+                    sa_data = addr.get().sa_data().getBytes();
+                }
+
+                addresses.add(sa_data);
+                families.add(family);
             }
-
-            addresses.add(sa_data);
 
             address = address.get().next();
         }
@@ -67,6 +72,16 @@ public class Device {
 
     public List<byte[]> getAddresses() {
         return addresses;
+    }
+
+    public byte[] getAddress(Family.Category category) {
+        for (int i = 0; i < families.size(); i++) {
+            if (families.get(i).isCategory(category)) {
+                return addresses.get(i);
+            }
+        }
+
+        return null;
     }
 
     public boolean isBound(byte[] to) {

@@ -27,6 +27,11 @@ public class FingerprintingDemo {
 
         PcapConnection connection = PcapConnection.create("www.tu-darmstadt.de", 80);
 
+        //if active live device cannot be discovered, set manually
+        //Pcap.setLiveDevice(Device.Any);
+        //or use
+        //PcapConnection connection = PcapConnection.create("www.tu-darmstadt.de", 80, "192.168.6.20");
+
         System.out.println("Fingerprints");
         System.out.println("Direction Labels");
         System.out.println("Request   " + connection.getLabels(Packet.Direction.Request));

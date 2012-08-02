@@ -6,13 +6,13 @@ import de.rub.nds.virtualnetworklayer.fingerprint.Fingerprints;
 import de.rub.nds.virtualnetworklayer.p0f.Label;
 import de.rub.nds.virtualnetworklayer.packet.Packet;
 import de.rub.nds.virtualnetworklayer.packet.PcapPacket;
+import de.rub.nds.virtualnetworklayer.packet.header.link.family.Family;
 import de.rub.nds.virtualnetworklayer.packet.header.transport.SocketSession;
 import de.rub.nds.virtualnetworklayer.pcap.Pcap;
 import de.rub.nds.virtualnetworklayer.util.Util;
 import de.rub.nds.virtualnetworklayer.util.formatter.IpFormatter;
 
 import java.io.IOException;
-import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -46,9 +46,22 @@ public class PcapConnection implements Connection {
      * @throws IOException
      */
     public static PcapConnection create(String host, int port) throws IOException {
-        InetSocketAddress remoteSocketAddress = new InetSocketAddress(host, port);
+        String device = IpFormatter.toString(Pcap.getLiveDevice().getAddress(Family.Category.Ip4));
 
-        return attachSocket(remoteSocketAddress, DefaultTimeout);
+        return create(host, port, device);
+    }
+
+    /**
+     * Creates a connection and connects to the specified port number at the specified IP address.
+     * {@link #DefaultTimeout} is used.
+     *
+     * @param host
+     * @param port
+     * @return connection
+     * @throws IOException
+     */
+    public static PcapConnection create(String host, int port, String device) throws IOException {
+        return create(host, port, device, DefaultTimeout);
     }
 
     /**
@@ -60,18 +73,20 @@ public class PcapConnection implements Connection {
      * @return connection
      * @throws IOException
      */
-    public static PcapConnection create(String host, int port, int timeout) throws IOException {
+    public static PcapConnection create(String host, int port, String device, int timeout) throws IOException {
         InetSocketAddress remoteSocketAddress = new InetSocketAddress(host, port);
 
-        return attachSocket(remoteSocketAddress, timeout);
+        return attachSocket(remoteSocketAddress, device, timeout);
     }
 
-    private static PcapConnection attachSocket(InetSocketAddress remoteSocketAddress, int timeout) throws IOException {
+    private static PcapConnection attachSocket(InetSocketAddress remoteSocketAddress, String device, int timeout) throws IOException {
         int port = findFreePort();
 
-        InetSocketAddress localSocketAddress = new InetSocketAddress(InetAddress.getLocalHost(), port);
+        InetSocketAddress localSocketAddress = new InetSocketAddress(device, port);
         Socket socket = new Socket();
-        socket.bind(localSocketAddress);
+        if (!device.equals("0.0.0.0")) {
+            socket.bind(localSocketAddress);
+        }
 
         byte[] localAddress = Util.toAddress(localSocketAddress.getAddress());
         byte[] remoteAddress = Util.toAddress(remoteSocketAddress.getAddress());
@@ -125,8 +140,9 @@ public class PcapConnection implements Connection {
         if (socket == null) {
             SocketSession session = (SocketSession) this.session;
             InetSocketAddress remoteSocketAddress = new InetSocketAddress(IpFormatter.toString(session.getDestinationAddress()), session.getDestinationPort());
+            String liveDevice = IpFormatter.toString(Pcap.getLiveDevice().getAddress(Family.Category.Ip4));
 
-            attachSocket(remoteSocketAddress, DefaultTimeout);
+            attachSocket(remoteSocketAddress, liveDevice, DefaultTimeout);
         }
     }
 

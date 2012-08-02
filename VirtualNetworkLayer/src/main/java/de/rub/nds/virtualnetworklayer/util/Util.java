@@ -2,10 +2,14 @@ package de.rub.nds.virtualnetworklayer.util;
 
 import de.rub.nds.virtualnetworklayer.packet.header.transport.TcpHeader;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.net.InetAddress;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.util.List;
+import java.util.StringTokenizer;
 
 /**
  * Utility class
@@ -76,5 +80,33 @@ public class Util {
 
     public static byte[] toAddress(InetAddress address) {
         return address.getAddress();
+    }
+
+    public static String getDefaultRoute() {
+
+        try {
+            Process result = Runtime.getRuntime().exec("netstat -rn");
+
+            BufferedReader reader = new BufferedReader(new InputStreamReader(result.getInputStream()));
+
+            String line;
+            while ((line = reader.readLine()) != null) {
+                if (line.startsWith("default")) {
+                    StringTokenizer tokenizer = new StringTokenizer(line);
+                    tokenizer.nextToken();
+                    tokenizer.nextToken();
+                    tokenizer.nextToken();
+                    tokenizer.nextToken();
+                    tokenizer.nextToken();
+
+                    return tokenizer.nextToken();
+                }
+            }
+
+        } catch (IOException e) {
+
+        }
+
+        return null;
     }
 }

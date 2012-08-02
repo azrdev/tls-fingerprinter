@@ -14,6 +14,10 @@ package de.rub.nds.virtualnetworklayer.util.formatter;
 public class IpFormatter extends StringFormatter {
 
     public static String toString(byte[] data) {
+        if (data == null) {
+            return "0.0.0.0";
+        }
+
         if (data.length == 4) {
             return toIp4String(data);
         }
