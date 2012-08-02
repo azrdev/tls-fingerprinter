@@ -1,7 +1,5 @@
 package de.rub.nds.ssl.stack.tests.analyzer.db;
 
-import de.rub.nds.ssl.stack.protocols.alert.Alert;
-import de.rub.nds.ssl.stack.tests.analyzer.common.AnalyzeResults;
 import de.rub.nds.ssl.stack.tests.analyzer.common.AnalyzeTraceList;
 import de.rub.nds.ssl.stack.tests.analyzer.common.ETLSImplementation;
 import de.rub.nds.ssl.stack.tests.analyzer.parameters.AParameters;
@@ -11,6 +9,10 @@ import de.rub.nds.ssl.stack.tests.workflows.SSLHandshakeWorkflow.EStates;
 import java.sql.Connection;
 import java.util.ArrayList;
 
+/**
+ * Example how to add a fingerprint to the db
+ * 
+ */
 public class FillBehaviourDB {
 	
 	private Database db;
@@ -38,11 +40,17 @@ public class FillBehaviourDB {
         	lastState = lastTrace.getState().name();
         }
         String fingerprint = parameters.computeHash();
+        // hash
         prepared.setString(1, fingerprint);
-        prepared.setString(2, lastState);
-        prepared.setString(3, alertDesc);
-        prepared.setString(4, implementation);
+        // state
+        prepared.setString(2, "ALERT");
+        // alert description
+        prepared.setString(3, "BAD_RECORD_MAC");
+        // implementation
+        prepared.setString(4, "OPENSSL");
+        // points
         prepared.setInt(5, 2);
+        // testcase id
         prepared.setInt(6, 26);
         prepared.executeUpdate();
     }

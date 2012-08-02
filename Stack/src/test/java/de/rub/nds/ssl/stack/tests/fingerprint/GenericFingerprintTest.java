@@ -22,7 +22,7 @@ public abstract class GenericFingerprintTest {
     /**
      * Test host.
      */
-    protected String HOST = "localhost";
+    protected String HOST = "www.heise.de";
     /**
      * Test port.
      */

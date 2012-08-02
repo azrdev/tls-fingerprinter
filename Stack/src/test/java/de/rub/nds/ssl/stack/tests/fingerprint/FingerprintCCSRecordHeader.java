@@ -1,21 +1,21 @@
 package de.rub.nds.ssl.stack.tests.fingerprint;
 
-import java.net.SocketException;
-import java.util.Observable;
-import java.util.Observer;
-
-import org.testng.annotations.AfterMethod;
-import org.testng.annotations.Test;
-
 import de.rub.nds.ssl.stack.protocols.msgs.ChangeCipherSpec;
 import de.rub.nds.ssl.stack.tests.analyzer.AFingerprintAnalyzer;
 import de.rub.nds.ssl.stack.tests.analyzer.TestHashAnalyzer;
+import de.rub.nds.ssl.stack.tests.analyzer.common.ScoreCounter;
 import de.rub.nds.ssl.stack.tests.analyzer.parameters.EFingerprintIdentifier;
 import de.rub.nds.ssl.stack.tests.common.TestConfiguration;
 import de.rub.nds.ssl.stack.tests.trace.Trace;
 import de.rub.nds.ssl.stack.tests.workflows.ObservableBridge;
 import de.rub.nds.ssl.stack.tests.workflows.SSLHandshakeWorkflow;
 import de.rub.nds.ssl.stack.tests.workflows.SSLHandshakeWorkflow.EStates;
+import java.net.SocketException;
+import java.util.Observable;
+import java.util.Observer;
+import org.testng.annotations.AfterClass;
+import org.testng.annotations.AfterMethod;
+import org.testng.annotations.Test;
 
 /**
  * Fingerprint the ChangeCipherSpec record header. Perform Tests by manipulating
@@ -113,5 +113,36 @@ public class FingerprintCCSRecordHeader extends GenericFingerprintTest implement
     @AfterMethod
     public void tearDown() {
         workflow.closeSocket();
+    }
+    
+    @AfterClass
+    public void generateReport() {
+        ScoreCounter counter = ScoreCounter.getInstance();
+        int jsse = counter.getJSSEStandardScore();
+        int openssl = counter.getOpenSSLScore();
+        int gnutls = counter.getGNUtlsScore();
+        int total = counter.getTotalCounter();
+        int noHit = counter.getNoHitCounter();
+        float result;
+        System.out.println("JSSE Points: " + jsse);
+        System.out.println("GNUtls Points: " + gnutls);
+        System.out.println("OpenSSL Points: " + openssl);
+        System.out.println("NoHit: " + noHit);
+        //compute Probability
+        result = this.computeProbability(jsse, total);
+        System.out.println("Probability for JSSE: " + result);
+        result = this.computeProbability(gnutls, total);
+        System.out.println("Probability for GNUtls: " + result);
+        result = this.computeProbability(openssl, total);
+        System.out.println("Probability for OpenSSL: " + result);
+        result = this.computeProbability(noHit, total);
+        System.out.println("No hit in DB: " + result);
+
+    }
+    
+    private float computeProbability(int impl, int total) {
+        float result;
+        result = ((float) impl / (float) total) * 100;
+        return result;
     }
 }

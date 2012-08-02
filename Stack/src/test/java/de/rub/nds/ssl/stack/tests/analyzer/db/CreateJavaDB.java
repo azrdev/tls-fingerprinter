@@ -14,21 +14,24 @@ import java.util.Properties;
 public class CreateJavaDB {
 
     public static void main(String args[]) {
-        Connection conn = null;
-        Properties props = new Properties();
-        props.put("user", "tester");
-        props.put("password", "ssltest");
-        try {
-            Class.forName("org.apache.derby.jdbc.EmbeddedDriver");
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-        }
-        try {
-            conn = DriverManager.getConnection(
-                    "jdbc:derby:Fingerprint;create=true",
-                    props);
-        } catch (SQLException e) {
-            e.printStackTrace();
+        // foot shot protection :-D
+        if ("YesIWouldLikeToDropAllData!".equals(args[0])) {
+            Connection conn = null;
+            Properties props = new Properties();
+            props.put("user", "tester");
+            props.put("password", "ssltest");
+            try {
+                Class.forName("org.apache.derby.jdbc.EmbeddedDriver");
+            } catch (ClassNotFoundException e) {
+                e.printStackTrace();
+            }
+            try {
+                conn = DriverManager.getConnection(
+                        "jdbc:derby:Fingerprint;create=true",
+                        props);
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
         }
     }
 }
