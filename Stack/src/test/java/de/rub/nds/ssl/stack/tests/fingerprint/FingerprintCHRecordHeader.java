@@ -13,6 +13,7 @@ import de.rub.nds.ssl.stack.protocols.handshake.datatypes.CipherSuites;
 import de.rub.nds.ssl.stack.protocols.handshake.datatypes.RandomValue;
 import de.rub.nds.ssl.stack.tests.analyzer.AFingerprintAnalyzer;
 import de.rub.nds.ssl.stack.tests.analyzer.TestHashAnalyzer;
+import de.rub.nds.ssl.stack.tests.analyzer.parameters.EFingerprintIdentifier;
 import de.rub.nds.ssl.stack.tests.common.MessageBuilder;
 import de.rub.nds.ssl.stack.tests.common.TestConfiguration;
 import de.rub.nds.ssl.stack.tests.trace.Trace;
@@ -31,7 +32,7 @@ public class FingerprintCHRecordHeader extends GenericFingerprintTest implements
     /**
      * Test port.
      */
-    protected int PORT = 9443;
+    protected int PORT = 443;
 
     @Test(enabled = true, dataProviderClass = FingerprintDataProviders.class,
     dataProvider = "recordHeader", invocationCount = 1)
@@ -57,7 +58,7 @@ public class FingerprintCHRecordHeader extends GenericFingerprintTest implements
         parameters.setMsgType(msgType);
         parameters.setProtocolVersion(protocolVersion);
         parameters.setRecordLength(recordLength);
-        parameters.setTestClassName(this.getClass().getName());
+        parameters.setIdentifier(EFingerprintIdentifier.CHRecordHeader);
         parameters.setDescription(desc);
 
         //start the handshake

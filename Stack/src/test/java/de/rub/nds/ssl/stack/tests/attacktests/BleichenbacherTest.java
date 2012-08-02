@@ -12,6 +12,7 @@ import de.rub.nds.ssl.stack.protocols.handshake.datatypes.PreMasterSecret;
 import de.rub.nds.ssl.stack.protocols.handshake.datatypes.RandomValue;
 import de.rub.nds.ssl.stack.protocols.msgs.datatypes.RsaUtil;
 import de.rub.nds.ssl.stack.tests.analyzer.parameters.BleichenbacherParameters;
+import de.rub.nds.ssl.stack.tests.analyzer.parameters.EFingerprintIdentifier;
 import de.rub.nds.ssl.stack.tests.common.MessageBuilder;
 import de.rub.nds.ssl.stack.tests.common.SSLServerHandler;
 import de.rub.nds.ssl.stack.tests.common.SSLTestUtils;
@@ -160,7 +161,7 @@ public class BleichenbacherTest implements Observer {
         params.setChangePadding(changePadding);
         params.setPosition(position);
         params.setAnyPosition(anyPosition);
-        params.setTestClassName(this.getClass().getName());
+        params.setIdentifier(EFingerprintIdentifier.BleichenbacherAttack);
         params.setDescription(desc);
 
         workflow.start();

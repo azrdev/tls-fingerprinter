@@ -1,6 +1,6 @@
 package de.rub.nds.ssl.stack.tests.analyzer;
 
-import de.rub.nds.ssl.stack.protocols.alert.Alert;
+import de.rub.nds.ssl.stack.tests.analyzer.common.AnalyzeTraceList;
 import de.rub.nds.ssl.stack.tests.analyzer.common.ETLSImplementation;
 import de.rub.nds.ssl.stack.tests.analyzer.common.ScoreCounter;
 import de.rub.nds.ssl.stack.tests.analyzer.db.Database;
@@ -48,15 +48,16 @@ public class TestHashAnalyzer extends AFingerprintAnalyzer {
     @Override
     public void analyze(ArrayList<Trace> traceList) {
         boolean dbHit = false;
-        Trace lastTrace = traceList.get(traceList.size() - 1);
-        String lastState = lastTrace.getState().name();
+        String lastState = null;
         String alertDesc = null;
-        for (int i = 0; i < traceList.size(); i++) {
-            Trace currentTrace = traceList.get(i);
-            if (currentTrace.getState() == EStates.ALERT) {
-                Alert alert = (Alert) currentTrace.getCurrentRecord();
-                alertDesc = alert.getAlertDescription().name();
-            }
+        AnalyzeTraceList analyzeList = new AnalyzeTraceList();
+        alertDesc = analyzeList.getAlertFromTraceList(traceList);
+        if (alertDesc != null) {
+        	lastState = EStates.ALERT.name();
+        }
+        else {
+        	Trace lastTrace = analyzeList.getLastTrace(traceList);
+        	lastState = lastTrace.getState().name();
         }
         ScoreCounter counter = ScoreCounter.getInstance();
         Database db = Database.getInstance();

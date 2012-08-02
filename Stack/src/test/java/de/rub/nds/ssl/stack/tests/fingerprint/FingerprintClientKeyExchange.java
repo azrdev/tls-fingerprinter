@@ -19,6 +19,7 @@ import de.rub.nds.ssl.stack.protocols.handshake.datatypes.RandomValue;
 import de.rub.nds.ssl.stack.tests.analyzer.AFingerprintAnalyzer;
 import de.rub.nds.ssl.stack.tests.analyzer.TestHashAnalyzer;
 import de.rub.nds.ssl.stack.tests.analyzer.parameters.ClientKeyExchangeParams;
+import de.rub.nds.ssl.stack.tests.analyzer.parameters.EFingerprintIdentifier;
 import de.rub.nds.ssl.stack.tests.common.MessageBuilder;
 import de.rub.nds.ssl.stack.tests.common.TestConfiguration;
 import de.rub.nds.ssl.stack.tests.trace.Trace;
@@ -30,7 +31,7 @@ public class FingerprintClientKeyExchange extends GenericFingerprintTest impleme
     /**
      * Test port.
      */
-    protected int PORT = 9443;
+    protected int PORT = 443;
     /**
      * Test parameters.
      */
@@ -80,9 +81,10 @@ public class FingerprintClientKeyExchange extends GenericFingerprintTest impleme
         //set the test parameters
         parameters.setCipherSuite(cipherSuite);
         parameters.setPayload(payload);
-        parameters.setTestClassName(this.getClass().getName());
+        parameters.setIdentifier(EFingerprintIdentifier.ClientKeyExchange);
         parameters.setDescription(desc);
 
+        //start the handshake
         workflow.start();
 
         //analyze the handshake trace

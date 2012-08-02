@@ -10,6 +10,7 @@ import org.testng.annotations.Test;
 import de.rub.nds.ssl.stack.protocols.msgs.ChangeCipherSpec;
 import de.rub.nds.ssl.stack.tests.analyzer.AFingerprintAnalyzer;
 import de.rub.nds.ssl.stack.tests.analyzer.TestHashAnalyzer;
+import de.rub.nds.ssl.stack.tests.analyzer.parameters.EFingerprintIdentifier;
 import de.rub.nds.ssl.stack.tests.common.TestConfiguration;
 import de.rub.nds.ssl.stack.tests.trace.Trace;
 import de.rub.nds.ssl.stack.tests.workflows.ObservableBridge;
@@ -51,7 +52,7 @@ public class FingerprintCCSRecordHeader extends GenericFingerprintTest implement
         parameters.setMsgType(msgType);
         parameters.setProtocolVersion(protocolVersion);
         parameters.setRecordLength(recordLength);
-        parameters.setTestClassName(this.getClass().getName());
+        parameters.setIdentifier(EFingerprintIdentifier.CCSRecordHeader);
         parameters.setDescription(desc);
 
         //start the handshake

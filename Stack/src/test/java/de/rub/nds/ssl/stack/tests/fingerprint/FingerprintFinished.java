@@ -24,6 +24,7 @@ import de.rub.nds.ssl.stack.protocols.msgs.TLSCiphertext;
 import de.rub.nds.ssl.stack.protocols.msgs.datatypes.GenericBlockCipher;
 import de.rub.nds.ssl.stack.tests.analyzer.AFingerprintAnalyzer;
 import de.rub.nds.ssl.stack.tests.analyzer.TestHashAnalyzer;
+import de.rub.nds.ssl.stack.tests.analyzer.parameters.EFingerprintIdentifier;
 import de.rub.nds.ssl.stack.tests.analyzer.parameters.FinishedParameters;
 import de.rub.nds.ssl.stack.tests.common.KeyMaterial;
 import de.rub.nds.ssl.stack.tests.common.TestConfiguration;
@@ -75,7 +76,7 @@ public class FingerprintFinished extends GenericFingerprintTest implements Obser
         parameters.setDestroyVerify(destroyVerify);
         parameters.setChangePadLength(changePadLength);
         parameters.setChangePadding(changePadding);
-        parameters.setTestClassName(this.getClass().getName());
+        parameters.setIdentifier(EFingerprintIdentifier.Finished);
         parameters.setDescription(desc);
         
         //start the handshake

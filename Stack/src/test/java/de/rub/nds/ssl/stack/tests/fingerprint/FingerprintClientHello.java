@@ -15,6 +15,7 @@ import de.rub.nds.ssl.stack.protocols.handshake.datatypes.RandomValue;
 import de.rub.nds.ssl.stack.tests.analyzer.AFingerprintAnalyzer;
 import de.rub.nds.ssl.stack.tests.analyzer.TestHashAnalyzer;
 import de.rub.nds.ssl.stack.tests.analyzer.parameters.ClientHelloParameters;
+import de.rub.nds.ssl.stack.tests.analyzer.parameters.EFingerprintIdentifier;
 import de.rub.nds.ssl.stack.tests.common.MessageBuilder;
 import de.rub.nds.ssl.stack.tests.common.TestConfiguration;
 import de.rub.nds.ssl.stack.tests.trace.Trace;
@@ -32,7 +33,7 @@ public class FingerprintClientHello extends GenericFingerprintTest implements Ob
     /**
      * Test port.
      */
-    protected int PORT = 9443;
+    protected int PORT = 443;
 
     /**
      * Test parameters.
@@ -164,6 +165,7 @@ public class FingerprintClientHello extends GenericFingerprintTest implements Ob
             byte[] cipherLength, byte[] compMethod) throws SocketException {
         logger.info("++++Start Test No." + counter + "(" + desc + ")++++");
         workflow = new SSLHandshakeWorkflow();
+        //connect to test server
         if (TestConfiguration.HOST.isEmpty() || TestConfiguration.PORT == 0) {
             workflow.connectToTestServer(HOST, PORT);
             logger.info("Test Server: " + HOST + ":" + PORT);
@@ -173,18 +175,24 @@ public class FingerprintClientHello extends GenericFingerprintTest implements Ob
             logger.info(
                     "Test Server: " + TestConfiguration.HOST + ":" + TestConfiguration.PORT);
         }
+        //add the observer
         workflow.addObserver(this, EStates.CLIENT_HELLO);
         logger.info(EStates.CLIENT_HELLO.name() + " state is observed");
+        
+        //set the test parameters
         parameters.setProtocolVersion(protVersion);
         parameters.setNoSessionIdValue(noSessionValue);
         parameters.setSessionId(session);
         parameters.setSessionIdLen(sessionIdLength);
         parameters.setCipherLen(cipherLength);
         parameters.setCompMethod(compMethod);
-        parameters.setTestClassName(this.getClass().getName());
+        parameters.setIdentifier(EFingerprintIdentifier.ClientHello);
         parameters.setDescription(desc);
+        
+        //start the handshake
         workflow.start();
 
+        //analyze the handshake trace
         AFingerprintAnalyzer analyzer = new TestHashAnalyzer(parameters);
         analyzer.analyze(workflow.getTraceList());
 

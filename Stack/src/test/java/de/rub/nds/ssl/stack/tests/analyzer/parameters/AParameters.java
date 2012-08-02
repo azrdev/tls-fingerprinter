@@ -2,6 +2,7 @@ package de.rub.nds.ssl.stack.tests.analyzer.parameters;
 
 import java.security.MessageDigest;
 
+
 /**
  * Test Parameters for fingerprint analysis.
  *
@@ -11,30 +12,30 @@ import java.security.MessageDigest;
 public abstract class AParameters {
 
     /**
-     * Test class name.
+     * Test class identifier.
      */
-    private String name;
+    private EFingerprintIdentifier id;
     /**
      * Description of the test case
      */
     private String desc;
 
     /**
-     * Get the name of the test class.
+     * Get the identifier of a fingerprinting test case.
      *
-     * @return Test class name
+     * @return Test case identifier
      */
-    public String getTestClassName() {
-        return this.name;
+    public EFingerprintIdentifier getIdentifier() {
+        return this.id;
     }
 
     /**
-     * Set the name of the test class.
+     * Set the identifier of a fingerprinting test case.
      *
-     * @param className Test class name
+     * @param id Test case identifier
      */
-    public void setTestClassName(String className) {
-        this.name = className;
+    public void setIdentifier(EFingerprintIdentifier id) {
+        this.id = id;
     }
 
     /**

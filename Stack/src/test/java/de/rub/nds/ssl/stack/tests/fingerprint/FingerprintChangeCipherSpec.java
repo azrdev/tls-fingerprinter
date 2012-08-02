@@ -13,6 +13,7 @@ import de.rub.nds.ssl.stack.protocols.msgs.ChangeCipherSpec;
 import de.rub.nds.ssl.stack.tests.analyzer.AFingerprintAnalyzer;
 import de.rub.nds.ssl.stack.tests.analyzer.TestHashAnalyzer;
 import de.rub.nds.ssl.stack.tests.analyzer.parameters.ChangeCipherSpecParams;
+import de.rub.nds.ssl.stack.tests.analyzer.parameters.EFingerprintIdentifier;
 import de.rub.nds.ssl.stack.tests.common.TestConfiguration;
 import de.rub.nds.ssl.stack.tests.trace.Trace;
 import de.rub.nds.ssl.stack.tests.workflows.ObservableBridge;
@@ -66,7 +67,7 @@ public class FingerprintChangeCipherSpec extends GenericFingerprintTest implemen
 
         //set the test parameters
         parameters.setPayload(payload);
-        parameters.setTestClassName(this.getClass().getName());
+        parameters.setIdentifier(EFingerprintIdentifier.ChangeCipherSpec);
         parameters.setDescription(desc);
 
         workflow.start();

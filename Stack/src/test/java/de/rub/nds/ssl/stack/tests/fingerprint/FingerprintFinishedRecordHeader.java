@@ -13,6 +13,7 @@ import de.rub.nds.ssl.stack.protocols.handshake.datatypes.MasterSecret;
 import de.rub.nds.ssl.stack.protocols.msgs.TLSCiphertext;
 import de.rub.nds.ssl.stack.tests.analyzer.AFingerprintAnalyzer;
 import de.rub.nds.ssl.stack.tests.analyzer.TestHashAnalyzer;
+import de.rub.nds.ssl.stack.tests.analyzer.parameters.EFingerprintIdentifier;
 import de.rub.nds.ssl.stack.tests.common.MessageBuilder;
 import de.rub.nds.ssl.stack.tests.common.TestConfiguration;
 import de.rub.nds.ssl.stack.tests.trace.Trace;
@@ -29,7 +30,7 @@ import de.rub.nds.ssl.stack.tests.workflows.SSLHandshakeWorkflow.EStates;
  */
 public class FingerprintFinishedRecordHeader extends GenericFingerprintTest implements Observer {
 
-	protected int PORT = 9443;
+	protected int PORT = 443;
 
     @Test(enabled = true, dataProviderClass = FingerprintDataProviders.class,
     dataProvider = "recordHeader", invocationCount = 1)
@@ -55,7 +56,7 @@ public class FingerprintFinishedRecordHeader extends GenericFingerprintTest impl
         parameters.setMsgType(msgType);
         parameters.setProtocolVersion(protocolVersion);
         parameters.setRecordLength(recordLength);
-        parameters.setTestClassName(this.getClass().getName());
+        parameters.setIdentifier(EFingerprintIdentifier.FinRecordHeader);
         parameters.setDescription(desc);
 
         //start the handshake

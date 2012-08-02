@@ -134,7 +134,7 @@ public class FinishedParameters extends AParameters {
         } catch (NoSuchAlgorithmException e) {
             e.printStackTrace();
         }
-        updateHash(sha1, getTestClassName().getBytes());
+        updateHash(sha1, getIdentifier().name().getBytes());
         updateHash(sha1, getDescription().getBytes());
         updateHash(sha1, String.valueOf(isDestroyMAC()).getBytes());
         updateHash(sha1, String.valueOf(isDestroyHash()).getBytes());

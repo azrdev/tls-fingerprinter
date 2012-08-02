@@ -41,6 +41,7 @@ public class Database {
         Class.forName("org.apache.derby.jdbc.EmbeddedDriver");
         conn = DriverManager.getConnection(
                 "jdbc:derby:Fingerprint;create=false;user=tester;password=ssltest");
+        
     }
 
     public ResultSet findHashInDB(String hash) {
@@ -57,18 +58,6 @@ public class Database {
             e.printStackTrace();
         }
         return result;
-    }
-
-    public void writeToDB(String signature, Timestamp timestamp,
-            String test_name,
-            String test_desc) throws Exception {
-        java.sql.PreparedStatement prepared = conn.prepareStatement("insert into app.tls_testrun"
-                + " values (default,?,?,?,?)");
-        prepared.setString(1, signature);
-        prepared.setTimestamp(2, timestamp);
-        prepared.setString(3, test_name);
-        prepared.setString(4, test_desc);
-        prepared.executeUpdate();
     }
 
     public void closeDB() throws Exception {
