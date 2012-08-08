@@ -27,6 +27,10 @@ import de.rub.nds.ssl.stack.tests.workflows.SSLHandshakeWorkflow.EStates;
  * @version 0.1 Jun 30, 2012
  */
 public class TestGoodCase extends GenericFingerprintTest implements Observer {
+	/**
+     * Test host.
+     */
+    protected final String HOST = "localhost";
     /**
      * Test port.
      */
