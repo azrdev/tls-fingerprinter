@@ -10,27 +10,44 @@ import java.sql.Connection;
 import java.util.ArrayList;
 
 /**
- * Example how to add a fingerprint to the db
- * 
+ * Example how to add a fingerprint to the database.
+ * @author Eugen Weiss - eugen.weiss@ruhr-uni-bochum.de
+ * @version 0.1
+ * May 16, 2012
  */
 public class FillBehaviourDB {
 	
+	/**
+	 * Database.
+	 */
 	private Database db;
     
+	/**
+	 * Get database instance.
+	 */
     public FillBehaviourDB(){
     	db = Database.getInstance();
     }
 
 
+    /**
+     * Insert an entry to the fingerprint database.
+     * @param parameters Test parameters
+     * @param traceList Trace list of the handshake
+     * @param impl TLS implementation
+     * @throws Exception
+     */
     public void insertBehaviour(AParameters parameters, ArrayList<Trace> traceList,
     		ETLSImplementation impl) throws Exception {
         Connection conn = db.getConnection();
+        //prepared insert statement
         java.sql.PreparedStatement prepared = conn.prepareStatement("insert into tls_fingerprint_hash"
                 + " values (default,?,?,?,?,?,?)");
         String implementation = impl.name();
         String lastState = null;
         String alertDesc = null;
         AnalyzeTraceList analyzeList = new AnalyzeTraceList();
+        //assign the alert description and last state
         alertDesc = analyzeList.getAlertFromTraceList(traceList);
         if (alertDesc != null) {
         	lastState = EStates.ALERT.name();
@@ -43,11 +60,11 @@ public class FillBehaviourDB {
         // hash
         prepared.setString(1, fingerprint);
         // state
-        prepared.setString(2, "ALERT");
+        prepared.setString(2, lastState);
         // alert description
-        prepared.setString(3, "BAD_RECORD_MAC");
+        prepared.setString(3, alertDesc);
         // implementation
-        prepared.setString(4, "OPENSSL");
+        prepared.setString(4, implementation);
         // points
         prepared.setInt(5, 2);
         // testcase id

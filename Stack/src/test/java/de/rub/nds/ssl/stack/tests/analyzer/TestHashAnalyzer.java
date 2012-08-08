@@ -15,7 +15,7 @@ import org.testng.Reporter;
 
 /**
  * Fingerprint analysis where the hash value of test parameters is mapped to a
- * specific behavior of an implementation
+ * specific behavior of an implementation.
  *
  * @author Eugen Weiss - eugen.weiss@ruhr-uni-bochum.de
  * @version 0.1 Jun 05, 2012
@@ -29,14 +29,14 @@ public class TestHashAnalyzer extends AFingerprintAnalyzer {
     /**
      * Log4j logger initialization.
      */
-    static Logger logger = Logger.getRootLogger();
+    private static Logger logger = Logger.getRootLogger();
 
     /**
      * Initialize the analyzer and compute the hash value.
      *
      * @param parameters Test parameters
      */
-    public TestHashAnalyzer(AParameters parameters) {
+    public TestHashAnalyzer(final AParameters parameters) {
         //compute the hash value of the test parameters
         this.hashValue = parameters.computeHash();
         logger.debug("Hash value: " + this.hashValue);
@@ -46,14 +46,16 @@ public class TestHashAnalyzer extends AFingerprintAnalyzer {
      * {@inheritDoc}
      */
     @Override
-    public void analyze(ArrayList<Trace> traceList) {
+    public void analyze(final ArrayList<Trace> traceList) {
         boolean dbHit = false;
         String lastState = null;
         String alertDesc = null;
         AnalyzeTraceList analyzeList = new AnalyzeTraceList();
+        //set the alert description
         alertDesc = analyzeList.getAlertFromTraceList(traceList);
+        //set the last state of the trace list
         if (alertDesc != null) {
-        	lastState = EStates.ALERT.name();
+            lastState = EStates.ALERT.name();
         }
         else {
         	Trace lastTrace = analyzeList.getLastTrace(traceList);
@@ -61,8 +63,12 @@ public class TestHashAnalyzer extends AFingerprintAnalyzer {
         }
         ScoreCounter counter = ScoreCounter.getInstance();
         Database db = Database.getInstance();
+        //search for the parameter hash in the database
         ResultSet result = db.findHashInDB(this.hashValue);
         try {
+        	/*iterate through the database results and assign an 
+        	 * implementation and a score.
+        	 */
             while (result.next()) {
                 if (result.getString("LAST_STATE").equalsIgnoreCase("ALERT")) {
                     if (result.getString("ALERT").equalsIgnoreCase(alertDesc)) {
@@ -83,7 +89,8 @@ public class TestHashAnalyzer extends AFingerprintAnalyzer {
                             "TLS_IMPL"));
                 }
             }
-            if (dbHit == false) {
+            //assign 2 points for "no hit" if there is no hit in the database
+            if (!dbHit) {
                 counter.countNoHit(2);
             }
         } catch (SQLException e) {

@@ -9,14 +9,27 @@ import java.sql.Timestamp;
 
 import de.rub.nds.ssl.stack.protocols.commons.SecurityParameters;
 
+/**
+ * Establish a connection to the fingerprint database and execute
+ * SQL queries.
+ * @author Eugen Weiss - eugen.weiss@ruhr-uni-bochum.de
+ * @version 0.1
+ * May 16, 2012
+ */
 public class Database {
 
     /**
      * Instance of Database.
      */
     private static volatile Database db;
+    /**
+     * Database connection.
+     */
     private Connection conn;
 
+    /**
+     * Connect to database.
+     */
     public Database() {
         try {
             this.connectDB();
@@ -37,18 +50,33 @@ public class Database {
         return db;
     }
 
-    public void connectDB() throws Exception {
+    /**
+     * Connect to database.
+     * @throws Exception
+     */
+    public final void connectDB() throws Exception {
+    	/*Use the embedded driver to connect. Only one
+    	 * connection can be established at the same time.
+    	 */
         Class.forName("org.apache.derby.jdbc.EmbeddedDriver");
         conn = DriverManager.getConnection(
                 "jdbc:derby:Fingerprint;create=false;user=tester;password=ssltest");
-        
     }
 
-    public ResultSet findHashInDB(String hash) {
+    /**
+     * Find a hash value in the database.
+     * @param hash Hash value
+     * @return Database result set
+     */
+    public final ResultSet findHashInDB(final String hash) {
         Connection conn = db.getConnection();
         ResultSet result = null;
         try {
-            PreparedStatement prepared = conn.prepareStatement("select tls_impl, last_state, alert, points"
+        	/*
+        	 * search for a hash value in the tls_fingerprint_hash table
+        	 */
+            PreparedStatement prepared = conn.prepareStatement(
+            		"select tls_impl, last_state, alert, points"
                     + " from tls_fingerprint_hash where hash = ?");
             prepared.setString(1, hash);
             result = prepared.executeQuery();
@@ -60,15 +88,27 @@ public class Database {
         return result;
     }
 
-    public void closeDB() throws Exception {
+    /**
+     * Close the database connection.
+     * @throws Exception
+     */
+    public final void closeDB() throws Exception {
         conn.close();
     }
 
-    public Connection getConnection() {
+    /**
+     * Get the database connection.
+     * @return Database connection.
+     */
+    public final Connection getConnection() {
         return conn;
     }
 
-    public void setConnection(Connection conn) {
+    /**
+     * Set the database connection.
+     * @param conn Database connection
+     */
+    public final void setConnection(final Connection conn) {
         this.conn = conn;
     }
 }
