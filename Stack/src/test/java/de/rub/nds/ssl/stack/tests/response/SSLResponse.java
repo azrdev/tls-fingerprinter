@@ -9,7 +9,7 @@ import de.rub.nds.ssl.stack.protocols.handshake.HandshakeEnumeration;
 import de.rub.nds.ssl.stack.protocols.handshake.MessageObservable;
 import de.rub.nds.ssl.stack.protocols.msgs.ChangeCipherSpec;
 import de.rub.nds.ssl.stack.protocols.msgs.TLSCiphertext;
-import de.rub.nds.ssl.stack.tests.trace.Trace;
+import de.rub.nds.ssl.stack.tests.trace.MessageTrace;
 import de.rub.nds.ssl.stack.tests.workflows.SSLHandshakeWorkflow;
 import de.rub.nds.ssl.stack.tests.workflows.SSLHandshakeWorkflow.EStates;
 import java.util.Observable;
@@ -27,7 +27,7 @@ public class SSLResponse extends ARecordFrame implements Observer {
     /**
      * Current trace
      */
-    private Trace trace;
+    private MessageTrace trace;
     /**
      * Handshake workflow
      */
@@ -53,12 +53,12 @@ public class SSLResponse extends ARecordFrame implements Observer {
     /**
      * Extracts the SSL record messages for the response bytes.
      *
-     * @param trace Trace object to save the status
+     * @param trace MessageTrace object to save the status
      * @param response Bytes of the received response
      * @param param Security parameters as defined in Chapter 6.1 of RFC 2246
      * @return ResponseHandler
      */
-    public final void handleResponse(final Trace trace,
+    public final void handleResponse(final MessageTrace trace,
             final byte[] response) {
         MessageObservable msgObserve = MessageObservable.getInstance();
         EContentType contentType = getContentType();
@@ -110,15 +110,15 @@ public class SSLResponse extends ARecordFrame implements Observer {
     /**
      * Set the trace for the handshake message
      *
-     * @param trace Trace
+     * @param trace MessageTrace
      */
-    private void setTrace(Trace trace) {
+    private void setTrace(MessageTrace trace) {
         this.trace = trace;
     }
 
     @Override
     public void update(Observable o, Object arg) {
-        Trace trace = new Trace();
+        MessageTrace trace = new MessageTrace();
         trace.setNanoTime(this.trace.getNanoTime());
         trace.setTimestamp(this.trace.getTimestamp());
         AHandshakeRecord handRecord = null;

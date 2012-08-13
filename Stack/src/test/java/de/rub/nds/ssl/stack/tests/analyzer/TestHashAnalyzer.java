@@ -5,7 +5,7 @@ import de.rub.nds.ssl.stack.tests.analyzer.common.ETLSImplementation;
 import de.rub.nds.ssl.stack.tests.analyzer.common.ScoreCounter;
 import de.rub.nds.ssl.stack.tests.analyzer.db.Database;
 import de.rub.nds.ssl.stack.tests.analyzer.parameters.AParameters;
-import de.rub.nds.ssl.stack.tests.trace.Trace;
+import de.rub.nds.ssl.stack.tests.trace.MessageTrace;
 import de.rub.nds.ssl.stack.tests.workflows.SSLHandshakeWorkflow.EStates;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -46,7 +46,7 @@ public class TestHashAnalyzer extends AFingerprintAnalyzer {
      * {@inheritDoc}
      */
     @Override
-    public void analyze(final ArrayList<Trace> traceList) {
+    public void analyze(final ArrayList<MessageTrace> traceList) {
         boolean dbHit = false;
         String lastState = null;
         String alertDesc = null;
@@ -58,7 +58,7 @@ public class TestHashAnalyzer extends AFingerprintAnalyzer {
             lastState = EStates.ALERT.name();
         }
         else {
-        	Trace lastTrace = analyzeList.getLastTrace(traceList);
+        	MessageTrace lastTrace = analyzeList.getLastTrace(traceList);
         	lastState = lastTrace.getState().name();
         }
         ScoreCounter counter = ScoreCounter.getInstance();

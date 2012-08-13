@@ -14,7 +14,7 @@ import de.rub.nds.ssl.stack.tests.analyzer.TestHashAnalyzer;
 import de.rub.nds.ssl.stack.tests.analyzer.parameters.EFingerprintIdentifier;
 import de.rub.nds.ssl.stack.tests.common.MessageBuilder;
 import de.rub.nds.ssl.stack.tests.common.TestConfiguration;
-import de.rub.nds.ssl.stack.tests.trace.Trace;
+import de.rub.nds.ssl.stack.tests.trace.MessageTrace;
 import de.rub.nds.ssl.stack.tests.workflows.ObservableBridge;
 import de.rub.nds.ssl.stack.tests.workflows.SSLHandshakeWorkflow;
 import de.rub.nds.ssl.stack.tests.workflows.SSLHandshakeWorkflow.EStates;
@@ -96,13 +96,13 @@ public class FingerprintCKERecordHeader extends GenericFingerprintTest implement
     @Override
     public void update(final Observable o, final Object arg) {
         MessageBuilder msgBuilder = new MessageBuilder();
-        Trace trace = null;
+        MessageTrace trace = null;
         EStates states = null;
         ObservableBridge obs;
         if (o != null && o instanceof ObservableBridge) {
             obs = (ObservableBridge) o;
             states = (EStates) obs.getState();
-            trace = (Trace) arg;
+            trace = (MessageTrace) arg;
         }
         if (states == EStates.CLIENT_KEY_EXCHANGE) {
             ClientKeyExchange cke = msgBuilder.createClientKeyExchange(

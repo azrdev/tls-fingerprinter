@@ -15,7 +15,7 @@ import de.rub.nds.ssl.stack.tests.analyzer.TestHashAnalyzer;
 import de.rub.nds.ssl.stack.tests.analyzer.parameters.ChangeCipherSpecParams;
 import de.rub.nds.ssl.stack.tests.analyzer.parameters.EFingerprintIdentifier;
 import de.rub.nds.ssl.stack.tests.common.TestConfiguration;
-import de.rub.nds.ssl.stack.tests.trace.Trace;
+import de.rub.nds.ssl.stack.tests.trace.MessageTrace;
 import de.rub.nds.ssl.stack.tests.workflows.ObservableBridge;
 import de.rub.nds.ssl.stack.tests.workflows.SSLHandshakeWorkflow;
 import de.rub.nds.ssl.stack.tests.workflows.SSLHandshakeWorkflow.EStates;
@@ -88,13 +88,13 @@ public class FingerprintChangeCipherSpec extends GenericFingerprintTest implemen
      */
     @Override
     public void update(Observable o, Object arg) {
-        Trace trace = null;
+        MessageTrace trace = null;
         EStates states = null;
         ObservableBridge obs;
         if (o instanceof ObservableBridge) {
             obs = (ObservableBridge) o;
             states = (EStates) obs.getState();
-            trace = (Trace) arg;
+            trace = (MessageTrace) arg;
         }
         if (states == EStates.CLIENT_CHANGE_CIPHER_SPEC) {
             ChangeCipherSpec ccs = new ChangeCipherSpec(protocolVersion);

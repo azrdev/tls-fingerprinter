@@ -8,7 +8,7 @@ import de.rub.nds.ssl.stack.protocols.handshake.ClientKeyExchange;
 import de.rub.nds.ssl.stack.protocols.handshake.datatypes.EncPreMasterSecret;
 import de.rub.nds.ssl.stack.protocols.handshake.datatypes.PreMasterSecret;
 import de.rub.nds.ssl.stack.tests.workflows.SSLHandshakeWorkflow;
-import de.rub.nds.ssl.stack.tests.trace.Trace;
+import de.rub.nds.ssl.stack.tests.trace.MessageTrace;
 import de.rub.nds.ssl.stack.tests.workflows.ObservableBridge;
 import java.io.IOException;
 import java.net.ConnectException;
@@ -190,14 +190,14 @@ public class JSSEOracle extends AOracle implements Observer {
      */
     @Override
     public void update(final Observable o, final Object arg) {
-        Trace trace = null;
+        MessageTrace trace = null;
         SSLHandshakeWorkflow.EStates state = null;
         oracleResult = false;
         ObservableBridge obs;
         if (o != null && o instanceof ObservableBridge) {
             obs = (ObservableBridge) o;
             state = (SSLHandshakeWorkflow.EStates) obs.getState();
-            trace = (Trace) arg;
+            trace = (MessageTrace) arg;
         }
         if (state != null) {
             switch (state) {

@@ -3,45 +3,46 @@ package de.rub.nds.ssl.stack.tests.analyzer.db;
 import de.rub.nds.ssl.stack.tests.analyzer.common.AnalyzeTraceList;
 import de.rub.nds.ssl.stack.tests.analyzer.common.ETLSImplementation;
 import de.rub.nds.ssl.stack.tests.analyzer.parameters.AParameters;
-import de.rub.nds.ssl.stack.tests.trace.Trace;
+import de.rub.nds.ssl.stack.tests.trace.MessageTrace;
 import de.rub.nds.ssl.stack.tests.workflows.SSLHandshakeWorkflow.EStates;
-
 import java.sql.Connection;
 import java.util.ArrayList;
 
 /**
  * Example how to add a fingerprint to the database.
+ *
  * @author Eugen Weiss - eugen.weiss@ruhr-uni-bochum.de
- * @version 0.1
- * May 16, 2012
+ * @version 0.1 May 16, 2012
  */
 public class FillBehaviourDB {
-	
-	/**
-	 * Database.
-	 */
-	private Database db;
-    
-	/**
-	 * Get database instance.
-	 */
-    public FillBehaviourDB(){
-    	db = Database.getInstance();
-    }
 
+    /**
+     * Database.
+     */
+    private Database db;
+
+    /**
+     * Get database instance.
+     */
+    public FillBehaviourDB() {
+        db = Database.getInstance();
+    }
 
     /**
      * Insert an entry to the fingerprint database.
+     *
      * @param parameters Test parameters
      * @param traceList Trace list of the handshake
      * @param impl TLS implementation
      * @throws Exception
      */
-    public void insertBehaviour(AParameters parameters, ArrayList<Trace> traceList,
-    		ETLSImplementation impl) throws Exception {
+    public void insertBehaviour(AParameters parameters,
+            ArrayList<MessageTrace> traceList,
+            ETLSImplementation impl) throws Exception {
         Connection conn = db.getConnection();
         //prepared insert statement
-        java.sql.PreparedStatement prepared = conn.prepareStatement("insert into tls_fingerprint_hash"
+        java.sql.PreparedStatement prepared = conn.
+                prepareStatement("insert into tls_fingerprint_hash"
                 + " values (default,?,?,?,?,?,?)");
         String implementation = impl.name();
         String lastState = null;
@@ -50,11 +51,10 @@ public class FillBehaviourDB {
         //assign the alert description and last state
         alertDesc = analyzeList.getAlertFromTraceList(traceList);
         if (alertDesc != null) {
-        	lastState = EStates.ALERT.name();
-        }
-        else {
-        	Trace lastTrace = analyzeList.getLastTrace(traceList);
-        	lastState = lastTrace.getState().name();
+            lastState = EStates.ALERT.name();
+        } else {
+            MessageTrace lastTrace = analyzeList.getLastTrace(traceList);
+            lastState = lastTrace.getState().name();
         }
         String fingerprint = parameters.computeHash();
         // hash
@@ -71,7 +71,4 @@ public class FillBehaviourDB {
         prepared.setInt(6, 26);
         prepared.executeUpdate();
     }
-    
-    
-    
 }

@@ -1,7 +1,7 @@
 package de.rub.nds.ssl.stack.tests.response;
 
 import de.rub.nds.ssl.stack.protocols.handshake.*;
-import de.rub.nds.ssl.stack.tests.trace.Trace;
+import de.rub.nds.ssl.stack.tests.trace.MessageTrace;
 import de.rub.nds.ssl.stack.tests.workflows.SSLHandshakeWorkflow;
 import de.rub.nds.ssl.stack.tests.workflows.SSLHandshakeWorkflow.EStates;
 import org.apache.log4j.Logger;
@@ -37,7 +37,7 @@ public class HandshakeResponse {
      * @param workflow Handshake workflow
      */
     public HandshakeResponse(AHandshakeRecord handRecord,
-            Trace trace, SSLHandshakeWorkflow workflow) {
+            MessageTrace trace, SSLHandshakeWorkflow workflow) {
         if (handRecord instanceof ServerHello) {
             logger.debug("Server Hello message received");
             serverHello = new ServerHelloHandler();

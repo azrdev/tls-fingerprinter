@@ -13,7 +13,7 @@ import de.rub.nds.ssl.stack.tests.common.KeyMaterial;
 import de.rub.nds.ssl.stack.tests.common.MessageBuilder;
 import de.rub.nds.ssl.stack.tests.common.SSLServerHandler;
 import de.rub.nds.ssl.stack.tests.common.SSLTestUtils;
-import de.rub.nds.ssl.stack.tests.trace.Trace;
+import de.rub.nds.ssl.stack.tests.trace.MessageTrace;
 import de.rub.nds.ssl.stack.tests.workflows.ObservableBridge;
 import de.rub.nds.ssl.stack.tests.workflows.SSLHandshakeWorkflow;
 import de.rub.nds.ssl.stack.tests.workflows.SSLHandshakeWorkflow.EStates;
@@ -130,13 +130,13 @@ public class VaudenayTest implements Observer {
      */
     @Override
     public final void update(final Observable o, final Object arg) {
-        Trace trace = null;
+        MessageTrace trace = null;
         EStates states = null;
         ObservableBridge obs;
         if (o != null && o instanceof ObservableBridge) {
             obs = (ObservableBridge) o;
             states = (EStates) obs.getState();
-            trace = (Trace) arg;
+            trace = (MessageTrace) arg;
         }
         if (states != null) {
             switch (states) {

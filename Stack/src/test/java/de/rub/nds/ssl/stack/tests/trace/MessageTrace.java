@@ -5,12 +5,12 @@ import de.rub.nds.ssl.stack.tests.workflows.SSLHandshakeWorkflow.EStates;
 import java.sql.Timestamp;
 
 /**
- * Trace information about the SSL handshake processing.
+ * MessageTrace information about the SSL handshake processing.
  *
  * @author Eugen Weiss - eugen.weiss@ruhr-uni-bochum.de
  * @version 0.1 Apr 10, 2012
  */
-public final class Trace extends ATrace {
+public final class MessageTrace extends AMessageTrace {
 
     /**
      * Newly constructed SSL record.
@@ -32,25 +32,21 @@ public final class Trace extends ATrace {
      * Current state in handshake.
      */
     private EStates state;
-    /**
-     * Enable time measurement.
-     */
-    private boolean timeMeasurementEnabled = false;
 
     /**
      * Empty constructor.
      */
-    public Trace() {
+    public MessageTrace() {
     }
 
     /**
-     * Public constructor of a Trace object.
+     * Public constructor of a MessageTrace object.
      *
      * @param currentRecord Newly constructed SSL record
      * @param oldRecord Original SSL record before manipulation
      * @param isContinued Handshake enumeration was used for this record
      */
-    public Trace(EStates state, final ARecordFrame currentRecord,
+    public MessageTrace(EStates state, final ARecordFrame currentRecord,
             ARecordFrame oldRecord,
             final boolean isContinued) {
         super();
@@ -61,7 +57,7 @@ public final class Trace extends ATrace {
     }
 
     /**
-     * Public constructor of a Trace object.
+     * Public constructor of a MessageTrace object.
      *
      * @param currentRecord Newly constructed SSL record
      * @param timestamp Current sending/receiving timestamp of the message
@@ -69,7 +65,7 @@ public final class Trace extends ATrace {
      * @param isContinued Handshake enumeration was used for this record
      * @param nanoTime Current time in nano precision
      */
-    public Trace(EStates state, final ARecordFrame currentRecord,
+    public MessageTrace(EStates state, final ARecordFrame currentRecord,
             final Timestamp timestamp,
             final ARecordFrame oldRecord, boolean isContinued,
             final Long nanoTime) {
@@ -179,21 +175,4 @@ public final class Trace extends ATrace {
         this.isContinued = isContinued;
     }
 
-    /**
-     * Enabled/Disable time measurement functionality for this trace.
-     *
-     * @param enabled True if time measurement should be enabled
-     */
-    public void setTimeMeasurementEnabled(boolean enabled) {
-        this.timeMeasurementEnabled = enabled;
-    }
-
-    /**
-     * Get time measurement enabled flag.
-     *
-     * @return True if time measurement is enabled for this trace.
-     */
-    public boolean isTimeMeasurementEnabled() {
-        return this.timeMeasurementEnabled;
-    }
 }

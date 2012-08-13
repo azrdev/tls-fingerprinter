@@ -1,6 +1,6 @@
 package de.rub.nds.ssl.stack.tests.workflows;
 
-import de.rub.nds.ssl.stack.tests.trace.Trace;
+import de.rub.nds.ssl.stack.tests.trace.MessageTrace;
 import java.util.Observer;
 
 /**
@@ -96,7 +96,7 @@ public abstract class AWorkflow {
      * @param trace Message trace
      * @param state State for which this notification is valid
      */
-    public void notifyObservers(final Trace trace, final WorkflowState state) {
+    public void notifyObservers(final MessageTrace trace, final WorkflowState state) {
         states[state.getID()].notifyObservers(trace);
     }
 
@@ -106,7 +106,7 @@ public abstract class AWorkflow {
      *
      * @param trace Message trace
      */
-    public void notifyCurrentObservers(final Trace trace) {
+    public void notifyCurrentObservers(final MessageTrace trace) {
         states[currentState].notifyObservers(trace);
     }
 

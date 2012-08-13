@@ -8,7 +8,7 @@ import java.util.Date;
  * @author Eugen Weiss - eugen.weiss@ruhr-uni-bochum.de
  * @version 0.1 Apr 17, 2012
  */
-public abstract class ATrace {
+public abstract class AMessageTrace {
 
     /**
      * Timestamp im milliseconds.
@@ -19,15 +19,15 @@ public abstract class ATrace {
      */
     private long nanoTime = 0L;
     /**
-     * Accurate time from timing socket.
+     * Time in VNL-precesion.
      */
-    private long accurateTime = 0L;
-
+    private long vnlTime = 0L;
+   
     /**
      * Public constructor for the trace which sets the current. timestamp and
      * time in nano-precision.
      */
-    public ATrace() {
+    public AMessageTrace() {
         this.timestamp = new Date(System.currentTimeMillis());
         this.nanoTime = System.nanoTime();
     }
@@ -67,25 +67,22 @@ public abstract class ATrace {
     public final void setNanoTime(final Long nanoTime) {
         this.nanoTime = nanoTime;
     }
-
+    
     /**
-     * Get the time provided by TimingSocket.
+     * Get the time in VNL-precision.
      *
-     * @return Time provided by TimingSocket
+     * @return Time in vnl-precision
      */
-    public final Long getAccurateTime() {
-        return this.accurateTime;
+    public final Long getVNLTime() {
+        return this.vnlTime;
     }
 
     /**
-     * Set the accurate time as provided by the TimingSocket (only TimingSocket
-     * should use this method).
+     * Set the time in VNL-precision.
      *
-     * @param accurateTime Accurate as time as provided by TimingSocket (Time
-     * interval between sending the previous message and the reception of this
-     * message)
+     * @param vnlTim Time in vnl-precision
      */
-    public final void setAccurateTime(final Long accurateTime) {
-        this.accurateTime = accurateTime;
+    public final void setVNLTime(final Long vnlTime) {
+        this.vnlTime = vnlTime;
     }
 }

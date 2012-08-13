@@ -13,10 +13,12 @@ import de.rub.nds.ssl.stack.protocols.handshake.datatypes.RandomValue;
 import de.rub.nds.ssl.stack.tests.common.MessageBuilder;
 import de.rub.nds.ssl.stack.tests.common.SSLServer;
 import de.rub.nds.ssl.stack.tests.common.SSLTestUtils;
-import de.rub.nds.ssl.stack.tests.trace.Trace;
+import de.rub.nds.ssl.stack.tests.trace.MessageTrace;
 import de.rub.nds.ssl.stack.tests.workflows.ObservableBridge;
 import de.rub.nds.ssl.stack.tests.workflows.SSLHandshakeWorkflow;
 import de.rub.nds.ssl.stack.tests.workflows.SSLHandshakeWorkflow.EStates;
+import de.rub.nds.virtualnetworklayer.connection.Connection.Trace;
+import de.rub.nds.virtualnetworklayer.packet.Packet;
 import static java.lang.Thread.sleep;
 import java.math.BigInteger;
 import java.security.PublicKey;
@@ -131,7 +133,7 @@ public class BleichenbacherTimingTest implements Observer {
      * Test counter.
      */
     private int counter = 1;
-
+       
     /**
      * Test parameters for the Bleichenbacher Tests.
      *
@@ -251,7 +253,8 @@ public class BleichenbacherTimingTest implements Observer {
         this.positionOfPaddingChange = position;
         this.destroyMAC = tamperMAC;
         boolean canceled = false;
-
+        Trace<Packet> vnlTrace = null;
+        
         logger.info("++++ Start Test No." + counter + " (" + desc + ") ++++");
         logger.info("Test repeated: " + NUMBER_OF_REPETIIONS + " times");
         logger.info("Time measurement: Time between CLIENT_KEY_EXCHANGE and "
@@ -291,12 +294,12 @@ public class BleichenbacherTimingTest implements Observer {
     @Override
     public final void update(final Observable o, final Object arg) {
         EStates states = null;
-        Trace trace = null;
+        MessageTrace trace = null;
         ObservableBridge obs;
         if (o instanceof ObservableBridge) {
             obs = (ObservableBridge) o;
             states = (EStates) obs.getState();
-            trace = (Trace) arg;
+            trace = (MessageTrace) arg;
         }
         if (states != null) {
             switch (states) {
@@ -369,8 +372,6 @@ public class BleichenbacherTimingTest implements Observer {
                     }
 
                     cke.setExchangeKeys(encPMS);
-
-                    trace.setTimeMeasurementEnabled(true);
                     trace.setCurrentRecord(cke);
                     break;
                 case CLIENT_FINISHED:
@@ -441,20 +442,20 @@ public class BleichenbacherTimingTest implements Observer {
     }
 
     /**
-     * Analyzes a given Trace list and computes timing delay.
+     * Analyzes a given MessageTrace list and computes timing delay.
      *
-     * @param traces Trace list
+     * @param traces MessageTrace list
      * @return Timing delay.
      */
-    private static long analyzeTrace(final List<Trace> traces) {
+    private static long analyzeTrace(final List<MessageTrace> traces) {
         Long delay = 0L;
         Long timestamp = 0L;
         Long overall = -1L;
 
-        for (Trace trace : traces) {
+        for (MessageTrace trace : traces) {
             if (trace.getState() != null) {
                 if (ACCURATE_TIMING) {
-                    timestamp = trace.getAccurateTime();
+                    timestamp = trace.getVNLTime();
                 } else {
                     timestamp = trace.getNanoTime();
                 }
