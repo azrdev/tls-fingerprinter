@@ -131,179 +131,133 @@ public final class SSLHandshakeWorkflow extends AWorkflow implements Observer {
      */
     @Override
     public void start() {
-        logger.debug(">>> Start TLS handshake");
-        ResponseFetcher fetcher = new ResponseFetcher(this.so, this);
-        respFetchThread = new Thread(fetcher);
-        respFetchThread.start();
-        setMainThread(Thread.currentThread());
-        ARecordFrame record;
-        MessageTrace trace;
-        MessageBuilder msgBuilder = new MessageBuilder();
         try {
-            hashBuilder = new HandshakeHashBuilder();
-        } catch (NoSuchAlgorithmException ex) {
-            ex.printStackTrace();
-        }
+            logger.debug(">>> Start TLS handshake");
+            ResponseFetcher fetcher = new ResponseFetcher(this.so, this);
+            respFetchThread = new Thread(fetcher);
+            respFetchThread.start();
+            setMainThread(Thread.currentThread());
+            ARecordFrame record;
+            MessageTrace trace;
+            MessageBuilder msgBuilder = new MessageBuilder();
+            try {
+                hashBuilder = new HandshakeHashBuilder();
+            } catch (NoSuchAlgorithmException ex) {
+                ex.printStackTrace();
+            }
 
-        /*
-         * create the ClientHello
-         */
-        trace = new MessageTrace();
-        record = msgBuilder.createClientHello(protocolVersion);
-        setRecordTrace(trace, record);
-        // switch the state of the handshake
-        switchToPreviousState(trace);
-        // set the probably changed message
-        record = trace.getCurrentRecord();
-        // save the client random value for later computations
-        utils.setClientRandom((ClientHello) record);
-        // drop it on the wire!
-        try {
+            /*
+             * create the ClientHello
+             */
+            trace = new MessageTrace();
+            record = msgBuilder.createClientHello(protocolVersion);
+            setRecordTrace(trace, record);
+            // switch the state of the handshake
+            switchToPreviousState(trace);
+            // set the probably changed message
+            record = trace.getCurrentRecord();
+            // save the client random value for later computations
+            utils.setClientRandom((ClientHello) record);
+            // drop it on the wire!
             prepareAndSend(trace);
-        } catch (IOException e) {
-            logger.debug("### Connection reset by peer.");
-            closeSocket();
-            return;
-        }
-        logger.debug("Client Hello message send");
-        // hash current record
-        updateHash(hashBuilder, trace);
-        // add trace to ArrayList
-        addToList(new MessageTrace(EStates.CLIENT_HELLO, trace.getCurrentRecord(),
-                trace.getOldRecord(), false));
-        while (getCurrentState() != EStates.SERVER_HELLO_DONE.getID()) {
-            if (respFetchThread.isAlive()) {
-                try {
-                    Thread.sleep(1000);
-                } catch (InterruptedException e) {
-                    Thread.interrupted();
-                    continue;
-                }
-                continue;
-            } else {
-                logger.debug("###Workflow: Connection reset by peer.");
-                return;
-            }
-        }
+            logger.debug("Client Hello message sent");
+            // hash current record
+            updateHash(hashBuilder, trace);
+            // add trace to ArrayList
+            addToList(new MessageTrace(EStates.CLIENT_HELLO, trace.
+                    getCurrentRecord(),
+                    trace.getOldRecord(), false));
+            sleepPoller(EStates.SERVER_HELLO_DONE);
 
-        /*
-         * create ClientKeyExchange
-         */
-        trace = new MessageTrace();
-        record = msgBuilder.createClientKeyExchange(protocolVersion, this);
-        setRecordTrace(trace, record);
-        // change status and notify observers
-        switchToState(trace, EStates.CLIENT_KEY_EXCHANGE);
-        // drop it on the wire!
-        try {
-            if (out != null) {
-                prepareAndSend(trace);
-                // add trace to ArrayList
-                addToList(new MessageTrace(EStates.CLIENT_KEY_EXCHANGE,
-                        trace.getCurrentRecord(),
-                        trace.getOldRecord(), false));
-            } else {
-                return;
-            }
-        } catch (IOException e) {
-            if (respFetchThread.isAlive()) {
-                try {
-                    Thread.sleep(100);
-                } catch (InterruptedException e1) {
-                }
-            }
-            logger.debug("### Connection reset by peer.");
-            closeSocket();
-            return;
-        }
-        logger.debug("Client Key Exchange message send");
-        // hash current record
-        updateHash(hashBuilder, trace);
+            /*
+             * create ClientKeyExchange
+             */
+            trace = new MessageTrace();
+            record = msgBuilder.createClientKeyExchange(protocolVersion, this);
+            setRecordTrace(trace, record);
+            // change status and notify observers
+            switchToState(trace, EStates.CLIENT_KEY_EXCHANGE);
+            // drop it on the wire!
+            prepareAndSend(trace);
+            logger.debug("Client Key Exchange message sent");
+            // add trace to ArrayList
+            addToList(new MessageTrace(EStates.CLIENT_KEY_EXCHANGE,
+                    trace.getCurrentRecord(),
+                    trace.getOldRecord(), false));
+            // hash current record
+            updateHash(hashBuilder, trace);
 
-        /*
-         * create ChangeCipherSepc
-         */
-        trace = new MessageTrace();
-        record = new ChangeCipherSpec(protocolVersion);
-        setRecordTrace(trace, record);
-        //change status and notify observers
-        switchToState(trace, EStates.CLIENT_CHANGE_CIPHER_SPEC);
-        // drop it on the wire!
-        try {
-            if (out != null) {
-                prepareAndSend(trace);
-            } else {
-                return;
-            }
-        } catch (IOException e) {
-            if (respFetchThread.isAlive()) {
-                try {
-                    Thread.sleep(100);
-                } catch (InterruptedException e1) {
-                }
-            }
-            logger.debug("### Connection reset by peer.");
-            closeSocket();
-            return;
-        }
-        logger.debug("Change Cipher Spec message send");
-        // switch to encrypted mode
-        encrypted = true;
-        // add trace to ArrayList
-        addToList(new MessageTrace(EStates.CLIENT_CHANGE_CIPHER_SPEC, trace.
-                getCurrentRecord(),
-                trace.getOldRecord(), false));
+            /*
+             * create ChangeCipherSepc
+             */
+            trace = new MessageTrace();
+            record = new ChangeCipherSpec(protocolVersion);
+            setRecordTrace(trace, record);
+            //change status and notify observers
+            switchToState(trace, EStates.CLIENT_CHANGE_CIPHER_SPEC);
+            // drop it on the wire!
+            prepareAndSend(trace);
+            logger.debug("Change Cipher Spec message sent");
+            // switch to encrypted mode
+            encrypted = true;
+            // add trace to ArrayList
+            addToList(new MessageTrace(EStates.CLIENT_CHANGE_CIPHER_SPEC, trace.
+                    getCurrentRecord(),
+                    trace.getOldRecord(), false));
 
-        /*
-         * create Finished
-         */
-        trace = new MessageTrace();
-        // create the master secret
-        MasterSecret masterSec = msgBuilder.createMasterSecret(this);
-        // hash handshake messages
-        try {
-            handshakeHashes = hashBuilder.getHandshakeMsgsHashes();
-        } catch (DigestException e) {
-            e.printStackTrace();
-        }
-        record = msgBuilder.createFinished(protocolVersion,
-                EConnectionEnd.CLIENT, handshakeHashes, masterSec);
-        record = msgBuilder.encryptRecord(protocolVersion, record);
-        setRecordTrace(trace, record);
-        // change status and notify observers
-        switchToState(trace, EStates.CLIENT_FINISHED);
-        // drop it on the wire!
-        try {
-            if (out != null) {
-                prepareAndSend(trace);
-            } else {
-                return;
+            /*
+             * create Finished
+             */
+            trace = new MessageTrace();
+            // create the master secret
+            MasterSecret masterSec = msgBuilder.createMasterSecret(this);
+            // hash handshake messages
+            try {
+                handshakeHashes = hashBuilder.getHandshakeMsgsHashes();
+            } catch (DigestException e) {
+                e.printStackTrace();
             }
+            record = msgBuilder.createFinished(protocolVersion,
+                    EConnectionEnd.CLIENT, handshakeHashes, masterSec);
+            record = msgBuilder.encryptRecord(protocolVersion, record);
+            setRecordTrace(trace, record);
+            // change status and notify observers
+            switchToState(trace, EStates.CLIENT_FINISHED);
+            // drop it on the wire!
+            prepareAndSend(trace);
+            logger.debug("Finished message sent");
+            // add trace to ArrayList
+            addToList(new MessageTrace(EStates.CLIENT_FINISHED, trace.
+                    getCurrentRecord(),
+                    trace.getOldRecord(), false));
+            sleepPoller(EStates.SERVER_FINISHED);
+
+            fetcher.stopFetching();
+            logger.debug("<<< TLS Handshake finished");
         } catch (IOException e) {
             logger.debug("### Connection reset by peer.");
             closeSocket();
-            return;
         }
-        logger.debug("Finished message send");
-        // add trace to ArrayList
-        addToList(new MessageTrace(EStates.CLIENT_FINISHED, trace.getCurrentRecord(),
-                trace.getOldRecord(), false));
-        while (getCurrentState() != EStates.SERVER_FINISHED.getID()) {
+    }
+
+    /**
+     * Poll the current state each 100 millis if the passed state is 
+     * reached yet.
+     *
+     * @param desiredState State to wait for
+     */
+    private void sleepPoller(final EStates desiredState) {
+        while (getCurrentState() != desiredState.getID()) {
             if (respFetchThread.isAlive()) {
                 try {
                     Thread.sleep(100);
                 } catch (InterruptedException e) {
                     Thread.interrupted();
-                    continue;
                 }
-                continue;
             } else {
                 logger.debug("###Workflow: Connection reset by peer.");
-                return;
             }
         }
-        fetcher.stopFetching();
-        logger.debug("<<< TLS Handshake finished");
     }
 
     /**
@@ -366,6 +320,10 @@ public final class SSLHandshakeWorkflow extends AWorkflow implements Observer {
     private void prepareAndSend(final MessageTrace trace) throws IOException {
         ARecordFrame rec;
         byte[] msg;
+
+        if (out == null) {
+            throw new IOException("Output stream not set");
+        }
 
         // try sending raw bytes - if no present yet, encode!
         msg = trace.getCurrentRecordBytes();
@@ -555,14 +513,15 @@ public final class SSLHandshakeWorkflow extends AWorkflow implements Observer {
         //set the Timestamp and exact time of message arrival
         trace.setTimestamp(new Timestamp(System.currentTimeMillis()));
         trace.setNanoTime(System.nanoTime());
-        if(vnlEnabled) {
-            
+        if (vnlEnabled) {
+            // ################################################################
             // TODO
-            Trace<Packet> packetTrace = ((VNLSocket)so).getTrace();
+            Trace<Packet> packetTrace = ((VNLSocket) so).getTrace();
             int pos = packetTrace.size();
             trace.setVNLTime(packetTrace.get(pos).getTimeStamp());
+            // ################################################################
         }
-        
+
         //fetch the input bytes
         SSLResponse response = new SSLResponse(responseBytes, this);
         response.handleResponse(trace, responseBytes);
