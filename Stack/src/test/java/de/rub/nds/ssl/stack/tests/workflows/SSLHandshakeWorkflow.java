@@ -104,7 +104,7 @@ public final class SSLHandshakeWorkflow extends AWorkflow implements Observer {
         vnlEnabled = enableVNL;
 
         if (vnlEnabled) {
-            so = new VNLSocket();
+//            so = new VNLSocket();
         } else {
             so = new Socket();
         }
@@ -246,7 +246,7 @@ public final class SSLHandshakeWorkflow extends AWorkflow implements Observer {
      *
      * @param desiredState State to wait for
      */
-    private void sleepPoller(final EStates desiredState) {
+    private void sleepPoller(final EStates desiredState) throws IOException {
         while (getCurrentState() != desiredState.getID()) {
             if (respFetchThread.isAlive()) {
                 try {
@@ -255,7 +255,7 @@ public final class SSLHandshakeWorkflow extends AWorkflow implements Observer {
                     Thread.interrupted();
                 }
             } else {
-                logger.debug("###Workflow: Connection reset by peer.");
+                throw new IOException("Response fetcher no longer reachable");
             }
         }
     }
