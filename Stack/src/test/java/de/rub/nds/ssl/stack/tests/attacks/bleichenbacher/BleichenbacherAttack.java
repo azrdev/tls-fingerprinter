@@ -75,6 +75,9 @@ public class BleichenbacherAttack {
         } else {
             stepOne();
         }
+        stepOneB();
+        stepOneC();
+
         i++;
 
         while (!solutionFound) {
@@ -117,6 +120,13 @@ public class BleichenbacherAttack {
             (BigInteger.valueOf(3).multiply(bigB)).subtract(BigInteger.ONE))};
 
         logger.info(" Found s0 : " + si);
+    }
+
+    /** extensions for feature attacks handled in the derived classes*/
+    protected void stepOneB() {
+    }
+
+    protected void stepOneC() {
     }
 
     protected void stepTwo(final int i) {
@@ -292,8 +302,7 @@ public class BleichenbacherAttack {
             solution = solution.multiply(m[0].upper).mod(publicKey.getModulus());
 
             //if(solution.compareTo(new BigInteger(1, decryptedMsg)) == 0) {
-            logger.info("====> Solution found!\n" + Utility.bytesToHex(solution.
-                    toByteArray()));
+            logger.info("====> Solution found!\n" + Utility.bytesToHex(solution.toByteArray()));
             //    System.out.println("original decrypted message: \n" + Utility.bytesToHex(decryptedMsg));
             //}
 

