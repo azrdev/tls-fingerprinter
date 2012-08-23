@@ -44,7 +44,7 @@ public class Util {
     }
 
     public static long now() {
-        return System.currentTimeMillis();
+        return System.nanoTime();
     }
 
     public static int hashCode(Object... objects) {

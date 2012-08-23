@@ -18,12 +18,13 @@ public abstract class PcapHandler extends pcap_handler {
     @Override
     protected void callback(Pointer user, Pointer<pcap_pkthdr> pkt_header, Pointer<Byte> pkt_data) {
         pcap_pkthdr header = pkt_header.get();
-        long timeStamp = header.ts().getTime();
+        long timeStamp = header.getTimeStamp();
         int length = header.caplen();
         dataLinkType = Pcap.DataLinkType.valueOf(user.getInt());
 
         newByteBuffer(timeStamp, length, pkt_data.getByteBuffer(length));
     }
+
 
     public Pcap.DataLinkType getDataLinkType() {
         return dataLinkType;

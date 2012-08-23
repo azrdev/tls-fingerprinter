@@ -53,9 +53,9 @@ public class ConnectionHandlerTest {
         Iterator<PcapPacket> iterator = pcapTrace.iterator();
 
         PcapPacket packet = iterator.next();
-        assertEquals(1337775365308L, packet.getTimeStamp());
+        assertEquals(1337774652713308000L, packet.getTimeStamp());
         packet = iterator.next();
-        assertEquals(1337775365978L, packet.getTimeStamp());
+        assertEquals(1337774652713978000L, packet.getTimeStamp());
 
         List<FragmentSequence> fragmentSequences = pcapTrace.getFragmentSequences();
         assertEquals(1, fragmentSequences.size());

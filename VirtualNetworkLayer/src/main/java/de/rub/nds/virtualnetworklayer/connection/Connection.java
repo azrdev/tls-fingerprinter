@@ -34,8 +34,8 @@ public interface Connection extends Closeable {
          * Returns the traffic volume in bytes between from and to.
          * {@link de.rub.nds.virtualnetworklayer.util.Util#now()}
          *
-         * @param from timestamp in mili seconds
-         * @param to   timestamp in mili seconds
+         * @param from timestamp in nanoseconds
+         * @param to   timestamp in nanoseconds
          * @return traffic volume in bytes
          */
         public long getTrafficVolumeBetween(long from, long to) {
@@ -69,7 +69,7 @@ public interface Connection extends Closeable {
     /**
      * Reads the next available packet considering the specified timeout.
      *
-     * @param timeout
+     * @param timeout in milliseconds
      * @return next available packet
      * @throws IOException
      */

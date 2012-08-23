@@ -13,7 +13,7 @@ import java.net.SocketTimeoutException;
 import static org.junit.Assert.*;
 
 public class SocketConnectionTest {
-    private static int timeOut = 1000;
+    private static int timeOut = Connection.DefaultTimeout * 1000 * 1000;
     private static String request = "GET / HTTP/1.0 \r\n\r\n";
 
     @Test

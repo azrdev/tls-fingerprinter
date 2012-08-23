@@ -113,6 +113,7 @@ public class PacketHandlerTest {
             public void newPacket(PcapPacket packet) {
                 ArpHeader header = packet.getHeader(Headers.Arp);
                 if (header.getOperation() == 1) {
+                    System.out.println(packet.getTimeStamp());
                     assertEquals(1, header.getHardwareType());
                     assertEquals(Ethernet.Type.Ip4, header.getProtocolType());
                     assertEquals(6, header.getHardwareAddressLength());

@@ -167,7 +167,7 @@ public class PcapConnection implements Connection {
                 try {
                     this.wait(timeout);
 
-                    if ((Util.now() - start) >= timeout) {
+                    if ((Util.now() - start) >= timeout * 1000 * 1000) {
                         break;
                     }
 

@@ -15,7 +15,7 @@ public interface Packet {
     }
 
     /**
-     * @return timestamp in mili seconds
+     * @return timestamp in nanoseconds
      */
     public abstract long getTimeStamp();
 

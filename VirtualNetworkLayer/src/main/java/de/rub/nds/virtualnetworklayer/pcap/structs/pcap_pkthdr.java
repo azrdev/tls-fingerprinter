@@ -18,6 +18,10 @@ public class pcap_pkthdr extends StructObject {
         return this.io.getNativeObjectField(this, 0);
     }
 
+    public long getTimeStamp() {
+        return (ts().seconds() * 1000 * 1000 + ts().milliseconds()) * 1000;
+    }
+
     @Field(1)
     public int caplen() {
         return this.io.getIntField(this, 1);
