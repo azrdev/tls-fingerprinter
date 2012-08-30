@@ -9,7 +9,7 @@ import de.rub.nds.ssl.stack.protocols.handshake.datatypes.*;
 import de.rub.nds.ssl.stack.protocols.msgs.TLSCiphertext;
 import de.rub.nds.ssl.stack.protocols.msgs.datatypes.GenericBlockCipher;
 import de.rub.nds.ssl.stack.protocols.msgs.datatypes.GenericStreamCipher;
-import de.rub.nds.ssl.stack.tests.workflows.SSLHandshakeWorkflow;
+import de.rub.nds.ssl.stack.tests.workflows.TLS10HandshakeWorkflow;
 import java.math.BigInteger;
 import java.security.InvalidKeyException;
 import java.security.PublicKey;
@@ -80,7 +80,7 @@ public class MessageBuilder {
      */
     public final ClientKeyExchange createClientKeyExchange(
             final EProtocolVersion protocolVersion,
-            final SSLHandshakeWorkflow workflow) {
+            final TLS10HandshakeWorkflow workflow) {
         KeyExchangeParams keyParams = KeyExchangeParams.getInstance();
         EKeyExchangeAlgorithm exchangeAlgorithm = keyParams.
                 getKeyExchangeAlgorithm();
@@ -198,7 +198,7 @@ public class MessageBuilder {
      * @param workflow Handshake workflow
      * @return Computed MasterSecret
      */
-    public MasterSecret createMasterSecret(SSLHandshakeWorkflow workflow) {
+    public MasterSecret createMasterSecret(TLS10HandshakeWorkflow workflow) {
         KeyExchangeParams keyParams = KeyExchangeParams.getInstance();
         PreMasterSecret pms = workflow.getPreMasterSecret();
         //set pre_master_secret

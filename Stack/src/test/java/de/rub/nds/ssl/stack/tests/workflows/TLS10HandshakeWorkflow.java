@@ -11,8 +11,8 @@ import de.rub.nds.ssl.stack.protocols.msgs.ChangeCipherSpec;
 import de.rub.nds.ssl.stack.tests.common.HandshakeHashBuilder;
 import de.rub.nds.ssl.stack.tests.common.MessageBuilder;
 import de.rub.nds.ssl.stack.tests.common.SSLTestUtils;
-import de.rub.nds.ssl.stack.tests.response.ResponseFetcher;
 import de.rub.nds.ssl.stack.tests.response.SSLResponse;
+import de.rub.nds.ssl.stack.tests.response.fecther.StandardFetcher;
 import de.rub.nds.ssl.stack.tests.trace.MessageTrace;
 import de.rub.nds.virtualnetworklayer.connection.Connection.Trace;
 import de.rub.nds.virtualnetworklayer.packet.Packet;
@@ -31,29 +31,19 @@ import java.util.*;
 import org.apache.log4j.Logger;
 
 /**
- * The complete SSL Handshake workflow.
+ * The complete TLS 1.0 Handshake workflow.
  *
  * @author Eugen Weiss - eugen.weiss@ruhr-uni-bochum.de
  * @author Christopher Meyer - christopher.meyer@rub.de
  * @version 0.1 Apr 13, 2012
  */
-public final class SSLHandshakeWorkflow extends AWorkflow implements Observer {
+public final class TLS10HandshakeWorkflow extends AWorkflow {
 
-    /**
-     * Response fetcher Thread.
-     */
-    private Thread respFetchThread;
-    /**
-     * Main thread.
-     */
-    private Thread mainThread;
     private final EProtocolVersion protocolVersion = EProtocolVersion.TLS_1_0;
     private Socket so = null;
     private InputStream in = null;
     private OutputStream out = null;
     private SSLTestUtils utils = new SSLTestUtils();
-    private ArrayList<MessageTrace> traceList = new ArrayList<MessageTrace>();
-    List<MessageTrace> list = Collections.synchronizedList(traceList);
     private PreMasterSecret pms = null;
     private byte[] handshakeHashes = null;
     private boolean encrypted = false;
@@ -98,13 +88,13 @@ public final class SSLHandshakeWorkflow extends AWorkflow implements Observer {
      * @param workflowStates The SSL handshake states
      * @param enableVNL Enable the virtual network layer
      */
-    public SSLHandshakeWorkflow(WorkflowState[] workflowStates,
+    public TLS10HandshakeWorkflow(WorkflowState[] workflowStates,
             boolean enableVNL) throws SocketException {
         super(workflowStates);
         vnlEnabled = enableVNL;
 
         if (vnlEnabled) {
-//            so = new VNLSocket();
+            so = new VNLSocket();
         } else {
             so = new Socket();
         }
@@ -115,14 +105,14 @@ public final class SSLHandshakeWorkflow extends AWorkflow implements Observer {
      *
      * @param enableTiming Enable time measurement capabilities
      */
-    public SSLHandshakeWorkflow(boolean enableTiming) throws SocketException {
+    public TLS10HandshakeWorkflow(boolean enableTiming) throws SocketException {
         this(EStates.values(), enableTiming);
     }
 
     /**
      * Initialize the handshake workflow with the state values
      */
-    public SSLHandshakeWorkflow() throws SocketException {
+    public TLS10HandshakeWorkflow() throws SocketException {
         this(EStates.values(), false);
     }
 
@@ -133,9 +123,10 @@ public final class SSLHandshakeWorkflow extends AWorkflow implements Observer {
     public void start() {
         try {
             logger.debug(">>> Start TLS handshake");
-            ResponseFetcher fetcher = new ResponseFetcher(this.so, this);
-            respFetchThread = new Thread(fetcher);
-            respFetchThread.start();
+            StandardFetcher fetcher = new StandardFetcher(this.so, this);
+            Thread respThread = new Thread(fetcher);
+            respThread.start();
+            setResponseThread(respThread);
             setMainThread(Thread.currentThread());
             ARecordFrame record;
             MessageTrace trace;
@@ -153,7 +144,7 @@ public final class SSLHandshakeWorkflow extends AWorkflow implements Observer {
             record = msgBuilder.createClientHello(protocolVersion);
             setRecordTrace(trace, record);
             // switch the state of the handshake
-            switchToPreviousState(trace);
+            previousStateAndNotify(trace);
             // set the probably changed message
             record = trace.getCurrentRecord();
             // save the client random value for later computations
@@ -164,7 +155,7 @@ public final class SSLHandshakeWorkflow extends AWorkflow implements Observer {
             // hash current record
             updateHash(hashBuilder, trace);
             // add trace to ArrayList
-            addToList(new MessageTrace(EStates.CLIENT_HELLO, trace.
+            addToTraceList(new MessageTrace(EStates.CLIENT_HELLO, trace.
                     getCurrentRecord(),
                     trace.getOldRecord(), false));
             sleepPoller(EStates.SERVER_HELLO_DONE);
@@ -181,7 +172,7 @@ public final class SSLHandshakeWorkflow extends AWorkflow implements Observer {
             prepareAndSend(trace);
             logger.debug("Client Key Exchange message sent");
             // add trace to ArrayList
-            addToList(new MessageTrace(EStates.CLIENT_KEY_EXCHANGE,
+            addToTraceList(new MessageTrace(EStates.CLIENT_KEY_EXCHANGE,
                     trace.getCurrentRecord(),
                     trace.getOldRecord(), false));
             // hash current record
@@ -201,7 +192,7 @@ public final class SSLHandshakeWorkflow extends AWorkflow implements Observer {
             // switch to encrypted mode
             encrypted = true;
             // add trace to ArrayList
-            addToList(new MessageTrace(EStates.CLIENT_CHANGE_CIPHER_SPEC, trace.
+            addToTraceList(new MessageTrace(EStates.CLIENT_CHANGE_CIPHER_SPEC, trace.
                     getCurrentRecord(),
                     trace.getOldRecord(), false));
 
@@ -227,7 +218,7 @@ public final class SSLHandshakeWorkflow extends AWorkflow implements Observer {
             prepareAndSend(trace);
             logger.debug("Finished message sent");
             // add trace to ArrayList
-            addToList(new MessageTrace(EStates.CLIENT_FINISHED, trace.
+            addToTraceList(new MessageTrace(EStates.CLIENT_FINISHED, trace.
                     getCurrentRecord(),
                     trace.getOldRecord(), false));
             sleepPoller(EStates.SERVER_FINISHED);
@@ -248,7 +239,7 @@ public final class SSLHandshakeWorkflow extends AWorkflow implements Observer {
      */
     private void sleepPoller(final EStates desiredState) throws IOException {
         while (getCurrentState() != desiredState.getID()) {
-            if (respFetchThread.isAlive()) {
+            if (getResponseThread().isAlive()) {
                 try {
                     Thread.sleep(100);
                 } catch (InterruptedException e) {
@@ -286,33 +277,6 @@ public final class SSLHandshakeWorkflow extends AWorkflow implements Observer {
     }
 
     /**
-     * Get the Thread of the handshake workflow.
-     *
-     * @return Workflow thread.
-     */
-    public void wakeUp() {
-        this.mainThread.interrupt();
-    }
-
-    /**
-     * Set the main Thread.
-     *
-     * @param thread Main Thread
-     */
-    public void setMainThread(Thread thread) {
-        this.mainThread = thread;
-    }
-
-    /**
-     * Get the main Thread.
-     *
-     * @return Main thread
-     */
-    public Thread getMainThread() {
-        return this.mainThread;
-    }
-
-    /**
      * Prepares the trace and delivers it to the network layer.
      *
      * @param trace MessageTrace to be send
@@ -334,72 +298,6 @@ public final class SSLHandshakeWorkflow extends AWorkflow implements Observer {
         }
         utils.sendMessage(out, msg);
         logger.debug("Message in hex: " + Utility.bytesToHex(msg));
-    }
-
-    /**
-     * Switches to the next state and notifies the observers.
-     *
-     * @param trace Holds the tracing data
-     */
-    public void switchToNextState(final MessageTrace trace) {
-        nextState();
-        notifyCurrentObservers(trace);
-    }
-
-    /**
-     * Sets a new state and notifies the observers.
-     *
-     * @param trace Holds the tracing data
-     * @param state The new state
-     */
-    public void switchToState(final MessageTrace trace, final EStates state) {
-        setCurrentState(state.getID());
-        notifyCurrentObservers(trace);
-    }
-
-    /**
-     * Switches to the previous state or holds current state if it is the first
-     * state.
-     *
-     * @param trace Holds the tracing data
-     */
-    public void switchToPreviousState(final MessageTrace trace) {
-        previousState();
-        notifyCurrentObservers(trace);
-    }
-
-    /**
-     * Sets the current record of a trace and saves the previous one if present.
-     *
-     * @param trace MessageTrace to be modified
-     * @param record New record to be set
-     */
-    private void setRecordTrace(final MessageTrace trace,
-            final ARecordFrame record) {
-        // save the old state
-        ARecordFrame oldRecord = trace.getOldRecord();
-        trace.setOldRecord(oldRecord);
-
-        //add the newly created message to the trace list
-        trace.setCurrentRecord(record);
-    }
-
-    /**
-     * Add a new MessageTrace object to the ArrayList.
-     *
-     * @param trace MessageTrace object to be added
-     */
-    public synchronized void addToList(final MessageTrace trace) {
-        list.add(trace);
-    }
-
-    /**
-     * Get the trace list of the whole handshake.
-     *
-     * @return MessageTrace list
-     */
-    public ArrayList<MessageTrace> getTraceList() {
-        return (ArrayList<MessageTrace>) traceList.clone();
     }
 
     /**
@@ -504,9 +402,9 @@ public final class SSLHandshakeWorkflow extends AWorkflow implements Observer {
     @Override
     public void update(Observable o, Object arg) {
         byte[] responseBytes = null;
-        ResponseFetcher fetcher = null;
-        if (o instanceof ResponseFetcher) {
-            fetcher = (ResponseFetcher) o;
+        StandardFetcher fetcher = null;
+        if (o instanceof StandardFetcher) {
+            fetcher = (StandardFetcher) o;
             responseBytes = (byte[]) arg;
         }
         MessageTrace trace = new MessageTrace();

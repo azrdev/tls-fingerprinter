@@ -1,7 +1,8 @@
-package de.rub.nds.ssl.stack.tests.response;
+package de.rub.nds.ssl.stack.tests.response.fecther;
 
 import de.rub.nds.ssl.stack.protocols.ARecordFrame;
-import de.rub.nds.ssl.stack.tests.workflows.SSLHandshakeWorkflow;
+import de.rub.nds.ssl.stack.tests.workflows.AWorkflow;
+import de.rub.nds.ssl.stack.tests.workflows.TLS10HandshakeWorkflow;
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -14,7 +15,7 @@ import java.util.Observable;
  * @author Eugen Weiss - eugen.weiss@ruhr-uni-bochum.de
  * @version 0.1 Jun 23, 2012
  */
-public class ResponseFetcher extends Observable implements Runnable {
+public class StandardFetcher extends AResponseFetcher {
 
     /**
      * Socket.
@@ -24,10 +25,7 @@ public class ResponseFetcher extends Observable implements Runnable {
      * Input stream of the socket.
      */
     private InputStream in;
-    /**
-     * Handshake workflow.
-     */
-    private SSLHandshakeWorkflow handFlow;
+    
     /**
      * Signalizes if further bytes should be fetched.
      */
@@ -35,17 +33,15 @@ public class ResponseFetcher extends Observable implements Runnable {
     //static Logger logger = Logger.getRootLogger();
 
     /**
-     * Initialize the ResponseFetcher to get responses from the socket and
+     * Initialize the StandardFetcher to get responses from the socket and
      * notify observer.
      *
      * @param so
      * @param workflow
      */
-    public ResponseFetcher(Socket so, SSLHandshakeWorkflow workflow) {
-        this.handFlow = workflow;
+    public StandardFetcher(Socket so, AWorkflow workflow) {
+        super(workflow);
         this.socket = so;
-        //add the handshake workflow as observer
-        this.addObserver(this.handFlow);
         if (so != null) {
             this.socket = so;
             try {
@@ -76,7 +72,7 @@ public class ResponseFetcher extends Observable implements Runnable {
                 //set changed Flag and notify the observer
                 this.setChanged();
                 this.notifyObservers(answer);
-                handFlow.wakeUp();
+                workflow.wakeUp();
             } catch (IOException e) {
                 //cancel fetching bytes if e.g. Socket is not available
                 stopFetching();

@@ -7,7 +7,7 @@ import org.testng.Reporter;
 import de.rub.nds.ssl.stack.tests.analyzer.common.ETLSImplementation;
 import de.rub.nds.ssl.stack.tests.analyzer.common.ScoreCounter;
 import de.rub.nds.ssl.stack.tests.trace.MessageTrace;
-import de.rub.nds.ssl.stack.tests.workflows.SSLHandshakeWorkflow.EStates;
+import de.rub.nds.ssl.stack.tests.workflows.TLS10HandshakeWorkflow.EStates;
 
 /**
  * Check if handshake enumeration is applied

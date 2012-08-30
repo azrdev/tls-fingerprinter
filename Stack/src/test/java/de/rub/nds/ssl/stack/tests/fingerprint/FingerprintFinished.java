@@ -30,8 +30,8 @@ import de.rub.nds.ssl.stack.tests.common.KeyMaterial;
 import de.rub.nds.ssl.stack.tests.common.TestConfiguration;
 import de.rub.nds.ssl.stack.tests.trace.MessageTrace;
 import de.rub.nds.ssl.stack.tests.workflows.ObservableBridge;
-import de.rub.nds.ssl.stack.tests.workflows.SSLHandshakeWorkflow;
-import de.rub.nds.ssl.stack.tests.workflows.SSLHandshakeWorkflow.EStates;
+import de.rub.nds.ssl.stack.tests.workflows.TLS10HandshakeWorkflow;
+import de.rub.nds.ssl.stack.tests.workflows.TLS10HandshakeWorkflow.EStates;
 
 public class FingerprintFinished extends GenericFingerprintTest implements Observer {
 
@@ -55,7 +55,7 @@ public class FingerprintFinished extends GenericFingerprintTest implements Obser
     public void manipulateFinishedRecordHeader(String desc, boolean changePadding, boolean destroyMAC,
     		boolean destroyHash, boolean destroyVerify, boolean changePadLength) throws SocketException {
     	logger.info("++++Start Test No." + counter + "(" + desc +")++++");
-        workflow = new SSLHandshakeWorkflow();
+        workflow = new TLS10HandshakeWorkflow();
         //connect to test server
         if (TestConfiguration.HOST.isEmpty() || TestConfiguration.PORT == 0) {
         	workflow.connectToTestServer(HOST, PORT);

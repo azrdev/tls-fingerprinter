@@ -15,8 +15,8 @@ import de.rub.nds.ssl.stack.tests.common.SSLServerHandler;
 import de.rub.nds.ssl.stack.tests.common.SSLTestUtils;
 import de.rub.nds.ssl.stack.tests.trace.MessageTrace;
 import de.rub.nds.ssl.stack.tests.workflows.ObservableBridge;
-import de.rub.nds.ssl.stack.tests.workflows.SSLHandshakeWorkflow;
-import de.rub.nds.ssl.stack.tests.workflows.SSLHandshakeWorkflow.EStates;
+import de.rub.nds.ssl.stack.tests.workflows.TLS10HandshakeWorkflow;
+import de.rub.nds.ssl.stack.tests.workflows.TLS10HandshakeWorkflow.EStates;
 import java.net.SocketException;
 import java.security.InvalidKeyException;
 import java.util.Observable;
@@ -41,7 +41,7 @@ public class VaudenayTest implements Observer {
     /**
      * Handshake workflow to observe.
      */
-    private SSLHandshakeWorkflow workflow;
+    private TLS10HandshakeWorkflow workflow;
     /**
      * Help utilities for testing.
      */
@@ -106,7 +106,7 @@ public class VaudenayTest implements Observer {
             boolean destroyHash, boolean destroyVerify, boolean changePadLength)
             throws SocketException {
         logger.info("++++ Start Test No." + this.counter + " (" + desc + ") ++++");
-        workflow = new SSLHandshakeWorkflow();
+        workflow = new TLS10HandshakeWorkflow();
         workflow.connectToTestServer(HOST, PORT);
         workflow.addObserver(this, EStates.CLIENT_HELLO);
         workflow.addObserver(this, EStates.CLIENT_FINISHED);

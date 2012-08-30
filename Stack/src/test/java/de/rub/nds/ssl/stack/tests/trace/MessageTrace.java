@@ -1,7 +1,7 @@
 package de.rub.nds.ssl.stack.tests.trace;
 
 import de.rub.nds.ssl.stack.protocols.ARecordFrame;
-import de.rub.nds.ssl.stack.tests.workflows.SSLHandshakeWorkflow.EStates;
+import de.rub.nds.ssl.stack.tests.workflows.TLS10HandshakeWorkflow.EStates;
 import java.sql.Timestamp;
 
 /**

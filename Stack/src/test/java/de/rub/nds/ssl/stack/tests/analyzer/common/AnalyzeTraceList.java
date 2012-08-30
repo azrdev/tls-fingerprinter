@@ -2,7 +2,7 @@ package de.rub.nds.ssl.stack.tests.analyzer.common;
 
 import de.rub.nds.ssl.stack.protocols.alert.Alert;
 import de.rub.nds.ssl.stack.tests.trace.MessageTrace;
-import de.rub.nds.ssl.stack.tests.workflows.SSLHandshakeWorkflow.EStates;
+import de.rub.nds.ssl.stack.tests.workflows.TLS10HandshakeWorkflow.EStates;
 import java.util.ArrayList;
 
 /**

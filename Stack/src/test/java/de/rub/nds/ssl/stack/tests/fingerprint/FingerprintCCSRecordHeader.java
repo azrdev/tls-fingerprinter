@@ -8,8 +8,8 @@ import de.rub.nds.ssl.stack.tests.analyzer.parameters.EFingerprintIdentifier;
 import de.rub.nds.ssl.stack.tests.common.TestConfiguration;
 import de.rub.nds.ssl.stack.tests.trace.MessageTrace;
 import de.rub.nds.ssl.stack.tests.workflows.ObservableBridge;
-import de.rub.nds.ssl.stack.tests.workflows.SSLHandshakeWorkflow;
-import de.rub.nds.ssl.stack.tests.workflows.SSLHandshakeWorkflow.EStates;
+import de.rub.nds.ssl.stack.tests.workflows.TLS10HandshakeWorkflow;
+import de.rub.nds.ssl.stack.tests.workflows.TLS10HandshakeWorkflow.EStates;
 import java.net.SocketException;
 import java.util.Observable;
 import java.util.Observer;
@@ -32,7 +32,7 @@ public class FingerprintCCSRecordHeader extends GenericFingerprintTest implement
     public void manipulateCCSRecordHeader(String desc, byte[] msgType,
             byte[] protocolVersion, byte[] recordLength) throws SocketException {
         logger.info("++++Start Test No." + counter + "(" + desc + ")++++");
-        workflow = new SSLHandshakeWorkflow();
+        workflow = new TLS10HandshakeWorkflow();
         //connect to test server
         if (TestConfiguration.HOST.isEmpty() || TestConfiguration.PORT == 0) {
             workflow.connectToTestServer(HOST, PORT);

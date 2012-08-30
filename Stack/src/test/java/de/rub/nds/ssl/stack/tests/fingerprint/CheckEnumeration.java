@@ -8,7 +8,7 @@ import org.testng.annotations.Test;
 import de.rub.nds.ssl.stack.tests.analyzer.AFingerprintAnalyzer;
 import de.rub.nds.ssl.stack.tests.analyzer.HandshakeEnumCheck;
 import de.rub.nds.ssl.stack.tests.common.TestConfiguration;
-import de.rub.nds.ssl.stack.tests.workflows.SSLHandshakeWorkflow;
+import de.rub.nds.ssl.stack.tests.workflows.TLS10HandshakeWorkflow;
 
 /**
  * Check if handshake messages were enumerated.
@@ -27,7 +27,7 @@ public class CheckEnumeration extends GenericFingerprintTest {
      */
     @Test(enabled = true)
     public void executeHandshake() throws SocketException {
-        workflow = new SSLHandshakeWorkflow();
+        workflow = new TLS10HandshakeWorkflow();
         //connect to test server
         if (TestConfiguration.HOST.isEmpty() || TestConfiguration.PORT == 0) {
             workflow.connectToTestServer(HOST, PORT);

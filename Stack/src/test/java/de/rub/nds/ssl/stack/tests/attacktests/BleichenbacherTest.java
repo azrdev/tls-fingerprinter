@@ -19,8 +19,8 @@ import de.rub.nds.ssl.stack.tests.common.SSLTestUtils;
 import de.rub.nds.ssl.stack.tests.common.TestConfiguration;
 import de.rub.nds.ssl.stack.tests.trace.MessageTrace;
 import de.rub.nds.ssl.stack.tests.workflows.ObservableBridge;
-import de.rub.nds.ssl.stack.tests.workflows.SSLHandshakeWorkflow;
-import de.rub.nds.ssl.stack.tests.workflows.SSLHandshakeWorkflow.EStates;
+import de.rub.nds.ssl.stack.tests.workflows.TLS10HandshakeWorkflow;
+import de.rub.nds.ssl.stack.tests.workflows.TLS10HandshakeWorkflow.EStates;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.security.PublicKey;
@@ -42,7 +42,7 @@ public class BleichenbacherTest implements Observer {
     /**
      * Handshake workflow to observe.
      */
-    private SSLHandshakeWorkflow workflow;
+    private TLS10HandshakeWorkflow workflow;
     /**
      * Help utilities for testing.
      */
@@ -139,7 +139,7 @@ public class BleichenbacherTest implements Observer {
             final SSLTestUtils.POSITIONS position, final Integer anyPosition)
             throws IOException {
         logger.info("++++ Start Test No." + counter + " (" + desc + ") ++++");
-        workflow = new SSLHandshakeWorkflow(false);
+        workflow = new TLS10HandshakeWorkflow(false);
         //connect to test server
         if (TestConfiguration.HOST.isEmpty() || TestConfiguration.PORT == 0) {
             workflow.connectToTestServer(HOST, PORT);

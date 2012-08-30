@@ -7,7 +7,7 @@ import de.rub.nds.ssl.stack.protocols.commons.KeyExchangeParams;
 import de.rub.nds.ssl.stack.protocols.handshake.ClientKeyExchange;
 import de.rub.nds.ssl.stack.protocols.handshake.datatypes.EncPreMasterSecret;
 import de.rub.nds.ssl.stack.protocols.handshake.datatypes.PreMasterSecret;
-import de.rub.nds.ssl.stack.tests.workflows.SSLHandshakeWorkflow;
+import de.rub.nds.ssl.stack.tests.workflows.TLS10HandshakeWorkflow;
 import de.rub.nds.ssl.stack.tests.trace.MessageTrace;
 import de.rub.nds.ssl.stack.tests.workflows.ObservableBridge;
 import java.io.IOException;
@@ -45,7 +45,7 @@ public class JSSEOracle extends AOracle implements Observer {
     /**
      * Handshake workflow to observe.
      */
-    private SSLHandshakeWorkflow workflow;
+    private TLS10HandshakeWorkflow workflow;
     /**
      * TLS protocol version.
      */
@@ -59,10 +59,10 @@ public class JSSEOracle extends AOracle implements Observer {
             throws SocketException {
         this.host = serverAddress;
         this.port = serverPort;
-//        workflow = new SSLHandshakeWorkflow(false);
+//        workflow = new TLS10HandshakeWorkflow(false);
 //        workflow.addObserver(this,
-//                SSLHandshakeWorkflow.EStates.CLIENT_KEY_EXCHANGE);
-//        workflow.addObserver(this, SSLHandshakeWorkflow.EStates.ALERT);
+//                TLS10HandshakeWorkflow.EStates.CLIENT_KEY_EXCHANGE);
+//        workflow.addObserver(this, TLS10HandshakeWorkflow.EStates.ALERT);
     }
 
     public static PublicKey fetchServerPublicKey(String serverHost,
@@ -102,10 +102,10 @@ public class JSSEOracle extends AOracle implements Observer {
     @Override
     public boolean checkPKCSConformity(final byte[] msg) {
         try {
-            workflow = new SSLHandshakeWorkflow(false);
+            workflow = new TLS10HandshakeWorkflow(false);
             workflow.addObserver(this,
-                    SSLHandshakeWorkflow.EStates.CLIENT_KEY_EXCHANGE);
-            workflow.addObserver(this, SSLHandshakeWorkflow.EStates.ALERT);
+                    TLS10HandshakeWorkflow.EStates.CLIENT_KEY_EXCHANGE);
+            workflow.addObserver(this, TLS10HandshakeWorkflow.EStates.ALERT);
 
             workflow.connectToTestServer(this.host, this.port);
 
@@ -191,12 +191,12 @@ public class JSSEOracle extends AOracle implements Observer {
     @Override
     public void update(final Observable o, final Object arg) {
         MessageTrace trace = null;
-        SSLHandshakeWorkflow.EStates state = null;
+        TLS10HandshakeWorkflow.EStates state = null;
         oracleResult = false;
         ObservableBridge obs;
         if (o != null && o instanceof ObservableBridge) {
             obs = (ObservableBridge) o;
-            state = (SSLHandshakeWorkflow.EStates) obs.getState();
+            state = (TLS10HandshakeWorkflow.EStates) obs.getState();
             trace = (MessageTrace) arg;
         }
         if (state != null) {

@@ -6,7 +6,7 @@ import de.rub.nds.ssl.stack.tests.analyzer.common.ScoreCounter;
 import de.rub.nds.ssl.stack.tests.analyzer.db.Database;
 import de.rub.nds.ssl.stack.tests.analyzer.parameters.AParameters;
 import de.rub.nds.ssl.stack.tests.trace.MessageTrace;
-import de.rub.nds.ssl.stack.tests.workflows.SSLHandshakeWorkflow.EStates;
+import de.rub.nds.ssl.stack.tests.workflows.TLS10HandshakeWorkflow.EStates;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;

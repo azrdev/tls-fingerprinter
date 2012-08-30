@@ -15,8 +15,8 @@ import de.rub.nds.ssl.stack.tests.common.SSLServer;
 import de.rub.nds.ssl.stack.tests.common.SSLTestUtils;
 import de.rub.nds.ssl.stack.tests.trace.MessageTrace;
 import de.rub.nds.ssl.stack.tests.workflows.ObservableBridge;
-import de.rub.nds.ssl.stack.tests.workflows.SSLHandshakeWorkflow;
-import de.rub.nds.ssl.stack.tests.workflows.SSLHandshakeWorkflow.EStates;
+import de.rub.nds.ssl.stack.tests.workflows.TLS10HandshakeWorkflow;
+import de.rub.nds.ssl.stack.tests.workflows.TLS10HandshakeWorkflow.EStates;
 import de.rub.nds.virtualnetworklayer.connection.Connection.Trace;
 import de.rub.nds.virtualnetworklayer.packet.Packet;
 import static java.lang.Thread.sleep;
@@ -48,7 +48,7 @@ public class BleichenbacherTimingTest implements Observer {
     /**
      * Handshake workflow to observe.
      */
-    private SSLHandshakeWorkflow workflow;
+    private TLS10HandshakeWorkflow workflow;
     /**
      * Help utilities for testing.
      */
@@ -261,7 +261,7 @@ public class BleichenbacherTimingTest implements Observer {
                 + "SERVER_CHANGE_CIPHER_SPEC or ALERT");
         try {
             for (int i = 0; i < NUMBER_OF_REPETIIONS; i++) {
-                workflow = new SSLHandshakeWorkflow(ACCURATE_TIMING);
+                workflow = new TLS10HandshakeWorkflow(ACCURATE_TIMING);
                 workflow.connectToTestServer(HOST, PORT);
                 workflow.addObserver(this, EStates.CLIENT_HELLO);
                 workflow.addObserver(this, EStates.CLIENT_KEY_EXCHANGE);

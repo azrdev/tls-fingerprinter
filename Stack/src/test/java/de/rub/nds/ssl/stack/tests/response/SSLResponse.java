@@ -10,8 +10,8 @@ import de.rub.nds.ssl.stack.protocols.handshake.MessageObservable;
 import de.rub.nds.ssl.stack.protocols.msgs.ChangeCipherSpec;
 import de.rub.nds.ssl.stack.protocols.msgs.TLSCiphertext;
 import de.rub.nds.ssl.stack.tests.trace.MessageTrace;
-import de.rub.nds.ssl.stack.tests.workflows.SSLHandshakeWorkflow;
-import de.rub.nds.ssl.stack.tests.workflows.SSLHandshakeWorkflow.EStates;
+import de.rub.nds.ssl.stack.tests.workflows.TLS10HandshakeWorkflow;
+import de.rub.nds.ssl.stack.tests.workflows.TLS10HandshakeWorkflow.EStates;
 import java.util.Observable;
 import java.util.Observer;
 import org.apache.log4j.Logger;
@@ -31,7 +31,7 @@ public class SSLResponse extends ARecordFrame implements Observer {
     /**
      * Handshake workflow
      */
-    private SSLHandshakeWorkflow workflow;
+    private TLS10HandshakeWorkflow workflow;
     /**
      * Response bytes;
      */
@@ -44,7 +44,7 @@ public class SSLResponse extends ARecordFrame implements Observer {
      * @param response Bytes of the received response
      */
     public SSLResponse(final byte[] response,
-            SSLHandshakeWorkflow workflow) {
+            TLS10HandshakeWorkflow workflow) {
         super(response);
         this.workflow = workflow;
         this.response = response;
@@ -69,7 +69,7 @@ public class SSLResponse extends ARecordFrame implements Observer {
                 trace.setCurrentRecord(ccs);
                 workflow.switchToState(trace, EStates.SERVER_CHANGE_CIPHER_SPEC);
                 trace.setState(EStates.getStateById(workflow.getCurrentState()));
-                workflow.addToList(trace);
+                workflow.addToTraceList(trace);
                 break;
             case ALERT:
                 logger.debug("Alert message received");
@@ -81,20 +81,20 @@ public class SSLResponse extends ARecordFrame implements Observer {
                 if (EAlertLevel.FATAL.equals(alert.getAlertLevel())) {
                     workflow.switchToState(trace, EStates.ALERT);
                 } else {
-                    workflow.switchToNextState(trace);
+                    workflow.nextStateAndNotify(trace);
                 }
                 trace.setState(EStates.getStateById(workflow.getCurrentState()));
-                workflow.addToList(trace);
+                workflow.addToTraceList(trace);
                 break;
             case HANDSHAKE:
                 if (workflow.isEncrypted()) {
                     logger.debug("Finished message received");
                     TLSCiphertext ciphertext = new TLSCiphertext(response, true);
                     trace.setCurrentRecord(ciphertext);
-                    workflow.switchToNextState(trace);
+                    workflow.nextStateAndNotify(trace);
                     trace.setState(EStates.getStateById(
                             workflow.getCurrentState()));
-                    workflow.addToList(trace);
+                    workflow.addToTraceList(trace);
                 } else {
                     setTrace(trace);
                     msgObserve.addObserver(this);
@@ -135,6 +135,6 @@ public class SSLResponse extends ARecordFrame implements Observer {
             }
         }
         trace.setState(EStates.getStateById(workflow.getCurrentState()));
-        workflow.addToList(trace);
+        workflow.addToTraceList(trace);
     }
 }
