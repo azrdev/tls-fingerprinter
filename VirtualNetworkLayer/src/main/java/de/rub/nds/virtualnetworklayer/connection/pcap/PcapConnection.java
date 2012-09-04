@@ -11,7 +11,6 @@ import de.rub.nds.virtualnetworklayer.packet.header.transport.SocketSession;
 import de.rub.nds.virtualnetworklayer.pcap.Pcap;
 import de.rub.nds.virtualnetworklayer.util.Util;
 import de.rub.nds.virtualnetworklayer.util.formatter.IpFormatter;
-
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
@@ -100,7 +99,7 @@ public class PcapConnection implements Connection {
         PcapConnection connection = ((ConnectionHandler) pcap.getHandler()).getConnection(session);
         connection.socket = socket;
         connection.pcap = pcap;
-
+        
         try {
             socket.connect(remoteSocketAddress, timeout);
         } catch (IOException e) {
@@ -108,7 +107,7 @@ public class PcapConnection implements Connection {
 
             throw e;
         }
-
+//System.out.println("IN");
         synchronized (connection) {
             try {
                 while (connection.trace.size() < 3) {
@@ -119,6 +118,7 @@ public class PcapConnection implements Connection {
             }
         }
 
+//System.out.println("OUT");
         return connection;
     }
 

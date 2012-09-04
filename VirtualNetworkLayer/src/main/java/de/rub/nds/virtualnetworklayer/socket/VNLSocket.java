@@ -1,8 +1,7 @@
 package de.rub.nds.virtualnetworklayer.socket;
 
-import de.rub.nds.virtualnetworklayer.connection.Connection.Trace;
+import de.rub.nds.virtualnetworklayer.connection.pcap.PcapConnection;
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.Socket;
 import java.net.SocketException;
 
@@ -15,6 +14,7 @@ import java.net.SocketException;
  * Jul 30, 2012
  */
 public class VNLSocket extends Socket {
+
     /**
      * Instance of the implementing class.
      */
@@ -22,7 +22,8 @@ public class VNLSocket extends Socket {
 
     /**
      * Create a VNL Socket.
-     * @throws SocketException 
+     *
+     * @throws SocketException
      */
     public VNLSocket() throws SocketException {
         this(new VNLSocketImpl());
@@ -39,24 +40,22 @@ public class VNLSocket extends Socket {
         vnlSocketImpl = socketImpl;
     }
 
-    /**
-     * Get the current trace of the connection.
-     * @return Connection trace
-     */
-    public Trace getTrace() {
-        // this is not safe! Directly reveals the state of VNLSocketImpl
-        
-        // TODO deep copy or clone
-        return vnlSocketImpl.getTrace();
-    }
-    
     @Override
-    public VNLInputStream getInputStream() throws IOException {        
+    public VNLInputStream getInputStream() throws IOException {
         return (VNLInputStream) super.getInputStream();
     }
-    
+
     @Override
-    public VNLOutputStream getOutputStream() throws IOException {        
+    public VNLOutputStream getOutputStream() throws IOException {
         return (VNLOutputStream) super.getOutputStream();
+    }
+
+    /**
+     * Get the underlying connection.
+     *
+     * @return Connection used by this socket
+     */
+    public PcapConnection getConnection() {
+        return vnlSocketImpl.getConnection();
     }
 }

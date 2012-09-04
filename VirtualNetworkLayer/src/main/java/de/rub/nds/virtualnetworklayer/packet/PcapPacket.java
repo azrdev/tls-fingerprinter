@@ -4,7 +4,6 @@ import de.rub.nds.virtualnetworklayer.packet.header.Header;
 import de.rub.nds.virtualnetworklayer.packet.header.Session;
 import de.rub.nds.virtualnetworklayer.packet.header.transport.SocketSession;
 import de.rub.nds.virtualnetworklayer.util.formatter.StringFormattable;
-
 import java.nio.ByteBuffer;
 import java.util.LinkedList;
 import java.util.List;

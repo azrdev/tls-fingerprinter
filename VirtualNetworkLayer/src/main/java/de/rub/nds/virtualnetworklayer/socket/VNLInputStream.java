@@ -1,6 +1,6 @@
 package de.rub.nds.virtualnetworklayer.socket;
 
-import de.rub.nds.virtualnetworklayer.connection.socket.SocketConnection;
+import de.rub.nds.virtualnetworklayer.connection.pcap.PcapConnection;
 import de.rub.nds.virtualnetworklayer.packet.Packet;
 import java.io.IOException;
 import java.io.InputStream;
@@ -19,16 +19,16 @@ public class VNLInputStream extends InputStream {
     /**
      * Connection object.
      */
-    private final SocketConnection connection;
+    private final PcapConnection connection;
 
     /**
      * Package private constructor. Only package classes (such as the customized
      * socket) are able to create instances.
      *
-     * @param socketConnection Connection object
+     * @param pcapConnection Connection object
      */
-    VNLInputStream(final SocketConnection socketConnection) {
-        this.connection = socketConnection;
+    VNLInputStream(final PcapConnection pcapConnection) {
+        this.connection = pcapConnection;
     }
 
     @Override
