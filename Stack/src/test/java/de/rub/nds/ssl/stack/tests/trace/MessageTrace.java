@@ -2,7 +2,6 @@ package de.rub.nds.ssl.stack.tests.trace;
 
 import de.rub.nds.ssl.stack.protocols.ARecordFrame;
 import de.rub.nds.ssl.stack.tests.workflows.TLS10HandshakeWorkflow.EStates;
-import java.sql.Timestamp;
 
 /**
  * MessageTrace information about the SSL handshake processing.
@@ -47,8 +46,7 @@ public final class MessageTrace extends AMessageTrace {
      * @param isContinued Handshake enumeration was used for this record
      */
     public MessageTrace(EStates state, final ARecordFrame currentRecord,
-            ARecordFrame oldRecord,
-            final boolean isContinued) {
+            final ARecordFrame oldRecord, final boolean isContinued) {
         super();
         this.setState(state);
         this.setCurrentRecord(currentRecord);
@@ -60,18 +58,15 @@ public final class MessageTrace extends AMessageTrace {
      * Public constructor of a MessageTrace object.
      *
      * @param currentRecord Newly constructed SSL record
-     * @param timestamp Current sending/receiving timestamp of the message
      * @param oldRecord Original SSL record before manipulation
      * @param isContinued Handshake enumeration was used for this record
-     * @param nanoTime Current time in nano precision
+     * @param nanoTime Timestamp in nano precision
      */
     public MessageTrace(EStates state, final ARecordFrame currentRecord,
-            final Timestamp timestamp,
-            final ARecordFrame oldRecord, boolean isContinued,
+            final ARecordFrame oldRecord, final boolean isContinued,
             final Long nanoTime) {
         this.setState(state);
         this.setCurrentRecord(currentRecord);
-        this.setTimestamp(timestamp);
         this.setOldRecord(oldRecord);
         this.setContinued(isContinued);
         this.setNanoTime(nanoTime);

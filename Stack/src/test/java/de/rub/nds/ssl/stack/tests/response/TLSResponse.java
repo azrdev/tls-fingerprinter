@@ -17,49 +17,50 @@ import java.util.Observer;
 import org.apache.log4j.Logger;
 
 /**
- * A response during the SSL protocol processing.
- *
+ * A response during the TLS protocol processing.
+ * 
  * @author Eugen Weiss - eugen.weiss@ruhr-uni-bochum.de
  * @version 0.1 Apr 15, 2012
  */
-public class SSLResponse extends ARecordFrame implements Observer {
-
+public class TLSResponse extends ARecordFrame implements Observer {
+// TODO: Ugly and confusing class! Needs to be corrected!
+    
     /**
-     * Current trace
+     * Current trace.
      */
     private MessageTrace trace;
     /**
-     * Handshake workflow
+     * Handshake workflow.
      */
     private TLS10HandshakeWorkflow workflow;
     /**
-     * Response bytes;
+     * Response bytes.
      */
     private byte[] response;
     static Logger logger = Logger.getRootLogger();
 
     /**
-     * Initialize a SSL response.
+     * Initialize a TLS response.
      *
      * @param response Bytes of the received response
+     * @param workflow Workflow 
      */
-    public SSLResponse(final byte[] response,
+    public TLSResponse(final byte[] response,
             TLS10HandshakeWorkflow workflow) {
         super(response);
         this.workflow = workflow;
-        this.response = response;
+        this.response = new byte[response.length];
+        System.arraycopy(response, 0, this.response, 0, this.response.length);
     }
 
     /**
-     * Extracts the SSL record messages for the response bytes.
+     * Extracts the TLS record messages for the response bytes.
      *
      * @param trace MessageTrace object to save the status
-     * @param response Bytes of the received response
      * @param param Security parameters as defined in Chapter 6.1 of RFC 2246
      * @return ResponseHandler
      */
-    public final void handleResponse(final MessageTrace trace,
-            final byte[] response) {
+    public final void handleResponse(final MessageTrace trace) {
         MessageObservable msgObserve = MessageObservable.getInstance();
         EContentType contentType = getContentType();
         switch (contentType) {
@@ -120,7 +121,6 @@ public class SSLResponse extends ARecordFrame implements Observer {
     public void update(Observable o, Object arg) {
         MessageTrace trace = new MessageTrace();
         trace.setNanoTime(this.trace.getNanoTime());
-        trace.setTimestamp(this.trace.getTimestamp());
         AHandshakeRecord handRecord = null;
         if (o instanceof MessageObservable) {
             handRecord = (AHandshakeRecord) arg;

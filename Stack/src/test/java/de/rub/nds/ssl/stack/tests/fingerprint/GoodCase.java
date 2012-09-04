@@ -1,14 +1,5 @@
 package de.rub.nds.ssl.stack.tests.fingerprint;
 
-import java.net.SocketException;
-import java.util.Observable;
-import java.util.Observer;
-
-import org.testng.annotations.AfterMethod;
-import org.testng.annotations.BeforeMethod;
-import org.testng.annotations.DataProvider;
-import org.testng.annotations.Test;
-
 import de.rub.nds.ssl.stack.protocols.commons.ECipherSuite;
 import de.rub.nds.ssl.stack.protocols.handshake.ClientHello;
 import de.rub.nds.ssl.stack.protocols.handshake.datatypes.CipherSuites;
@@ -19,6 +10,15 @@ import de.rub.nds.ssl.stack.tests.trace.MessageTrace;
 import de.rub.nds.ssl.stack.tests.workflows.ObservableBridge;
 import de.rub.nds.ssl.stack.tests.workflows.TLS10HandshakeWorkflow;
 import de.rub.nds.ssl.stack.tests.workflows.TLS10HandshakeWorkflow.EStates;
+import java.net.SocketException;
+import java.util.Observable;
+import java.util.Observer;
+import org.apache.log4j.PropertyConfigurator;
+import org.testng.annotations.AfterMethod;
+import org.testng.annotations.BeforeClass;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.DataProvider;
+import org.testng.annotations.Test;
 
 /**
  * Execute the handshake with valid parameters.
@@ -26,7 +26,7 @@ import de.rub.nds.ssl.stack.tests.workflows.TLS10HandshakeWorkflow.EStates;
  * @author Eugen Weiss - eugen.weiss@ruhr-uni-bochum.de
  * @version 0.1 Jun 30, 2012
  */
-public class TestGoodCase extends GenericFingerprintTest implements Observer {
+public class GoodCase extends GenericFingerprintTest implements Observer {
 	/**
      * Test host.
      */
@@ -99,11 +99,22 @@ public class TestGoodCase extends GenericFingerprintTest implements Observer {
     }
 
     /**
+     * Initialize logging properties
+     */
+    @BeforeClass
+    public void setUpClass() {
+        PropertyConfigurator.configure("logging.properties");
+        logger.info("##################################");
+        logger.info(this.getClass().getSimpleName());
+        logger.info("##################################");
+    }
+    
+    /**
      * Start the target SSL Server.
      */
     @BeforeMethod
     public void setUp() {
-        System.setProperty("javax.net.debug", "ssl");
+//        System.setProperty("javax.net.debug", "ssl");
         serverHandler.startTestServer();
     }
 

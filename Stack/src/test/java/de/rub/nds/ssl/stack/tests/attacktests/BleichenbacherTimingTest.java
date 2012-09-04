@@ -122,7 +122,7 @@ public class BleichenbacherTimingTest implements Observer {
      */
     private boolean destroyMAC = false;
     /**
-     * Flags if the TimingSocket for accurate timing should be used
+     * Flags if the VNLSocket for accurate timing should be used
      */
     private static final boolean ACCURATE_TIMING = false;
     /**
@@ -253,7 +253,6 @@ public class BleichenbacherTimingTest implements Observer {
         this.positionOfPaddingChange = position;
         this.destroyMAC = tamperMAC;
         boolean canceled = false;
-        Trace<Packet> vnlTrace = null;
         
         logger.info("++++ Start Test No." + counter + " (" + desc + ") ++++");
         logger.info("Test repeated: " + NUMBER_OF_REPETIIONS + " times");
@@ -454,11 +453,7 @@ public class BleichenbacherTimingTest implements Observer {
 
         for (MessageTrace trace : traces) {
             if (trace.getState() != null) {
-                if (ACCURATE_TIMING) {
-                    timestamp = trace.getVNLTime();
-                } else {
-                    timestamp = trace.getNanoTime();
-                }
+                timestamp = trace.getNanoTime();
 
                 switch (trace.getState()) {
                     case CLIENT_KEY_EXCHANGE:

@@ -11,11 +11,12 @@ import de.rub.nds.ssl.stack.protocols.msgs.ChangeCipherSpec;
 import de.rub.nds.ssl.stack.tests.common.HandshakeHashBuilder;
 import de.rub.nds.ssl.stack.tests.common.MessageBuilder;
 import de.rub.nds.ssl.stack.tests.common.SSLTestUtils;
-import de.rub.nds.ssl.stack.tests.response.SSLResponse;
+import de.rub.nds.ssl.stack.tests.response.TLSResponse;
+import de.rub.nds.ssl.stack.tests.response.fecther.AResponseFetcher;
+import de.rub.nds.ssl.stack.tests.response.fecther.Response;
 import de.rub.nds.ssl.stack.tests.response.fecther.StandardFetcher;
+import de.rub.nds.ssl.stack.tests.response.fecther.VNLFetcher;
 import de.rub.nds.ssl.stack.tests.trace.MessageTrace;
-import de.rub.nds.virtualnetworklayer.connection.Connection.Trace;
-import de.rub.nds.virtualnetworklayer.packet.Packet;
 import de.rub.nds.virtualnetworklayer.socket.VNLSocket;
 import java.io.IOException;
 import java.io.InputStream;
@@ -50,7 +51,8 @@ public final class TLS10HandshakeWorkflow extends AWorkflow {
     private boolean vnlEnabled = false;
     private final static Logger logger = Logger.getRootLogger();
     private HandshakeHashBuilder hashBuilder = null;
-
+    private AResponseFetcher fetcher = null;
+    
     /**
      * Define the workflow states.
      */
@@ -95,8 +97,10 @@ public final class TLS10HandshakeWorkflow extends AWorkflow {
 
         if (vnlEnabled) {
             so = new VNLSocket();
+            fetcher = new VNLFetcher((VNLSocket) so, this);
         } else {
             so = new Socket();
+            fetcher = new StandardFetcher(so, this);
         }
     }
 
@@ -123,11 +127,10 @@ public final class TLS10HandshakeWorkflow extends AWorkflow {
     public void start() {
         try {
             logger.debug(">>> Start TLS handshake");
-            StandardFetcher fetcher = new StandardFetcher(this.so, this);
-            Thread respThread = new Thread(fetcher);
-            respThread.start();
-            setResponseThread(respThread);
             setMainThread(Thread.currentThread());
+            Thread respThread = new Thread(fetcher);
+            setResponseThread(respThread);
+            respThread.start();
             ARecordFrame record;
             MessageTrace trace;
             MessageBuilder msgBuilder = new MessageBuilder();
@@ -334,8 +337,9 @@ public final class TLS10HandshakeWorkflow extends AWorkflow {
     public void connectToTestServer(String host, int port) {
         SocketAddress addr = new InetSocketAddress(host, port);
         try {
-            so.connect(addr, 1000);
+//            so.connect(addr, 1000);
 //            so.setSoTimeout(100);
+            so.connect(addr);
             out = so.getOutputStream();
             in = so.getInputStream();
         } catch (IOException e) {
@@ -401,28 +405,18 @@ public final class TLS10HandshakeWorkflow extends AWorkflow {
      */
     @Override
     public void update(Observable o, Object arg) {
-        byte[] responseBytes = null;
-        StandardFetcher fetcher = null;
-        if (o instanceof StandardFetcher) {
-            fetcher = (StandardFetcher) o;
-            responseBytes = (byte[]) arg;
+        Response response = null;
+        AResponseFetcher fetcher = null;
+        if (o instanceof AResponseFetcher) {
+            fetcher = (AResponseFetcher) o;
+            response = (Response) arg;
         }
         MessageTrace trace = new MessageTrace();
-        //set the Timestamp and exact time of message arrival
-        trace.setTimestamp(new Timestamp(System.currentTimeMillis()));
-        trace.setNanoTime(System.nanoTime());
-        if (vnlEnabled) {
-            // ################################################################
-            // TODO
-            Trace<Packet> packetTrace = ((VNLSocket) so).getTrace();
-            int pos = packetTrace.size();
-            trace.setVNLTime(packetTrace.get(pos).getTimeStamp());
-            // ################################################################
-        }
-
+        trace.setNanoTime(response.getTimestamp());
+        
         //fetch the input bytes
-        SSLResponse response = new SSLResponse(responseBytes, this);
-        response.handleResponse(trace, responseBytes);
+        TLSResponse sslResponse = new TLSResponse(response.getBytes(), this);
+        sslResponse.handleResponse(trace);
         if (getCurrentState() == EStates.ALERT.getID()) {
             logger.debug("### Connection reset due to FATAL_ALERT.");
             fetcher.stopFetching();
@@ -430,7 +424,7 @@ public final class TLS10HandshakeWorkflow extends AWorkflow {
             return;
         }
         //hash current record
-        updateHash(hashBuilder, responseBytes);
+        updateHash(hashBuilder, response.getBytes());
         Thread.currentThread().interrupt();
     }
 

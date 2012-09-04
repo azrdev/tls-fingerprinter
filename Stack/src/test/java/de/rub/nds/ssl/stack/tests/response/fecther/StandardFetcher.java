@@ -2,12 +2,10 @@ package de.rub.nds.ssl.stack.tests.response.fecther;
 
 import de.rub.nds.ssl.stack.protocols.ARecordFrame;
 import de.rub.nds.ssl.stack.tests.workflows.AWorkflow;
-import de.rub.nds.ssl.stack.tests.workflows.TLS10HandshakeWorkflow;
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.Socket;
-import java.util.Observable;
 
 /**
  * Fetches the responses from the socket.
@@ -16,40 +14,22 @@ import java.util.Observable;
  * @version 0.1 Jun 23, 2012
  */
 public class StandardFetcher extends AResponseFetcher {
-
-    /**
-     * Socket.
-     */
-    private Socket socket;
-    /**
-     * Input stream of the socket.
-     */
-    private InputStream in;
-    
-    /**
-     * Signalizes if further bytes should be fetched.
-     */
-    private boolean fetchBytes = true;
     //static Logger logger = Logger.getRootLogger();
 
     /**
-     * Initialize the StandardFetcher to get responses from the socket and
-     * notify observer.
-     *
-     * @param so
-     * @param workflow
+     * Input stream of the socket.
      */
-    public StandardFetcher(Socket so, AWorkflow workflow) {
-        super(workflow);
-        this.socket = so;
-        if (so != null) {
-            this.socket = so;
-            try {
-                this.in = this.socket.getInputStream();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
+    protected InputStream in;
+
+    /**
+     * Initialize the fetcher to get responses from the socket and notify the
+     * observer.
+     *
+     * @param so Socket to work with
+     * @param workflow Workflow to notify
+     */
+    public StandardFetcher(final Socket so, final AWorkflow workflow) {
+        super(so, workflow);
     }
 
     /**
@@ -59,8 +39,14 @@ public class StandardFetcher extends AResponseFetcher {
     @Override
     public void run() {
         byte[] header = new byte[ARecordFrame.LENGTH_MINIMUM_ENCODED];
+        try {
+            this.in = this.socket.getInputStream();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         DataInputStream dis = new DataInputStream(in);
-        while (this.fetchBytes) {
+        Response response;
+        while (continueFetching()) {
             try {
                 socket.setSoTimeout(10000);
                 dis.readFully(header);
@@ -71,7 +57,8 @@ public class StandardFetcher extends AResponseFetcher {
                 dis.readFully(answer, header.length, length);
                 //set changed Flag and notify the observer
                 this.setChanged();
-                this.notifyObservers(answer);
+                response = new Response(answer, System.nanoTime());
+                this.notifyObservers(response);
                 workflow.wakeUp();
             } catch (IOException e) {
                 //cancel fetching bytes if e.g. Socket is not available
@@ -79,12 +66,5 @@ public class StandardFetcher extends AResponseFetcher {
             }
         }
 
-    }
-
-    /**
-     * Stop fetching futher bytes from the Socket. Will terminate the thread!
-     */
-    public void stopFetching() {
-        this.fetchBytes = false;
     }
 }
