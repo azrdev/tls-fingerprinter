@@ -100,7 +100,7 @@ public class VaudenayTest implements Observer {
      * @param changeByteArray True if padding should be changed
      * @throws SocketException
      */
-    @Test(enabled = true, dataProvider = "vaudenay")
+    @Test(enabled = false, dataProvider = "vaudenay")
     public final void testVaudenay(String desc, boolean changePadding,
             boolean destroyMAC,
             boolean destroyHash, boolean destroyVerify, boolean changePadLength)

@@ -4,9 +4,9 @@ import de.rub.nds.ssl.stack.tests.workflows.AWorkflow;
 import de.rub.nds.virtualnetworklayer.connection.pcap.FragmentSequence;
 import de.rub.nds.virtualnetworklayer.connection.pcap.PcapConnection;
 import de.rub.nds.virtualnetworklayer.connection.pcap.PcapTrace;
-import de.rub.nds.virtualnetworklayer.packet.PcapPacket;
 import de.rub.nds.virtualnetworklayer.socket.VNLSocket;
 import java.util.List;
+import org.apache.log4j.Logger;
 
 /**
  * Fetches the responses from the socket.
@@ -33,12 +33,14 @@ public class VNLFetcher extends AResponseFetcher {
      */
     @Override
     public void run() {
+        
+Logger logger = Logger.getRootLogger();
         PcapConnection connection = ((VNLSocket) socket).getConnection();
         PcapTrace trace = connection.getTrace();
         List<FragmentSequence> sequences = trace.getFragmentSequences();
         Response response;
         while (continueFetching()) {
-System.out.println("============> Will Elvis leave the building?");
+logger.debug("============> Will Elvis leave the building?");
             try {
                 while (sequences.isEmpty() || !sequences.get(0).isComplete()) {
                     synchronized (connection) {
@@ -49,10 +51,9 @@ System.out.println("============> Will Elvis leave the building?");
                 // TODO silently ignore
             }
 
-System.out.println("===========> Elvis has left the building");
+logger.debug("===========> Elvis has left the building");
 
             //set changed Flag and notify the observer
-System.out.println("I WILL NOTIFY YOUR MOM!");
             this.setChanged();
             response = new Response(trace);
             this.notifyObservers(response);

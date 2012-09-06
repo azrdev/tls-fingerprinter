@@ -54,7 +54,7 @@ public class BleichenbacherTest implements Observer {
     /**
      * Test host.
      */
-    private static final String HOST = "localhost";
+    private static final String HOST = "127.0.0.1";//localhost";
     /**
      * Test port.
      */
@@ -141,7 +141,7 @@ public class BleichenbacherTest implements Observer {
             throws IOException {
         logger.info("++++ Start Test No." + counter + " (" + desc + ") ++++");
         this.counter++;
-        workflow = new TLS10HandshakeWorkflow(false);
+        workflow = new TLS10HandshakeWorkflow(true);
         //connect to test server
         if (TestConfiguration.HOST.isEmpty() || TestConfiguration.PORT == 0) {
             workflow.connectToTestServer(HOST, PORT);

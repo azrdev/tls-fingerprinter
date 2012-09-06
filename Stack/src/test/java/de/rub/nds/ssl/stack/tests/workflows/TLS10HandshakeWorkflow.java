@@ -27,7 +27,6 @@ import java.net.SocketAddress;
 import java.net.SocketException;
 import java.security.DigestException;
 import java.security.NoSuchAlgorithmException;
-import java.sql.Timestamp;
 import java.util.*;
 import org.apache.log4j.Logger;
 
@@ -128,9 +127,13 @@ public final class TLS10HandshakeWorkflow extends AWorkflow {
         try {
             logger.debug(">>> Start TLS handshake");
             setMainThread(Thread.currentThread());
+            logger.debug("before");
             Thread respThread = new Thread(fetcher);
+            logger.debug("before");
             setResponseThread(respThread);
+            logger.debug("before");
             respThread.start();
+            logger.debug("after");
             ARecordFrame record;
             MessageTrace trace;
             MessageBuilder msgBuilder = new MessageBuilder();
@@ -299,7 +302,9 @@ public final class TLS10HandshakeWorkflow extends AWorkflow {
             msg = rec.encode(true);
             trace.setCurrentRecordBytes(msg);
         }
+        logger.debug("about to send");
         utils.sendMessage(out, msg);
+        logger.debug("sent");
         logger.debug("Message in hex: " + Utility.bytesToHex(msg));
     }
 
