@@ -6,6 +6,7 @@
 #include <strings.h>
 #include <unistd.h>
 #include "fau_timer.c"
+#include <netinet/tcp.h>
 
 #define _debug
 
@@ -27,6 +28,16 @@ JNIEXPORT jint JNICALL Java_de_rub_nds_research_timingsocket_TimingSocketImpl_c_
         fflush(stdout);
 #endif
         sock = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
+
+        /*
+         * Disable Nagle's algorithm (RFC 896)
+         */
+        int flag = 1;
+        int result = setsockopt(sock, IPPROTO_TCP, TCP_NODELAY, (char *) &flag, sizeof(int));
+        if (result < 0) {
+                printf("ERROR calling setsockopt");
+                return -1;
+        }
 
 	return sock;
 }
@@ -113,11 +124,11 @@ JNIEXPORT jint JNICALL Java_de_rub_nds_research_timingsocket_TimingSocketImpl_c_
 #endif
         len_sent = write(sock, c_array, len);
         if(start_measurement == 1) {
+                start = get_ticks();
 #ifdef _debug
                 puts("Starting measurement");
                 fflush(stdout);
 #endif
-                start = get_ticks();
         }
 #ifdef _debug
         printf("finished write(), sent %d bytes\n", (int)len_sent);
