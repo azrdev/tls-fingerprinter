@@ -19,14 +19,19 @@ import de.rub.nds.ssl.stack.tests.workflows.TLS10HandshakeWorkflow;
 import de.rub.nds.ssl.stack.tests.workflows.TLS10HandshakeWorkflow.EStates;
 import de.rub.nds.virtualnetworklayer.connection.Connection.Trace;
 import de.rub.nds.virtualnetworklayer.packet.Packet;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import static java.lang.Thread.sleep;
 import java.math.BigInteger;
 import java.security.PublicKey;
 import java.security.interfaces.RSAPublicKey;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Observable;
 import java.util.Observer;
 import javax.crypto.BadPaddingException;
+import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
 import org.testng.annotations.*;
@@ -112,7 +117,7 @@ public class BleichenbacherTimingTest implements Observer {
     /**
      * Number of repetitions.
      */
-    private static final int NUMBER_OF_REPETIIONS = 100;
+    private static final int NUMBER_OF_REPETIIONS = 10000;
     /**
      * Detailed Info print out.
      */
@@ -133,6 +138,7 @@ public class BleichenbacherTimingTest implements Observer {
      * Test counter.
      */
     private int counter = 1;
+    private int timingCounter = 1;
        
     /**
      * Test parameters for the Bleichenbacher Tests.
@@ -141,13 +147,104 @@ public class BleichenbacherTimingTest implements Observer {
      */
     @DataProvider(name = "bleichenbacher")
     public Object[][] createData1() {
-        return new Object[][]{
+        // System.setProperty("javax.net.debug", "all");
+        setUp();
+        if(new File("delays.csv").delete()) {
+            logger.info("delays.csv deleted");
+        } else {
+            logger.info("delays.csv not found");
+        }
+        Object[][] ret = new Object[5000][];
+        
+        for(int i = 0; i < ret.length; i++) {
+            Object temp[];
+            
+            switch(i % 2) {
+                case 0:
+                    temp = new Object[] {
+                            new byte[]{0x09, 0x02},
+                            new byte[]{0x00},
+                            protocolVersionRecord,
+                            false,
+                            SSLTestUtils.POSITIONS.FIRST,
+                            "fa1",
+                            false
+                    };
+                    break;
+                    
+                case 1:
+                    temp = new Object[] {
+                            new byte[]{0x00, 0x02},
+                            new byte[]{0x00},
+                            protocolVersionRecord,
+                            false,
+                            SSLTestUtils.POSITIONS.FIRST,
+                            "ok1",
+                            false
+                    };
+                    break;
+                    
+                case 2:
+                    temp = new Object[] {
+                            new byte[]{0x09, 0x02},
+                            new byte[]{0x00},
+                            protocolVersionRecord,
+                            false,
+                            SSLTestUtils.POSITIONS.FIRST,
+                            "failed2",
+                            false
+                    };
+                    break;
+                    
+                case 3:
+                    temp = new Object[] {
+                            new byte[]{0x00, 0x02},
+                            new byte[]{0x00},
+                            protocolVersionRecord,
+                            false,
+                            SSLTestUtils.POSITIONS.FIRST,
+                            "ok2",
+                            false
+                    };
+                    break;
+                default:
+                    temp = null;
+                    logger.error("This should never happen");
+                    return null;
+            }
+            ret[i] = temp;
+            
+        }
+        return ret;
+        /* {
+                    // failure case
+                    {new byte[]{0x09, 0x02}, new byte[]{0x00},
+                        protocolVersionRecord, false,
+                        SSLTestUtils.POSITIONS.FIRST, "Ignore",
+                        false},
+                    // failure case
+                    {new byte[]{0x09, 0x02}, new byte[]{0x00},
+                        protocolVersionRecord, false,
+                        SSLTestUtils.POSITIONS.FIRST, "FAILED",
+                        false},
                     // ok case
                     {new byte[]{0x00, 0x02}, new byte[]{0x00},
                         protocolVersionRecord, false,
                         SSLTestUtils.POSITIONS.FIRST, "OK",
                         false},
-                    // wrong protocol version in PreMasterSecret
+                    // failure case
+                    {new byte[]{0x09, 0x02}, new byte[]{0x00},
+                        protocolVersionRecord, false,
+                        SSLTestUtils.POSITIONS.FIRST, "FAILED",
+                        false},
+                    // ok case
+                    {new byte[]{0x00, 0x02}, new byte[]{0x00},
+                        protocolVersionRecord, false,
+                        SSLTestUtils.POSITIONS.FIRST, "OK",
+                        false}
+                    
+                
+                   // wrong protocol version in PreMasterSecret
                     {new byte[]{0x00, 0x02}, new byte[]{0x00},
                         EProtocolVersion.SSL_3_0, false,
                         SSLTestUtils.POSITIONS.FIRST,
@@ -227,7 +324,8 @@ public class BleichenbacherTimingTest implements Observer {
                         SSLTestUtils.POSITIONS.LAST,
                         "Zero byte at the end of the padding string, "
                         + "MAC tampered", true}
-                };
+                };*/
+        
     }
 
     /**
@@ -241,11 +339,12 @@ public class BleichenbacherTimingTest implements Observer {
      * @param desc Test description
      * @param tamperMAC Destroy Finished MAC of RecordFrame
      */
-    @Test(enabled = false, dataProvider = "bleichenbacher")
+    @Test(enabled = true, dataProvider = "bleichenbacher")
     public final void testBleichenbacherPossible(final byte[] mode,
             final byte[] separate, final EProtocolVersion version,
             final boolean changePadding, final SSLTestUtils.POSITIONS position,
             final String desc, boolean tamperMAC) {
+        logger.setLevel(Level.INFO);
         this.pkcsMode = mode.clone();
         this.separateByte = separate.clone();
         this.protocolVersionPMS = version;
@@ -255,32 +354,31 @@ public class BleichenbacherTimingTest implements Observer {
         boolean canceled = false;
         
         logger.info("++++ Start Test No." + counter + " (" + desc + ") ++++");
-        logger.info("Test repeated: " + NUMBER_OF_REPETIIONS + " times");
-        logger.info("Time measurement: Time between CLIENT_KEY_EXCHANGE and "
-                + "SERVER_CHANGE_CIPHER_SPEC or ALERT");
         try {
-            for (int i = 0; i < NUMBER_OF_REPETIIONS; i++) {
-                workflow = new TLS10HandshakeWorkflow(ACCURATE_TIMING);
-                workflow.connectToTestServer(HOST, PORT);
-                workflow.addObserver(this, EStates.CLIENT_HELLO);
-                workflow.addObserver(this, EStates.CLIENT_KEY_EXCHANGE);
-                workflow.addObserver(this, EStates.CLIENT_FINISHED);
-                workflow.start();
+            // workflow = new TLS10HandshakeWorkflow(ACCURATE_TIMING);
+            workflow = new TLS10HandshakeWorkflow(false);
+            workflow.connectToTestServer(HOST, PORT);
+            workflow.addObserver(this, EStates.CLIENT_HELLO);
+            workflow.addObserver(this, EStates.CLIENT_KEY_EXCHANGE);
+            workflow.addObserver(this, EStates.CLIENT_FINISHED);
+            workflow.start();
 
-                delays[i] = analyzeTrace(workflow.getTraceList());
-                workflow.closeSocket();
-            }
+            delays[0] = analyzeTrace(workflow.getTraceList());
+            workflow.closeSocket();
         } catch (Exception e) {
+            logger.error("################## custom failed");
             e.printStackTrace();
         }
-
-        Long averagedTime = doStatistics(delays);
-        if (canceled) {
-            logger.info("Averaged time (ns): " + "computation not possible");
-        } else {
-            logger.info("Averaged time (ns): " + averagedTime.toString());
+        try {
+            // logger.info("Writing timings to file");
+            FileWriter fw = new FileWriter("delays.csv", true);
+            fw.write(timingCounter + ";" + desc + ";" + delays[0] + "\n");
+            timingCounter += 1;
+            fw.close();
+        } catch (IOException ex) {
+            java.util.logging.Logger.getLogger(BleichenbacherTimingTest.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
-        logger.info("------------------------------");
+
         this.counter++;
     }
 
@@ -403,7 +501,7 @@ public class BleichenbacherTimingTest implements Observer {
     /**
      * Close the Socket after the test run.
      */
-    @AfterMethod
+    //@AfterMethod
     public final void tearDown() {
         try {
             if (sslServer != null) {
@@ -426,10 +524,11 @@ public class BleichenbacherTimingTest implements Observer {
     /**
      * Start the target SSL Server.
      */
-    @BeforeMethod
+    //@BeforeMethod
     public final void setUp() {
         try {
 //            System.setProperty("javax.net.debug", "ssl");
+            logger.info("Starting SSL Server");
             sslServer = new SSLServer(PATH_TO_JKS, JKS_PASSWORD,
                     protocolShortName, PORT, PRINT_INFO);
             sslServerThread = new Thread(sslServer);
@@ -451,41 +550,24 @@ public class BleichenbacherTimingTest implements Observer {
         Long timestamp = 0L;
         Long overall = -1L;
 
+        boolean started = false;
         for (MessageTrace trace : traces) {
             if (trace.getState() != null) {
                 timestamp = trace.getNanoTime();
 
-                switch (trace.getState()) {
-                    case CLIENT_KEY_EXCHANGE:
-                        delay = timestamp;
-                        break;
-                    case SERVER_CHANGE_CIPHER_SPEC:
-                        overall = timestamp - delay;
-                        break;
-                    case ALERT:
-                        overall = timestamp - delay;
-                        break;
-                    default:
-                        break;
+                if(trace.getState() == EStates.CLIENT_KEY_EXCHANGE) {
+                    delay = timestamp;
+                    started = true;
+                } else if(started) {
+                    overall = timestamp - delay;
+                    return overall;
                 }
+            } else {
+                logger.error("race.getState() == null");
             }
         }
-        return overall;
-    }
-
-    /**
-     * Computes the arithmetic mean on a set of delay values.
-     *
-     * @param delayValues Delays
-     * @return Arithmetic mean of given delays.
-     */
-    private static long doStatistics(final long[] delayValues) {
-        long overall = 0L;
-        for (long delay : delayValues) {
-            overall += delay;
-        }
-        overall /= delayValues.length;
-
-        return overall;
+        logger.error("Did not receive the expected states in the trace.");
+         
+        return -1;
     }
 }
