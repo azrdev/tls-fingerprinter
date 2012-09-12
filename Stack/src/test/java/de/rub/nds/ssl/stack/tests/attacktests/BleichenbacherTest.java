@@ -141,7 +141,7 @@ public class BleichenbacherTest implements Observer {
             throws IOException {
         logger.info("++++ Start Test No." + counter + " (" + desc + ") ++++");
         this.counter++;
-        workflow = new TLS10HandshakeWorkflow(true);
+        workflow = new TLS10HandshakeWorkflow(false);
         //connect to test server
         if (TestConfiguration.HOST.isEmpty() || TestConfiguration.PORT == 0) {
             workflow.connectToTestServer(HOST, PORT);
@@ -291,7 +291,7 @@ public class BleichenbacherTest implements Observer {
      */
     @BeforeMethod
     public void setUp() {
-//        System.setProperty("javax.net.debug", "all");
+        System.setProperty("javax.net.debug", "all");
         serverHandler.startTestServer();
     }
 
