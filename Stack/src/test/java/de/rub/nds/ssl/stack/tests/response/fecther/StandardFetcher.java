@@ -50,6 +50,7 @@ public class StandardFetcher extends AResponseFetcher {
             try {
                 socket.setSoTimeout(10000);
                 dis.readFully(header);
+                long time = System.nanoTime();
                 //Determine the length of the frame
                 int length = (header[3] & 0xff) << 8 | (header[4] & 0xff);
                 byte[] answer = new byte[length + header.length];
@@ -57,7 +58,7 @@ public class StandardFetcher extends AResponseFetcher {
                 dis.readFully(answer, header.length, length);
                 //set changed Flag and notify the observer
                 this.setChanged();
-                response = new Response(answer, System.nanoTime());
+                response = new Response(answer, time);
                 this.notifyObservers(response);
                 workflow.wakeUp();
             } catch (IOException e) {
