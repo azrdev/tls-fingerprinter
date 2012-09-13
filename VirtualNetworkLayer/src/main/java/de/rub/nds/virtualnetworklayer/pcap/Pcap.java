@@ -429,7 +429,10 @@ public class Pcap {
 
         try {
             InetAddress localhost = InetAddress.getLocalHost();
-            if (!localhost.isLinkLocalAddress()) {
+            /*
+             * Skip the loopback device
+             */
+            if (!localhost.isLinkLocalAddress() && !localhost.isLoopbackAddress()) {
                 byte[] address = Util.toAddress(localhost);
 
                 for (Device device : getDevices()) {
