@@ -113,22 +113,35 @@ class VNLSocketImpl extends SocketImpl {
 
     @Override
     protected InputStream getInputStream() throws IOException {
+        if(connection == null) {
+            throw new IOException("No connection available ( == null).");
+        }
         return new VNLInputStream(connection);
     }
 
     @Override
     protected OutputStream getOutputStream() throws IOException {
+        if(connection == null) {
+            throw new IOException("No connection available ( == null).");
+        }
         return new VNLOutputStream(connection);
     }
 
     @Override
     protected int available() throws IOException {
-        return connection.available();
+        int result = -1;
+        if(connection != null) {
+            result = connection.available();
+        }
+        
+        return result;
     }
 
     @Override
     protected void close() throws IOException {
-        connection.close();
+        if(connection != null) {
+            connection.close();
+        }
     }
 
     @Override
