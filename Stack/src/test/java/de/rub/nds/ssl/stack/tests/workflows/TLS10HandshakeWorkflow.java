@@ -47,7 +47,7 @@ public final class TLS10HandshakeWorkflow extends AWorkflow {
     private PreMasterSecret pms = null;
     private byte[] handshakeHashes = null;
     private boolean encrypted = false;
-    private boolean vnlEnabled = false;
+    private boolean vnlEnabled = true;
     private final static Logger logger = Logger.getRootLogger();
     private HandshakeHashBuilder hashBuilder = null;
     private AResponseFetcher fetcher = null;

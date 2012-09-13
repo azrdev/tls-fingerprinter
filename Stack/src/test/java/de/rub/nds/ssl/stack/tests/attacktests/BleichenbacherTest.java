@@ -54,11 +54,11 @@ public class BleichenbacherTest implements Observer {
     /**
      * Test host.
      */
-    private static final String HOST = "127.0.0.1";//localhost";
+    private static final String HOST = "www.google.de";//localhost";
     /**
      * Test port.
      */
-    private static final int PORT = 10443;
+    private static final int PORT = 443;
     /**
      * Test counter.
      */
@@ -88,38 +88,38 @@ public class BleichenbacherTest implements Observer {
                         new byte[]{0x00, 0x02}, new byte[]{0x00},
                         protocolVersion.getId(), false,
                         SSLTestUtils.POSITIONS.FIRST, 0},
-                    {"Wrong protocol version in PreMasterSecret",
-                        new byte[]{0x00, 0x02}, new byte[]{0x00},
-                        EProtocolVersion.SSL_3_0.getId(), false,
-                        SSLTestUtils.POSITIONS.FIRST, 0},
-                    {"Invalid protocol version in PreMasterSecret",
-                        new byte[]{0x00, 0x02}, new byte[]{0x00},
-                        new byte[]{(byte) 0xff, (byte) 0xff}, false,
-                        SSLTestUtils.POSITIONS.FIRST, 0},
-                    {"Separate byte not 0x00",
-                        new byte[]{0x00, 0x02}, new byte[]{0x01},
-                        protocolVersion.getId(), false,
-                        SSLTestUtils.POSITIONS.FIRST, 0},
-                    {"Mode changed (first two bytes)",
-                        new byte[]{0x00, 0x01}, new byte[]{0x00},
-                        protocolVersion.getId(), false,
-                        SSLTestUtils.POSITIONS.FIRST, 0},
-                    {"Zero byte at first position in padding",
-                        new byte[]{0x00, 0x02}, new byte[]{0x00},
-                        protocolVersion.getId(), true,
-                        SSLTestUtils.POSITIONS.FIRST, 0},
-                    {"Zero byte in the middle of the padding string",
-                        new byte[]{0x00, 0x02}, new byte[]{0x00},
-                        protocolVersion.getId(), true,
-                        SSLTestUtils.POSITIONS.MIDDLE, 0},
-                    {"Zero byte at the end of the padding string",
-                        new byte[]{0x00, 0x02}, new byte[]{0x00},
-                        protocolVersion.getId(), true,
-                        SSLTestUtils.POSITIONS.LAST, 0},
-                    {"Zero byte at custom position of the padding string",
-                        new byte[]{0x00, 0x02}, new byte[]{0x00},
-                        protocolVersion.getId(), true,
-                        null, 5}
+//                    {"Wrong protocol version in PreMasterSecret",
+//                        new byte[]{0x00, 0x02}, new byte[]{0x00},
+//                        EProtocolVersion.SSL_3_0.getId(), false,
+//                        SSLTestUtils.POSITIONS.FIRST, 0},
+//                    {"Invalid protocol version in PreMasterSecret",
+//                        new byte[]{0x00, 0x02}, new byte[]{0x00},
+//                        new byte[]{(byte) 0xff, (byte) 0xff}, false,
+//                        SSLTestUtils.POSITIONS.FIRST, 0},
+//                    {"Separate byte not 0x00",
+//                        new byte[]{0x00, 0x02}, new byte[]{0x01},
+//                        protocolVersion.getId(), false,
+//                        SSLTestUtils.POSITIONS.FIRST, 0},
+//                    {"Mode changed (first two bytes)",
+//                        new byte[]{0x00, 0x01}, new byte[]{0x00},
+//                        protocolVersion.getId(), false,
+//                        SSLTestUtils.POSITIONS.FIRST, 0},
+//                    {"Zero byte at first position in padding",
+//                        new byte[]{0x00, 0x02}, new byte[]{0x00},
+//                        protocolVersion.getId(), true,
+//                        SSLTestUtils.POSITIONS.FIRST, 0},
+//                    {"Zero byte in the middle of the padding string",
+//                        new byte[]{0x00, 0x02}, new byte[]{0x00},
+//                        protocolVersion.getId(), true,
+//                        SSLTestUtils.POSITIONS.MIDDLE, 0},
+//                    {"Zero byte at the end of the padding string",
+//                        new byte[]{0x00, 0x02}, new byte[]{0x00},
+//                        protocolVersion.getId(), true,
+//                        SSLTestUtils.POSITIONS.LAST, 0},
+//                    {"Zero byte at custom position of the padding string",
+//                        new byte[]{0x00, 0x02}, new byte[]{0x00},
+//                        protocolVersion.getId(), true,
+//                        null, 5}
         };
     }
 
@@ -141,7 +141,8 @@ public class BleichenbacherTest implements Observer {
             throws IOException {
         logger.info("++++ Start Test No." + counter + " (" + desc + ") ++++");
         this.counter++;
-        workflow = new TLS10HandshakeWorkflow(false);
+        workflow = new TLS10HandshakeWorkflow(true);
+        //workflow = new TLS10HandshakeWorkflow(false);
         //connect to test server
         if (TestConfiguration.HOST.isEmpty() || TestConfiguration.PORT == 0) {
             workflow.connectToTestServer(HOST, PORT);
