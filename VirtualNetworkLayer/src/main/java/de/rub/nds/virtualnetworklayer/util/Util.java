@@ -1,15 +1,13 @@
 package de.rub.nds.virtualnetworklayer.util;
 
-import de.rub.nds.virtualnetworklayer.packet.header.transport.TcpHeader;
-
 import java.io.BufferedReader;
-import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.InetAddress;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.util.List;
-import java.util.StringTokenizer;
+
+import de.rub.nds.virtualnetworklayer.packet.header.transport.TcpHeader;
 
 /**
  * Utility class
@@ -85,25 +83,18 @@ public class Util {
     public static String getDefaultRoute() {
 
         try {
-            Process result = Runtime.getRuntime().exec("netstat -rn");
+        	/**
+        	 * This will get the device that routes to 8.8.8.8, which is hopefully
+        	 * the device with the default route.
+        	 */
+            Process result = Runtime.getRuntime().exec("sh -c \"ip -4 route get  8.8.8.8 | head -n 1 | perl -pe 's/.*dev (\\S+)\\s*.*/\\$1/'\"");
 
             BufferedReader reader = new BufferedReader(new InputStreamReader(result.getInputStream()));
 
-            String line;
-            while ((line = reader.readLine()) != null) {
-                if (line.startsWith("default")) {
-                    StringTokenizer tokenizer = new StringTokenizer(line);
-                    tokenizer.nextToken();
-                    tokenizer.nextToken();
-                    tokenizer.nextToken();
-                    tokenizer.nextToken();
-                    tokenizer.nextToken();
+            String route = reader.readLine().trim();
+            return route;
 
-                    return tokenizer.nextToken();
-                }
-            }
-
-        } catch (IOException e) {
+        } catch (Exception e) {
 
         }
 
