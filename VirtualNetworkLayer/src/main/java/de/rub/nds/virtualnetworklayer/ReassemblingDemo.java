@@ -3,6 +3,7 @@ package de.rub.nds.virtualnetworklayer;
 import de.rub.nds.virtualnetworklayer.connection.pcap.ConnectionHandler;
 import de.rub.nds.virtualnetworklayer.connection.pcap.FragmentSequence;
 import de.rub.nds.virtualnetworklayer.connection.pcap.PcapConnection;
+import de.rub.nds.virtualnetworklayer.connection.pcap.PcapTrace;
 import de.rub.nds.virtualnetworklayer.connection.pcap.ReassembledPacket;
 import de.rub.nds.virtualnetworklayer.p0f.P0fFile;
 import de.rub.nds.virtualnetworklayer.packet.PcapPacket;
@@ -44,6 +45,7 @@ public class ReassemblingDemo {
 
         //open pcap on local live device
         Pcap pcap = Pcap.openLive();
+        
 
         //simple connection handler, saves first connection on port 443 and prints sessions
         pcap.loopAsynchronous(new ConnectionHandler() {
@@ -62,7 +64,8 @@ public class ReassemblingDemo {
         socket.getOutputStream().write(request.getBytes());
 
         //wait for certificate (1st fragment sequence)
-        List<FragmentSequence> sequences = sslConnection.getTrace().getFragmentSequences();
+        PcapTrace trace = sslConnection.getTrace();
+        List<FragmentSequence> sequences = trace.getFragmentSequences();
         while (sequences.size() == 0 || !sequences.get(0).isComplete()) {
             synchronized (sslConnection) {
                 sslConnection.wait();
