@@ -104,7 +104,10 @@ public class PcapConnection implements Connection {
             socket.connect(remoteSocketAddress, timeout);
         } catch (IOException e) {
             pcap.close();
-
+            System.err.println("Failed to connect to: " + remoteSocketAddress.toString());
+            System.err.println("Local address was: " + localSocketAddress.toString());
+            System.err.println("Device was: " + device);
+            e.printStackTrace();
             throw e;
         }
 //System.out.println("IN");
