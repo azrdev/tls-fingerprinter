@@ -46,7 +46,7 @@ public class PcapConnection implements Connection {
      */
     public static PcapConnection create(String host, int port) throws IOException {
         String device = IpFormatter.toString(Pcap.getLiveDevice().getAddress(Family.Category.Ip4));
-
+        
         return create(host, port, device);
     }
 
@@ -80,7 +80,7 @@ public class PcapConnection implements Connection {
 
     private static PcapConnection attachSocket(InetSocketAddress remoteSocketAddress, String device, int timeout) throws IOException {
         int port = findFreePort();
-
+        
         InetSocketAddress localSocketAddress = new InetSocketAddress(device, port);
         Socket socket = new Socket();
         if (!device.equals("0.0.0.0")) {
@@ -110,10 +110,11 @@ public class PcapConnection implements Connection {
             e.printStackTrace();
             throw e;
         }
-//System.out.println("IN");
+        
         synchronized (connection) {
             try {
                 while (connection.trace.size() < 3) {
+                    // TODO deadlocked
                     connection.wait();
                 }
             } catch (InterruptedException e) {
@@ -121,7 +122,6 @@ public class PcapConnection implements Connection {
             }
         }
 
-//System.out.println("OUT");
         return connection;
     }
 
@@ -196,6 +196,7 @@ public class PcapConnection implements Connection {
         synchronized (this) {
             while ((next = trace.getNextPosition(lastPacketPosition, Packet.Direction.Request)) == lastPacketPosition) {
                 try {
+                    // TODO deadlocked
                     this.wait();
                 } catch (InterruptedException e) {
                     break;

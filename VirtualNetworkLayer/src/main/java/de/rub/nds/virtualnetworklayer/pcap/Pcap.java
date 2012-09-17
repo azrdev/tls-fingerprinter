@@ -259,7 +259,7 @@ public class Pcap {
         if (liveDevice == null) {
             throw new IllegalArgumentException("no live device found");
         }
-
+        
         return openLive(liveDevice);
     }
 
@@ -467,7 +467,7 @@ public class Pcap {
      */
     public static Device getDefaultDevice() {
         String name = PcapLibrary.pcap_lookupdev(errbuf).getCString();
-
+        
         for (Device device : getDevices()) {
             if (device.getName().equals(name)) {
                 return device;
