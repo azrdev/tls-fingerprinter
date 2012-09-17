@@ -1,0 +1,144 @@
+package de.rub.nds.ssl.stack.tests.attacks.bleichenbacher.oracles;
+
+import de.rub.nds.ssl.stack.protocols.commons.ECipherSuite;
+import de.rub.nds.ssl.stack.protocols.commons.EProtocolVersion;
+import de.rub.nds.ssl.stack.protocols.commons.KeyExchangeParams;
+import de.rub.nds.ssl.stack.protocols.handshake.ClientHello;
+import de.rub.nds.ssl.stack.protocols.handshake.ClientKeyExchange;
+import de.rub.nds.ssl.stack.protocols.handshake.datatypes.CipherSuites;
+import de.rub.nds.ssl.stack.protocols.handshake.datatypes.EncPreMasterSecret;
+import de.rub.nds.ssl.stack.protocols.handshake.datatypes.PreMasterSecret;
+import de.rub.nds.ssl.stack.protocols.handshake.datatypes.RandomValue;
+import de.rub.nds.ssl.stack.tests.attacks.bleichenbacher.exceptions.OracleException;
+import de.rub.nds.ssl.stack.tests.common.MessageBuilder;
+import de.rub.nds.ssl.stack.tests.workflows.TLS10HandshakeWorkflow;
+import de.rub.nds.ssl.stack.tests.trace.MessageTrace;
+import de.rub.nds.ssl.stack.tests.workflows.ObservableBridge;
+import java.net.SocketException;
+import java.security.PublicKey;
+import java.util.List;
+import java.util.Observable;
+
+/**
+ *
+ * @author Christopher Meyer - christopher.meyer@rub.de
+ * @author Juraj Somorovsky - juraj.somorovsky@rub.de
+ * @version 0.1
+ *
+ * September 14, 2012
+ */
+public abstract class ATimingOracle extends ASSLServerOracle {
+
+    /**
+     * Constructor
+     *
+     * @param serverAddress
+     * @param serverPort
+     * @throws SocketException
+     */
+    public ATimingOracle(final String serverAddress, final int serverPort)
+            throws SocketException {
+        super(serverAddress, serverPort);
+    }
+
+    /**
+     * Tries to train an Oracle with two different requests (e.g. valid and
+     * invalid PKCS1 ciphertext) and their response times
+     *
+     * @param firstRequest
+     * @param secondRequest
+     * @throws OracleException if training gets impossible
+     */
+    public abstract void trainOracle(final byte[] firstRequest, final byte[] secondRequest) throws OracleException;
+
+    /**
+     * Update observed object.
+     *
+     * @param o Observed object
+     * @param arg Arguments
+     */
+    @Override
+    public final void update(final Observable o, final Object arg) {
+        TLS10HandshakeWorkflow.EStates states = null;
+        MessageTrace trace = null;
+        ObservableBridge obs;
+        if (o instanceof ObservableBridge) {
+            obs = (ObservableBridge) o;
+            states = (TLS10HandshakeWorkflow.EStates) obs.getState();
+            trace = (MessageTrace) arg;
+        }
+        if (states != null) {
+            switch (states) {
+                case CLIENT_HELLO:
+                    MessageBuilder builder = new MessageBuilder();
+                    CipherSuites suites = new CipherSuites();
+                    RandomValue random = new RandomValue();
+                    suites.setSuites(new ECipherSuite[]{
+                                ECipherSuite.TLS_RSA_WITH_AES_128_CBC_SHA});
+                    ClientHello clientHello = builder.createClientHello(
+                            EProtocolVersion.TLS_1_0.getId(), random.encode(
+                            false),
+                            suites.encode(false), new byte[]{0x00});
+
+                    trace.setCurrentRecord(clientHello);
+                    break;
+                case CLIENT_KEY_EXCHANGE:
+                    KeyExchangeParams keyParams =
+                            KeyExchangeParams.getInstance();
+                    PublicKey pk = keyParams.getPublicKey();
+                    ClientKeyExchange cke = new ClientKeyExchange(
+                            protocolVersion,
+                            keyParams.getKeyExchangeAlgorithm());
+                    PreMasterSecret pms = new PreMasterSecret(protocolVersion);
+                    workflow.setPreMasterSecret(pms);
+                    pms.setProtocolVersion(protocolVersion);
+
+                    //encrypt the PreMasterSecret
+                    EncPreMasterSecret encPMS =
+                            new EncPreMasterSecret(pk);
+                    encPMS.setEncryptedPreMasterSecret(encPMStoCheck);
+                    cke.setExchangeKeys(encPMS);
+
+                    trace.setCurrentRecord(cke);
+                    break;
+                default:
+                    break;
+            }
+        }
+    }
+
+    /**
+     * Analyzes a given MessageTrace list and computes timing delay between
+     * Client key exchange and server change cipher spec or Client key exchange
+     * and alert
+     *
+     * @param traces MessageTrace list
+     * @return Timing delay.
+     */
+    long getTimeDelay(final List<MessageTrace> traces) {
+        Long delay = 0L;
+        Long timestamp = 0L;
+        Long overall = -1L;
+
+        for (MessageTrace trace : traces) {
+            if (trace.getState() != null) {
+                timestamp = trace.getNanoTime();
+
+                switch (trace.getState()) {
+                    case CLIENT_KEY_EXCHANGE:
+                        delay = timestamp;
+                        break;
+                    case SERVER_CHANGE_CIPHER_SPEC:
+                        overall = timestamp - delay;
+                        break;
+                    case ALERT:
+                        overall = timestamp - delay;
+                        break;
+                    default:
+                        break;
+                }
+            }
+        }
+        return overall;
+    }
+}

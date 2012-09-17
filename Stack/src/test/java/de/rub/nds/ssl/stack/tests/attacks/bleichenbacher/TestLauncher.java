@@ -1,5 +1,6 @@
 package de.rub.nds.ssl.stack.tests.attacks.bleichenbacher;
 
+import de.rub.nds.ssl.stack.tests.attacks.bleichenbacher.exceptions.OracleException;
 import de.rub.nds.ssl.stack.tests.attacks.bleichenbacher.oracles.AOracle;
 import de.rub.nds.ssl.stack.tests.attacks.bleichenbacher.oracles.ATestOracle;
 import de.rub.nds.ssl.stack.tests.attacks.bleichenbacher.oracles.StandardOracle;
@@ -91,7 +92,7 @@ public class TestLauncher {
             NoSuchPaddingException, InvalidKeyException,
             IllegalBlockSizeException, BadPaddingException, SSLException,
             KeyStoreException, FileNotFoundException, IOException,
-            CertificateException {
+            CertificateException, OracleException {
 //        byte[] plainBytes = "Decrypt me".getBytes();
 //        byte[] cipherBytes;
 //

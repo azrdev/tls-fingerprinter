@@ -1,5 +1,6 @@
 package de.rub.nds.ssl.stack.tests.attacks.bleichenbacher.oracles;
 
+import de.rub.nds.ssl.stack.tests.attacks.bleichenbacher.exceptions.OracleException;
 import java.security.PublicKey;
 import java.security.interfaces.RSAPublicKey;
 
@@ -84,7 +85,8 @@ public abstract class AOracle {
      * @param msg Encrypted message to check for conformity
      * @return True if PKCS conforming, else false
      */
-    public abstract boolean checkPKCSConformity(final byte[] msg);
+    public abstract boolean checkPKCSConformity(final byte[] msg) throws 
+            OracleException;
 
     /**
      * Returns true if the oracle is a plaintext oracle (does not decrypt the

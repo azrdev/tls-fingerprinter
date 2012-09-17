@@ -1,6 +1,7 @@
 package de.rub.nds.ssl.stack.tests.attacks.bleichenbacher;
 
 import de.rub.nds.ssl.stack.Utility;
+import de.rub.nds.ssl.stack.tests.attacks.bleichenbacher.exceptions.OracleException;
 import de.rub.nds.ssl.stack.tests.attacks.bleichenbacher.oracles.AOracle;
 import java.math.BigInteger;
 import java.security.interfaces.RSAPublicKey;
@@ -59,7 +60,7 @@ public class BleichenbacherAttack {
         //System.out.println("our goal: " + new BigInteger(decryptedMsg));
     }
 
-    public void attack() {
+    public void attack() throws OracleException {
         int i = 0;
         boolean solutionFound = false;
 
@@ -96,7 +97,7 @@ public class BleichenbacherAttack {
         }
     }
 
-    protected void stepOne() {
+    protected void stepOne() throws OracleException {
         BigInteger n = publicKey.getModulus();
         BigInteger ciphered = new BigInteger(1, encryptedMsg);
 
@@ -123,13 +124,13 @@ public class BleichenbacherAttack {
     }
 
     /** extensions for feature attacks handled in the derived classes*/
-    protected void stepOneB() {
+    protected void stepOneB() throws OracleException {
     }
 
-    protected void stepOneC() {
+    protected void stepOneC() throws OracleException {
     }
 
-    protected void stepTwo(final int i) {
+    protected void stepTwo(final int i) throws OracleException {
         byte[] send;
         boolean pkcsConform = false;
         BigInteger n = publicKey.getModulus();
@@ -147,7 +148,7 @@ public class BleichenbacherAttack {
         logger.info(" Found s" + i + ": " + si);
     }
 
-    private void stepTwoA() {
+    private void stepTwoA() throws OracleException {
         byte[] send;
         boolean pkcsConform = false;
         BigInteger n = publicKey.getModulus();
@@ -174,7 +175,7 @@ public class BleichenbacherAttack {
         } while (!pkcsConform);
     }
 
-    private void stepTwoB() {
+    private void stepTwoB() throws OracleException {
         byte[] send;
         boolean pkcsConform = false;
 
@@ -190,7 +191,7 @@ public class BleichenbacherAttack {
         } while (!pkcsConform);
     }
 
-    protected void stepTwoC() {
+    protected void stepTwoC() throws OracleException {
         byte[] send;
         boolean pkcsConform = false;
         BigInteger n = publicKey.getModulus();
