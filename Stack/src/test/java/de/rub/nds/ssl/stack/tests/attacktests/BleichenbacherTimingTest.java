@@ -14,11 +14,10 @@ import de.rub.nds.ssl.stack.tests.common.MessageBuilder;
 import de.rub.nds.ssl.stack.tests.common.SSLServer;
 import de.rub.nds.ssl.stack.tests.common.SSLTestUtils;
 import de.rub.nds.ssl.stack.tests.trace.MessageTrace;
+import de.rub.nds.ssl.stack.tests.workflows.ESupportedSockets;
 import de.rub.nds.ssl.stack.tests.workflows.ObservableBridge;
 import de.rub.nds.ssl.stack.tests.workflows.TLS10HandshakeWorkflow;
 import de.rub.nds.ssl.stack.tests.workflows.TLS10HandshakeWorkflow.EStates;
-import de.rub.nds.virtualnetworklayer.connection.Connection.Trace;
-import de.rub.nds.virtualnetworklayer.packet.Packet;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -26,7 +25,6 @@ import static java.lang.Thread.sleep;
 import java.math.BigInteger;
 import java.security.PublicKey;
 import java.security.interfaces.RSAPublicKey;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Observable;
 import java.util.Observer;
@@ -126,10 +124,6 @@ public class BleichenbacherTimingTest implements Observer {
      * Flags if MAC should be invalidated
      */
     private boolean destroyMAC = false;
-    /**
-     * Flags if the VNLSocket for accurate timing should be used
-     */
-    private static final boolean ACCURATE_TIMING = false;
     /**
      * Initialize the log4j logger.
      */
@@ -339,7 +333,7 @@ public class BleichenbacherTimingTest implements Observer {
      * @param desc Test description
      * @param tamperMAC Destroy Finished MAC of RecordFrame
      */
-    @Test(enabled = true, dataProvider = "bleichenbacher")
+    @Test(enabled = false, dataProvider = "bleichenbacher")
     public final void testBleichenbacherPossible(final byte[] mode,
             final byte[] separate, final EProtocolVersion version,
             final boolean changePadding, final SSLTestUtils.POSITIONS position,
@@ -355,8 +349,7 @@ public class BleichenbacherTimingTest implements Observer {
         
         logger.info("++++ Start Test No." + counter + " (" + desc + ") ++++");
         try {
-            // workflow = new TLS10HandshakeWorkflow(ACCURATE_TIMING);
-            workflow = new TLS10HandshakeWorkflow(false);
+            workflow = new TLS10HandshakeWorkflow(ESupportedSockets.TimingSocket);
             workflow.connectToTestServer(HOST, PORT);
             workflow.addObserver(this, EStates.CLIENT_HELLO);
             workflow.addObserver(this, EStates.CLIENT_KEY_EXCHANGE);

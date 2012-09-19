@@ -1,5 +1,6 @@
 package de.rub.nds.ssl.stack.tests.workflows;
 
+import de.rub.nds.research.timingsocket.TimingSocket;
 import de.rub.nds.ssl.stack.Utility;
 import de.rub.nds.ssl.stack.protocols.ARecordFrame;
 import de.rub.nds.ssl.stack.protocols.commons.EConnectionEnd;
@@ -47,11 +48,10 @@ public final class TLS10HandshakeWorkflow extends AWorkflow {
     private PreMasterSecret pms = null;
     private byte[] handshakeHashes = null;
     private boolean encrypted = false;
-    private boolean vnlEnabled = true;
     private final static Logger logger = Logger.getRootLogger();
     private HandshakeHashBuilder hashBuilder = null;
     private AResponseFetcher fetcher = null;
-    
+
     /**
      * Define the workflow states.
      */
@@ -87,36 +87,43 @@ public final class TLS10HandshakeWorkflow extends AWorkflow {
      * Public constructor to initialize the workflow with its states.
      *
      * @param workflowStates The SSL handshake states
-     * @param enableVNL Enable the virtual network layer
+     * @param socketType Socket type to be used
      */
-    public TLS10HandshakeWorkflow(WorkflowState[] workflowStates,
-            boolean enableVNL) throws SocketException {
+    public TLS10HandshakeWorkflow(final WorkflowState[] workflowStates,
+            final ESupportedSockets socketType) throws SocketException {
         super(workflowStates);
-        vnlEnabled = enableVNL;
 
-        if (vnlEnabled) {
-            so = new VNLSocket();
-            fetcher = new VNLFetcher((VNLSocket) so, this);
-        } else {
-            so = new Socket();
-            fetcher = new StandardFetcher(so, this);
+        switch (socketType) {
+            case StandardSocket:
+                so = new Socket();
+                fetcher = new StandardFetcher(so, this);
+                break;
+            case TimingSocket:
+                so = new TimingSocket();
+                fetcher = new StandardFetcher(so, this);
+                break;
+            case VNLSocket:
+                so = new VNLSocket();
+                fetcher = new VNLFetcher((VNLSocket) so, this);
+                break;
         }
     }
 
     /**
      * Public constructor to initialize the workflow with its states.
      *
-     * @param enableTiming Enable time measurement capabilities
+     * @param socketType Socket type to be used
      */
-    public TLS10HandshakeWorkflow(boolean enableTiming) throws SocketException {
-        this(EStates.values(), enableTiming);
+    public TLS10HandshakeWorkflow(final ESupportedSockets socketType) throws
+            SocketException {
+        this(EStates.values(), socketType);
     }
 
     /**
      * Initialize the handshake workflow with the state values
      */
     public TLS10HandshakeWorkflow() throws SocketException {
-        this(EStates.values(), false);
+        this(EStates.values(), ESupportedSockets.StandardSocket);
     }
 
     /**
@@ -127,13 +134,9 @@ public final class TLS10HandshakeWorkflow extends AWorkflow {
         try {
             logger.debug(">>> Start TLS handshake");
             setMainThread(Thread.currentThread());
-            logger.debug("before");
             Thread respThread = new Thread(fetcher);
-            logger.debug("before");
             setResponseThread(respThread);
-            logger.debug("before");
             respThread.start();
-            logger.debug("after");
             ARecordFrame record;
             MessageTrace trace;
             MessageBuilder msgBuilder = new MessageBuilder();
@@ -198,7 +201,8 @@ public final class TLS10HandshakeWorkflow extends AWorkflow {
             // switch to encrypted mode
             encrypted = true;
             // add trace to ArrayList
-            addToTraceList(new MessageTrace(EStates.CLIENT_CHANGE_CIPHER_SPEC, trace.
+            addToTraceList(new MessageTrace(EStates.CLIENT_CHANGE_CIPHER_SPEC,
+                    trace.
                     getCurrentRecord(),
                     trace.getOldRecord(), false));
 
@@ -238,8 +242,8 @@ public final class TLS10HandshakeWorkflow extends AWorkflow {
     }
 
     /**
-     * Poll the current state each 100 millis if the passed state is 
-     * reached yet.
+     * Poll the current state each 100 millis if the passed state is reached
+     * yet.
      *
      * @param desiredState State to wait for
      */
@@ -358,7 +362,7 @@ public final class TLS10HandshakeWorkflow extends AWorkflow {
      * @return True if time measurement is enabled.
      */
     public boolean isTimingEnabled() {
-        return this.vnlEnabled;
+        return (this.so instanceof VNLSocket || this.so instanceof TimingSocket);
     }
 
     /**
@@ -418,7 +422,7 @@ public final class TLS10HandshakeWorkflow extends AWorkflow {
         }
         MessageTrace trace = new MessageTrace();
         trace.setNanoTime(response.getTimestamp());
-        
+
         //fetch the input bytes
         TLSResponse sslResponse = new TLSResponse(response.getBytes(), this);
         sslResponse.handleResponse(trace);
@@ -441,7 +445,7 @@ public final class TLS10HandshakeWorkflow extends AWorkflow {
      * constructor was called.
      */
     public VNLSocket getVNLSocket() throws IllegalStateException {
-        if (!vnlEnabled || !(so instanceof VNLSocket)) {
+        if (!(so instanceof VNLSocket)) {
             throw new IllegalStateException("Virtual Network Layer not active.");
         }
 
