@@ -17,6 +17,7 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.Arrays;
 import java.util.List;
+import java.util.logging.Logger;
 
 /**
  * This class implements a connection based on sockets api and pcap
@@ -46,7 +47,6 @@ public class PcapConnection implements Connection {
      */
     public static PcapConnection create(String host, int port) throws IOException {
         String device = IpFormatter.toString(Pcap.getLiveDevice().getAddress(Family.Category.Ip4));
-        
         return create(host, port, device);
     }
 
@@ -93,7 +93,14 @@ public class PcapConnection implements Connection {
         SocketSession session = new SocketSession(localAddress, remoteAddress,
                 localSocketAddress.getPort(), remoteSocketAddress.getPort());
 
-        Pcap pcap = Pcap.getInstance(localAddress);
+        // TODO: Review this fix, this makes sure that traffic to localhost
+        //       is monitored on the loopback device.
+        Pcap pcap = null;
+        if (Arrays.equals(new byte[] {127, 0, 0, 1}, remoteAddress)) {
+        	pcap = Pcap.getInstance(remoteAddress);
+        } else {
+        	pcap = Pcap.getInstance(remoteAddress);
+        }
         pcap.loopAsynchronous(new ConnectionHandler.Quiet());
 
         PcapConnection connection = ((ConnectionHandler) pcap.getHandler()).getConnection(session);
