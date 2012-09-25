@@ -59,7 +59,7 @@ public class BleichenbacherTest implements Observer {
     /**
      * Test port.
      */
-    private static final int PORT = 10443;
+    private static final int PORT = 443;
     /**
      * Test counter.
      */
