@@ -312,6 +312,7 @@ public class Pcap {
     private static Device getDeviceForHost(String host) {
         String defaultRoute = Util.getDefaultRoute(host);
 
+        System.err.println("default route is " + defaultRoute);
         for (Device device : Pcap.getDevices()) {
             if (device.getName().equals(defaultRoute)) {
                 return device;
@@ -323,6 +324,7 @@ public class Pcap {
     
     public static Pcap getInstanceForRemoteHost(String host) {
     	Device d = getDeviceForHost(host);
+    	System.err.println("trying to get a device for host " + host + " and found device " + d.toString());
     	for (WeakReference<Pcap> reference : references) {
             Pcap instance = reference.get();
 
