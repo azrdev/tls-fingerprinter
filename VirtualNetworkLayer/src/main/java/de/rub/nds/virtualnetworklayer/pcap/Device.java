@@ -105,4 +105,11 @@ public class Device {
     	return this.getName();
     }
     
+    public boolean equals(Object o) {
+    	if (o instanceof Device) {
+    		return ((Device)o).getName().equals(this.getName());
+    	}
+    	return super.equals(o);
+    }
+    
 }

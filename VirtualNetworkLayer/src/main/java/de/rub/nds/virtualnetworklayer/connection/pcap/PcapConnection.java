@@ -46,7 +46,7 @@ public class PcapConnection implements Connection {
      * @throws IOException
      */
     public static PcapConnection create(String host, int port) throws IOException {
-        String device = IpFormatter.toString(Pcap.getLiveDevice().getAddress(Family.Category.Ip4));
+        String device = IpFormatter.toString(Pcap.getLiveDevice(host).getAddress(Family.Category.Ip4));
         return create(host, port, device);
     }
 
@@ -93,14 +93,7 @@ public class PcapConnection implements Connection {
         SocketSession session = new SocketSession(localAddress, remoteAddress,
                 localSocketAddress.getPort(), remoteSocketAddress.getPort());
 
-        // TODO: Review this fix, this makes sure that traffic to localhost
-        //       is monitored on the loopback device.
-        Pcap pcap = null;
-        if (Arrays.equals(new byte[] {127, 0, 0, 1}, remoteAddress)) {
-        	pcap = Pcap.getInstance(remoteAddress);
-        } else {
-        	pcap = Pcap.getInstance(remoteAddress);
-        }
+        Pcap pcap = Pcap.getInstanceForRemoteHost(remoteSocketAddress.getAddress().getHostAddress());
         pcap.loopAsynchronous(new ConnectionHandler.Quiet());
 
         PcapConnection connection = ((ConnectionHandler) pcap.getHandler()).getConnection(session);
@@ -149,8 +142,9 @@ public class PcapConnection implements Connection {
     private void checkSocket() throws IOException {
         if (socket == null) {
             SocketSession session = (SocketSession) this.session;
-            InetSocketAddress remoteSocketAddress = new InetSocketAddress(IpFormatter.toString(session.getDestinationAddress()), session.getDestinationPort());
-            String liveDevice = IpFormatter.toString(Pcap.getLiveDevice().getAddress(Family.Category.Ip4));
+            String host = IpFormatter.toString(session.getDestinationAddress());
+            InetSocketAddress remoteSocketAddress = new InetSocketAddress(host, session.getDestinationPort());
+            String liveDevice = IpFormatter.toString(Pcap.getLiveDevice(host).getAddress(Family.Category.Ip4));
 
             attachSocket(remoteSocketAddress, liveDevice, DefaultTimeout);
         }

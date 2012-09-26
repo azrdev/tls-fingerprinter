@@ -308,6 +308,36 @@ public class Pcap {
 
         return Pcap.openLive();
     }
+    
+    private static Device getDeviceForHost(String host) {
+        String defaultRoute = Util.getDefaultRoute(host);
+
+        for (Device device : Pcap.getDevices()) {
+            if (device.getName().equals(defaultRoute)) {
+                return device;
+            }
+        }
+        
+        throw new InternalError("could not find a Device for " + host + " route was " + defaultRoute);
+    }
+    
+    public static Pcap getInstanceForRemoteHost(String host) {
+    	Device d = getDeviceForHost(host);
+    	for (WeakReference<Pcap> reference : references) {
+            Pcap instance = reference.get();
+
+            if (instance != null && instance.getDevice() != null && instance.getDevice().equals(d)
+                    && instance.filter.isEmpty() && instance.getHandler() instanceof ConnectionHandler) {
+                instance.referenceCount++;
+
+                return instance;
+            }
+        }
+    	
+    	return Pcap.openLive(d);
+    	
+
+    }
 
     private Pcap(pcap_t pcap_t) {
         this.pcap_t = pcap_t;
@@ -415,6 +445,16 @@ public class Pcap {
     }
 
     /**
+     * Gets the live device by choosing the device for the route to 8.8.8.8
+     * which is usually the default route.
+     * 
+     * @return The device with the default route.
+     */
+    public static Device getLiveDevice() {
+    	return getLiveDevice("8.8.8.8");
+    }
+    
+    /**
      * Tries to find live device.
      *
      * @return found device otherwise default device
@@ -422,27 +462,9 @@ public class Pcap {
      * @see #getDefaultDevice()
      * @see de.rub.nds.virtualnetworklayer.util.Util#getDefaultRoute()
      */
-    public static Device getLiveDevice() {
+    public static Device getLiveDevice(String host) {
         if (liveDevice != null) {
             return liveDevice;
-        }
-
-        try {
-            InetAddress localhost = InetAddress.getLocalHost();
-            /*
-             * Skip the loopback device
-             */
-            if (!localhost.isLinkLocalAddress() && !localhost.isLoopbackAddress()) {
-                byte[] address = Util.toAddress(localhost);
-
-                for (Device device : getDevices()) {
-                    if (device.isBound(address)) {
-                        return device;
-                    }
-                }
-            }
-
-        } catch (UnknownHostException e) {
         }
 
         String defaultRoute = Util.getDefaultRoute();
