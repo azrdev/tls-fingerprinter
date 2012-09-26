@@ -77,6 +77,7 @@ class VNLSocketImpl extends SocketImpl {
     @Override
     protected void bind(final InetAddress host, final int port) throws
             IOException {
+    	// TODO: this has no effect!
         this.address = address;
         this.port = port;
     }
