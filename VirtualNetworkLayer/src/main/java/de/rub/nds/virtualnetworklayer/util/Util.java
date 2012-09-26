@@ -91,7 +91,7 @@ public class Util {
         	 * This will get the device that routes to 8.8.8.8, which is hopefully
         	 * the device with the default route.
         	 */
-            Process result = Runtime.getRuntime().exec(new String[] {"sh", "-c", "ip -4 route get 192.168.43.73  | head -n 1 | perl -pe \"s/.*dev (\\S+)\\s*.*/\\$1/\"" });
+            Process result = Runtime.getRuntime().exec(new String[] {"sh", "-c", "ip -4 route get " + host + " | head -n 1 | perl -pe \"s/.*dev (\\S+)\\s*.*/\\$1/\"" });
 
             BufferedReader reader = new BufferedReader(new InputStreamReader(result.getInputStream()));
 
