@@ -307,9 +307,8 @@ public final class TLS10HandshakeWorkflow extends AWorkflow {
             msg = rec.encode(true);
             trace.setCurrentRecordBytes(msg);
         }
-        logger.debug("about to send");
+        
         utils.sendMessage(out, msg);
-        logger.debug("sent");
         logger.debug("Message in hex: " + Utility.bytesToHex(msg));
     }
 
@@ -349,9 +348,13 @@ public final class TLS10HandshakeWorkflow extends AWorkflow {
         try {
 //            so.connect(addr, 1000);
 //            so.setSoTimeout(100);
+            System.out.println("===> 1");
             so.connect(addr);
+            System.out.println("===> 2");
             out = so.getOutputStream();
+            System.out.println("===> 3");
             in = so.getInputStream();
+            System.out.println("===> 4");
         } catch (IOException e) {
             e.printStackTrace();
         }

@@ -4,9 +4,10 @@ import de.rub.nds.ssl.stack.tests.workflows.AWorkflow;
 import de.rub.nds.virtualnetworklayer.connection.pcap.FragmentSequence;
 import de.rub.nds.virtualnetworklayer.connection.pcap.PcapConnection;
 import de.rub.nds.virtualnetworklayer.connection.pcap.PcapTrace;
+import de.rub.nds.virtualnetworklayer.packet.PcapPacket;
 import de.rub.nds.virtualnetworklayer.socket.VNLSocket;
+import java.io.IOException;
 import java.util.List;
-import org.apache.log4j.Logger;
 
 /**
  * Fetches the responses from the socket.
@@ -33,31 +34,48 @@ public class VNLFetcher extends AResponseFetcher {
      */
     @Override
     public void run() {
-        
-Logger logger = Logger.getRootLogger();
+        System.out.println("================> Started");
+        PcapPacket packet = null;
         PcapConnection connection = ((VNLSocket) socket).getConnection();
         PcapTrace trace = connection.getTrace();
         List<FragmentSequence> sequences = trace.getFragmentSequences();
         Response response;
-        while (continueFetching()) {
-logger.debug("============> Will Elvis leave the building?");
+//        while (continueFetching()) {
+//            try {
+//System.out.println("===========> Fetching");
+//                packet = connection.read(100);
+//                trace = connection.getTrace();
+//                sequences = trace.getFragmentSequences();
+//System.out.println("===========> Elvis has left the building");
+//                if(packet != null && !sequences.isEmpty() && sequences.get(0).isComplete()) {
+//System.out.println("PACKET ARRIVED!"); 
+//                    //set changed Flag and notify the observer
+//                    this.setChanged();
+//                    response = new Response(trace);
+//                    this.notifyObservers(response);
+//                    workflow.wakeUp();
+//                } else {
+//System.out.println("BOOLEAN packet " + (packet != null));
+//System.out.println("BOOLEAN sequence " + sequences.isEmpty());
+//System.out.println("BOOLEAN complete " + sequences.get(0).isComplete());
+//                }
+//            } catch(IOException e) {
+//                //cancel fetching bytes if e.g. Socket is not available
+//                stopFetching();
+//            }
+//        }
             try {
-                while (sequences.isEmpty() || !sequences.get(0).isComplete()) {
+                while (sequences.isEmpty() | !sequences.get(0).isComplete()) {
+System.out.println("LOOP DEAD");
                     synchronized (connection) {
                         connection.wait();
                     }
+System.out.println("LOOP LOCKED");
                 }
             } catch (InterruptedException e) {
                 // TODO silently ignore
             }
-
-logger.debug("===========> Elvis has left the building");
-
-            //set changed Flag and notify the observer
-            this.setChanged();
-            response = new Response(trace);
-            this.notifyObservers(response);
-            workflow.wakeUp();
-        }
+            
+//        }
     }
 }

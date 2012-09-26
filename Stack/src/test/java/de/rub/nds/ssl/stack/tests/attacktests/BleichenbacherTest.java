@@ -59,7 +59,7 @@ public class BleichenbacherTest implements Observer {
     /**
      * Test port.
      */
-    private static final int PORT = 443;
+    private static final int PORT = 10443;
     /**
      * Test counter.
      */
@@ -142,8 +142,7 @@ public class BleichenbacherTest implements Observer {
             throws IOException {
         logger.info("++++ Start Test No." + counter + " (" + desc + ") ++++");
         this.counter++;
-        workflow = new TLS10HandshakeWorkflow(ESupportedSockets.StandardSocket);
-        //workflow = new TLS10HandshakeWorkflow(false);
+        workflow = new TLS10HandshakeWorkflow(ESupportedSockets.VNLSocket);
         //connect to test server
         if (TestConfiguration.HOST.isEmpty() || TestConfiguration.PORT == 0) {
             workflow.connectToTestServer(HOST, PORT);
