@@ -6,6 +6,7 @@ import de.rub.nds.virtualnetworklayer.pcap.structs.pcap_if;
 import de.rub.nds.virtualnetworklayer.pcap.structs.sockaddr;
 import org.bridj.Pointer;
 
+import java.net.SocketAddress;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -44,19 +45,21 @@ public class Device {
         Pointer<pcap_addr> address = pcap_if.addresses();
         while (address != Pointer.NULL) {
             Pointer<sockaddr> addr = address.get().addr();
-            int sa_family = addr.get().sa_family();
-            AddressFamily family = AddressFamily.valueOf(sa_family);
+            if (addr != null) {
+				int sa_family = addr.get().sa_family();
+				AddressFamily family = AddressFamily.valueOf(sa_family);
 
-            if (family != null) {
-                byte[] sa_data = addr.get().sa_data().getBytes(4);
+				if (family != null) {
+					byte[] sa_data = addr.get().sa_data().getBytes(4);
 
-                if (family.isINet6()) {
-                    sa_data = addr.get().sa_data().getBytes();
-                }
+					if (family.isINet6()) {
+						sa_data = addr.get().sa_data().getBytes();
+					}
 
-                addresses.add(sa_data);
-                families.add(family);
-            }
+					addresses.add(sa_data);
+					families.add(family);
+				}
+			}
 
             address = address.get().next();
         }
