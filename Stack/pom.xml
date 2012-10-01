@@ -102,10 +102,10 @@
                             <artifactId>javancss-maven-plugin</artifactId>
                             <version>2.0</version>
                         </plugin>
-                        <plugin>
+<!--                        <plugin>
                             <groupId>lint4j</groupId>
                             <artifactId>jutils-lint4j-plugin</artifactId>
-                        </plugin>
+                        </plugin>-->
                     </reportPlugins>
                 </configuration>
             </plugin>
