@@ -26,7 +26,7 @@ import org.testng.annotations.Test;
  * @author Juraj Somorovsky - juraj.somorovsky@rub.de
  * @version 0.1
  */
-public class TmingOracleTest {
+public class TimingOracleTest {
 /**
      * Test host.
      */
