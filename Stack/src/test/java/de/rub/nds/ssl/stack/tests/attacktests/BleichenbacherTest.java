@@ -134,7 +134,7 @@ public class BleichenbacherTest implements Observer {
      * @param position Position where padding is changed
      * @throws IOException
      */
-    @Test(enabled = false, dataProvider = "bleichenbacher")
+    @Test(enabled = true, dataProvider = "bleichenbacher")
     public final void testBleichenbacherPossible(String desc,
             final byte[] mode, final byte[] separate,
             final byte[] version, final boolean changePadding,
@@ -142,7 +142,8 @@ public class BleichenbacherTest implements Observer {
             throws IOException {
         logger.info("++++ Start Test No." + counter + " (" + desc + ") ++++");
         this.counter++;
-        workflow = new TLS10HandshakeWorkflow(ESupportedSockets.VNLSocket);
+//        workflow = new TLS10HandshakeWorkflow(ESupportedSockets.VNLSocket);
+        workflow = new TLS10HandshakeWorkflow(ESupportedSockets.StandardSocket);
         //connect to test server
         if (TestConfiguration.HOST.isEmpty() || TestConfiguration.PORT == 0) {
             workflow.connectToTestServer(HOST, PORT);
