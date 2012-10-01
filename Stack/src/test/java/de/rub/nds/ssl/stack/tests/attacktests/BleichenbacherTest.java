@@ -134,7 +134,7 @@ public class BleichenbacherTest implements Observer {
      * @param position Position where padding is changed
      * @throws IOException
      */
-    @Test(enabled = true, dataProvider = "bleichenbacher")
+    @Test(enabled = false, dataProvider = "bleichenbacher")
     public final void testBleichenbacherPossible(String desc,
             final byte[] mode, final byte[] separate,
             final byte[] version, final boolean changePadding,
