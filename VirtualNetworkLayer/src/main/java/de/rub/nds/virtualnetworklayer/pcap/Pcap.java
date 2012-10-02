@@ -470,12 +470,13 @@ public class Pcap {
         }
 
         String defaultRoute = Util.getDefaultRoute();
-
+        System.err.println("default route is: " + defaultRoute);
         for (Device device : Pcap.getDevices()) {
             if (device.getName().equals(defaultRoute)) {
                 return device;
             }
         }
+        System.err.println("did not find a matching device");
 
         return getDefaultDevice();
     }
