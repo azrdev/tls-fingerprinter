@@ -135,7 +135,7 @@ public final class TLS10HandshakeWorkflow extends AWorkflow {
         try {
             logger.debug(">>> Start TLS handshake");
             setMainThread(Thread.currentThread());
-            Thread respThread = new Thread(fetcher);
+            Thread respThread = new Thread(fetcher, "ResponseThread");
             setResponseThread(respThread);
             respThread.start();
             ARecordFrame record;

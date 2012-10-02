@@ -6,7 +6,6 @@ import de.rub.nds.virtualnetworklayer.connection.pcap.PcapConnection;
 import de.rub.nds.virtualnetworklayer.connection.pcap.PcapTrace;
 import de.rub.nds.virtualnetworklayer.packet.PcapPacket;
 import de.rub.nds.virtualnetworklayer.socket.VNLSocket;
-import java.io.IOException;
 import java.util.List;
 
 /**
