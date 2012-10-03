@@ -31,10 +31,14 @@ public class SocketSession {
         Ip ipHeader = (Ip) (packet.hasHeader(Ip4Header.Id) ? packet.getHeader(Ip4Header.Id) : packet.getHeader(Ip6Header.Id));
 
         if (Arrays.equals(ipHeader.getSourceAddress(), sourceAddress)) {
-            return Packet.Direction.Request;
-        } else {
-            return Packet.Direction.Response;
+        	if (packet.hasHeader(TcpHeader.Id)) {
+        		TcpHeader tp = packet.getHeader(TcpHeader.Id);
+        		if ((tp.getDestinationPort() == destinationPort) && (tp.getSourcePort() == sourcePort)) {
+        			return Packet.Direction.Request;
+        		}
+        	}
         }
+        return Packet.Direction.Response;
     }
 
     @Override
