@@ -32,7 +32,9 @@ import javax.crypto.BadPaddingException;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
-import org.testng.annotations.*;
+import org.testng.annotations.BeforeClass;
+import org.testng.annotations.DataProvider;
+import org.testng.annotations.Test;
 import sun.security.rsa.RSACore;
 
 /**
@@ -71,7 +73,7 @@ public class BleichenbacherTimingTest implements Observer {
     /**
      * Test host.
      */
-    private static final String HOST = "localhost";
+    private static final String HOST = "127.0.0.1";
     /**
      * Test port.
      */
@@ -148,7 +150,7 @@ public class BleichenbacherTimingTest implements Observer {
         } else {
             logger.info("delays.csv not found");
         }
-        Object[][] ret = new Object[5000][];
+        Object[][] ret = new Object[1][];
         
         for(int i = 0; i < ret.length; i++) {
             Object temp[];
@@ -177,30 +179,7 @@ public class BleichenbacherTimingTest implements Observer {
                             false
                     };
                     break;
-                    
-                case 2:
-                    temp = new Object[] {
-                            new byte[]{0x09, 0x02},
-                            new byte[]{0x00},
-                            protocolVersionRecord,
-                            false,
-                            SSLTestUtils.POSITIONS.FIRST,
-                            "failed2",
-                            false
-                    };
-                    break;
-                    
-                case 3:
-                    temp = new Object[] {
-                            new byte[]{0x00, 0x02},
-                            new byte[]{0x00},
-                            protocolVersionRecord,
-                            false,
-                            SSLTestUtils.POSITIONS.FIRST,
-                            "ok2",
-                            false
-                    };
-                    break;
+
                 default:
                     temp = null;
                     logger.error("This should never happen");
@@ -333,7 +312,7 @@ public class BleichenbacherTimingTest implements Observer {
      * @param desc Test description
      * @param tamperMAC Destroy Finished MAC of RecordFrame
      */
-    @Test(enabled = false, dataProvider = "bleichenbacher")
+    @Test(enabled = true, dataProvider = "bleichenbacher")
     public final void testBleichenbacherPossible(final byte[] mode,
             final byte[] separate, final EProtocolVersion version,
             final boolean changePadding, final SSLTestUtils.POSITIONS position,
@@ -347,9 +326,10 @@ public class BleichenbacherTimingTest implements Observer {
         this.destroyMAC = tamperMAC;
         boolean canceled = false;
         
-        logger.info("++++ Start Test No." + counter + " (" + desc + ") ++++");
+        logger.info("\n++++ Start Test No." + counter + " (" + desc + ") ++++");
         try {
             workflow = new TLS10HandshakeWorkflow(ESupportedSockets.TimingSocket);
+            //workflow = new TLS10HandshakeWorkflow(ESupportedSockets.StandardSocket);
             workflow.connectToTestServer(HOST, PORT);
             workflow.addObserver(this, EStates.CLIENT_HELLO);
             workflow.addObserver(this, EStates.CLIENT_KEY_EXCHANGE);
@@ -520,7 +500,7 @@ public class BleichenbacherTimingTest implements Observer {
     //@BeforeMethod
     public final void setUp() {
         try {
-//            System.setProperty("javax.net.debug", "ssl");
+            System.setProperty("javax.net.debug", "ssl");
             logger.info("Starting SSL Server");
             sslServer = new SSLServer(PATH_TO_JKS, JKS_PASSWORD,
                     protocolShortName, PORT, PRINT_INFO);
@@ -560,6 +540,9 @@ public class BleichenbacherTimingTest implements Observer {
             }
         }
         logger.error("Did not receive the expected states in the trace.");
+        for (MessageTrace trace : traces) {
+             logger.error("--> " + trace.getState());
+        }
          
         return -1;
     }

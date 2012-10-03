@@ -67,6 +67,7 @@ public class TimingFetcher extends AResponseFetcher {
                 this.notifyObservers(response);
                 workflow.wakeUp();
             } catch (IOException e) {
+                e.printStackTrace();
                 //cancel fetching bytes if e.g. Socket is not available
                 stopFetching();
             }
