@@ -32,6 +32,7 @@ import javax.crypto.BadPaddingException;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -474,7 +475,7 @@ public class BleichenbacherTimingTest implements Observer {
     /**
      * Close the Socket after the test run.
      */
-    //@AfterMethod
+    @AfterClass
     public final void tearDown() {
         try {
             if (sslServer != null) {
