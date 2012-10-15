@@ -3,7 +3,7 @@ package de.rub.nds.ssl.stack.tests.analyzer.db;
 import de.rub.nds.ssl.stack.tests.analyzer.common.AnalyzeTraceList;
 import de.rub.nds.ssl.stack.tests.analyzer.common.ETLSImplementation;
 import de.rub.nds.ssl.stack.tests.analyzer.parameters.AParameters;
-import de.rub.nds.ssl.stack.trace.MessageTrace;
+import de.rub.nds.ssl.stack.trace.Message;
 import de.rub.nds.ssl.stack.workflows.TLS10HandshakeWorkflow.EStates;
 import java.sql.Connection;
 import java.util.ArrayList;
@@ -37,7 +37,7 @@ public class FillBehaviourDB {
      * @throws Exception
      */
     public void insertBehaviour(AParameters parameters,
-            ArrayList<MessageTrace> traceList,
+            ArrayList<Message> traceList,
             ETLSImplementation impl) throws Exception {
         Connection conn = db.getConnection();
         //prepared insert statement
@@ -53,7 +53,7 @@ public class FillBehaviourDB {
         if (alertDesc != null) {
             lastState = EStates.ALERT.name();
         } else {
-            MessageTrace lastTrace = analyzeList.getLastTrace(traceList);
+            Message lastTrace = analyzeList.getLastTrace(traceList);
             lastState = lastTrace.getState().name();
         }
         String fingerprint = parameters.computeHash();

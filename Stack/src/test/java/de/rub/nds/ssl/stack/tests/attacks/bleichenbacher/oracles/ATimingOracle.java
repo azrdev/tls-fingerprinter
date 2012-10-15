@@ -10,9 +10,9 @@ import de.rub.nds.ssl.stack.protocols.handshake.datatypes.EncPreMasterSecret;
 import de.rub.nds.ssl.stack.protocols.handshake.datatypes.PreMasterSecret;
 import de.rub.nds.ssl.stack.protocols.handshake.datatypes.RandomValue;
 import de.rub.nds.ssl.stack.tests.attacks.bleichenbacher.exceptions.OracleException;
-import de.rub.nds.ssl.stack.workflows.commons.MessageBuilder;
+import de.rub.nds.ssl.stack.trace.Message;
 import de.rub.nds.ssl.stack.workflows.TLS10HandshakeWorkflow;
-import de.rub.nds.ssl.stack.trace.MessageTrace;
+import de.rub.nds.ssl.stack.workflows.commons.MessageBuilder;
 import de.rub.nds.ssl.stack.workflows.commons.ObservableBridge;
 import java.net.SocketException;
 import java.security.PublicKey;
@@ -60,12 +60,12 @@ public abstract class ATimingOracle extends ASSLServerOracle {
     @Override
     public final void update(final Observable o, final Object arg) {
         TLS10HandshakeWorkflow.EStates states = null;
-        MessageTrace trace = null;
+        Message trace = null;
         ObservableBridge obs;
         if (o instanceof ObservableBridge) {
             obs = (ObservableBridge) o;
             states = (TLS10HandshakeWorkflow.EStates) obs.getState();
-            trace = (MessageTrace) arg;
+            trace = (Message) arg;
         }
         if (states != null) {
             switch (states) {
@@ -108,21 +108,21 @@ public abstract class ATimingOracle extends ASSLServerOracle {
     }
 
     /**
-     * Analyzes a given MessageTrace list and computes timing delay between
+     * Analyzes a given Message list and computes timing delay between
      * Client key exchange and server change cipher spec or Client key exchange
      * and alert
      *
-     * @param traces MessageTrace list
+     * @param traces Message list
      * @return Timing delay.
      */
-    long getTimeDelay(final List<MessageTrace> traces) {
+    long getTimeDelay(final List<Message> traces) {
         Long delay = 0L;
         Long timestamp = 0L;
         Long overall = -1L;
 
-        for (MessageTrace trace : traces) {
+        for (Message trace : traces) {
             if (trace.getState() != null) {
-                timestamp = trace.getNanoTime();
+                timestamp = trace.getTimestamp();
 
                 switch (trace.getState()) {
                     case CLIENT_KEY_EXCHANGE:

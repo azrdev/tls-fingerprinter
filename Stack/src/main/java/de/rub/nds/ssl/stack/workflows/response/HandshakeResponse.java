@@ -1,7 +1,7 @@
 package de.rub.nds.ssl.stack.workflows.response;
 
 import de.rub.nds.ssl.stack.protocols.handshake.*;
-import de.rub.nds.ssl.stack.trace.MessageTrace;
+import de.rub.nds.ssl.stack.trace.Message;
 import de.rub.nds.ssl.stack.workflows.TLS10HandshakeWorkflow;
 import de.rub.nds.ssl.stack.workflows.TLS10HandshakeWorkflow.EStates;
 import org.apache.log4j.Logger;
@@ -37,7 +37,7 @@ public class HandshakeResponse {
      * @param workflow Handshake workflow
      */
     public HandshakeResponse(AHandshakeRecord handRecord,
-            MessageTrace trace, TLS10HandshakeWorkflow workflow) {
+            Message trace, TLS10HandshakeWorkflow workflow) {
         if (handRecord instanceof ServerHello) {
             logger.debug("Server Hello message received");
             serverHello = new ServerHelloHandler();

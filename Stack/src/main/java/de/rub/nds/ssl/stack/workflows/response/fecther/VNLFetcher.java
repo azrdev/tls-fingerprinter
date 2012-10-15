@@ -1,5 +1,6 @@
 package de.rub.nds.ssl.stack.workflows.response.fecther;
 
+import de.rub.nds.ssl.stack.trace.Message;
 import de.rub.nds.ssl.stack.workflows.AWorkflow;
 import de.rub.nds.virtualnetworklayer.connection.pcap.FragmentSequence;
 import de.rub.nds.virtualnetworklayer.connection.pcap.PcapConnection;
@@ -38,7 +39,7 @@ public class VNLFetcher extends AResponseFetcher {
         PcapConnection connection = ((VNLSocket) socket).getConnection();
         PcapTrace trace = connection.getTrace();
         List<FragmentSequence> sequences = trace.getFragmentSequences();
-        Response response;
+        Message response;
 //        while (continueFetching()) {
 //            try {
 //System.out.println("===========> Fetching");

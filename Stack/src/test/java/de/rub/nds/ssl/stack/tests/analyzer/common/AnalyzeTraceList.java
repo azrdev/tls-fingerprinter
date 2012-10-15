@@ -1,7 +1,7 @@
 package de.rub.nds.ssl.stack.tests.analyzer.common;
 
 import de.rub.nds.ssl.stack.protocols.alert.Alert;
-import de.rub.nds.ssl.stack.trace.MessageTrace;
+import de.rub.nds.ssl.stack.trace.Message;
 import de.rub.nds.ssl.stack.workflows.TLS10HandshakeWorkflow.EStates;
 import java.util.ArrayList;
 
@@ -21,10 +21,10 @@ public class AnalyzeTraceList {
      * @return Alert description
      */
     public final String getAlertFromTraceList(
-            final ArrayList<MessageTrace> traceList) {
+            final ArrayList<Message> traceList) {
         String alertDesc = null;
         for (int i = 0; i < traceList.size(); i++) {
-            MessageTrace currentTrace = traceList.get(i);
+            Message currentTrace = traceList.get(i);
             if (currentTrace.getState() == EStates.ALERT) {
                 Alert alert = (Alert) currentTrace.getCurrentRecord();
                 alertDesc = alert.getAlertDescription().name();
@@ -39,7 +39,7 @@ public class AnalyzeTraceList {
      * @param trace Trace
      * @return Alert description
      */
-    public final String getAlertDescFromTrace(final MessageTrace trace) {
+    public final String getAlertDescFromTrace(final Message trace) {
         Alert alert = (Alert) trace.getCurrentRecord();
         return alert.getAlertDescription().name();
     }
@@ -50,8 +50,8 @@ public class AnalyzeTraceList {
      * @param traceList Trace list of a handshake
      * @return Last trace
      */
-    public final MessageTrace getLastTrace(
-            final ArrayList<MessageTrace> traceList) {
+    public final Message getLastTrace(
+            final ArrayList<Message> traceList) {
         return traceList.get(traceList.size() - 1);
     }
 }

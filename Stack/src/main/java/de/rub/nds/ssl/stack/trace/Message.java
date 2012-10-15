@@ -2,14 +2,17 @@ package de.rub.nds.ssl.stack.trace;
 
 import de.rub.nds.ssl.stack.protocols.ARecordFrame;
 import de.rub.nds.ssl.stack.workflows.TLS10HandshakeWorkflow.EStates;
+import de.rub.nds.virtualnetworklayer.connection.pcap.PcapTrace;
+import de.rub.nds.virtualnetworklayer.packet.PcapPacket;
 
 /**
- * MessageTrace information about the SSL handshake processing.
+ * Message information about the SSL handshake processing.
  *
  * @author Eugen Weiss - eugen.weiss@ruhr-uni-bochum.de
+ * @author Christopher Meyer - christopher.meyer@ruhr-uni-bochum.de
  * @version 0.1 Apr 10, 2012
  */
-public final class MessageTrace extends AMessageTrace {
+public final class Message {
 
     /**
      * Newly constructed SSL record.
@@ -31,23 +34,38 @@ public final class MessageTrace extends AMessageTrace {
      * Current state in handshake.
      */
     private EStates state;
-
+    /**
+     * Timestamp.
+     */
+    private long timestamp;
+    
+    /**
+     * Pcap trace.
+     */
+    private PcapTrace pcapTrace;
+    
     /**
      * Empty constructor.
      */
-    public MessageTrace() {
+    public Message() {
+        this.timestamp = System.nanoTime();
     }
-
+    
+    public Message(final byte[] bytes, final long timestamp) {
+        this.setCurrentRecordBytes(bytes);
+        this.setTimestamp(timestamp);
+    }
+    
     /**
-     * Public constructor of a MessageTrace object.
+     * Public constructor of a Message object.
      *
+     * @param state State of the SSL stack
      * @param currentRecord Newly constructed SSL record
      * @param oldRecord Original SSL record before manipulation
      * @param isContinued Handshake enumeration was used for this record
      */
-    public MessageTrace(EStates state, final ARecordFrame currentRecord,
+    public Message(EStates state, final ARecordFrame currentRecord,
             final ARecordFrame oldRecord, final boolean isContinued) {
-        super();
         this.setState(state);
         this.setCurrentRecord(currentRecord);
         this.setOldRecord(oldRecord);
@@ -55,23 +73,46 @@ public final class MessageTrace extends AMessageTrace {
     }
 
     /**
-     * Public constructor of a MessageTrace object.
+     * Public constructor of a Message object.
      *
+     * @param state State of the SSL stack
      * @param currentRecord Newly constructed SSL record
      * @param oldRecord Original SSL record before manipulation
      * @param isContinued Handshake enumeration was used for this record
-     * @param nanoTime Timestamp in nano precision
+     * @param timestamp Timestamp
      */
-    public MessageTrace(EStates state, final ARecordFrame currentRecord,
+    public Message(EStates state, final ARecordFrame currentRecord,
             final ARecordFrame oldRecord, final boolean isContinued,
-            final Long nanoTime) {
+            final Long timestamp) {
         this.setState(state);
         this.setCurrentRecord(currentRecord);
         this.setOldRecord(oldRecord);
         this.setContinued(isContinued);
-        this.setNanoTime(nanoTime);
+        this.setTimestamp(timestamp);
     }
 
+    /**
+     * Extracts a byte[] from a Pcap trace.
+     * @param trace Pcap trace including the bytes.
+     * @return Bytes of the Pcap trace.
+     */
+    public static byte[] getBytesFromTrace(final PcapTrace trace) {
+        int capacity = 0;
+        for (PcapPacket packet : trace) {
+            capacity += packet.getLength();
+        }
+
+        byte[] answerBytes = new byte[capacity];
+        int pointer = 0;
+        for (PcapPacket packet : trace) {
+            System.arraycopy(packet.getContent(), 0, answerBytes, pointer,
+                    packet.getLength());
+            pointer += packet.getLength();
+        }
+        
+        return answerBytes;
+    }
+    
     /**
      * Get the current state in handshake.
      *
@@ -170,4 +211,40 @@ public final class MessageTrace extends AMessageTrace {
         this.isContinued = isContinued;
     }
 
+    /**
+     * Get the packet trace, if available.
+     * 
+     * @return Packet trace
+     */
+    public PcapTrace getPcapTrace() {
+        return pcapTrace;
+    }
+    
+    /**
+     * Set the packet trace.
+     * 
+     * @param trace Packet trace
+     */
+    public void setPcapTrace(final PcapTrace trace) {
+        this.pcapTrace = trace;
+    }
+
+    /**
+     * Get the timestamp.
+     *
+     * @return Timestmap
+     */
+    public final Long getTimestamp() {
+        return this.timestamp;
+    }
+
+    /**
+     * Set the time .
+     *
+     * @param nanoTime Time 
+     */
+    public final void setTimestamp(final Long timestamp) {
+        this.timestamp = timestamp;
+    }
+    
 }

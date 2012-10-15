@@ -6,7 +6,7 @@ import de.rub.nds.ssl.stack.protocols.handshake.datatypes.CipherSuites;
 import de.rub.nds.ssl.stack.protocols.handshake.datatypes.RandomValue;
 import de.rub.nds.ssl.stack.workflows.commons.MessageBuilder;
 import de.rub.nds.ssl.stack.tests.common.SSLServerHandler;
-import de.rub.nds.ssl.stack.trace.MessageTrace;
+import de.rub.nds.ssl.stack.trace.Message;
 import de.rub.nds.ssl.stack.workflows.commons.ObservableBridge;
 import de.rub.nds.ssl.stack.workflows.TLS10HandshakeWorkflow;
 import de.rub.nds.ssl.stack.workflows.TLS10HandshakeWorkflow.EStates;
@@ -76,13 +76,13 @@ public class GoodCase extends GenericFingerprintTest implements Observer {
      */
     @Override
     public void update(Observable o, Object arg) {
-        MessageTrace trace = null;
+        Message trace = null;
         EStates states = null;
         ObservableBridge obs;
         if (o instanceof ObservableBridge) {
             obs = (ObservableBridge) o;
             states = (EStates) obs.getState();
-            trace = (MessageTrace) arg;
+            trace = (Message) arg;
         }
         if (states == EStates.CLIENT_HELLO) {
             MessageBuilder builder = new MessageBuilder();

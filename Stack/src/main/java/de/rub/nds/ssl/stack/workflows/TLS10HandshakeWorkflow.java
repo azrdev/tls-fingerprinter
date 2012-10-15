@@ -1,7 +1,5 @@
 package de.rub.nds.ssl.stack.workflows;
 
-import de.rub.nds.ssl.stack.workflows.commons.WorkflowState;
-import de.rub.nds.ssl.stack.workflows.commons.ESupportedSockets;
 import de.rub.nds.research.timingsocket.TimingSocket;
 import de.rub.nds.ssl.stack.Utility;
 import de.rub.nds.ssl.stack.protocols.ARecordFrame;
@@ -11,13 +9,14 @@ import de.rub.nds.ssl.stack.protocols.handshake.ClientHello;
 import de.rub.nds.ssl.stack.protocols.handshake.datatypes.MasterSecret;
 import de.rub.nds.ssl.stack.protocols.handshake.datatypes.PreMasterSecret;
 import de.rub.nds.ssl.stack.protocols.msgs.ChangeCipherSpec;
-import de.rub.nds.ssl.stack.trace.MessageTrace;
+import de.rub.nds.ssl.stack.trace.Message;
+import de.rub.nds.ssl.stack.workflows.commons.ESupportedSockets;
 import de.rub.nds.ssl.stack.workflows.commons.HandshakeHashBuilder;
 import de.rub.nds.ssl.stack.workflows.commons.MessageBuilder;
 import de.rub.nds.ssl.stack.workflows.commons.MessageUtils;
+import de.rub.nds.ssl.stack.workflows.commons.WorkflowState;
 import de.rub.nds.ssl.stack.workflows.response.TLSResponse;
 import de.rub.nds.ssl.stack.workflows.response.fecther.AResponseFetcher;
-import de.rub.nds.ssl.stack.workflows.response.fecther.Response;
 import de.rub.nds.ssl.stack.workflows.response.fecther.StandardFetcher;
 import de.rub.nds.ssl.stack.workflows.response.fecther.VNLFetcher;
 import de.rub.nds.virtualnetworklayer.socket.VNLSocket;
@@ -141,7 +140,7 @@ public final class TLS10HandshakeWorkflow extends AWorkflow {
             setResponseThread(respThread);
             respThread.start();
             ARecordFrame record;
-            MessageTrace trace;
+            Message trace;
             MessageBuilder msgBuilder = new MessageBuilder();
             try {
                 hashBuilder = new HandshakeHashBuilder();
@@ -152,7 +151,7 @@ public final class TLS10HandshakeWorkflow extends AWorkflow {
             /*
              * create the ClientHello
              */
-            trace = new MessageTrace();
+            trace = new Message();
             record = msgBuilder.createClientHello(protocolVersion);
             setRecordTrace(trace, record);
             // switch the state of the handshake
@@ -167,7 +166,7 @@ public final class TLS10HandshakeWorkflow extends AWorkflow {
             // hash current record
             updateHash(hashBuilder, trace);
             // add trace to ArrayList
-            addToTraceList(new MessageTrace(EStates.CLIENT_HELLO, trace.
+            addToTraceList(new Message(EStates.CLIENT_HELLO, trace.
                     getCurrentRecord(),
                     trace.getOldRecord(), false));
             sleepPoller(EStates.SERVER_HELLO_DONE);
@@ -175,7 +174,7 @@ public final class TLS10HandshakeWorkflow extends AWorkflow {
             /*
              * create ClientKeyExchange
              */
-            trace = new MessageTrace();
+            trace = new Message();
             record = msgBuilder.createClientKeyExchange(protocolVersion, this);
             setRecordTrace(trace, record);
             // change status and notify observers
@@ -184,7 +183,7 @@ public final class TLS10HandshakeWorkflow extends AWorkflow {
             prepareAndSend(trace);
             logger.debug("Client Key Exchange message sent");
             // add trace to ArrayList
-            addToTraceList(new MessageTrace(EStates.CLIENT_KEY_EXCHANGE,
+            addToTraceList(new Message(EStates.CLIENT_KEY_EXCHANGE,
                     trace.getCurrentRecord(),
                     trace.getOldRecord(), false));
             // hash current record
@@ -193,7 +192,7 @@ public final class TLS10HandshakeWorkflow extends AWorkflow {
             /*
              * create ChangeCipherSepc
              */
-            trace = new MessageTrace();
+            trace = new Message();
             record = new ChangeCipherSpec(protocolVersion);
             setRecordTrace(trace, record);
             //change status and notify observers
@@ -204,7 +203,7 @@ public final class TLS10HandshakeWorkflow extends AWorkflow {
             // switch to encrypted mode
             encrypted = true;
             // add trace to ArrayList
-            addToTraceList(new MessageTrace(EStates.CLIENT_CHANGE_CIPHER_SPEC,
+            addToTraceList(new Message(EStates.CLIENT_CHANGE_CIPHER_SPEC,
                     trace.
                     getCurrentRecord(),
                     trace.getOldRecord(), false));
@@ -212,7 +211,7 @@ public final class TLS10HandshakeWorkflow extends AWorkflow {
             /*
              * create Finished
              */
-            trace = new MessageTrace();
+            trace = new Message();
             // create the master secret
             MasterSecret masterSec = msgBuilder.createMasterSecret(this);
             // hash handshake messages
@@ -231,7 +230,7 @@ public final class TLS10HandshakeWorkflow extends AWorkflow {
             prepareAndSend(trace);
             logger.debug("Finished message sent");
             // add trace to ArrayList
-            addToTraceList(new MessageTrace(EStates.CLIENT_FINISHED, trace.
+            addToTraceList(new Message(EStates.CLIENT_FINISHED, trace.
                     getCurrentRecord(),
                     trace.getOldRecord(), false));
             sleepPoller(EStates.SERVER_FINISHED);
@@ -268,10 +267,10 @@ public final class TLS10HandshakeWorkflow extends AWorkflow {
      * Updates the current message hash.
      *
      * @param hashBuilder HashBuilder to be utilized
-     * @param trace MessageTrace holding the record to hash
+     * @param trace Message holding the record to hash
      */
     private synchronized void updateHash(final HandshakeHashBuilder hashBuilder,
-            final MessageTrace trace) {
+            final Message trace) {
         byte[] message = trace.getCurrentRecordBytes();
         updateHash(hashBuilder, message);
     }
@@ -292,9 +291,9 @@ public final class TLS10HandshakeWorkflow extends AWorkflow {
     /**
      * Prepares the trace and delivers it to the network layer.
      *
-     * @param trace MessageTrace to be send
+     * @param trace Message to be send
      */
-    private void prepareAndSend(final MessageTrace trace) throws IOException {
+    private void prepareAndSend(final Message trace) throws IOException {
         ARecordFrame rec;
         byte[] msg;
 
@@ -416,18 +415,16 @@ public final class TLS10HandshakeWorkflow extends AWorkflow {
      */
     @Override
     public void update(Observable o, Object arg) {
-        Response response = null;
+        Message response = null;
         AResponseFetcher fetcher = null;
         if (o instanceof AResponseFetcher) {
             fetcher = (AResponseFetcher) o;
-            response = (Response) arg;
+            response = (Message) arg;
         }
-        MessageTrace trace = new MessageTrace();
-        trace.setNanoTime(response.getTimestamp());
-
+        
         //fetch the input bytes
-        TLSResponse sslResponse = new TLSResponse(response.getBytes(), this);
-        sslResponse.handleResponse(trace);
+        TLSResponse tlsResponse = new TLSResponse(response.getCurrentRecordBytes(), this);
+        tlsResponse.handleResponse(response);
         if (getCurrentState() == EStates.ALERT.getID()) {
             logger.debug("### Connection reset due to FATAL_ALERT.");
             fetcher.stopFetching();
@@ -435,7 +432,7 @@ public final class TLS10HandshakeWorkflow extends AWorkflow {
             return;
         }
         //hash current record
-        updateHash(hashBuilder, response.getBytes());
+        updateHash(hashBuilder, response.getCurrentRecordBytes());
         Thread.currentThread().interrupt();
     }
 

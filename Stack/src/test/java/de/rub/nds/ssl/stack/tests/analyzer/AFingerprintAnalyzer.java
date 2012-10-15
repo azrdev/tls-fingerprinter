@@ -2,7 +2,7 @@ package de.rub.nds.ssl.stack.tests.analyzer;
 
 import java.util.ArrayList;
 
-import de.rub.nds.ssl.stack.trace.MessageTrace;
+import de.rub.nds.ssl.stack.trace.Message;
 
 /**
  * Fingerprint analysis of a Unit Test.
@@ -13,8 +13,8 @@ public abstract class AFingerprintAnalyzer {
 	
 	/**
 	 * Match a fingerprint using the test trace.
-	 * @param traceList MessageTrace list of a testrun
+	 * @param traceList Message list of a testrun
 	 */
-	public abstract void analyze(ArrayList<MessageTrace> traceList);
+	public abstract void analyze(ArrayList<Message> traceList);
 
 }

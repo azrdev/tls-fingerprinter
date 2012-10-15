@@ -9,7 +9,7 @@ import de.rub.nds.ssl.stack.protocols.handshake.HandshakeEnumeration;
 import de.rub.nds.ssl.stack.protocols.handshake.MessageObservable;
 import de.rub.nds.ssl.stack.protocols.msgs.ChangeCipherSpec;
 import de.rub.nds.ssl.stack.protocols.msgs.TLSCiphertext;
-import de.rub.nds.ssl.stack.trace.MessageTrace;
+import de.rub.nds.ssl.stack.trace.Message;
 import de.rub.nds.ssl.stack.workflows.TLS10HandshakeWorkflow;
 import de.rub.nds.ssl.stack.workflows.TLS10HandshakeWorkflow.EStates;
 import java.util.Observable;
@@ -28,7 +28,7 @@ public class TLSResponse extends ARecordFrame implements Observer {
     /**
      * Current trace.
      */
-    private MessageTrace trace;
+    private Message trace;
     /**
      * Handshake workflow.
      */
@@ -56,11 +56,11 @@ public class TLSResponse extends ARecordFrame implements Observer {
     /**
      * Extracts the TLS record messages for the response bytes.
      *
-     * @param trace MessageTrace object to save the status
+     * @param trace Message object to save the status
      * @param param Security parameters as defined in Chapter 6.1 of RFC 2246
      * @return ResponseHandler
      */
-    public final void handleResponse(final MessageTrace trace) {
+    public final void handleResponse(final Message trace) {
         MessageObservable msgObserve = MessageObservable.getInstance();
         EContentType contentType = getContentType();
         switch (contentType) {
@@ -111,16 +111,16 @@ public class TLSResponse extends ARecordFrame implements Observer {
     /**
      * Set the trace for the handshake message
      *
-     * @param trace MessageTrace
+     * @param trace Message
      */
-    private void setTrace(MessageTrace trace) {
+    private void setTrace(Message trace) {
         this.trace = trace;
     }
 
     @Override
     public void update(Observable o, Object arg) {
-        MessageTrace trace = new MessageTrace();
-        trace.setNanoTime(this.trace.getNanoTime());
+        Message trace = new Message();
+        trace.setTimestamp(this.trace.getTimestamp());
         AHandshakeRecord handRecord = null;
         if (o instanceof MessageObservable) {
             handRecord = (AHandshakeRecord) arg;

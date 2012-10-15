@@ -3,7 +3,7 @@ package de.rub.nds.ssl.stack.workflows;
 import de.rub.nds.ssl.stack.workflows.commons.WorkflowState;
 import de.rub.nds.ssl.stack.workflows.commons.ObservableBridge;
 import de.rub.nds.ssl.stack.protocols.ARecordFrame;
-import de.rub.nds.ssl.stack.trace.MessageTrace;
+import de.rub.nds.ssl.stack.trace.Message;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -36,11 +36,11 @@ public abstract class AWorkflow implements Observer {
     /**
      * Message trace of this workflow.
      */
-    private ArrayList<MessageTrace> traceList = new ArrayList<MessageTrace>();
+    private ArrayList<Message> traceList = new ArrayList<Message>();
     /**
      * Synchronized trace message trace.
      */
-    List<MessageTrace> syncTraceList = Collections.synchronizedList(traceList);
+    List<Message> syncTraceList = Collections.synchronizedList(traceList);
     
     /**
      * Public constructor for a workflow. Assigns an observable bridge to each
@@ -118,7 +118,7 @@ public abstract class AWorkflow implements Observer {
      * @param trace Message trace
      * @param state State for which this notification is valid
      */
-    public void notifyObservers(final MessageTrace trace,
+    public void notifyObservers(final Message trace,
             final WorkflowState state) {
         states[state.getID()].notifyObservers(trace);
     }
@@ -129,7 +129,7 @@ public abstract class AWorkflow implements Observer {
      *
      * @param trace Message trace
      */
-    public void notifyCurrentObservers(final MessageTrace trace) {
+    public void notifyCurrentObservers(final Message trace) {
         states[currentState].notifyObservers(trace);
     }
 
@@ -139,7 +139,7 @@ public abstract class AWorkflow implements Observer {
      *
      * @param trace Holds the tracing data
      */
-    public void nextStateAndNotify(final MessageTrace trace) {
+    public void nextStateAndNotify(final Message trace) {
         nextState();
         notifyCurrentObservers(trace);
     }
@@ -172,7 +172,7 @@ public abstract class AWorkflow implements Observer {
      *
      * @param trace Holds the tracing data
      */
-    public void previousStateAndNotify(final MessageTrace trace) {
+    public void previousStateAndNotify(final Message trace) {
         previousState();
         notifyCurrentObservers(trace);
     }
@@ -204,7 +204,7 @@ public abstract class AWorkflow implements Observer {
      * @param trace Holds the tracing data
      * @param state The new state
      */
-    public void switchToState(final MessageTrace trace,
+    public void switchToState(final Message trace,
             final WorkflowState state) {
         setCurrentState(state.getID());
         notifyCurrentObservers(trace);
@@ -286,10 +286,10 @@ public abstract class AWorkflow implements Observer {
      * Sets the current record of a trace and saves the previous one if 
      * present.
      *
-     * @param trace MessageTrace to be modified
+     * @param trace Message to be modified
      * @param record New record to be set
      */
-    public void setRecordTrace(final MessageTrace trace,
+    public void setRecordTrace(final Message trace,
             final ARecordFrame record) {
         // save the old state
         ARecordFrame oldRecord = trace.getOldRecord();
@@ -300,20 +300,20 @@ public abstract class AWorkflow implements Observer {
     }
 
     /**
-     * Add a new MessageTrace object to the ArrayList.
+     * Add a new Message object to the ArrayList.
      *
-     * @param trace MessageTrace object to be added
+     * @param trace Message object to be added
      */
-    public synchronized void addToTraceList(final MessageTrace trace) {
+    public synchronized void addToTraceList(final Message trace) {
         syncTraceList.add(trace);
     }
 
     /**
      * Get the trace syncTraceList of the whole handshake.
      *
-     * @return MessageTrace syncTraceList
+     * @return Message syncTraceList
      */
-    public ArrayList<MessageTrace> getTraceList() {
-        return (ArrayList<MessageTrace>) traceList.clone();
+    public ArrayList<Message> getTraceList() {
+        return (ArrayList<Message>) traceList.clone();
     }
 }

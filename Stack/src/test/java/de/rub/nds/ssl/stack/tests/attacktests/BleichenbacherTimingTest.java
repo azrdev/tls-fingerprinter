@@ -11,7 +11,7 @@ import de.rub.nds.ssl.stack.protocols.handshake.datatypes.EncPreMasterSecret;
 import de.rub.nds.ssl.stack.protocols.handshake.datatypes.PreMasterSecret;
 import de.rub.nds.ssl.stack.protocols.handshake.datatypes.RandomValue;
 import de.rub.nds.ssl.stack.tests.common.SSLServer;
-import de.rub.nds.ssl.stack.trace.MessageTrace;
+import de.rub.nds.ssl.stack.trace.Message;
 import de.rub.nds.ssl.stack.workflows.TLS10HandshakeWorkflow;
 import de.rub.nds.ssl.stack.workflows.TLS10HandshakeWorkflow.EStates;
 import de.rub.nds.ssl.stack.workflows.commons.ESupportedSockets;
@@ -365,12 +365,12 @@ public class BleichenbacherTimingTest implements Observer {
     @Override
     public final void update(final Observable o, final Object arg) {
         EStates states = null;
-        MessageTrace trace = null;
+        Message trace = null;
         ObservableBridge obs;
         if (o instanceof ObservableBridge) {
             obs = (ObservableBridge) o;
             states = (EStates) obs.getState();
-            trace = (MessageTrace) arg;
+            trace = (Message) arg;
         }
         if (states != null) {
             switch (states) {
@@ -514,20 +514,20 @@ public class BleichenbacherTimingTest implements Observer {
     }
 
     /**
-     * Analyzes a given MessageTrace list and computes timing delay.
+     * Analyzes a given Message list and computes timing delay.
      *
-     * @param traces MessageTrace list
+     * @param traces Message list
      * @return Timing delay.
      */
-    private static long analyzeTrace(final List<MessageTrace> traces) {
+    private static long analyzeTrace(final List<Message> traces) {
         Long delay = 0L;
         Long timestamp = 0L;
         Long overall = -1L;
 
         boolean started = false;
-        for (MessageTrace trace : traces) {
+        for (Message trace : traces) {
             if (trace.getState() != null) {
-                timestamp = trace.getNanoTime();
+                timestamp = trace.getTimestamp();
 
                 if(trace.getState() == EStates.CLIENT_KEY_EXCHANGE) {
                     delay = timestamp;
@@ -541,7 +541,7 @@ public class BleichenbacherTimingTest implements Observer {
             }
         }
         logger.error("Did not receive the expected states in the trace.");
-        for (MessageTrace trace : traces) {
+        for (Message trace : traces) {
              logger.error("--> " + trace.getState());
         }
          

@@ -6,7 +6,7 @@ import org.testng.Reporter;
 
 import de.rub.nds.ssl.stack.tests.analyzer.common.ETLSImplementation;
 import de.rub.nds.ssl.stack.tests.analyzer.common.ScoreCounter;
-import de.rub.nds.ssl.stack.trace.MessageTrace;
+import de.rub.nds.ssl.stack.trace.Message;
 import de.rub.nds.ssl.stack.workflows.TLS10HandshakeWorkflow.EStates;
 
 /**
@@ -18,10 +18,10 @@ import de.rub.nds.ssl.stack.workflows.TLS10HandshakeWorkflow.EStates;
 public class HandshakeEnumCheck extends AFingerprintAnalyzer {
 
     @Override
-    public void analyze(final ArrayList<MessageTrace> traceList) {
+    public void analyze(final ArrayList<Message> traceList) {
         ScoreCounter counter = ScoreCounter.getInstance();
 		for (int i = 0; i < traceList.size(); i++) {
-			MessageTrace currentTrace = traceList.get(i);
+			Message currentTrace = traceList.get(i);
 			if (currentTrace.getState() == EStates.SERVER_HELLO) {
 				/*Check if a message is part of a handshake enumeration
 				 * and assign a score for an implementation.
