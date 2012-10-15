@@ -89,6 +89,10 @@ public class TLSResponse extends ARecordFrame implements Observer {
                 break;
             case HANDSHAKE:
                 if (workflow.isEncrypted()) {
+                    /*
+                     * Since it is not possible to send CCS and Finished in a
+                     * handhsake enumeration it is safe to distinguish this way
+                     */
                     logger.debug("Finished message received");
                     TLSCiphertext ciphertext = new TLSCiphertext(response, true);
                     trace.setCurrentRecord(ciphertext);
@@ -99,6 +103,7 @@ public class TLSResponse extends ARecordFrame implements Observer {
                 } else {
                     setTrace(trace);
                     msgObserve.addObserver(this);
+                    // TODO: WTF is this???
                     new HandshakeEnumeration(response, true);
                     msgObserve.deleteObservers();
                 }
