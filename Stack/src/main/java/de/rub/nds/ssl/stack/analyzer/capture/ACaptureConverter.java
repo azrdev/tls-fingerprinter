@@ -24,6 +24,7 @@ public abstract class ACaptureConverter {
 
     /**
      * Slices the next record frame out of a given message.
+     *
      * @param bytes Byte array representing record frame(s).
      * @param offset Offset where to start with record slicing.
      * @return Next record in the byte[].
@@ -47,6 +48,7 @@ public abstract class ACaptureConverter {
 
     /**
      * Converts a PcapTrace into a MessageContainer[].
+     *
      * @param trace Trace to convert.
      * @return Converted trace including the original trace.
      */
@@ -54,17 +56,18 @@ public abstract class ACaptureConverter {
         byte[] capturedBytes = MessageContainer.getBytesFromTrace(trace);
         ARecordFrame[] recordFrames = extractRecords(capturedBytes);
         MessageContainer[] container = new MessageContainer[recordFrames.length];
-        for(int i=0; i< recordFrames.length; i++) {
-            container[i] = new MessageContainer(recordFrames[i], 
+        for (int i = 0; i < recordFrames.length; i++) {
+            container[i] = new MessageContainer(recordFrames[i],
                     trace.get(0).getTimeStamp());
             container[i].setPcapTrace(trace);
         }
-        
+
         return container;
     }
-    
+
     /**
      * Extracts records of given capture Pcap trace.
+     *
      * @param trace Record capture.
      * @return Decoded messages included in the captured PcapTrace.
      */
@@ -72,9 +75,10 @@ public abstract class ACaptureConverter {
         byte[] capturedBytes = MessageContainer.getBytesFromTrace(trace);
         return extractRecords(capturedBytes);
     }
-    
+
     /**
      * Extracts records of given capture byte[].
+     *
      * @param capture Record capture.
      * @return Decoded messages included in the captured byte[].
      */
@@ -102,6 +106,7 @@ public abstract class ACaptureConverter {
 
     /**
      * Decodes an encoded record.
+     *
      * @param record Encoded record
      * @return Decoded record frames
      */
