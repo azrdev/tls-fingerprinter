@@ -6,13 +6,13 @@ import de.rub.nds.virtualnetworklayer.connection.pcap.PcapTrace;
 import de.rub.nds.virtualnetworklayer.packet.PcapPacket;
 
 /**
- * Message information about the SSL handshake processing.
+ * MessageContainer information about the SSL handshake processing.
  *
  * @author Eugen Weiss - eugen.weiss@ruhr-uni-bochum.de
  * @author Christopher Meyer - christopher.meyer@ruhr-uni-bochum.de
  * @version 0.1 Apr 10, 2012
  */
-public final class Message {
+public final class MessageContainer {
 
     /**
      * Newly constructed SSL record.
@@ -38,33 +38,49 @@ public final class Message {
      * Timestamp.
      */
     private long timestamp;
-    
     /**
      * Pcap trace.
      */
     private PcapTrace pcapTrace;
-    
+
     /**
      * Empty constructor.
      */
-    public Message() {
+    public MessageContainer() {
         this.timestamp = System.nanoTime();
     }
-    
-    public Message(final byte[] bytes, final long timestamp) {
+
+    /**
+     * Public constructor of a MessageContainer object.
+     *
+     * @param record Record frame
+     * @param timestamp Timestamp
+     */
+    public MessageContainer(final ARecordFrame record, final long timestamp) {
+        this.setCurrentRecord(record);
+        this.setTimestamp(timestamp);
+    }
+   
+    /**
+     * Public constructor of a MessageContainer object.
+     *
+     * @param bytes Record bytes
+     * @param timestamp Timestamp
+     */
+    public MessageContainer(final byte[] bytes, final long timestamp) {
         this.setCurrentRecordBytes(bytes);
         this.setTimestamp(timestamp);
     }
-    
+
     /**
-     * Public constructor of a Message object.
+     * Public constructor of a MessageContainer object.
      *
      * @param state State of the SSL stack
      * @param currentRecord Newly constructed SSL record
      * @param oldRecord Original SSL record before manipulation
      * @param isContinued Handshake enumeration was used for this record
      */
-    public Message(EStates state, final ARecordFrame currentRecord,
+    public MessageContainer(EStates state, final ARecordFrame currentRecord,
             final ARecordFrame oldRecord, final boolean isContinued) {
         this.setState(state);
         this.setCurrentRecord(currentRecord);
@@ -73,7 +89,7 @@ public final class Message {
     }
 
     /**
-     * Public constructor of a Message object.
+     * Public constructor of a MessageContainer object.
      *
      * @param state State of the SSL stack
      * @param currentRecord Newly constructed SSL record
@@ -81,7 +97,7 @@ public final class Message {
      * @param isContinued Handshake enumeration was used for this record
      * @param timestamp Timestamp
      */
-    public Message(EStates state, final ARecordFrame currentRecord,
+    public MessageContainer(EStates state, final ARecordFrame currentRecord,
             final ARecordFrame oldRecord, final boolean isContinued,
             final Long timestamp) {
         this.setState(state);
@@ -93,6 +109,7 @@ public final class Message {
 
     /**
      * Extracts a byte[] from a Pcap trace.
+     *
      * @param trace Pcap trace including the bytes.
      * @return Bytes of the Pcap trace.
      */
@@ -109,10 +126,10 @@ public final class Message {
                     packet.getLength());
             pointer += packet.getLength();
         }
-        
+
         return answerBytes;
     }
-    
+
     /**
      * Get the current state in handshake.
      *
@@ -213,16 +230,16 @@ public final class Message {
 
     /**
      * Get the packet trace, if available.
-     * 
+     *
      * @return Packet trace
      */
     public PcapTrace getPcapTrace() {
         return pcapTrace;
     }
-    
+
     /**
      * Set the packet trace.
-     * 
+     *
      * @param trace Packet trace
      */
     public void setPcapTrace(final PcapTrace trace) {
@@ -241,10 +258,9 @@ public final class Message {
     /**
      * Set the time .
      *
-     * @param nanoTime Time 
+     * @param nanoTime Time
      */
     public final void setTimestamp(final Long timestamp) {
         this.timestamp = timestamp;
     }
-    
 }

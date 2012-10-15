@@ -11,7 +11,7 @@ import de.rub.nds.ssl.stack.protocols.handshake.datatypes.EncPreMasterSecret;
 import de.rub.nds.ssl.stack.protocols.handshake.datatypes.PreMasterSecret;
 import de.rub.nds.ssl.stack.protocols.handshake.datatypes.RandomValue;
 import de.rub.nds.ssl.stack.tests.common.SSLServer;
-import de.rub.nds.ssl.stack.trace.Message;
+import de.rub.nds.ssl.stack.trace.MessageContainer;
 import de.rub.nds.ssl.stack.workflows.TLS10HandshakeWorkflow;
 import de.rub.nds.ssl.stack.workflows.TLS10HandshakeWorkflow.EStates;
 import de.rub.nds.ssl.stack.workflows.commons.ESupportedSockets;
@@ -365,12 +365,12 @@ public class BleichenbacherTimingTest implements Observer {
     @Override
     public final void update(final Observable o, final Object arg) {
         EStates states = null;
-        Message trace = null;
+        MessageContainer trace = null;
         ObservableBridge obs;
         if (o instanceof ObservableBridge) {
             obs = (ObservableBridge) o;
             states = (EStates) obs.getState();
-            trace = (Message) arg;
+            trace = (MessageContainer) arg;
         }
         if (states != null) {
             switch (states) {
@@ -514,18 +514,18 @@ public class BleichenbacherTimingTest implements Observer {
     }
 
     /**
-     * Analyzes a given Message list and computes timing delay.
+     * Analyzes a given MessageContainer list and computes timing delay.
      *
-     * @param traces Message list
+     * @param traces MessageContainer list
      * @return Timing delay.
      */
-    private static long analyzeTrace(final List<Message> traces) {
+    private static long analyzeTrace(final List<MessageContainer> traces) {
         Long delay = 0L;
         Long timestamp = 0L;
         Long overall = -1L;
 
         boolean started = false;
-        for (Message trace : traces) {
+        for (MessageContainer trace : traces) {
             if (trace.getState() != null) {
                 timestamp = trace.getTimestamp();
 
@@ -541,7 +541,7 @@ public class BleichenbacherTimingTest implements Observer {
             }
         }
         logger.error("Did not receive the expected states in the trace.");
-        for (Message trace : traces) {
+        for (MessageContainer trace : traces) {
              logger.error("--> " + trace.getState());
         }
          

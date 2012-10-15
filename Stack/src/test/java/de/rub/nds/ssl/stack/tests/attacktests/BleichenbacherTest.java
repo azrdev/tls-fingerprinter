@@ -15,7 +15,7 @@ import de.rub.nds.ssl.stack.tests.analyzer.parameters.BleichenbacherParameters;
 import de.rub.nds.ssl.stack.tests.analyzer.parameters.EFingerprintIdentifier;
 import de.rub.nds.ssl.stack.tests.common.SSLServerHandler;
 import de.rub.nds.ssl.stack.tests.common.TestConfiguration;
-import de.rub.nds.ssl.stack.trace.Message;
+import de.rub.nds.ssl.stack.trace.MessageContainer;
 import de.rub.nds.ssl.stack.workflows.commons.ESupportedSockets;
 import de.rub.nds.ssl.stack.workflows.commons.ObservableBridge;
 import de.rub.nds.ssl.stack.workflows.TLS10HandshakeWorkflow;
@@ -185,13 +185,13 @@ public class BleichenbacherTest implements Observer {
      */
     @Override
     public void update(final Observable o, final Object arg) {
-        Message trace = null;
+        MessageContainer trace = null;
         EStates states = null;
         ObservableBridge obs;
         if (o != null && o instanceof ObservableBridge) {
             obs = (ObservableBridge) o;
             states = (EStates) obs.getState();
-            trace = (Message) arg;
+            trace = (MessageContainer) arg;
         }
         if (states != null) {
             switch (states) {

@@ -26,7 +26,7 @@ import de.rub.nds.ssl.stack.tests.analyzer.parameters.EFingerprintIdentifier;
 import de.rub.nds.ssl.stack.workflows.commons.KeyMaterial;
 import de.rub.nds.ssl.stack.workflows.commons.MessageBuilder;
 import de.rub.nds.ssl.stack.tests.common.TestConfiguration;
-import de.rub.nds.ssl.stack.trace.Message;
+import de.rub.nds.ssl.stack.trace.MessageContainer;
 import de.rub.nds.ssl.stack.workflows.commons.ObservableBridge;
 import de.rub.nds.ssl.stack.workflows.TLS10HandshakeWorkflow;
 import de.rub.nds.ssl.stack.workflows.TLS10HandshakeWorkflow.EStates;
@@ -84,13 +84,13 @@ public class FingerprintFinishedHandshakeHeader extends GenericFingerprintTest i
     @Override
     public void update(final Observable o, final Object arg) {
         MessageBuilder msgBuilder = new MessageBuilder();
-        Message trace = null;
+        MessageContainer trace = null;
         EStates states = null;
         ObservableBridge obs;
         if (o != null && o instanceof ObservableBridge) {
             obs = (ObservableBridge) o;
             states = (EStates) obs.getState();
-            trace = (Message) arg;
+            trace = (MessageContainer) arg;
         }
         if (states == EStates.CLIENT_FINISHED) {
             SecurityParameters param = SecurityParameters.getInstance();

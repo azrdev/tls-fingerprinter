@@ -10,7 +10,7 @@ import de.rub.nds.ssl.stack.protocols.handshake.datatypes.EncPreMasterSecret;
 import de.rub.nds.ssl.stack.protocols.handshake.datatypes.PreMasterSecret;
 import de.rub.nds.ssl.stack.protocols.handshake.datatypes.RandomValue;
 import de.rub.nds.ssl.stack.tests.attacks.bleichenbacher.exceptions.OracleException;
-import de.rub.nds.ssl.stack.trace.Message;
+import de.rub.nds.ssl.stack.trace.MessageContainer;
 import de.rub.nds.ssl.stack.workflows.TLS10HandshakeWorkflow;
 import de.rub.nds.ssl.stack.workflows.commons.MessageBuilder;
 import de.rub.nds.ssl.stack.workflows.commons.ObservableBridge;
@@ -60,12 +60,12 @@ public abstract class ATimingOracle extends ASSLServerOracle {
     @Override
     public final void update(final Observable o, final Object arg) {
         TLS10HandshakeWorkflow.EStates states = null;
-        Message trace = null;
+        MessageContainer trace = null;
         ObservableBridge obs;
         if (o instanceof ObservableBridge) {
             obs = (ObservableBridge) o;
             states = (TLS10HandshakeWorkflow.EStates) obs.getState();
-            trace = (Message) arg;
+            trace = (MessageContainer) arg;
         }
         if (states != null) {
             switch (states) {
@@ -108,19 +108,19 @@ public abstract class ATimingOracle extends ASSLServerOracle {
     }
 
     /**
-     * Analyzes a given Message list and computes timing delay between
+     * Analyzes a given MessageContainer list and computes timing delay between
      * Client key exchange and server change cipher spec or Client key exchange
      * and alert
      *
-     * @param traces Message list
+     * @param traces MessageContainer list
      * @return Timing delay.
      */
-    long getTimeDelay(final List<Message> traces) {
+    long getTimeDelay(final List<MessageContainer> traces) {
         Long delay = 0L;
         Long timestamp = 0L;
         Long overall = -1L;
 
-        for (Message trace : traces) {
+        for (MessageContainer trace : traces) {
             if (trace.getState() != null) {
                 timestamp = trace.getTimestamp();
 

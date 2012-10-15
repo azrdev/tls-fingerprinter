@@ -3,7 +3,7 @@ package de.rub.nds.ssl.stack.workflows;
 import de.rub.nds.ssl.stack.workflows.commons.WorkflowState;
 import de.rub.nds.ssl.stack.workflows.commons.ObservableBridge;
 import de.rub.nds.ssl.stack.protocols.ARecordFrame;
-import de.rub.nds.ssl.stack.trace.Message;
+import de.rub.nds.ssl.stack.trace.MessageContainer;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -34,13 +34,13 @@ public abstract class AWorkflow implements Observer {
      */
     private Thread mainThread;
     /**
-     * Message trace of this workflow.
+     * MessageContainer trace of this workflow.
      */
-    private ArrayList<Message> traceList = new ArrayList<Message>();
+    private ArrayList<MessageContainer> traceList = new ArrayList<MessageContainer>();
     /**
      * Synchronized trace message trace.
      */
-    List<Message> syncTraceList = Collections.synchronizedList(traceList);
+    List<MessageContainer> syncTraceList = Collections.synchronizedList(traceList);
     
     /**
      * Public constructor for a workflow. Assigns an observable bridge to each
@@ -115,10 +115,10 @@ public abstract class AWorkflow implements Observer {
     /**
      * Notify changes to the the observers and deliver the trace object.
      *
-     * @param trace Message trace
+     * @param trace MessageContainer trace
      * @param state State for which this notification is valid
      */
-    public void notifyObservers(final Message trace,
+    public void notifyObservers(final MessageContainer trace,
             final WorkflowState state) {
         states[state.getID()].notifyObservers(trace);
     }
@@ -127,9 +127,9 @@ public abstract class AWorkflow implements Observer {
      * Notify changes to the the observers of the current state and deliver the
      * trace object.
      *
-     * @param trace Message trace
+     * @param trace MessageContainer trace
      */
-    public void notifyCurrentObservers(final Message trace) {
+    public void notifyCurrentObservers(final MessageContainer trace) {
         states[currentState].notifyObservers(trace);
     }
 
@@ -139,7 +139,7 @@ public abstract class AWorkflow implements Observer {
      *
      * @param trace Holds the tracing data
      */
-    public void nextStateAndNotify(final Message trace) {
+    public void nextStateAndNotify(final MessageContainer trace) {
         nextState();
         notifyCurrentObservers(trace);
     }
@@ -172,7 +172,7 @@ public abstract class AWorkflow implements Observer {
      *
      * @param trace Holds the tracing data
      */
-    public void previousStateAndNotify(final Message trace) {
+    public void previousStateAndNotify(final MessageContainer trace) {
         previousState();
         notifyCurrentObservers(trace);
     }
@@ -204,7 +204,7 @@ public abstract class AWorkflow implements Observer {
      * @param trace Holds the tracing data
      * @param state The new state
      */
-    public void switchToState(final Message trace,
+    public void switchToState(final MessageContainer trace,
             final WorkflowState state) {
         setCurrentState(state.getID());
         notifyCurrentObservers(trace);
@@ -286,10 +286,10 @@ public abstract class AWorkflow implements Observer {
      * Sets the current record of a trace and saves the previous one if 
      * present.
      *
-     * @param trace Message to be modified
+     * @param trace MessageContainer to be modified
      * @param record New record to be set
      */
-    public void setRecordTrace(final Message trace,
+    public void setRecordTrace(final MessageContainer trace,
             final ARecordFrame record) {
         // save the old state
         ARecordFrame oldRecord = trace.getOldRecord();
@@ -300,20 +300,20 @@ public abstract class AWorkflow implements Observer {
     }
 
     /**
-     * Add a new Message object to the ArrayList.
+     * Add a new MessageContainer object to the ArrayList.
      *
-     * @param trace Message object to be added
+     * @param trace MessageContainer object to be added
      */
-    public synchronized void addToTraceList(final Message trace) {
+    public synchronized void addToTraceList(final MessageContainer trace) {
         syncTraceList.add(trace);
     }
 
     /**
      * Get the trace syncTraceList of the whole handshake.
      *
-     * @return Message syncTraceList
+     * @return MessageContainer syncTraceList
      */
-    public ArrayList<Message> getTraceList() {
-        return (ArrayList<Message>) traceList.clone();
+    public ArrayList<MessageContainer> getTraceList() {
+        return (ArrayList<MessageContainer>) traceList.clone();
     }
 }

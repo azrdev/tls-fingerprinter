@@ -7,7 +7,7 @@ import de.rub.nds.ssl.stack.protocols.handshake.ClientKeyExchange;
 import de.rub.nds.ssl.stack.protocols.handshake.datatypes.EncPreMasterSecret;
 import de.rub.nds.ssl.stack.protocols.handshake.datatypes.PreMasterSecret;
 import de.rub.nds.ssl.stack.tests.attacks.bleichenbacher.exceptions.OracleException;
-import de.rub.nds.ssl.stack.trace.Message;
+import de.rub.nds.ssl.stack.trace.MessageContainer;
 import de.rub.nds.ssl.stack.workflows.commons.ObservableBridge;
 import de.rub.nds.ssl.stack.workflows.TLS10HandshakeWorkflow;
 import java.net.SocketException;
@@ -52,14 +52,14 @@ public class JSSEOracle extends ASSLServerOracle {
      */
     @Override
     public void update(final Observable o, final Object arg) {
-        Message trace = null;
+        MessageContainer trace = null;
         TLS10HandshakeWorkflow.EStates state = null;
         oracleResult = false;
         ObservableBridge obs;
         if (o != null && o instanceof ObservableBridge) {
             obs = (ObservableBridge) o;
             state = (TLS10HandshakeWorkflow.EStates) obs.getState();
-            trace = (Message) arg;
+            trace = (MessageContainer) arg;
         }
         if (state != null) {
             switch (state) {

@@ -2,7 +2,7 @@ package de.rub.nds.ssl.stack.workflows.response.fecther;
 
 import de.rub.nds.research.timingsocket.TimingSocket;
 import de.rub.nds.ssl.stack.protocols.ARecordFrame;
-import de.rub.nds.ssl.stack.trace.Message;
+import de.rub.nds.ssl.stack.trace.MessageContainer;
 import de.rub.nds.ssl.stack.workflows.AWorkflow;
 import java.io.DataInputStream;
 import java.io.IOException;
@@ -48,7 +48,7 @@ public class TimingFetcher extends AResponseFetcher {
             e.printStackTrace();
         }
         DataInputStream dis = new DataInputStream(in);
-        Message response;
+        MessageContainer response;
         while (continueFetching()) {
             try {
                 ts.setSoTimeout(10000);
@@ -64,7 +64,7 @@ public class TimingFetcher extends AResponseFetcher {
                 dis.readFully(answer, header.length, length);
                 //set changed Flag and notify the observer
                 this.setChanged();
-                response = new Message(answer, time);
+                response = new MessageContainer(answer, time);
                 this.notifyObservers(response);
                 workflow.wakeUp();
             } catch (IOException e) {

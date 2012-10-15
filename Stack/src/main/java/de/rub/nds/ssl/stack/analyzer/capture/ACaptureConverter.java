@@ -8,7 +8,7 @@ import de.rub.nds.ssl.stack.protocols.handshake.HandshakeEnumeration;
 import de.rub.nds.ssl.stack.protocols.msgs.ChangeCipherSpec;
 import de.rub.nds.ssl.stack.protocols.msgs.TLSCiphertext;
 import de.rub.nds.ssl.stack.protocols.msgs.TLSPlaintext;
-import de.rub.nds.ssl.stack.trace.Message;
+import de.rub.nds.ssl.stack.trace.MessageContainer;
 import de.rub.nds.ssl.stack.workflows.TLS10HandshakeWorkflow;
 import de.rub.nds.virtualnetworklayer.connection.pcap.PcapTrace;
 import java.util.ArrayList;
@@ -41,13 +41,25 @@ public abstract class ACaptureConverter {
         return record;
     }
 
-    
-    public ARecordFrame[] extractMessages(final PcapTrace trace) {
-        byte[] capturedBytes = Message.getBytesFromTrace(trace);
-        return extractMessages(capturedBytes);
+    public MessageContainer[] trace2MessageContainer(final PcapTrace trace) {
+        byte[] capturedBytes = MessageContainer.getBytesFromTrace(trace);
+        ARecordFrame[] recordFrames = extractRecords(capturedBytes);
+        MessageContainer[] container = new MessageContainer[recordFrames.length];
+        for(int i=0; i< recordFrames.length; i++) {
+            container[i] = new MessageContainer(recordFrames[i], 
+                    trace.get(0).getTimeStamp());
+            container[i].setPcapTrace(trace);
+        }
+        
+        return container;
     }
     
-    public ARecordFrame[] extractMessages(final byte[] capture) {
+    public ARecordFrame[] extractRecords(final PcapTrace trace) {
+        byte[] capturedBytes = MessageContainer.getBytesFromTrace(trace);
+        return extractRecords(capturedBytes);
+    }
+    
+    public ARecordFrame[] extractRecords(final byte[] capture) {
         List<ARecordFrame> recordFrames = new ArrayList<ARecordFrame>(10);
 
         int offset = 0;
