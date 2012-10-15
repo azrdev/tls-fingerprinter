@@ -13,7 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Loads a captured byte[] and extracts the included messages.
+ * Utility class to handle captured data.
  *
  * @author Christopher Meyer - christopher.meyer@rub.de
  * @version 0.1
