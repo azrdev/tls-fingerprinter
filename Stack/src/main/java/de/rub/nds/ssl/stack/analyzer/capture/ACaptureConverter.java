@@ -22,23 +22,34 @@ import java.util.List;
  */
 public abstract class ACaptureConverter {
 
-    public static byte[] sliceOfNextRecord(final byte[] message,
+    /**
+     * Slices the next record frame out of a given message.
+     * @param bytes Byte array representing record frame(s).
+     * @param offset Offset where to start with record slicing.
+     * @return Next record in the byte[].
+     */
+    public static byte[] sliceOfNextRecord(final byte[] bytes,
             final int offset) {
         int pointer = 0;
         //Determine the length of the frame
-        int length = (message[3 + offset] & 0xff) << 8
-                | (message[4 + offset] & 0xff);
+        int length = (bytes[3 + offset] & 0xff) << 8
+                | (bytes[4 + offset] & 0xff);
         byte[] record = new byte[ARecordFrame.LENGTH_MINIMUM_ENCODED + length];
         // copy header
-        System.arraycopy(message, offset, record, 0,
+        System.arraycopy(bytes, offset, record, 0,
                 ARecordFrame.LENGTH_MINIMUM_ENCODED);
         pointer += ARecordFrame.LENGTH_MINIMUM_ENCODED;
         // copy payload
-        System.arraycopy(message, offset + pointer, record, pointer, length);
+        System.arraycopy(bytes, offset + pointer, record, pointer, length);
 
         return record;
     }
 
+    /**
+     * Converts a PcapTrace into a MessageContainer[].
+     * @param trace Trace to convert.
+     * @return Converted trace including the original trace.
+     */
     public static MessageContainer[] convertTrace(final PcapTrace trace) {
         byte[] capturedBytes = MessageContainer.getBytesFromTrace(trace);
         ARecordFrame[] recordFrames = extractRecords(capturedBytes);
@@ -52,11 +63,21 @@ public abstract class ACaptureConverter {
         return container;
     }
     
+    /**
+     * Extracts records of given capture Pcap trace.
+     * @param trace Record capture.
+     * @return Decoded messages included in the captured PcapTrace.
+     */
     public static ARecordFrame[] extractRecords(final PcapTrace trace) {
         byte[] capturedBytes = MessageContainer.getBytesFromTrace(trace);
         return extractRecords(capturedBytes);
     }
     
+    /**
+     * Extracts records of given capture byte[].
+     * @param capture Record capture.
+     * @return Decoded messages included in the captured byte[].
+     */
     public static ARecordFrame[] extractRecords(final byte[] capture) {
         List<ARecordFrame> recordFrames = new ArrayList<ARecordFrame>(10);
 
@@ -79,6 +100,11 @@ public abstract class ACaptureConverter {
         return recordFrames.toArray(new ARecordFrame[recordFrames.size()]);
     }
 
+    /**
+     * Decodes an encoded record.
+     * @param record Encoded record
+     * @return Decoded record frames
+     */
     public static ARecordFrame[] decodeRecordFrames(final byte[] record) {
         ARecordFrame[] decodedFrames = new ARecordFrame[1];
         switch (EContentType.getContentType(record[0])) {
@@ -96,6 +122,7 @@ public abstract class ACaptureConverter {
                 if (decodedFrames == null || decodedFrames[0] == null
                         || decodedFrames.length <= 1) {
                     // second try
+                    decodedFrames = new ARecordFrame[1];
                     decodedFrames[0] = new TLSCiphertext(record, true);
                 }
                 break;
