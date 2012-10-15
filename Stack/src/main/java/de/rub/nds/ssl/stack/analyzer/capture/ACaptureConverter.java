@@ -22,7 +22,7 @@ import java.util.List;
  */
 public abstract class ACaptureConverter {
 
-    public byte[] sliceOfNextRecord(final byte[] message,
+    public static byte[] sliceOfNextRecord(final byte[] message,
             final int offset) {
         int pointer = 0;
         //Determine the length of the frame
@@ -39,7 +39,7 @@ public abstract class ACaptureConverter {
         return record;
     }
 
-    public MessageContainer[] trace2MessageContainer(final PcapTrace trace) {
+    public static MessageContainer[] convertTrace(final PcapTrace trace) {
         byte[] capturedBytes = MessageContainer.getBytesFromTrace(trace);
         ARecordFrame[] recordFrames = extractRecords(capturedBytes);
         MessageContainer[] container = new MessageContainer[recordFrames.length];
@@ -52,12 +52,12 @@ public abstract class ACaptureConverter {
         return container;
     }
     
-    public ARecordFrame[] extractRecords(final PcapTrace trace) {
+    public static ARecordFrame[] extractRecords(final PcapTrace trace) {
         byte[] capturedBytes = MessageContainer.getBytesFromTrace(trace);
         return extractRecords(capturedBytes);
     }
     
-    public ARecordFrame[] extractRecords(final byte[] capture) {
+    public static ARecordFrame[] extractRecords(final byte[] capture) {
         List<ARecordFrame> recordFrames = new ArrayList<ARecordFrame>(10);
 
         int offset = 0;
@@ -79,7 +79,7 @@ public abstract class ACaptureConverter {
         return recordFrames.toArray(new ARecordFrame[recordFrames.size()]);
     }
 
-    public ARecordFrame[] decodeRecordFrames(final byte[] record) {
+    public static ARecordFrame[] decodeRecordFrames(final byte[] record) {
         ARecordFrame[] decodedFrames = new ARecordFrame[1];
         switch (EContentType.getContentType(record[0])) {
             case CHANGE_CIPHER_SPEC:
@@ -107,5 +107,11 @@ public abstract class ACaptureConverter {
         }
 
         return decodedFrames;
+    }
+
+    /**
+     * Utility class - private constructor.
+     */
+    private ACaptureConverter() {
     }
 }
