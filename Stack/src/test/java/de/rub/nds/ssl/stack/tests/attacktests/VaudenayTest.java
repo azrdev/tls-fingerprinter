@@ -9,14 +9,14 @@ import de.rub.nds.ssl.stack.protocols.handshake.datatypes.RandomValue;
 import de.rub.nds.ssl.stack.protocols.msgs.TLSCiphertext;
 import de.rub.nds.ssl.stack.protocols.msgs.datatypes.GenericBlockCipher;
 import de.rub.nds.ssl.stack.tests.analyzer.parameters.FinishedParameters;
-import de.rub.nds.ssl.stack.tests.common.KeyMaterial;
-import de.rub.nds.ssl.stack.tests.common.MessageBuilder;
+import de.rub.nds.ssl.stack.workflows.commons.KeyMaterial;
+import de.rub.nds.ssl.stack.workflows.commons.MessageBuilder;
 import de.rub.nds.ssl.stack.tests.common.SSLServerHandler;
-import de.rub.nds.ssl.stack.tests.common.SSLTestUtils;
-import de.rub.nds.ssl.stack.tests.trace.MessageTrace;
-import de.rub.nds.ssl.stack.tests.workflows.ObservableBridge;
-import de.rub.nds.ssl.stack.tests.workflows.TLS10HandshakeWorkflow;
-import de.rub.nds.ssl.stack.tests.workflows.TLS10HandshakeWorkflow.EStates;
+import de.rub.nds.ssl.stack.workflows.commons.MessageUtils;
+import de.rub.nds.ssl.stack.trace.MessageTrace;
+import de.rub.nds.ssl.stack.workflows.commons.ObservableBridge;
+import de.rub.nds.ssl.stack.workflows.TLS10HandshakeWorkflow;
+import de.rub.nds.ssl.stack.workflows.TLS10HandshakeWorkflow.EStates;
 import java.net.SocketException;
 import java.security.InvalidKeyException;
 import java.util.Observable;
@@ -45,7 +45,7 @@ public class VaudenayTest implements Observer {
     /**
      * Help utilities for testing.
      */
-    private SSLTestUtils utils = new SSLTestUtils();
+    private MessageUtils utils = new MessageUtils();
     /**
      * TLS protocol version.
      */

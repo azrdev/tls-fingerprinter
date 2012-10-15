@@ -2,8 +2,8 @@ package de.rub.nds.ssl.stack.tests.attacks.bleichenbacher.oracles;
 
 import de.rub.nds.ssl.stack.protocols.commons.EProtocolVersion;
 import de.rub.nds.ssl.stack.tests.attacks.bleichenbacher.exceptions.OracleException;
-import de.rub.nds.ssl.stack.tests.workflows.ESupportedSockets;
-import de.rub.nds.ssl.stack.tests.workflows.TLS10HandshakeWorkflow;
+import de.rub.nds.ssl.stack.workflows.commons.ESupportedSockets;
+import de.rub.nds.ssl.stack.workflows.TLS10HandshakeWorkflow;
 import java.io.IOException;
 import java.net.ConnectException;
 import java.net.SocketException;

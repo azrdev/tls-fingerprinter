@@ -1,4 +1,4 @@
-package de.rub.nds.ssl.stack.tests.common;
+package de.rub.nds.ssl.stack.workflows.commons;
 
 import java.security.DigestException;
 import java.security.MessageDigest;

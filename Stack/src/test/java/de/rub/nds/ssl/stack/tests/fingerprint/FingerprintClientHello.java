@@ -16,12 +16,12 @@ import de.rub.nds.ssl.stack.tests.analyzer.AFingerprintAnalyzer;
 import de.rub.nds.ssl.stack.tests.analyzer.TestHashAnalyzer;
 import de.rub.nds.ssl.stack.tests.analyzer.parameters.ClientHelloParameters;
 import de.rub.nds.ssl.stack.tests.analyzer.parameters.EFingerprintIdentifier;
-import de.rub.nds.ssl.stack.tests.common.MessageBuilder;
+import de.rub.nds.ssl.stack.workflows.commons.MessageBuilder;
 import de.rub.nds.ssl.stack.tests.common.TestConfiguration;
-import de.rub.nds.ssl.stack.tests.trace.MessageTrace;
-import de.rub.nds.ssl.stack.tests.workflows.ObservableBridge;
-import de.rub.nds.ssl.stack.tests.workflows.TLS10HandshakeWorkflow;
-import de.rub.nds.ssl.stack.tests.workflows.TLS10HandshakeWorkflow.EStates;
+import de.rub.nds.ssl.stack.trace.MessageTrace;
+import de.rub.nds.ssl.stack.workflows.commons.ObservableBridge;
+import de.rub.nds.ssl.stack.workflows.TLS10HandshakeWorkflow;
+import de.rub.nds.ssl.stack.workflows.TLS10HandshakeWorkflow.EStates;
 
 /**
  * Fingerprint the ClientHello SSL message.

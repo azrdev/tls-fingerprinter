@@ -2,7 +2,7 @@ package de.rub.nds.ssl.stack.tests.analyzer;
 
 import java.util.ArrayList;
 
-import de.rub.nds.ssl.stack.tests.trace.MessageTrace;
+import de.rub.nds.ssl.stack.trace.MessageTrace;
 
 /**
  * Fingerprint analysis of a Unit Test.

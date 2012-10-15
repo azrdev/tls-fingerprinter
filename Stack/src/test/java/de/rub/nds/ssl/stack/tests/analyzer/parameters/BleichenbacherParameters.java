@@ -1,7 +1,7 @@
 package de.rub.nds.ssl.stack.tests.analyzer.parameters;
 
 import de.rub.nds.ssl.stack.Utility;
-import de.rub.nds.ssl.stack.tests.common.SSLTestUtils;
+import de.rub.nds.ssl.stack.workflows.commons.MessageUtils;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
@@ -32,7 +32,7 @@ public class BleichenbacherParameters extends AParameters {
     /**
      * Position where padding is changed.
      */
-    private SSLTestUtils.POSITIONS position;
+    private MessageUtils.POSITIONS position;
     /**
      * Arbitrary position in padding.
      */
@@ -133,7 +133,7 @@ public class BleichenbacherParameters extends AParameters {
      *
      * @return Position
      */
-    public SSLTestUtils.POSITIONS getPosition() {
+    public MessageUtils.POSITIONS getPosition() {
         return position;
     }
 
@@ -142,7 +142,7 @@ public class BleichenbacherParameters extends AParameters {
      *
      * @param position Position where padding is changed
      */
-    public void setPosition(SSLTestUtils.POSITIONS position) {
+    public void setPosition(MessageUtils.POSITIONS position) {
         this.position = position;
     }
 

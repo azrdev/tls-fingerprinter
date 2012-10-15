@@ -1,4 +1,4 @@
-package de.rub.nds.ssl.stack.tests.common;
+package de.rub.nds.ssl.stack.workflows.commons;
 
 import de.rub.nds.ssl.stack.protocols.commons.EBulkCipherAlgorithm;
 import de.rub.nds.ssl.stack.protocols.commons.PseudoRandomFunction;

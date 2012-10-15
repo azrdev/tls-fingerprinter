@@ -26,12 +26,12 @@ import de.rub.nds.ssl.stack.tests.analyzer.AFingerprintAnalyzer;
 import de.rub.nds.ssl.stack.tests.analyzer.TestHashAnalyzer;
 import de.rub.nds.ssl.stack.tests.analyzer.parameters.EFingerprintIdentifier;
 import de.rub.nds.ssl.stack.tests.analyzer.parameters.FinishedParameters;
-import de.rub.nds.ssl.stack.tests.common.KeyMaterial;
+import de.rub.nds.ssl.stack.workflows.commons.KeyMaterial;
 import de.rub.nds.ssl.stack.tests.common.TestConfiguration;
-import de.rub.nds.ssl.stack.tests.trace.MessageTrace;
-import de.rub.nds.ssl.stack.tests.workflows.ObservableBridge;
-import de.rub.nds.ssl.stack.tests.workflows.TLS10HandshakeWorkflow;
-import de.rub.nds.ssl.stack.tests.workflows.TLS10HandshakeWorkflow.EStates;
+import de.rub.nds.ssl.stack.trace.MessageTrace;
+import de.rub.nds.ssl.stack.workflows.commons.ObservableBridge;
+import de.rub.nds.ssl.stack.workflows.TLS10HandshakeWorkflow;
+import de.rub.nds.ssl.stack.workflows.TLS10HandshakeWorkflow.EStates;
 
 public class FingerprintFinished extends GenericFingerprintTest implements Observer {
 

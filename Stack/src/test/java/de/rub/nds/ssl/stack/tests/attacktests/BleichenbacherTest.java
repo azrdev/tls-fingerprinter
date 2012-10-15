@@ -13,15 +13,15 @@ import de.rub.nds.ssl.stack.protocols.handshake.datatypes.RandomValue;
 import de.rub.nds.ssl.stack.protocols.msgs.datatypes.RsaUtil;
 import de.rub.nds.ssl.stack.tests.analyzer.parameters.BleichenbacherParameters;
 import de.rub.nds.ssl.stack.tests.analyzer.parameters.EFingerprintIdentifier;
-import de.rub.nds.ssl.stack.tests.common.MessageBuilder;
 import de.rub.nds.ssl.stack.tests.common.SSLServerHandler;
-import de.rub.nds.ssl.stack.tests.common.SSLTestUtils;
 import de.rub.nds.ssl.stack.tests.common.TestConfiguration;
-import de.rub.nds.ssl.stack.tests.trace.MessageTrace;
-import de.rub.nds.ssl.stack.tests.workflows.ESupportedSockets;
-import de.rub.nds.ssl.stack.tests.workflows.ObservableBridge;
-import de.rub.nds.ssl.stack.tests.workflows.TLS10HandshakeWorkflow;
-import de.rub.nds.ssl.stack.tests.workflows.TLS10HandshakeWorkflow.EStates;
+import de.rub.nds.ssl.stack.trace.MessageTrace;
+import de.rub.nds.ssl.stack.workflows.commons.ESupportedSockets;
+import de.rub.nds.ssl.stack.workflows.commons.ObservableBridge;
+import de.rub.nds.ssl.stack.workflows.TLS10HandshakeWorkflow;
+import de.rub.nds.ssl.stack.workflows.TLS10HandshakeWorkflow.EStates;
+import de.rub.nds.ssl.stack.workflows.commons.MessageBuilder;
+import de.rub.nds.ssl.stack.workflows.commons.MessageUtils;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.security.PublicKey;
@@ -47,7 +47,7 @@ public class BleichenbacherTest implements Observer {
     /**
      * Help utilities for testing.
      */
-    private SSLTestUtils utils = new SSLTestUtils();
+    private MessageUtils utils = new MessageUtils();
     /**
      * TLS protocol version.
      */
@@ -88,35 +88,35 @@ public class BleichenbacherTest implements Observer {
                     {"OK case",
                         new byte[]{0x00, 0x02}, new byte[]{0x00},
                         protocolVersion.getId(), false,
-                        SSLTestUtils.POSITIONS.FIRST, 0},
+                        MessageUtils.POSITIONS.FIRST, 0},
                     {"Wrong protocol version in PreMasterSecret",
                         new byte[]{0x00, 0x02}, new byte[]{0x00},
                         EProtocolVersion.SSL_3_0.getId(), false,
-                        SSLTestUtils.POSITIONS.FIRST, 0},
+                        MessageUtils.POSITIONS.FIRST, 0},
                     {"Invalid protocol version in PreMasterSecret",
                         new byte[]{0x00, 0x02}, new byte[]{0x00},
                         new byte[]{(byte) 0xff, (byte) 0xff}, false,
-                        SSLTestUtils.POSITIONS.FIRST, 0},
+                        MessageUtils.POSITIONS.FIRST, 0},
                     {"Separate byte not 0x00",
                         new byte[]{0x00, 0x02}, new byte[]{0x01},
                         protocolVersion.getId(), false,
-                        SSLTestUtils.POSITIONS.FIRST, 0},
+                        MessageUtils.POSITIONS.FIRST, 0},
                     {"Mode changed (first two bytes)",
                         new byte[]{0x00, 0x01}, new byte[]{0x00},
                         protocolVersion.getId(), false,
-                        SSLTestUtils.POSITIONS.FIRST, 0},
+                        MessageUtils.POSITIONS.FIRST, 0},
                     {"Zero byte at first position in padding",
                         new byte[]{0x00, 0x02}, new byte[]{0x00},
                         protocolVersion.getId(), true,
-                        SSLTestUtils.POSITIONS.FIRST, 0},
+                        MessageUtils.POSITIONS.FIRST, 0},
                     {"Zero byte in the middle of the padding string",
                         new byte[]{0x00, 0x02}, new byte[]{0x00},
                         protocolVersion.getId(), true,
-                        SSLTestUtils.POSITIONS.MIDDLE, 0},
+                        MessageUtils.POSITIONS.MIDDLE, 0},
                     {"Zero byte at the end of the padding string",
                         new byte[]{0x00, 0x02}, new byte[]{0x00},
                         protocolVersion.getId(), true,
-                        SSLTestUtils.POSITIONS.LAST, 0},
+                        MessageUtils.POSITIONS.LAST, 0},
                     {"Zero byte at custom position of the padding string",
                         new byte[]{0x00, 0x02}, new byte[]{0x00},
                         protocolVersion.getId(), true,
@@ -138,7 +138,7 @@ public class BleichenbacherTest implements Observer {
     public final void testBleichenbacherPossible(String desc,
             final byte[] mode, final byte[] separate,
             final byte[] version, final boolean changePadding,
-            final SSLTestUtils.POSITIONS position, final Integer anyPosition)
+            final MessageUtils.POSITIONS position, final Integer anyPosition)
             throws IOException {
         logger.info("++++ Start Test No." + counter + " (" + desc + ") ++++");
         this.counter++;

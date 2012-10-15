@@ -6,14 +6,14 @@ import org.testng.annotations.BeforeClass;
 
 import de.rub.nds.ssl.stack.protocols.commons.EProtocolVersion;
 import de.rub.nds.ssl.stack.tests.analyzer.parameters.HeaderParameters;
-import de.rub.nds.ssl.stack.tests.common.SSLTestUtils;
-import de.rub.nds.ssl.stack.tests.workflows.TLS10HandshakeWorkflow;
+import de.rub.nds.ssl.stack.workflows.commons.MessageUtils;
+import de.rub.nds.ssl.stack.workflows.TLS10HandshakeWorkflow;
 
 public abstract class GenericFingerprintTest {
     /**
      * Help utilities for testing.
      */
-    protected SSLTestUtils utils = new SSLTestUtils();
+    protected MessageUtils utils = new MessageUtils();
 
     /**
      * Handshake workflow to observe.

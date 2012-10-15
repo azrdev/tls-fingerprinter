@@ -8,7 +8,7 @@ import org.testng.annotations.Test;
 import de.rub.nds.ssl.stack.tests.analyzer.AFingerprintAnalyzer;
 import de.rub.nds.ssl.stack.tests.analyzer.HandshakeEnumCheck;
 import de.rub.nds.ssl.stack.tests.common.TestConfiguration;
-import de.rub.nds.ssl.stack.tests.workflows.TLS10HandshakeWorkflow;
+import de.rub.nds.ssl.stack.workflows.TLS10HandshakeWorkflow;
 
 /**
  * Check if handshake messages were enumerated.

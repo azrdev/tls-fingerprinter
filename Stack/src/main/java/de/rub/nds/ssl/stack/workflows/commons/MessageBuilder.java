@@ -1,4 +1,4 @@
-package de.rub.nds.ssl.stack.tests.common;
+package de.rub.nds.ssl.stack.workflows.commons;
 
 import de.rub.nds.ssl.stack.protocols.ARecordFrame;
 import de.rub.nds.ssl.stack.protocols.commons.*;
@@ -9,7 +9,7 @@ import de.rub.nds.ssl.stack.protocols.handshake.datatypes.*;
 import de.rub.nds.ssl.stack.protocols.msgs.TLSCiphertext;
 import de.rub.nds.ssl.stack.protocols.msgs.datatypes.GenericBlockCipher;
 import de.rub.nds.ssl.stack.protocols.msgs.datatypes.GenericStreamCipher;
-import de.rub.nds.ssl.stack.tests.workflows.TLS10HandshakeWorkflow;
+import de.rub.nds.ssl.stack.workflows.TLS10HandshakeWorkflow;
 import java.math.BigInteger;
 import java.security.InvalidKeyException;
 import java.security.PublicKey;

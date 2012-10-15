@@ -1,4 +1,4 @@
-package de.rub.nds.ssl.stack.tests.common;
+package de.rub.nds.ssl.stack.workflows.commons;
 
 import de.rub.nds.ssl.stack.protocols.commons.ECipherSuite;
 import de.rub.nds.ssl.stack.protocols.commons.SecurityParameters;
@@ -10,12 +10,12 @@ import java.io.OutputStream;
 import java.security.SecureRandom;
 
 /**
- * Help methods for the test classes
+ * Utility methods for message building.
  *
  * @author Eugen Weiss - eugen.weiss@ruhr-uni-bochum.de
  * @version 0.1 Mar 15, 2012
  */
-public class SSLTestUtils {
+public class MessageUtils {
 
     /**
      * Length of the padding string.
@@ -45,7 +45,7 @@ public class SSLTestUtils {
     /**
      * Empty constructor.
      */
-    public SSLTestUtils() {
+    public MessageUtils() {
     }
 
     /**
