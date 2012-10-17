@@ -2,7 +2,6 @@ package de.rub.nds.ssl.stack.trace;
 
 import de.rub.nds.ssl.stack.protocols.ARecordFrame;
 import de.rub.nds.ssl.stack.workflows.TLS10HandshakeWorkflow.EStates;
-import de.rub.nds.virtualnetworklayer.connection.pcap.PcapTrace;
 import de.rub.nds.virtualnetworklayer.packet.PcapPacket;
 
 /**
@@ -39,9 +38,9 @@ public final class MessageContainer {
      */
     private long timestamp;
     /**
-     * Pcap trace.
+     * Associated Pcap packet.
      */
-    private PcapTrace pcapTrace;
+    private PcapPacket pcapPacket;
 
     /**
      * Empty constructor.
@@ -50,6 +49,18 @@ public final class MessageContainer {
         this.timestamp = System.nanoTime();
     }
 
+    /**
+     * Public constructor of a MessageContainer object.
+     *
+     * @param record Record frame
+     * @param packet PcapPacket which included the frame
+     */
+    public MessageContainer(final ARecordFrame record, final PcapPacket packet) {
+        this.setCurrentRecord(record);
+        this.setTimestamp(packet.getTimeStamp());
+        this.setPcapPacket(packet);
+    }
+    
     /**
      * Public constructor of a MessageContainer object.
      *
@@ -105,29 +116,6 @@ public final class MessageContainer {
         this.setOldRecord(oldRecord);
         this.setContinued(isContinued);
         this.setTimestamp(timestamp);
-    }
-
-    /**
-     * Extracts a byte[] from a Pcap trace.
-     *
-     * @param trace Pcap trace including the bytes.
-     * @return Bytes of the Pcap trace.
-     */
-    public static byte[] getBytesFromTrace(final PcapTrace trace) {
-        int capacity = 0;
-        for (PcapPacket packet : trace) {
-            capacity += packet.getLength();
-        }
-
-        byte[] answerBytes = new byte[capacity];
-        int pointer = 0;
-        for (PcapPacket packet : trace) {
-            System.arraycopy(packet.getContent(), 0, answerBytes, pointer,
-                    packet.getLength());
-            pointer += packet.getLength();
-        }
-
-        return answerBytes;
     }
 
     /**
@@ -229,21 +217,21 @@ public final class MessageContainer {
     }
 
     /**
-     * Get the packet trace, if available.
+     * Get the associated Pcap packet, if available.
      *
-     * @return Packet trace
+     * @return Pcap packet 
      */
-    public PcapTrace getPcapTrace() {
-        return pcapTrace;
+    public PcapPacket getPcapPacket() {
+        return pcapPacket;
     }
 
     /**
-     * Set the packet trace.
+     * Set the associated Pcap packet.
      *
-     * @param trace Packet trace
+     * @param packet Pcap packet
      */
-    public void setPcapTrace(final PcapTrace trace) {
-        this.pcapTrace = trace;
+    public void setPcapPacket(final PcapPacket packet) {
+        this.pcapPacket = packet;
     }
 
     /**
@@ -251,16 +239,16 @@ public final class MessageContainer {
      *
      * @return Timestmap
      */
-    public final Long getTimestamp() {
+    public Long getTimestamp() {
         return this.timestamp;
     }
 
     /**
      * Set the time .
      *
-     * @param nanoTime Time
+     * @param timestamp Time
      */
-    public final void setTimestamp(final Long timestamp) {
+    public void setTimestamp(final Long timestamp) {
         this.timestamp = timestamp;
     }
 }
