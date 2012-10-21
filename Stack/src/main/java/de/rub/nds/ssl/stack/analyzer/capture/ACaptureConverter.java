@@ -185,6 +185,7 @@ public abstract class ACaptureConverter {
                 decodedFrames = new HandshakeEnumeration(record, true).
                         getMessages();
                 // look for an encrypted finished message
+                // TODO: Is this really the correct way to do it?
                 if (decodedFrames == null || decodedFrames[0] == null
                         || decodedFrames.length <= 1) {
                     // second try
