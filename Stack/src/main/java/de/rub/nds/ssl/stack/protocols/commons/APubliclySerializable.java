@@ -63,4 +63,16 @@ public abstract class APubliclySerializable {
 
         return result;
     }
+    
+    public String toString() {
+    	StringBuffer sb = new StringBuffer();
+    	byte[] encoded = this.encode(true);
+    	sb.append("APubliclySerializeable (" + this.getClass().getCanonicalName() + "): ");
+    	for (int i = 0; i < encoded.length-1; i++) {
+    		sb.append(Integer.toHexString(encoded[i]&0xff));
+    		sb.append(" ");
+    	}
+    	sb.append(Integer.toHexString(encoded[encoded.length-1]&0xff));
+    	return new String(sb);
+    }
 }
