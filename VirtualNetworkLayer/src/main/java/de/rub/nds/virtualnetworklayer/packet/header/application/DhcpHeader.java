@@ -125,7 +125,7 @@ public class DhcpHeader extends Header {
 
     @Override
     public boolean isBound(LinkedList<Header> previousHeaders, Pcap.DataLinkType dataLinkType) {
-        if (previousHeaders.getLast() instanceof UdpHeader) {
+        if ((previousHeaders.size() > 0) && (previousHeaders.getLast() instanceof UdpHeader)) {
             UdpHeader udpHeader = (UdpHeader) previousHeaders.getLast();
 
             return udpHeader.getSourcePort() == 67 || udpHeader.getSourcePort() == 68;

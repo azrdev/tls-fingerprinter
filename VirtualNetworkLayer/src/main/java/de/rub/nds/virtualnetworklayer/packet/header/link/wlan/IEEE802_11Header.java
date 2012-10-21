@@ -398,7 +398,7 @@ public class IEEE802_11Header extends Header implements Checksum {
 
     @Override
     public boolean isBound(LinkedList<Header> previousHeaders, Pcap.DataLinkType dataLinkType) {
-        if (previousHeaders.getLast() instanceof RadiotapHeader) {
+        if ((previousHeaders.size() > 0) && (previousHeaders.getLast() instanceof RadiotapHeader)) {
             return getBufferLength() > 10 && getType() != null;
         }
 

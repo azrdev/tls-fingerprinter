@@ -72,7 +72,7 @@ public class ArpHeader extends Header {
 
     @Override
     public boolean isBound(LinkedList<Header> previousHeaders, Pcap.DataLinkType dataLinkType) {
-        if (previousHeaders.getLast() instanceof Ethernet) {
+        if ((previousHeaders.size() > 0) && (previousHeaders.getLast()) instanceof Ethernet) {
             Ethernet header = (Ethernet) previousHeaders.getLast();
             return header.getType() == Ethernet.Type.Arp;
         }

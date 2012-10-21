@@ -123,20 +123,22 @@ public class TlsHeader extends Header {
 
     @Override
     public boolean isBound(LinkedList<Header> previousHeaders, Pcap.DataLinkType dataLinkType) {
-        Header previousHeader = previousHeaders.getLast();
+    	if (previousHeaders.size() > 0) {
+    		Header previousHeader = previousHeaders.getLast();
 
-        if (previousHeader instanceof TcpHeader) {
-            TcpHeader header = (TcpHeader) previousHeader;
+    		if ((previousHeaders.size() > 0) && (previousHeader instanceof TcpHeader)) {
+    			TcpHeader header = (TcpHeader) previousHeader;
 
-            if (bindToDefaultPorts
-                    && !(DefaultPorts.contains(header.getDestinationPort()) || DefaultPorts.contains(header.getSourcePort()))) {
-                return false;
-            }
+    			if (bindToDefaultPorts
+    					&& !(DefaultPorts.contains(header.getDestinationPort()) || DefaultPorts.contains(header.getSourcePort()))) {
+    				return false;
+    			}
 
-            return previousHeader.getPayloadLength() >= getLength() && getContentType() != null && getVersion() != null;
-        } else if (previousHeader instanceof TlsHeader) {
-            return getBufferLength() >= getLength() && getContentType() != null && getVersion() != null;
-        }
+    			return previousHeader.getPayloadLength() >= getLength() && getContentType() != null && getVersion() != null;
+    		} else if ((previousHeaders.size() > 0) && (previousHeader instanceof TlsHeader)) {
+    			return getBufferLength() >= getLength() && getContentType() != null && getVersion() != null;
+    		}
+    	}
 
         return false;
     }

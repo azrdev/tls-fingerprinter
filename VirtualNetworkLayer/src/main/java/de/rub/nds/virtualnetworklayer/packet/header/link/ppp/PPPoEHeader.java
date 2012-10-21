@@ -55,7 +55,7 @@ public class PPPoEHeader extends Header implements PPP {
 
     @Override
     public boolean isBound(LinkedList<Header> previousHeaders, Pcap.DataLinkType dataLinkType) {
-        if (previousHeaders.getLast() instanceof Ethernet) {
+        if ((previousHeaders.size() > 0) && (previousHeaders.getLast() instanceof Ethernet)) {
             Ethernet header = (Ethernet) previousHeaders.getLast();
             return (header.getType() == Ethernet.Type.PPPoE_Session ||
                     header.getType() == Ethernet.Type.PPPoE_Discovery);

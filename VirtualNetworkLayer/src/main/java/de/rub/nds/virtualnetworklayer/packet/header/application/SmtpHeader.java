@@ -158,7 +158,7 @@ public class SmtpHeader extends EncodedHeader {
 
     @Override
     public boolean isBound(LinkedList<Header> previousHeaders, Pcap.DataLinkType dataLinkType) {
-        if (previousHeaders.getLast() instanceof TcpHeader) {
+        if ((previousHeaders.size() > 0) && (previousHeaders.getLast() instanceof TcpHeader)) {
             TcpHeader header = (TcpHeader) previousHeaders.getLast();
 
 

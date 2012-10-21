@@ -68,7 +68,7 @@ public class SipHeader extends HttpHeader {
 
     @Override
     public boolean isBound(LinkedList<Header> previousHeaders, Pcap.DataLinkType dataLinkType) {
-        if (previousHeaders.getLast() instanceof Port) {
+        if ((previousHeaders.size() > 0) && (previousHeaders.getLast() instanceof Port)) {
             Port header = (Port) previousHeaders.getLast();
 
             if (bindToDefaultPorts && !(header.getDestinationPort() == 5060 || header.getSourcePort() == 5060)) {

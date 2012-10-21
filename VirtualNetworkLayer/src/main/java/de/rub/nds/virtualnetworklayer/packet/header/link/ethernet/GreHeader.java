@@ -54,7 +54,7 @@ public class GreHeader extends Header implements Ethernet {
 
     @Override
     public boolean isBound(LinkedList<Header> previousHeaders, Pcap.DataLinkType dataLinkType) {
-        if (previousHeaders.getLast() instanceof Ip) {
+        if ((previousHeaders.size() > 0) && (previousHeaders.getLast() instanceof Ip)) {
             Ip header = (Ip) previousHeaders.getLast();
 
             return header.getNextHeader() == Ip.Protocol.Gre;

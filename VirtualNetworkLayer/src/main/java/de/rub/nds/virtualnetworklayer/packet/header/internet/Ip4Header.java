@@ -129,17 +129,17 @@ public class Ip4Header extends Ip {
 
     @Override
     public boolean isBound(LinkedList<Header> previousHeaders, Pcap.DataLinkType dataLinkType) {
-        if (previousHeaders.getLast() instanceof Ethernet) {
+        if ((previousHeaders.size() > 0) && (previousHeaders.getLast() instanceof Ethernet)) {
             Ethernet header = (Ethernet) previousHeaders.getLast();
             return header.getType() == Ethernet.Type.Ip4;
         }
 
-        if (previousHeaders.getLast() instanceof PPP) {
+        if ((previousHeaders.size() > 0) && (previousHeaders.getLast() instanceof PPP)) {
             PPP header = (PPP) previousHeaders.getLast();
             return header.getProtocol() == PPP.Protocol.IP;
         }
 
-        if (previousHeaders.getLast() instanceof Family) {
+        if ((previousHeaders.size() > 0) && (previousHeaders.getLast() instanceof Family)) {
             Family header = (Family) previousHeaders.getLast();
             return header.getAddressFamily() == Family.AddressFamily.INET;
         }
