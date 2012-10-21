@@ -474,6 +474,8 @@ public class Pcap {
         for (Device device : Pcap.getDevices()) {
             if (device.getName().equals(defaultRoute)) {
                 return device;
+            } else {
+            	System.err.println("device name " + device.getName() + " does not match");
             }
         }
         System.err.println("did not find a matching device");
@@ -491,15 +493,19 @@ public class Pcap {
      * @return device otherwise null
      */
     public static Device getDefaultDevice() {
-        String name = PcapLibrary.pcap_lookupdev(errbuf).getCString();
-        
-        for (Device device : getDevices()) {
-            if (device.getName().equals(name)) {
-                return device;
-            }
-        }
+		try {
+			String name = PcapLibrary.pcap_lookupdev(errbuf).getCString();
 
-        return null;
+			for (Device device : getDevices()) {
+				if (device.getName().equals(name)) {
+					return device;
+				}
+			}
+		} catch (NullPointerException e) {
+			return null;
+		}
+
+		return null;
     }
 
     /**
