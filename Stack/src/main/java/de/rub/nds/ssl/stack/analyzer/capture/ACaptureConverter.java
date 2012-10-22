@@ -189,8 +189,8 @@ public abstract class ACaptureConverter {
                 if (decodedFrames == null || decodedFrames[0] == null
                         || decodedFrames.length <= 1) {
                     // second try
-                    decodedFrames = new ARecordFrame[1];
-                    decodedFrames[0] = new TLSCiphertext(record, true);
+//                    decodedFrames = new ARecordFrame[1];
+//                    decodedFrames[0] = new TLSCiphertext(record, true);
                 }
                 break;
             case APPLICATION:

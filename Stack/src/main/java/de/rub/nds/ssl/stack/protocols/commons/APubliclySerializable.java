@@ -64,10 +64,16 @@ public abstract class APubliclySerializable {
         return result;
     }
     
+    /**
+     * Builds the String representation of the current object.
+     * @return Current object in String representation
+     */
     public String toString() {
-    	StringBuffer sb = new StringBuffer();
+    	StringBuffer sb = new StringBuffer(50);
     	byte[] encoded = this.encode(true);
-    	sb.append("APubliclySerializeable (" + this.getClass().getCanonicalName() + "): ");
+    	sb.append("APubliclySerializeable (");
+        sb.append(this.getClass().getCanonicalName());
+        sb.append("): ");
     	for (int i = 0; i < encoded.length-1; i++) {
     		sb.append(Integer.toHexString(encoded[i]&0xff));
     		sb.append(" ");

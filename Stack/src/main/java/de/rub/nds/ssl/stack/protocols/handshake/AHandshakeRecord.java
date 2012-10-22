@@ -24,9 +24,9 @@ abstract public class AHandshakeRecord extends ARecordFrame {
     public final static int LENGTH_MINIMUM_ENCODED =
             EMessageType.LENGTH_ENCODED + LENGTH_LENGTH_FIELD;
     /**
-     * The message type of this handshake record.
+     * The message type of this handshake record
      */
-    protected EMessageType messageType = null;
+    private EMessageType messageType = null;
 
     /**
      * Dummy constructor - used by the mandatory super() calls
@@ -39,6 +39,7 @@ abstract public class AHandshakeRecord extends ARecordFrame {
      * Initializes a handshake record as defined in RFC 2246
      *
      * @param version Protocol version of this handshake message
+     * @param message Encoded handshake message
      * @param type Message type of this handshake message
      */
     protected AHandshakeRecord(final EProtocolVersion version,
@@ -50,7 +51,7 @@ abstract public class AHandshakeRecord extends ARecordFrame {
     /**
      * Initializes a handshake record as defined in RFC 2246
      *
-     * @param version Protocol version of this handshake message
+     * @param message Encoded handshake message
      * @param chained Decode single or chained with underlying frames
      */
     protected AHandshakeRecord(final byte[] message, final boolean chained) {
@@ -78,7 +79,7 @@ abstract public class AHandshakeRecord extends ARecordFrame {
      */
     @Override
     public byte[] encode(final boolean chained) {
-        int pointer = 0;
+        int pointer;
         byte[] tmp;
         final byte[] payloadCopy = getPayload();
         byte[] handshakeRecord = new byte[EMessageType.LENGTH_ENCODED
@@ -107,6 +108,7 @@ abstract public class AHandshakeRecord extends ARecordFrame {
     /**
      * {@inheritDoc}
      */
+    @Override
     public void decode(final byte[] message, final boolean chained) {
         final byte[] payloadCopy;
         byte[] tmpBytes;

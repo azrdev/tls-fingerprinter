@@ -143,6 +143,7 @@ final public class HandshakeEnumeration extends ARecordFrame {
             Constructor<AHandshakeRecord> constrcutor =
                     implClass.getConstructor(parameter);
             result = constrcutor.newInstance(message, false);
+            result.setMessageType(type);
         } catch (InstantiationException ex) {
             // implementing class could not be instantiated
         } catch (IllegalAccessException ex) {

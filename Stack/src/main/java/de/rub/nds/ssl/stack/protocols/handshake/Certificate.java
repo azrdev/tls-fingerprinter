@@ -50,9 +50,6 @@ public final class Certificate extends AHandshakeRecord {
     public byte[] encode(final boolean chained) {
         byte[] encCertificates = certificates.encode(false);
 
-        // TODO: Der Code hier sieht echt komisch aus, wieso wird der Payload hier 3 bytes länger???
-
-
         // putting the pieces together
         byte[] certificateMsg = new byte[LENGTH_MINIMUM_ENCODED
                 + encCertificates.length];
@@ -71,10 +68,9 @@ public final class Certificate extends AHandshakeRecord {
     /**
      * {@inheritDoc}
      */
+    @Override
     public void decode(final byte[] message, final boolean chained) {
         byte[] payloadCopy;
-        int pointer;
-        int extractedLength;
 
         if (chained) {
             super.decode(message, true);
