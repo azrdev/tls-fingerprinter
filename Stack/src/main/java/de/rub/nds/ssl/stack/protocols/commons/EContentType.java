@@ -75,7 +75,7 @@ public enum EContentType {
     public static EContentType getContentType(final byte id) {
         if (!ID_MAP.containsKey(id)) {
             throw new IllegalArgumentException(
-                    "No content type with this ID registered.");
+                    "No content type with this ID registered: " + id);
         }
 
         return ID_MAP.get(id);
