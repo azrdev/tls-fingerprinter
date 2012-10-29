@@ -19,7 +19,7 @@ public enum EMessageType {
     CERTIFICATE_REQUEST((byte) 0xd, null),
     SERVER_HELLO_DONE((byte) 0xe, ServerHelloDone.class),
     CERTIFICATE_VERIFY((byte) 0xf, null),
-    CLIENT_KEY_EXCHANGE((byte) 0x10, null),
+    CLIENT_KEY_EXCHANGE((byte) 0x10, ClientKeyExchange.class),
     FINISHED((byte) 0x14, Finished.class);
     /**
      * Length of the message type id: 1 Byte
