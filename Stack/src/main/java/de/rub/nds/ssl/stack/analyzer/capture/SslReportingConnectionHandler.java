@@ -3,6 +3,7 @@ package de.rub.nds.ssl.stack.analyzer.capture;
 import java.util.ArrayList;
 import java.util.List;
 import de.rub.nds.ssl.stack.protocols.ARecordFrame;
+import de.rub.nds.ssl.stack.protocols.msgs.ChangeCipherSpec;
 import de.rub.nds.ssl.stack.trace.MessageContainer;
 import de.rub.nds.virtualnetworklayer.connection.pcap.ConnectionHandler;
 import de.rub.nds.virtualnetworklayer.connection.pcap.PcapConnection;
@@ -47,26 +48,15 @@ public class SslReportingConnectionHandler extends ConnectionHandler {
 		 }
 	}
 	
-	public void handleUpdate(PcapConnection connection) {
-		// Get a trace of all previous packets
-		PcapTrace trace = connection.getTrace();
-		
-		// Prepare a list for all MessageContainer
+	private static List<MessageContainer> decodeTrace(PcapTrace trace) {
 		List<MessageContainer> frameList = new ArrayList<MessageContainer>();
-		
+
 		// Now, iterate over all packets and find TLS record layer frames
 		for (PcapPacket packet : trace) {
 			// System.out.println(packet + " " + packet.getHeaders());
 
 			for (Header header : packet.getHeaders()) {
 				if (header instanceof TlsHeader) {
-					// This is what we are looking for
-					TlsHeader tlsHeader = (TlsHeader) header;
-
-					// Print the content type of the message for debugging
-					//System.out.println("Content Type "
-					//		+ tlsHeader.getContentType());
-
 					// Get the raw bytes of the frame, including the header
 					byte[] content = header.getHeaderAndPayload();
 
@@ -78,16 +68,30 @@ public class SslReportingConnectionHandler extends ConnectionHandler {
 					// the list
 					for (int i = 0; i < frames.length; i++) {
 						frameList.add(new MessageContainer(frames[i], packet));
+						if (frames[i] instanceof ChangeCipherSpec)  {
+							// From now on, there is encryption and we cannot decode it anymore.
+							return frameList;
+						}
 					}
 				}
 			}
-			
 		}
+		return frameList;
+	}
+	
+	public void handleUpdate(PcapConnection connection) {
+		
+		// Get a trace of all previous packets
+		PcapTrace trace = connection.getTrace();
+		
+		// Prepare a list for all MessageContainer
+		List<MessageContainer> frameList = decodeTrace(trace);
+			
 		if (frameList.size() > 0) {
 			// Now, print a full status report for that connection
-			System.out
-					.println("Received an Update for Connection from source port "
-							+ connection.getSession().getSourcePort());
+			
+			System.out.println("Received an Update for Connection "
+							+ connection);
 			for (MessageContainer aRecordFrame : frameList) {
 				System.out.println(aRecordFrame.getCurrentRecord());
 			}
