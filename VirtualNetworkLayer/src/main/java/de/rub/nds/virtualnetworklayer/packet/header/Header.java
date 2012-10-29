@@ -141,6 +141,10 @@ public abstract class Header implements Cloneable, StringFormattable {
         return getBytes(getLength(), getPayloadLength());
     }
 
+    public final byte[] getHeaderAndPayload() {
+    	return getBytes(0, getLength() + getPayloadLength());
+    }
+    
     public Header clone() {
         try {
             return (Header) super.clone();

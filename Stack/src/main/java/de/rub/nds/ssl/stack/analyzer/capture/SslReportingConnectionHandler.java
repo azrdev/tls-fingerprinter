@@ -68,7 +68,8 @@ public class SslReportingConnectionHandler extends ConnectionHandler {
                         System.out.println("Content Type " + tlsHeader.getContentType());
                         
                         // Get the raw bytes of the frame, including the header
-                        byte[] content = ((ReassembledPacket)packet).getFragmentSequence().getReassembledPayload();
+                        // byte[] content = ((ReassembledPacket)packet).getFragmentSequence().getReassembledPayload();
+                        byte[] content = header.getHeaderAndPayload();
                         
                         // Decode these bytes
                         ARecordFrame[] frames = ACaptureConverter.decodeRecordFrames(content);
