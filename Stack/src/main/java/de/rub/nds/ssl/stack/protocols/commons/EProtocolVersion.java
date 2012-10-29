@@ -74,6 +74,14 @@ public enum EProtocolVersion {
 
         return tmp;
     }
+    
+    /**
+     * Get a human readable representation.
+     */
+    public String toString() {
+    	byte[] id = this.getId();
+    	return "EProtocolVersion: Major " + id[0] + " Minor " + id[1];
+    }
 
     /**
      * Get the protocol version for a given id.

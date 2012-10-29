@@ -1,5 +1,7 @@
 package de.rub.nds.ssl.stack.protocols;
 
+import java.util.Arrays;
+
 import de.rub.nds.ssl.stack.protocols.commons.APubliclySerializable;
 import de.rub.nds.ssl.stack.protocols.commons.EContentType;
 import de.rub.nds.ssl.stack.protocols.commons.EProtocolVersion;
@@ -46,6 +48,14 @@ public abstract class ARecordFrame extends APubliclySerializable {
      */
     protected ARecordFrame() {
         super();
+    }
+    
+    
+    public String toString() {
+    	return  "ARecordFrame (" + this.getClass().getCanonicalName() + "):\n" +
+    			"  contentType = " + this.getContentType().toString() + "\n" +
+    			"  protocolVersion = " + this.getProtocolVersion() + "\n" + 
+    			"  payload = " + Arrays.toString(this.getPayload());
     }
 
     /**

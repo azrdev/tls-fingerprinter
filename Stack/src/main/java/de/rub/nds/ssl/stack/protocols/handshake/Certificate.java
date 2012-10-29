@@ -1,6 +1,7 @@
 package de.rub.nds.ssl.stack.protocols.handshake;
 
 import de.rub.nds.ssl.stack.protocols.commons.EProtocolVersion;
+import de.rub.nds.ssl.stack.protocols.handshake.datatypes.ASN1Certificate;
 import de.rub.nds.ssl.stack.protocols.handshake.datatypes.Certificates;
 
 /**
@@ -30,6 +31,13 @@ public final class Certificate extends AHandshakeRecord {
         // dummy call - decoding will invoke decoders of the parents if desired
         super();
         this.decode(message, chained);
+    }
+    
+    public String toString() {
+    	Certificates c = this.getCertificates();
+    	return super.toString() + "\n" +
+    			"  number of certificates = " + c.getCertificates().length + "\n" +
+    			c.toString();
     }
 
     /**

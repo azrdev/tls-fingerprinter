@@ -149,6 +149,11 @@ abstract public class AHandshakeRecord extends ARecordFrame {
         System.arraycopy(payloadCopy, pointer, tmpBytes, 0, tmpBytes.length);
         setPayload(tmpBytes);
     }
+    
+    public String toString() {
+    	return super.toString() + "\n" +
+    			"  messageType = " + this.getMessageType();
+    }
 
     /**
      * Get the message type of this handshake record.
