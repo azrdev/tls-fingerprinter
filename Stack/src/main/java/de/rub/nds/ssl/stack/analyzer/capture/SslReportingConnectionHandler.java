@@ -37,10 +37,10 @@ public class SslReportingConnectionHandler extends ConnectionHandler {
 		 if (event == Event.New && isSsl(connection)) {
 			 System.out.println("new connection");
 			 // There is a new SSL connection
+			 handleUpdate(connection);
 		 }
 		 else if (event == Event.Update && isSsl(connection)) {
 			 // A new frame has arrived
-			 
 			 handleUpdate(connection);
 		 } else {
 			 // System.out.println("nothing of intrested");
@@ -56,40 +56,43 @@ public class SslReportingConnectionHandler extends ConnectionHandler {
 		
 		// Now, iterate over all packets and find TLS record layer frames
 		for (PcapPacket packet : trace) {
-            if (packet instanceof ReassembledPacket) {
-                System.out.println(packet + " " + packet.getHeaders());
+			// System.out.println(packet + " " + packet.getHeaders());
 
-                for (Header header : packet.getHeaders()) {
-                    if (header instanceof TlsHeader) {
-                    	// This is what we are looking for
-                        TlsHeader tlsHeader = (TlsHeader) header;
-                        
-                        // Print the content type of the message for debugging
-                        System.out.println("Content Type " + tlsHeader.getContentType());
-                        
-                        // Get the raw bytes of the frame, including the header
-                        // byte[] content = ((ReassembledPacket)packet).getFragmentSequence().getReassembledPayload();
-                        byte[] content = header.getHeaderAndPayload();
-                        
-                        // Decode these bytes
-                        ARecordFrame[] frames = ACaptureConverter.decodeRecordFrames(content);
-                        
-                        // Convert all Frames to MessageContainer and add them to the list
-                        for (int i = 0; i < frames.length; i++) {
-							frameList.add(new MessageContainer(frames[i], packet));
-						}
-                    }
-                }
-                System.out.println();
-            }
-        }
-		
-		// Now, print a full status report for that connection
-		System.out.println("Received an Update for Connection from source port " + connection.getSession().getSourcePort());
-		for (MessageContainer aRecordFrame : frameList) {
-			System.out.println(aRecordFrame.getCurrentRecord());
+			for (Header header : packet.getHeaders()) {
+				if (header instanceof TlsHeader) {
+					// This is what we are looking for
+					TlsHeader tlsHeader = (TlsHeader) header;
+
+					// Print the content type of the message for debugging
+					//System.out.println("Content Type "
+					//		+ tlsHeader.getContentType());
+
+					// Get the raw bytes of the frame, including the header
+					byte[] content = header.getHeaderAndPayload();
+
+					// Decode these bytes
+					ARecordFrame[] frames = ACaptureConverter
+							.decodeRecordFrames(content);
+
+					// Convert all Frames to MessageContainer and add them to
+					// the list
+					for (int i = 0; i < frames.length; i++) {
+						frameList.add(new MessageContainer(frames[i], packet));
+					}
+				}
+			}
+			
 		}
-		System.out.println("end of trace");
+		if (frameList.size() > 0) {
+			// Now, print a full status report for that connection
+			System.out
+					.println("Received an Update for Connection from source port "
+							+ connection.getSession().getSourcePort());
+			for (MessageContainer aRecordFrame : frameList) {
+				System.out.println(aRecordFrame.getCurrentRecord());
+			}
+			System.out.println("end of trace");
+		}
 	}
 
 }
