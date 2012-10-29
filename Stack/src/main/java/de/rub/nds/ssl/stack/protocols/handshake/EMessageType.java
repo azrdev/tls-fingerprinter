@@ -72,7 +72,7 @@ public enum EMessageType {
     public static EMessageType getMessageType(final byte id) {
         if (!ID_MAP.containsKey(id)) {
             throw new IllegalArgumentException(
-                    "No message type with this ID registered.");
+                    "No message type with this ID registered: " + id);
         }
 
         return ID_MAP.get(id);
