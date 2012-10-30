@@ -19,7 +19,12 @@ import java.util.List;
  * @author Erik Tews
  *
  */
-public class SslReportingConnectionHandler extends ConnectionHandler {
+public final class SslReportingConnectionHandler extends ConnectionHandler {
+
+    /**
+     * Default SSL Port.
+     */
+    private static final int SSL_PORT = 443;
 
     /**
      * Check if a certain connection has source or destination port 443.
@@ -27,13 +32,14 @@ public class SslReportingConnectionHandler extends ConnectionHandler {
      * @param connection
      * @return
      */
-    private static boolean isSsl(PcapConnection connection) {
-        return ((connection.getSession().getDestinationPort() == 443)
-                || (connection.getSession().getSourcePort() == 443));
+    private static boolean isSsl(final PcapConnection connection) {
+        return ((connection.getSession().getDestinationPort() == SSL_PORT)
+                || (connection.getSession().getSourcePort() == SSL_PORT));
     }
 
     @Override
-    public void newConnection(Event event, PcapConnection connection) {
+    public void newConnection(final Event event,
+            final PcapConnection connection) {
         if (event == Event.New && isSsl(connection)) {
             System.out.println("new connection");
             // There is a new SSL connection
@@ -41,12 +47,13 @@ public class SslReportingConnectionHandler extends ConnectionHandler {
         } else if (event == Event.Update && isSsl(connection)) {
             // A new frame has arrived
             handleUpdate(connection);
-        } else {
-            // System.out.println("nothing of intrested");
         }
+//        else {
+        // System.out.println("nothing of intrested");
+//        }
     }
 
-    private static List<MessageContainer> decodeTrace(PcapTrace trace) {
+    private static List<MessageContainer> decodeTrace(final PcapTrace trace) {
         List<MessageContainer> frameList = new ArrayList<MessageContainer>();
 
         // Now, iterate over all packets and find TLS record layer frames
@@ -80,7 +87,7 @@ public class SslReportingConnectionHandler extends ConnectionHandler {
         return frameList;
     }
 
-    public void handleUpdate(PcapConnection connection) {
+    public void handleUpdate(final PcapConnection connection) {
 
         // Get a trace of all previous packets
         PcapTrace trace = connection.getTrace();

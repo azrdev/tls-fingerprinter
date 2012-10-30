@@ -70,7 +70,7 @@ public abstract class ACaptureConverter {
                     offset = offsets.get(i);
                     if (!(pointer > offset)) {
                         // packet found
-                        container.add(new MessageContainer(frame, 
+                        container.add(new MessageContainer(frame,
                                 trace.get(i)));
                         break;
                     }
@@ -194,7 +194,7 @@ public abstract class ACaptureConverter {
                 decodedFrames[0] = new TLSPlaintext(record, true);
                 break;
             default:
-                System.err.println("default case, should not happen: " 
+                System.err.println("default case, should not happen: "
                         + EContentType.getContentType(record[0]));
                 break;
         }
