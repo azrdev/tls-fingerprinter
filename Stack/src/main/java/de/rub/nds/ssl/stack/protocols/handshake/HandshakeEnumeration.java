@@ -71,7 +71,7 @@ final public class HandshakeEnumeration extends ARecordFrame {
      */
     public void decode(final byte[] message, final boolean chained) {
         byte[] payloadCopy;
-        byte[] tmpMessage = null;
+        byte[] tmpMessage;
         byte tmpMessageType;
         int tmpMessageLength;
         AHandshakeRecord tmpHandshakeMsg;
@@ -111,8 +111,8 @@ final public class HandshakeEnumeration extends ARecordFrame {
             // 3. extract message
             if (payloadCopy.length < pointer + tmpMessageLength) {
                 throw new IllegalArgumentException("Handshake record too short."
-                        + " payloadCopy.length only " + payloadCopy.length 
-                        + ", but expected at least "  
+                        + " payloadCopy.length only " + payloadCopy.length
+                        + ", but expected at least "
                         + (pointer + tmpMessageLength));
             }
             tmpMessage = new byte[tmpMessageLength];
@@ -139,12 +139,12 @@ final public class HandshakeEnumeration extends ARecordFrame {
         AHandshakeRecord result = null;
         EMessageType type = EMessageType.getMessageType(messageType);
         EProtocolVersion version = this.getProtocolVersion();
-        
+
         // invoke decode
         Class<AHandshakeRecord> implClass = type.getImplementingClass();
         if (implClass == null) {
-        	throw new NullPointerException("implClass == NULL: type was " 
-                        + type);
+            throw new NullPointerException("implClass == NULL: type was "
+                    + type);
         }
         Class[] parameter = new Class[3];
         parameter[0] = byte[].class;
@@ -152,12 +152,12 @@ final public class HandshakeEnumeration extends ARecordFrame {
         try {
             Constructor<AHandshakeRecord> constructor =
                     implClass.getConstructor(parameter);
-            result = constructor.newInstance(message, false);            
+            result = constructor.newInstance(message, false);
             result.setMessageType(type);
-            
+
             // set protocol version
             Method setProtocolVersion = AHandshakeRecord.class.
-                    getDeclaredMethod("setProtocolVersion", 
+                    getDeclaredMethod("setProtocolVersion",
                     EProtocolVersion.class);
             setProtocolVersion.setAccessible(true);
             setProtocolVersion.invoke(result, version);

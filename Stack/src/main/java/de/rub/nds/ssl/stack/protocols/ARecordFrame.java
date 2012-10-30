@@ -115,7 +115,7 @@ public abstract class ARecordFrame extends APubliclySerializable {
      * Method parameter will be ignored - no support for chained encoding
      */
     public byte[] encode(boolean chained) {
-        int pointer = 0;
+        int pointer;
         byte[] tmp;
         final byte[] payloadCopy = getPayload();
         byte[] recordFrame = new byte[EContentType.LENGTH_ENCODED

@@ -31,10 +31,10 @@ public final class Certificate extends AHandshakeRecord {
         super();
         this.decode(message, chained);
     }
-    
+
     public String toString() {
-    	Certificates c = this.getCertificates();
-    	return super.toString() + "\n number of certificates = " 
+        Certificates c = this.getCertificates();
+        return super.toString() + "\n number of certificates = "
                 + c.getCertificates().length + "\n" + c.toString();
     }
 
