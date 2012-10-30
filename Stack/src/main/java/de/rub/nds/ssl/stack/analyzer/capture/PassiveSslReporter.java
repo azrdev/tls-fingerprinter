@@ -1,5 +1,7 @@
 package de.rub.nds.ssl.stack.analyzer.capture;
 
+import java.io.File;
+
 import de.rub.nds.virtualnetworklayer.connection.pcap.ConnectionHandler;
 import de.rub.nds.virtualnetworklayer.p0f.P0fFile;
 import de.rub.nds.virtualnetworklayer.pcap.Pcap;
@@ -27,6 +29,7 @@ public class PassiveSslReporter {
 
         //open pcap on local live device
         Pcap pcap = Pcap.openLive();
+		//Pcap pcap = Pcap.openOffline(new File("/home/erik/ssl-retransmit.pcap"));
         System.out.println("now looping");
         
         // Give control to pcap, pcap will use callbacks.
