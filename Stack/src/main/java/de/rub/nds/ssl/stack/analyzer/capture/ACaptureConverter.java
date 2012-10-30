@@ -188,15 +188,14 @@ public abstract class ACaptureConverter {
                 // TODO: Is this really the correct way to do it?
                 if (decodedFrames == null || decodedFrames[0] == null
                         || decodedFrames.length <= 1) {
-                    // second try
-//                    decodedFrames = new ARecordFrame[1];
-//                    decodedFrames[0] = new TLSCiphertext(record, true);
+                    System.err.println("decoding handshake messages failed");
                 }
                 break;
             case APPLICATION:
                 decodedFrames[0] = new TLSPlaintext(record, true);
                 break;
             default:
+            	System.err.println("default case, should not happen: " + EContentType.getContentType(record[0]));
                 break;
         }
 
