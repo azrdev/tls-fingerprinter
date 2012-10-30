@@ -50,11 +50,11 @@ public class SslReportingConnectionHandler extends ConnectionHandler {
 	
 	private static List<MessageContainer> decodeTrace(PcapTrace trace) {
 		List<MessageContainer> frameList = new ArrayList<MessageContainer>();
-
+		
 		// Now, iterate over all packets and find TLS record layer frames
 		for (PcapPacket packet : trace) {
-			// System.out.println(packet + " " + packet.getHeaders());
-
+			System.out.println(packet + " " + packet.getHeaders());
+			System.out.println("direction " + packet.getDirection());
 			for (Header header : packet.getHeaders()) {
 				if (header instanceof TlsHeader) {
 					// Get the raw bytes of the frame, including the header
