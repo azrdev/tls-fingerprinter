@@ -34,7 +34,10 @@ abstract public class AHandshakeRecord extends ARecordFrame {
      */
     protected AHandshakeRecord() {
         super();
-        // FIXME: Is this really the correct way to set the content type?
+        /*
+         * fixes issues when chained decoding is not used (content type remains
+         * unset in these case
+         */
         this.setContentType(EContentType.HANDSHAKE);
     }
 

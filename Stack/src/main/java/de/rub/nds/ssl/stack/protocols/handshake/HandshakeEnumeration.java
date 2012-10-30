@@ -108,7 +108,10 @@ final public class HandshakeEnumeration extends ARecordFrame {
 
             // 3. extract message
             if (payloadCopy.length < pointer + tmpMessageLength) {
-                throw new IllegalArgumentException("Handshake record too short. payloadCopy.length only " + payloadCopy.length + " but expected at least "  + (pointer + tmpMessageLength));
+                throw new IllegalArgumentException("Handshake record too short."
+                        + " payloadCopy.length only " + payloadCopy.length 
+                        + ", but expected at least "  
+                        + (pointer + tmpMessageLength));
             }
             tmpMessage = new byte[tmpMessageLength];
             System.arraycopy(payloadCopy, pointer, tmpMessage, 0,
@@ -137,7 +140,8 @@ final public class HandshakeEnumeration extends ARecordFrame {
         // invoke decode
         Class<AHandshakeRecord> implClass = type.getImplementingClass();
         if (implClass == null) {
-        	throw new NullPointerException("implClass == NULL: type was " + type);
+        	throw new NullPointerException("implClass == NULL: type was " 
+                        + type);
         }
         Class[] parameter = new Class[2];
         parameter[0] = byte[].class;

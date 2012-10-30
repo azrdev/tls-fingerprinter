@@ -5,7 +5,6 @@ import de.rub.nds.ssl.stack.protocols.alert.Alert;
 import de.rub.nds.ssl.stack.protocols.commons.EContentType;
 import de.rub.nds.ssl.stack.protocols.handshake.HandshakeEnumeration;
 import de.rub.nds.ssl.stack.protocols.msgs.ChangeCipherSpec;
-import de.rub.nds.ssl.stack.protocols.msgs.TLSCiphertext;
 import de.rub.nds.ssl.stack.protocols.msgs.TLSPlaintext;
 import de.rub.nds.ssl.stack.trace.MessageContainer;
 import de.rub.nds.virtualnetworklayer.connection.pcap.PcapTrace;
@@ -71,7 +70,8 @@ public abstract class ACaptureConverter {
                     offset = offsets.get(i);
                     if (!(pointer > offset)) {
                         // packet found
-                        container.add(new MessageContainer(frame, trace.get(i)));
+                        container.add(new MessageContainer(frame, 
+                                trace.get(i)));
                         break;
                     }
                 }
@@ -181,11 +181,10 @@ public abstract class ACaptureConverter {
                 decodedFrames[0] = new Alert(record, true);
                 break;
             case HANDSHAKE:
-                // first try
+                // try to decode the message
                 decodedFrames = new HandshakeEnumeration(record, true).
                         getMessages();
-                // look for an encrypted finished message
-                // TODO: Is this really the correct way to do it?
+                // very likely to deal with an encrypted message
                 if (decodedFrames == null || decodedFrames[0] == null
                         || decodedFrames.length <= 1) {
                     System.err.println("decoding handshake messages failed");
@@ -195,7 +194,8 @@ public abstract class ACaptureConverter {
                 decodedFrames[0] = new TLSPlaintext(record, true);
                 break;
             default:
-            	System.err.println("default case, should not happen: " + EContentType.getContentType(record[0]));
+                System.err.println("default case, should not happen: " 
+                        + EContentType.getContentType(record[0]));
                 break;
         }
 
