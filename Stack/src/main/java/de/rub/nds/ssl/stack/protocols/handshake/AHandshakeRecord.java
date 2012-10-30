@@ -1,6 +1,7 @@
 package de.rub.nds.ssl.stack.protocols.handshake;
 
 import de.rub.nds.ssl.stack.protocols.ARecordFrame;
+import de.rub.nds.ssl.stack.protocols.commons.EBulkCipherAlgorithm;
 import de.rub.nds.ssl.stack.protocols.commons.EContentType;
 import de.rub.nds.ssl.stack.protocols.commons.EProtocolVersion;
 
@@ -33,6 +34,8 @@ abstract public class AHandshakeRecord extends ARecordFrame {
      */
     protected AHandshakeRecord() {
         super();
+        // FIXME: Is this really the correct way to set the content type?
+        this.setContentType(EContentType.HANDSHAKE);
     }
 
     /**
