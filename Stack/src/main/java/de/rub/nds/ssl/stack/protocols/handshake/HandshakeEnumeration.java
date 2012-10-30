@@ -1,8 +1,10 @@
 package de.rub.nds.ssl.stack.protocols.handshake;
 
 import de.rub.nds.ssl.stack.protocols.ARecordFrame;
+import de.rub.nds.ssl.stack.protocols.commons.EProtocolVersion;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -136,21 +138,29 @@ final public class HandshakeEnumeration extends ARecordFrame {
             final byte[] message) {
         AHandshakeRecord result = null;
         EMessageType type = EMessageType.getMessageType(messageType);
-
+        EProtocolVersion version = this.getProtocolVersion();
+        
         // invoke decode
         Class<AHandshakeRecord> implClass = type.getImplementingClass();
         if (implClass == null) {
         	throw new NullPointerException("implClass == NULL: type was " 
                         + type);
         }
-        Class[] parameter = new Class[2];
+        Class[] parameter = new Class[3];
         parameter[0] = byte[].class;
         parameter[1] = boolean.class;
         try {
-            Constructor<AHandshakeRecord> constrcutor =
+            Constructor<AHandshakeRecord> constructor =
                     implClass.getConstructor(parameter);
-            result = constrcutor.newInstance(message, false);
+            result = constructor.newInstance(message, false);            
             result.setMessageType(type);
+            
+            // set protocol version
+            Method setProtocolVersion = AHandshakeRecord.class.
+                    getDeclaredMethod("setProtocolVersion", 
+                    EProtocolVersion.class);
+            setProtocolVersion.setAccessible(true);
+            setProtocolVersion.invoke(result, version);
         } catch (InstantiationException ex) {
             // implementing class could not be instantiated
         } catch (IllegalAccessException ex) {

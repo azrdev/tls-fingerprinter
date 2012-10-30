@@ -63,7 +63,7 @@ public abstract class ARecordFrame extends APubliclySerializable {
      *
      * @param type Content type
      * @param version Protocol version
-     * @param messageBytes Protocol payload
+     * @param message Protocol payload
      */
     protected ARecordFrame(final EContentType type,
             final EProtocolVersion version,
