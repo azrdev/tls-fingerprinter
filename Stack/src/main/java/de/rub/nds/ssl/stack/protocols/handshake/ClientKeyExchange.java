@@ -209,7 +209,7 @@ public final class ClientKeyExchange extends AHandshakeRecord {
                     throw new IllegalArgumentException(
                             "ClientKeyExchange message too short.");
                 }
-                exchangeKeys = new PreMasterSecret(payloadCopy);
+                exchangeKeys = new EncPreMasterSecret(payloadCopy);
                 break;
             default:
                 break;
