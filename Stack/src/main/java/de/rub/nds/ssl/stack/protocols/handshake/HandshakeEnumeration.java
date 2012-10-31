@@ -146,7 +146,7 @@ final public class HandshakeEnumeration extends ARecordFrame {
             throw new NullPointerException("implClass == NULL: type was "
                     + type);
         }
-        Class[] parameter = new Class[3];
+        Class[] parameter = new Class[2];
         parameter[0] = byte[].class;
         parameter[1] = boolean.class;
         try {
@@ -156,7 +156,7 @@ final public class HandshakeEnumeration extends ARecordFrame {
             result.setMessageType(type);
 
             // set protocol version
-            Method setProtocolVersion = AHandshakeRecord.class.
+            Method setProtocolVersion = ARecordFrame.class.
                     getDeclaredMethod("setProtocolVersion",
                     EProtocolVersion.class);
             setProtocolVersion.setAccessible(true);
@@ -168,7 +168,8 @@ final public class HandshakeEnumeration extends ARecordFrame {
         } catch (InvocationTargetException ex) {
             // issues during method invocation
         } catch (NoSuchMethodException ex) {
-            // no suitable implementing class found
+            // System.err.println("Could not find a suiteable constructor for type "+ type);
+        	throw new RuntimeException("Could not find a suiteable method for type "+ type + " and class " + implClass.getCanonicalName(), ex);
         }
 
         return result;
