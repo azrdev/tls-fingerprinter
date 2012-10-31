@@ -25,24 +25,32 @@ public class PassiveSslReporter {
 		// Nothing to do here.
 	}
 	
+	public void run(String filename) {
+		Pcap pcap = Pcap.openOffline(new File(filename));
+        System.out.println("now looping over file");
+        pcap.loopAsynchronous(handler);
+	}
+	
 	public void run() {
-
         //open pcap on local live device
         Pcap pcap = Pcap.openLive();
-		//Pcap pcap = Pcap.openOffline(new File("/home/erik/ssl-retransmit.pcap"));
-        System.out.println("now looping");
+        System.out.println("now looping over live capture");
         
         // Give control to pcap, pcap will use callbacks.
         pcap.loopAsynchronous(handler);
-        
 	}
 
 	/**
-	 * @param args
+	 * @param args Optinally a pcap-file that will be used. If none is given,
+	 * a live capture is started.
 	 */
 	public static void main(String[] args) {
 		PassiveSslReporter psr = new PassiveSslReporter();
-		psr.run();
+		if (args.length == 0) {
+			psr.run();
+		} else {
+			psr.run(args[0]);
+		}
 
 	}
 
