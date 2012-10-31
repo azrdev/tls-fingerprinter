@@ -162,14 +162,15 @@ final public class HandshakeEnumeration extends ARecordFrame {
             setProtocolVersion.setAccessible(true);
             setProtocolVersion.invoke(result, version);
         } catch (InstantiationException ex) {
-            // implementing class could not be instantiated
+            ex.printStackTrace();
         } catch (IllegalAccessException ex) {
-            // visibilty of method has changed
+            ex.printStackTrace();
         } catch (InvocationTargetException ex) {
-            // issues during method invocation
+        	System.err.println("failed to invoke method for class " + implClass.getCanonicalName());
+            ex.printStackTrace();
         } catch (NoSuchMethodException ex) {
-            // System.err.println("Could not find a suiteable constructor for type "+ type);
-        	throw new RuntimeException("Could not find a suiteable method for type "+ type + " and class " + implClass.getCanonicalName(), ex);
+            System.err.println("Could not find a suiteable method for type "+ type + " and class " + implClass.getCanonicalName());
+            ex.printStackTrace();
         }
 
         return result;
