@@ -4,6 +4,7 @@ import de.rub.nds.ssl.stack.protocols.ARecordFrame;
 import de.rub.nds.ssl.stack.protocols.alert.Alert;
 import de.rub.nds.ssl.stack.protocols.commons.EContentType;
 import de.rub.nds.ssl.stack.protocols.handshake.HandshakeEnumeration;
+import de.rub.nds.ssl.stack.protocols.handshake.datatypes.EKeyExchangeAlgorithm;
 import de.rub.nds.ssl.stack.protocols.msgs.ChangeCipherSpec;
 import de.rub.nds.ssl.stack.protocols.msgs.TLSPlaintext;
 import de.rub.nds.ssl.stack.trace.MessageContainer;
@@ -61,7 +62,7 @@ public abstract class ACaptureConverter {
             pointer += encodedRecord.length;
 
             // decode frame
-            frames = decodeRecordFrames(encodedRecord);
+            frames = decodeRecordFrames(encodedRecord, null);
             // add frame(s)
             for (ARecordFrame frame : frames) {
                 // look up trace packet
@@ -158,7 +159,7 @@ public abstract class ACaptureConverter {
             offset += encodedRecord.length;
 
             // decode frame
-            decodedFrames = decodeRecordFrames(encodedRecord);
+            decodedFrames = decodeRecordFrames(encodedRecord, null);
             recordFrames.addAll(Arrays.asList(decodedFrames));
         }
 
@@ -171,7 +172,7 @@ public abstract class ACaptureConverter {
      * @param record Encoded record
      * @return Decoded record frames
      */
-    public static ARecordFrame[] decodeRecordFrames(final byte[] record) {
+    public static ARecordFrame[] decodeRecordFrames(final byte[] record, EKeyExchangeAlgorithm keyExchangeAlgorithm) {
         ARecordFrame[] decodedFrames = new ARecordFrame[1];
         switch (EContentType.getContentType(record[0])) {
             case CHANGE_CIPHER_SPEC:
@@ -182,7 +183,7 @@ public abstract class ACaptureConverter {
                 break;
             case HANDSHAKE:
                 // try to decode the message
-                decodedFrames = new HandshakeEnumeration(record, true).
+                decodedFrames = new HandshakeEnumeration(record, true, keyExchangeAlgorithm).
                         getMessages();
                 // very likely to deal with an encrypted message
                 if (decodedFrames == null || decodedFrames[0] == null

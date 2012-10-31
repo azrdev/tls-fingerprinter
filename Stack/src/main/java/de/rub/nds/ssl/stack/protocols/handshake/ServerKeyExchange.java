@@ -46,6 +46,21 @@ public class ServerKeyExchange extends AHandshakeRecord {
                 keyParams.getKeyExchangeAlgorithm();
         this.decode(message, chained);
     }
+    
+    /**
+     * Initializes a ServerKeyExchange message as defined in RFC 2246.
+     *
+     * @param message ServerKeyExchange message in encoded form
+     * @param chained Decode single or chained with underlying frames
+     */
+    public ServerKeyExchange(final byte[] message,
+    		EKeyExchangeAlgorithm keyExchangeAlgorithm,
+            final boolean chained) {
+        // dummy call - decoding will invoke decoders of the parents if desired
+        super();
+        this.keyExchangeAlgorithm = keyExchangeAlgorithm;
+        this.decode(message, chained);
+    }
 
     /**
      * Initializes a ServerKeyExchange message as defined in RFC 2246.

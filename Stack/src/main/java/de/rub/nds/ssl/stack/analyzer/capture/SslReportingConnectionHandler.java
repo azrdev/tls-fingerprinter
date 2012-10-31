@@ -1,6 +1,8 @@
 package de.rub.nds.ssl.stack.analyzer.capture;
 
 import de.rub.nds.ssl.stack.protocols.ARecordFrame;
+import de.rub.nds.ssl.stack.protocols.handshake.ServerHello;
+import de.rub.nds.ssl.stack.protocols.handshake.datatypes.EKeyExchangeAlgorithm;
 import de.rub.nds.ssl.stack.protocols.msgs.ChangeCipherSpec;
 import de.rub.nds.ssl.stack.trace.MessageContainer;
 import de.rub.nds.virtualnetworklayer.connection.pcap.ConnectionHandler;
@@ -55,6 +57,7 @@ public final class SslReportingConnectionHandler extends ConnectionHandler {
 
     private static List<MessageContainer> decodeTrace(final PcapTrace trace) {
         List<MessageContainer> frameList = new ArrayList<MessageContainer>();
+        EKeyExchangeAlgorithm keyExchangeAlgorithm = null;
 
         // Now, iterate over all packets and find TLS record layer frames
         for (PcapPacket packet : trace) {
@@ -67,7 +70,7 @@ public final class SslReportingConnectionHandler extends ConnectionHandler {
 
                     // Decode these bytes
                     ARecordFrame[] frames = ACaptureConverter
-                            .decodeRecordFrames(content);
+                            .decodeRecordFrames(content, keyExchangeAlgorithm);
 
                     // Convert all Frames to MessageContainer and add them to
                     // the list
@@ -79,6 +82,11 @@ public final class SslReportingConnectionHandler extends ConnectionHandler {
                              * decode it anymore.
                              */
                             return frameList;
+                        }
+                        if (frames[i] instanceof ServerHello) {
+                        	ServerHello sh = (ServerHello)frames[i];
+                        	keyExchangeAlgorithm = sh.getCipherSuite().getKeyExchangeAlgorithm();
+                        	
                         }
                     }
                 }

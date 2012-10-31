@@ -104,7 +104,7 @@ public class TLSResponse extends ARecordFrame implements Observer {
                     setTrace(trace);
                     msgObserve.addObserver(this);
                     // TODO: WTF is this???
-                    new HandshakeEnumeration(response, true);
+                    new HandshakeEnumeration(response, true, null);
                     msgObserve.deleteObservers();
                 }
                 break;

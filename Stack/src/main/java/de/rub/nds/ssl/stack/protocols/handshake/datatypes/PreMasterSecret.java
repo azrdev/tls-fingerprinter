@@ -208,7 +208,7 @@ public final class PreMasterSecret extends APubliclySerializable
         if (secret.length < LENGTH_MINIMUM_ENCODED) {
             throw new IllegalArgumentException("PreMasterSecret too short.");
         } else if (secret.length > LENGTH_MINIMUM_ENCODED) {
-            throw new IllegalArgumentException("PreMasterSecret too long.");
+            throw new IllegalArgumentException("PreMasterSecret too long: " + secret.length + " > " + LENGTH_MINIMUM_ENCODED);
         }
 
         pointer = 0;
