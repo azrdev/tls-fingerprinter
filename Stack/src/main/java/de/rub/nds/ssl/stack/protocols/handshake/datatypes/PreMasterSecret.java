@@ -204,10 +204,6 @@ public final class PreMasterSecret extends APubliclySerializable
 
         // deep copy
         System.arraycopy(message, 0, secret, 0, secret.length);
-        int length = this.extractLength(message, 0, 2);
-        
-        // FIXME: This will decode an unencrypted PMS, but it should
-        // decode the encrypted PMS!!!
         
         // check size
         if (secret.length < LENGTH_MINIMUM_ENCODED) {
