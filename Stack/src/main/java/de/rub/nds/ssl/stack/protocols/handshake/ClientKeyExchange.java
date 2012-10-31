@@ -26,6 +26,22 @@ public final class ClientKeyExchange extends AHandshakeRecord {
 
     /**
      * Initializes a ClientKeyExchange message as defined in RFC 2246.
+     * 
+     * This constructor will skip the key exchange type. Use at your own risk.
+     *
+     * @param message ClientKeyExchange message in encoded form
+     * @param exchangeAlgorithm Key exchange algorithm to be used
+     * @param chained Decode single or chained with underlying frames
+     */
+    public ClientKeyExchange(final byte[] message,
+            final boolean chained) {
+        // dummy call - decoding will invoke decoders of the parents if desired
+        super();
+        this.decode(message, chained);
+    }
+    
+    /**
+     * Initializes a ClientKeyExchange message as defined in RFC 2246.
      *
      * @param message ClientKeyExchange message in encoded form
      * @param exchangeAlgorithm Key exchange algorithm to be used
