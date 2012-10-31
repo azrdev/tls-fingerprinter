@@ -74,6 +74,7 @@ public enum ECipherSuite {
     TLS_DHE_DSS_WITH_CAMELLIA_128_CBC_SHA(new byte[]{(byte) 0x00, (byte) 0x44}),
     TLS_DHE_RSA_WITH_CAMELLIA_128_CBC_SHA(new byte[]{(byte) 0x00, (byte) 0x45}),
     TLS_DH_anon_WITH_CAMELLIA_128_CBC_SHA(new byte[]{(byte) 0x00, (byte) 0x46}),
+    TLS_DHE_DSS_WITH_RC4_128_SHA(new byte[]{(byte) 0x00, (byte) 0x66}),
     TLS_DHE_RSA_WITH_AES_128_CBC_SHA256(new byte[]{(byte) 0x00, (byte) 0x67}),
     TLS_DH_DSS_WITH_AES_256_CBC_SHA256(new byte[]{(byte) 0x00, (byte) 0x68}),
     TLS_DH_RSA_WITH_AES_256_CBC_SHA256(new byte[]{(byte) 0x00, (byte) 0x69}),
@@ -344,7 +345,9 @@ public enum ECipherSuite {
     TLS_ECDHE_PSK_WITH_CAMELLIA_128_CBC_SHA256(new byte[]{(byte) 0xC0,
 (byte) 0x9A}),
     TLS_ECDHE_PSK_WITH_CAMELLIA_256_CBC_SHA384(new byte[]{(byte) 0xC0,
-(byte) 0x9B});
+(byte) 0x9B}),
+	SSL_RSA_FIPS_WITH_3DES_EDE_CBC_SHA(new byte[]{(byte) 0xfe, (byte)0xff}),
+	;
     /**
      * * Length of the cipher suite id: 2 Bytes.
      */
@@ -357,7 +360,7 @@ public enum ECipherSuite {
         byte[] id;
         for (ECipherSuite tmp : ECipherSuite.values()) {
             id = tmp.getId();
-            ID_MAP.put(id[0] << 8 | id[1] & 0xff, tmp);
+            ID_MAP.put((id[0]&0xff) << 8 | (id[1] & 0xff), tmp);
         }
     }
 
@@ -397,10 +400,10 @@ public enum ECipherSuite {
                     "ID must not be null and have a length of exactly "
                     + LENGTH_ENCODED + " bytes.");
         }
-        cipherSuite = (id[0] << 8) | id[1] & 0xff;
+        cipherSuite = ((id[0]&0xff) << 8) | (id[1] & 0xff);
 
         if (!ID_MAP.containsKey(cipherSuite)) {
-            throw new IllegalArgumentException("No such cipher suite.");
+            throw new IllegalArgumentException("No such cipher suite: " + Integer.toHexString(cipherSuite));
         }
 
         return ID_MAP.get(cipherSuite);
