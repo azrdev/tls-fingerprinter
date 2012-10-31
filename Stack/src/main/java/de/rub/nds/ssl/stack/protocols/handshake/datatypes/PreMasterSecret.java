@@ -4,6 +4,7 @@ import de.rub.nds.ssl.stack.protocols.commons.APubliclySerializable;
 import de.rub.nds.ssl.stack.protocols.commons.EProtocolVersion;
 import java.math.BigInteger;
 import java.security.SecureRandom;
+import java.util.Arrays;
 
 /**
  * PreMasterSecret part - as defined in RFC-2246.
@@ -203,11 +204,16 @@ public final class PreMasterSecret extends APubliclySerializable
 
         // deep copy
         System.arraycopy(message, 0, secret, 0, secret.length);
-
+        int length = this.extractLength(message, 0, 2);
+        
+        // FIXME: This will decode an unencrypted PMS, but it should
+        // decode the encrypted PMS!!!
+        
         // check size
         if (secret.length < LENGTH_MINIMUM_ENCODED) {
             throw new IllegalArgumentException("PreMasterSecret too short.");
         } else if (secret.length > LENGTH_MINIMUM_ENCODED) {
+        	System.err.println(Arrays.toString(secret));
             throw new IllegalArgumentException("PreMasterSecret too long: " + secret.length + " > " + LENGTH_MINIMUM_ENCODED);
         }
 
