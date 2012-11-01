@@ -131,6 +131,7 @@ final public class HandshakeEnumeration extends ARecordFrame {
             msgObserve.statusChanged(tmpHandshakeMsg);
             messages.add(tmpHandshakeMsg);
         }
+        // System.err.println("decoded " + messages.size() + " messages and payloadCopy.length - pointer = " + (payloadCopy.length - pointer));
     }
 
     /**
@@ -190,7 +191,6 @@ final public class HandshakeEnumeration extends ARecordFrame {
 				setProtocolVersion.setAccessible(true);
 				setProtocolVersion.invoke(result, version);
 
-				return result;
 			}
 		} catch (InstantiationException ex) {
 			ex.printStackTrace();
@@ -199,13 +199,14 @@ final public class HandshakeEnumeration extends ARecordFrame {
 		} catch (InvocationTargetException ex) {
 			System.err.println("failed to invoke method for class "
 					+ implClass.getCanonicalName());
+			System.err.println("Key exchange type was: " + keyEKeyExchangeAlgorithm);
 			ex.printStackTrace();
 		} catch (NoSuchMethodException ex) {
 			System.err.println("Could not find a suiteable method for type "
 					+ type + " and class " + implClass.getCanonicalName());
 			ex.printStackTrace();
 		}
-		return null;
+		return result;
 
     }
 
