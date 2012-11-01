@@ -28,7 +28,7 @@ public class PassiveSslReporter {
 	public void run(String filename) {
 		Pcap pcap = Pcap.openOffline(new File(filename));
         System.out.println("now looping over file");
-        pcap.loopAsynchronous(handler);
+        pcap.loop(handler);
 	}
 	
 	public void run() {
@@ -52,6 +52,7 @@ public class PassiveSslReporter {
 			psr.run(args[0]);
 		}
 
+		System.exit(0);
 	}
 
 }
