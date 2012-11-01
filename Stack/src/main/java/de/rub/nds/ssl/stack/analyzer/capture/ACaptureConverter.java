@@ -187,8 +187,8 @@ public abstract class ACaptureConverter {
                         getMessages();
                 // very likely to deal with an encrypted message
                 if (decodedFrames == null || decodedFrames[0] == null
-                        || decodedFrames.length <= 1) {
-                    System.err.println("decoding handshake messages failed");
+                        || decodedFrames.length < 1) {
+                    System.err.println("decoding handshake messages failed! " + Arrays.toString(decodedFrames));
                 }
                 break;
             case APPLICATION:
