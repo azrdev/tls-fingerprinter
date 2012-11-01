@@ -1,5 +1,9 @@
 package de.rub.nds.ssl.stack.analyzer.capture;
 
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+
 import de.rub.nds.ssl.stack.protocols.ARecordFrame;
 import de.rub.nds.ssl.stack.protocols.handshake.ServerHello;
 import de.rub.nds.ssl.stack.protocols.handshake.datatypes.EKeyExchangeAlgorithm;
@@ -11,8 +15,7 @@ import de.rub.nds.virtualnetworklayer.connection.pcap.PcapTrace;
 import de.rub.nds.virtualnetworklayer.packet.PcapPacket;
 import de.rub.nds.virtualnetworklayer.packet.header.Header;
 import de.rub.nds.virtualnetworklayer.packet.header.application.TlsHeader;
-import java.util.ArrayList;
-import java.util.List;
+import de.rub.nds.virtualnetworklayer.packet.header.transport.SocketSession;
 
 /**
  * A connection handler, that tries to find HTTPS connections and reports the
@@ -38,6 +41,8 @@ public final class SslReportingConnectionHandler extends ConnectionHandler {
         return ((connection.getSession().getDestinationPort() == SSL_PORT)
                 || (connection.getSession().getSourcePort() == SSL_PORT));
     }
+    
+    private HashSet<SocketSession> reportedSessions = new HashSet<SocketSession>();
 
     @Override
     public void newConnection(final Event event,
@@ -61,8 +66,10 @@ public final class SslReportingConnectionHandler extends ConnectionHandler {
 
         // Now, iterate over all packets and find TLS record layer frames
         for (PcapPacket packet : trace) {
+        	/*
             System.out.println(packet + " " + packet.getHeaders());
             System.out.println("direction " + packet.getDirection());
+            */
             for (Header header : packet.getHeaders()) {
                 if (header instanceof TlsHeader) {
                     // Get the raw bytes of the frame, including the header
@@ -75,6 +82,10 @@ public final class SslReportingConnectionHandler extends ConnectionHandler {
                     // Convert all Frames to MessageContainer and add them to
                     // the list
                     for (int i = 0; i < frames.length; i++) {
+                    	if (frames[i] == null) {
+                    		// Something went wrong
+                    		System.out.println("failed to parse something: " + packet + " " + packet.getHeaders());
+                    	}
                         frameList.add(new MessageContainer(frames[i], packet));
                         if (frames[i] instanceof ChangeCipherSpec) {
                             /*
@@ -95,23 +106,28 @@ public final class SslReportingConnectionHandler extends ConnectionHandler {
         return frameList;
     }
 
-    public void handleUpdate(final PcapConnection connection) {
+	public void handleUpdate(final PcapConnection connection) {
 
-        // Get a trace of all previous packets
-        PcapTrace trace = connection.getTrace();
+		// Get a trace of all previous packets
+		PcapTrace trace = connection.getTrace();
 
-        // Prepare a list for all MessageContainer
-        List<MessageContainer> frameList = decodeTrace(trace);
+		// Prepare a list for all MessageContainer
+		List<MessageContainer> frameList = decodeTrace(trace);
 
-        if (frameList.size() > 0) {
-            // Now, print a full status report for that connection
+		if ((frameList.size() > 0)
+				&& (frameList.get(frameList.size() - 1).getCurrentRecord() instanceof ChangeCipherSpec)) {
+			// Did we handle this already?
+			SocketSession session = connection.getSession();
+			if (!reportedSessions.contains(session)) {
 
-            System.out.println("Received an Update for Connection "
-                    + connection);
-            for (MessageContainer aRecordFrame : frameList) {
-                System.out.println(aRecordFrame.getCurrentRecord());
-            }
-            System.out.println("end of trace");
-        }
-    }
+				System.out.println("Full report for connection " + connection);
+				for (MessageContainer aRecordFrame : frameList) {
+					System.out.println(aRecordFrame.getCurrentRecord());
+				}
+				System.out.println("end of trace");
+				reportedSessions.add(session);
+			}
+
+		}
+	}
 }
