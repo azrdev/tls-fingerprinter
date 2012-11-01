@@ -1,5 +1,10 @@
 package de.rub.nds.ssl.stack.protocols.handshake.datatypes;
 
+import java.io.ByteArrayInputStream;
+import java.security.cert.CertificateFactory;
+
+
+
 import de.rub.nds.ssl.stack.protocols.commons.APubliclySerializable;
 
 /**
@@ -115,4 +120,18 @@ public final class ASN1Certificate extends APubliclySerializable {
                 tmpBytes.length);
         setCertificate(tmpBytes);
     }
+    
+    public String toString() {
+		try {
+			CertificateFactory cf = CertificateFactory.getInstance("X.509");
+			String s = cf.generateCertificate(new ByteArrayInputStream(certificate)).toString();
+			return s;
+		} catch (Exception e) {
+			e.printStackTrace();
+			return null;
+		}
+
+    }
+    
+    
 }

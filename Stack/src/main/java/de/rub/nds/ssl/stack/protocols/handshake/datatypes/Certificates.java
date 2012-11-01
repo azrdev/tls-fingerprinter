@@ -180,4 +180,15 @@ public final class Certificates extends APubliclySerializable {
         }
         setCertificates(tmpCerts);
     }
+    
+    public String toString() {
+    	StringBuffer sb = new StringBuffer();
+    	sb.append("Certificates:\n");
+    	for (int i = 0; i < certificates.length; i++) {
+    		sb.append("Certificate " + i + ":\n");
+			sb.append(certificates[i].toString() + "\n");
+		}
+    	sb.append("end of certificates");
+    	return new String(sb);
+    }
 }

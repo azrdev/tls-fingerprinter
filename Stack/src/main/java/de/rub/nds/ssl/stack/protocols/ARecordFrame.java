@@ -55,7 +55,7 @@ public abstract class ARecordFrame extends APubliclySerializable {
     	return  "ARecordFrame (" + this.getClass().getCanonicalName() + "):\n" +
     			"  contentType = " + this.contentType + "\n" +
     			"  protocolVersion = " + this.getProtocolVersion() + "\n" + 
-    			"  payload = " + Arrays.toString(this.getPayload());
+    			"  length = " + this.getPayload().length;
     }
 
     /**

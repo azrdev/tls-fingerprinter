@@ -34,8 +34,12 @@ public final class Certificate extends AHandshakeRecord {
 
     public String toString() {
         Certificates c = this.getCertificates();
-        return super.toString() + "\n number of certificates = "
-                + c.getCertificates().length + "\n" + c.toString();
+        StringBuffer sb = new StringBuffer();
+        sb.append(super.toString() + "\n number of certificates = "
+                + c.getCertificates().length + "\n" + c.toString());
+        sb.append("\n" + c.toString());
+        return new String(sb);
+        
     }
 
     /**
