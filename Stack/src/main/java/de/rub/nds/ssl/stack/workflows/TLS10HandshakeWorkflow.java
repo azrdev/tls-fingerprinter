@@ -18,6 +18,7 @@ import de.rub.nds.ssl.stack.workflows.commons.WorkflowState;
 import de.rub.nds.ssl.stack.workflows.response.TLSResponse;
 import de.rub.nds.ssl.stack.workflows.response.fecther.AResponseFetcher;
 import de.rub.nds.ssl.stack.workflows.response.fecther.StandardFetcher;
+import de.rub.nds.ssl.stack.workflows.response.fecther.TimingFetcher;
 import de.rub.nds.ssl.stack.workflows.response.fecther.VNLFetcher;
 import de.rub.nds.virtualnetworklayer.socket.VNLSocket;
 import java.io.IOException;
@@ -102,7 +103,7 @@ public final class TLS10HandshakeWorkflow extends AWorkflow {
                 break;
             case TimingSocket:
                 so = new TimingSocket();
-                fetcher = new StandardFetcher(so, this);
+                fetcher = new TimingFetcher(so, this);
                 break;
             case VNLSocket:
                 so = new VNLSocket();
