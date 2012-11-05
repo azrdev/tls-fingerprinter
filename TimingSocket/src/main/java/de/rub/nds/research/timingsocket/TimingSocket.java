@@ -64,10 +64,6 @@ public class TimingSocket extends Socket {
         connect(socketAddr);
     }
     
-    public void startTimeMeasurement() {
-        timingSocketImpl.startTimeMeasurement();
-    }
-    
     public long getTiming() {
         return timingSocketImpl.getTiming();
     }
