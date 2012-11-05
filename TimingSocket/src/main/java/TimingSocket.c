@@ -7,18 +7,22 @@
 #include <unistd.h>
 #include "fau_timer.c"
 #include <netinet/tcp.h>
+#include <errno.h>
 
 #define _debug
 
+static char first_byte = 0x0;
 static int sock = -1;
 static int start_measurement = 0;
+static int ready_measurement = 0;
 static unsigned long long start = 0;
 static unsigned long long end = 0;
 static unsigned long long ticks_measured = 0;
 
 void calc_ticks() {
-        ticks_measured = end - start;
         start_measurement = 0;
+        ticks_measured = end - start;
+        ready_measurement = 1;
 }
 
 JNIEXPORT jint JNICALL Java_de_rub_nds_research_timingsocket_TimingSocketImpl_c_1create(JNIEnv * env, jobject obj, jboolean stream)
@@ -36,6 +40,7 @@ JNIEXPORT jint JNICALL Java_de_rub_nds_research_timingsocket_TimingSocketImpl_c_
         int result = setsockopt(sock, IPPROTO_TCP, TCP_NODELAY, (char *) &flag, sizeof(int));
         if (result < 0) {
                 printf("ERROR calling setsockopt");
+                fflush(stdout);
                 return -1;
         }
 
@@ -44,7 +49,7 @@ JNIEXPORT jint JNICALL Java_de_rub_nds_research_timingsocket_TimingSocketImpl_c_
 
 JNIEXPORT jint JNICALL Java_de_rub_nds_research_timingsocket_TimingSocketImpl_c_1connect(JNIEnv * env, jobject obj, jint sock, jstring host, jint port)
 {
-        // extern int errno;
+        extern int errno;
         int ret = -1;
         struct hostent *server;
         struct sockaddr_in serv_addr;
@@ -62,6 +67,10 @@ JNIEXPORT jint JNICALL Java_de_rub_nds_research_timingsocket_TimingSocketImpl_c_
         serv_addr.sin_port = htons(port);
 
         ret = connect(sock, (struct sockaddr*) &serv_addr, sizeof(serv_addr));
+        if(ret != 0) {
+                printf("Called c_connect(sock=%d, host=%s, port=%d --> %d, (%s))\n", sock, c_host, port, ret, strerror(errno));
+                fflush(stdout);
+        }
 
 #ifdef _debug
         printf("Called c_connect(%d, %s (%x %x, %d), %d) --> %d\n", sock, c_host, *(server->h_addr), *((server->h_addr) + 3), server->h_length, port, ret);
@@ -113,6 +122,37 @@ JNIEXPORT jint JNICALL Java_de_rub_nds_research_timingsocket_TimingSocketImpl_c_
         return ret;
 }
 
+
+JNIEXPORT jint JNICALL Java_de_rub_nds_research_timingsocket_TimingSocketImpl_c_1read_1off(JNIEnv *env, jobject obj, jbyteArray ar, jint offset, jint length) { 
+
+        jint len_read = 0;
+        jbyte *c_array = (*env)->GetByteArrayElements(env, ar, 0);
+
+        char bla[1024];
+ 
+#ifdef _debug
+        printf("Called c_read(ar, offset=%d, length=%d)\n", offset, length);
+        fflush(stdout);
+#endif
+        len_read = read(sock, bla + offset, length);
+
+#ifdef _debug
+        printf("Called c_read(ar, offset=%d, length=%d --> %d)\n", offset, length, len_read);
+        fflush(stdout);
+#endif
+
+        if(len_read < 0) {
+                printf("ERROR len_read --> %d, (%s))\n", len_read, strerror(errno));
+                fflush(stdout);
+        }
+
+        (*env)->ReleaseByteArrayElements(env, ar, c_array, 0);
+
+        return len_read;
+
+}
+
+
 JNIEXPORT jint JNICALL Java_de_rub_nds_research_timingsocket_TimingSocketImpl_c_1write(JNIEnv *env, jobject obj, jbyteArray ar) {
         jbyte *c_array = (*env)->GetByteArrayElements(env, ar, 0);
         jsize len = (*env)->GetArrayLength(env, ar);
@@ -129,14 +169,17 @@ JNIEXPORT jint JNICALL Java_de_rub_nds_research_timingsocket_TimingSocketImpl_c_
                 puts("Starting measurement");
                 fflush(stdout);
 #endif
+                read(sock, &first_byte, 1);
+                end = get_ticks();
+                calc_ticks();
         }
 #ifdef _debug
         printf("finished write(), sent %d bytes\n", (int)len_sent);
         fflush(stdout);
 #endif
 
-        // Todo: whatever this last argument "0" means...
-        (*env)->ReleaseByteArrayElements(env, ar, c_array, 0);
+        // Just write the buffer and don't copy the array back to Java
+        (*env)->ReleaseByteArrayElements(env, ar, c_array, JNI_ABORT);
 
         return len_sent;
 }
@@ -221,14 +264,15 @@ JNIEXPORT jint JNICALL Java_de_rub_nds_research_timingsocket_TimingSocketImpl_c_
         return ret;       
 }
 
-JNIEXPORT void JNICALL Java_de_rub_nds_research_timingsocket_TimingSocketImpl_c_1startTimeMeasurement(JNIEnv *env, jobject obj)
+JNIEXPORT void JNICALL Java_de_rub_nds_research_timingsocket_TimingSocketImpl_c_1start_1measurement(JNIEnv *env, jobject obj)
 {
 #ifdef _debug
-        puts("Called c_startTimeMeasurement()\n");
+        puts("Called c_start_Measurement()\n");
         fflush(stdout);
 #endif
-        ticks_measured = 0;
         start_measurement = 1;
+        ticks_measured = 0;
+        ready_measurement = 0;
         start = 0L;
         end = 0L;
 }

@@ -49,14 +49,6 @@ JNIEXPORT jint JNICALL Java_de_rub_nds_research_timingsocket_TimingSocketImpl_c_
 
 /*
  * Class:     de_rub_nds_research_timingsocket_TimingSocketImpl
- * Method:    c_startTimeMeasurement
- * Signature: ()V
- */
-JNIEXPORT void JNICALL Java_de_rub_nds_research_timingsocket_TimingSocketImpl_c_1startTimeMeasurement
-  (JNIEnv *, jobject);
-
-/*
- * Class:     de_rub_nds_research_timingsocket_TimingSocketImpl
  * Method:    c_getTiming
  * Signature: ()J
  */
@@ -78,6 +70,22 @@ JNIEXPORT jint JNICALL Java_de_rub_nds_research_timingsocket_TimingSocketImpl_c_
  */
 JNIEXPORT jint JNICALL Java_de_rub_nds_research_timingsocket_TimingSocketImpl_c_1read
   (JNIEnv *, jobject, jbyteArray);
+
+/*
+ * Class:     de_rub_nds_research_timingsocket_TimingSocketImpl
+ * Method:    c_start_measurement
+ * Signature: ()V
+ */
+JNIEXPORT void JNICALL Java_de_rub_nds_research_timingsocket_TimingSocketImpl_c_1start_1measurement
+  (JNIEnv *, jclass);
+
+/*
+ * Class:     de_rub_nds_research_timingsocket_TimingSocketImpl
+ * Method:    c_read_off
+ * Signature: ([BII)I
+ */
+JNIEXPORT jint JNICALL Java_de_rub_nds_research_timingsocket_TimingSocketImpl_c_1read_1off
+  (JNIEnv *, jobject, jbyteArray, jint, jint);
 
 /*
  * Class:     de_rub_nds_research_timingsocket_TimingSocketImpl
