@@ -25,19 +25,20 @@ public class TimingSocketImpl extends SocketImpl {
 
         @Override
         public void close() throws IOException {
-            throw new UnsupportedOperationException("Not supported yet.");
+            tsi.c_close();
         }
 
         @Override
         /**
-         * We flush with every write, so we don't need this 
-         * method (I guess...).
+         * We flush with every write in the C functions, so we
+         * don't need this Java method (I guess...).
          */
         public void flush() throws IOException {
         }
 
         @Override
         public void write(byte[] bytes, int i, int i1) throws IOException {
+            new Exception("").printStackTrace();
             throw new UnsupportedOperationException("Not supported yet.");
         }
     
@@ -66,7 +67,12 @@ public class TimingSocketImpl extends SocketImpl {
 
         @Override
         public void write(byte[] ar) throws IOException {
-            tsi.write(ar);
+            try {
+                tsi.write(ar);
+            }
+            catch(Exception e) {
+                e.printStackTrace();
+            }
         }
     }
     
@@ -77,12 +83,19 @@ public class TimingSocketImpl extends SocketImpl {
 
         @Override
         public int available() throws IOException {
-            return tsi.available();
+            int ret = -1;
+            try {
+                ret = tsi.available();
+            }
+            catch(Exception e) {
+                e.printStackTrace();
+            }
+            return ret;
         }
 
         @Override
         public void close() throws IOException {
-            throw new UnsupportedOperationException("Not supported yet.");
+            tsi.close();
         }
 
         @Override
@@ -116,24 +129,46 @@ public class TimingSocketImpl extends SocketImpl {
 
         @Override
         public int read(byte[] ar) throws IOException {
-            return tsi.read(ar);
+            int ret = 0;
+            try {
+                ret = tsi.read(ar);
+                if(ret == -1) {
+                    ret = 0;
+                }
+            }
+            catch(Exception e) {
+                e.printStackTrace();
+            }
+            return ret;
         }
 
         @Override
+        /**
+         * @returns The int value of the byte read, or -1 if EOF is reached.
+         */
         public int read() throws IOException {
-            return tsi.read();
+            
+            int ret = -1;
+            try {
+                ret = tsi.read();
+            }
+            catch(Exception e) {
+                e.printStackTrace();
+            }
+            return ret;
         }
-
+        
         @Override
-        public int read(byte[] ar, int start, int end) throws IOException {
-            throw new UnsupportedOperationException("Not supported yet.");
+        public int read(byte[] ar, int off, int len) throws IOException {
+            return tsi.read(ar, off, len);
         }
 
     }
     
     static {
-        String file = new File("").getAbsolutePath() + "/../TimingSocket/src/main/java/libnativecode.dylib";
-        System.load(file);
+        String lib = new File("").getAbsolutePath() + "/../TimingSocket/src/main/java/libnativecode.dylib";
+        System.out.println("Attempting to load " + lib);
+        System.load(lib);
     }
     private int file_desc;
     private OutputStream os;
@@ -251,26 +286,10 @@ public class TimingSocketImpl extends SocketImpl {
     public Object getOption(int optID) throws SocketException {
         throw new UnsupportedOperationException("Not supported yet.");
     }
+
     
     /**
-     * This function tells the socket to measure the response time of
-     * the next write-read couple. It works like this:
-     * 
-     * 1. call @startTimeMeasurement()
-     * 2. Perform a write() to send the request
-     * 3. Perform a read() immediately after sending the request to 
-     *    ensure that you get correct results in case that the
-     *    response is very fast.
-     * 4. Retrieve the measured timing by calling @getTiming()
-     */
-    public void startTimeMeasurement() {
-        c_startTimeMeasurement();
-    }
-    private native void c_startTimeMeasurement();
-    
-    /**
-     * This function works hand-in-hand with @startTimeMeasurement()
-     * and retrieves the measured time.
+     * This function retrieves the measured time.
      * 
      * @return The measured response time from sending the last byte of the
      *         request to retrieving the first byte of the response. The 
@@ -287,7 +306,15 @@ public class TimingSocketImpl extends SocketImpl {
      * @param ar The data to be send
      */
     private void write(byte[] ar) {
-        c_write(ar);
+        /*
+         * Always start the timing measurement because
+         * we tag each and every single message 
+         * roundtrip.
+         */
+        int len = c_write(ar);
+        if(ar.length != len){
+            throw new RuntimeException("sent less data than I wanted to send.");
+        }
     }
     private native int c_write(byte[] ar);
     
@@ -301,12 +328,53 @@ public class TimingSocketImpl extends SocketImpl {
     }
     private native int c_read(byte[] ar);
     
+    
+    public static void startMeasurement() {
+        c_start_measurement();
+    }
+    private static native void c_start_measurement();
+    
+     /**
+     * Callback function for TimingInputStream
+     * @param ar The array that is filled with data
+     * @param offset The offset where to start the read in the stream
+     * @param length The amount of bytes to be read
+     * @return The amount of bytes read
+     */   
+    private int read(byte[] ar, int offset, int length) {
+        int ret = c_read_off(ar, offset, length);
+        if(ret == 0) {
+            System.out.println("EOF read()");
+            ret = -1;
+        }
+        return ret;
+    }
+    private native int c_read_off(byte[] ar, int offset, int length);
+    
     /**
      * Callback function for TimingInputStream
      * @return A single byte read from the socket
      */
     private int read() {
-        return c_read_no_param();
+        int ret = c_read_no_param();
+        
+        /*
+         * If the read() of C returns 0, we reached EOF. In this case, we
+         * return -1.
+         * If the read() of C returns -1, an error occured. In this case, we
+         * throw an exception.
+         */
+        switch(ret) {
+            case 0:
+                // EOF
+                return -1;
+            case -1:
+                // Error!
+                throw new RuntimeException("Read error.");
+            default:
+                return ret;
+        }
+        
     }
     private native int c_read_no_param();
     
