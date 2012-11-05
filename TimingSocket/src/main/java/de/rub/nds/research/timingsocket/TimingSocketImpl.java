@@ -135,6 +135,10 @@ public class TimingSocketImpl extends SocketImpl {
                 if(ret == -1) {
                     ret = 0;
                 }
+                for(byte b : ar) {
+                    System.out.print(b + "*");
+                }
+                System.out.println("");
             }
             catch(Exception e) {
                 e.printStackTrace();
@@ -160,7 +164,8 @@ public class TimingSocketImpl extends SocketImpl {
         
         @Override
         public int read(byte[] ar, int off, int len) throws IOException {
-            return tsi.read(ar, off, len);
+            int ret = tsi.read(ar, off, len);
+            return ret;
         }
 
     }

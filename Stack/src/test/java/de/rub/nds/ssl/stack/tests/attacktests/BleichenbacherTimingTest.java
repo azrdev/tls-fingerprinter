@@ -313,7 +313,7 @@ public class BleichenbacherTimingTest implements Observer {
      * @param desc Test description
      * @param tamperMAC Destroy Finished MAC of RecordFrame
      */
-    @Test(enabled = false, dataProvider = "bleichenbacher")
+    @Test(enabled = true, dataProvider = "bleichenbacher")
     public final void testBleichenbacherPossible(final byte[] mode,
             final byte[] separate, final EProtocolVersion version,
             final boolean changePadding, final MessageUtils.POSITIONS position,

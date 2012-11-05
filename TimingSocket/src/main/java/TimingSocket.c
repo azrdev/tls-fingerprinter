@@ -134,7 +134,7 @@ JNIEXPORT jint JNICALL Java_de_rub_nds_research_timingsocket_TimingSocketImpl_c_
         printf("Called c_read(ar, offset=%d, length=%d)\n", offset, length);
         fflush(stdout);
 #endif
-        len_read = read(sock, bla + offset, length);
+        len_read = read(sock, c_array + offset, length);
 
 #ifdef _debug
         printf("Called c_read(ar, offset=%d, length=%d --> %d)\n", offset, length, len_read);
@@ -164,14 +164,14 @@ JNIEXPORT jint JNICALL Java_de_rub_nds_research_timingsocket_TimingSocketImpl_c_
 #endif
         len_sent = write(sock, c_array, len);
         if(start_measurement == 1) {
-                start = get_ticks();
+                //start = get_ticks();
 #ifdef _debug
                 puts("Starting measurement");
                 fflush(stdout);
 #endif
-                read(sock, &first_byte, 1);
-                end = get_ticks();
-                calc_ticks();
+                //read(sock, &first_byte, 1);
+                //end = get_ticks();
+                //calc_ticks();
         }
 #ifdef _debug
         printf("finished write(), sent %d bytes\n", (int)len_sent);

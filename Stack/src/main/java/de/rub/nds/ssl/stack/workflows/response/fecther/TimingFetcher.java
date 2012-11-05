@@ -53,6 +53,7 @@ public class TimingFetcher extends AResponseFetcher {
             try {
                 ts.setSoTimeout(10000);
                 dis.readFully(header);
+                
                 long time = ts.getTiming();
                 
                 System.out.println("TimingFetcher.run()" + time);
@@ -62,6 +63,7 @@ public class TimingFetcher extends AResponseFetcher {
                 byte[] answer = new byte[length + header.length];
                 System.arraycopy(header, 0, answer, 0, header.length);
                 dis.readFully(answer, header.length, length);
+                
                 //set changed Flag and notify the observer
                 this.setChanged();
                 response = new MessageContainer(answer, time);
