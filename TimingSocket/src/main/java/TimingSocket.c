@@ -9,7 +9,7 @@
 #include <netinet/tcp.h>
 #include <errno.h>
 
-#define _debug
+// #define _debug
 
 static char first_byte = 0x0;
 static int sock = -1;
@@ -23,6 +23,9 @@ void calc_ticks() {
         start_measurement = 0;
         ticks_measured = end - start;
         ready_measurement = 1;
+
+        printf("YYYYYYYYYY Calculated ticks %llu\n", ticks_measured);
+        fflush(stdout);
 }
 
 JNIEXPORT jint JNICALL Java_de_rub_nds_research_timingsocket_TimingSocketImpl_c_1create(JNIEnv * env, jobject obj, jboolean stream)
@@ -132,9 +135,12 @@ JNIEXPORT jint JNICALL Java_de_rub_nds_research_timingsocket_TimingSocketImpl_c_
         printf("Called c_read(ar, offset=%d, length=%d)\n", offset, length);
         fflush(stdout);
 #endif
-	if(start_measurement == 1) {
-        	c_array[offset] = first_byte;
-        	len_read = 1 + read(sock, c_array + offset + 1, length - 1);
+	if(start_measurement == 2) {
+        	len_read = read(sock, c_array + offset, 1);
+		end = get_ticks();
+        	len_read += read(sock, c_array + offset + 1, 1);
+		start_measurement = 0;
+		calc_ticks();
 	} else {
         	len_read = read(sock, c_array + offset, length);
 	}
@@ -166,18 +172,15 @@ JNIEXPORT jint JNICALL Java_de_rub_nds_research_timingsocket_TimingSocketImpl_c_
         fflush(stdout);
 #endif
         len_sent = write(sock, c_array, len);
-        start = get_ticks();
-
-#ifdef _debug
-        puts("Starting measurement");
-        fflush(stdout);
-#endif
 	if(start_measurement == 1) {
-        	read(sock, &first_byte, 1);
-        	end = get_ticks();
-        	calc_ticks();
-		start_measurement = 0;
+        	start = get_ticks();
+		start_measurement = 2;
+#ifdef _debug
+	        puts("Starting measurement");
+       		fflush(stdout);
+#endif
 	}
+
 #ifdef _debug
         printf("finished write(), sent %d bytes\n", (int)len_sent);
         fflush(stdout);

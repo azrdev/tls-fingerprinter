@@ -56,8 +56,6 @@ public class TimingFetcher extends AResponseFetcher {
                 
                 long time = ts.getTiming();
                 
-                System.out.println("TimingFetcher.run()" + time);
-                
                 //Determine the length of the frame
                 int length = (header[3] & 0xff) << 8 | (header[4] & 0xff);
                 byte[] answer = new byte[length + header.length];
@@ -67,6 +65,7 @@ public class TimingFetcher extends AResponseFetcher {
                 //set changed Flag and notify the observer
                 this.setChanged();
                 response = new MessageContainer(answer, time);
+                
                 this.notifyObservers(response);
                 workflow.wakeUp();
             } catch (IOException e) {

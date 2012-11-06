@@ -1,5 +1,6 @@
 package de.rub.nds.ssl.stack.tests.attacktests;
 
+import de.rub.nds.research.timingsocket.TimingSocketImpl;
 import de.rub.nds.ssl.stack.protocols.ARecordFrame;
 import de.rub.nds.ssl.stack.protocols.commons.ECipherSuite;
 import de.rub.nds.ssl.stack.protocols.commons.EProtocolVersion;
@@ -151,7 +152,7 @@ public class BleichenbacherTimingTest implements Observer {
         } else {
             logger.info("delays.csv not found");
         }
-        Object[][] ret = new Object[1][];
+        Object[][] ret = new Object[20][];
         
         for(int i = 0; i < ret.length; i++) {
             Object temp[];
@@ -313,7 +314,7 @@ public class BleichenbacherTimingTest implements Observer {
      * @param desc Test description
      * @param tamperMAC Destroy Finished MAC of RecordFrame
      */
-    @Test(enabled = false, dataProvider = "bleichenbacher")
+    @Test(enabled = true, dataProvider = "bleichenbacher")
     public final void testBleichenbacherPossible(final byte[] mode,
             final byte[] separate, final EProtocolVersion version,
             final boolean changePadding, final MessageUtils.POSITIONS position,
@@ -386,8 +387,12 @@ public class BleichenbacherTimingTest implements Observer {
                             suites.encode(false), new byte[]{0x00});
 
                     trace.setCurrentRecord(clientHello);
+                    
+                    TimingSocketImpl.startMeasurement();
+                    
                     break;
                 case CLIENT_KEY_EXCHANGE:
+                    
                     KeyExchangeParams keyParams =
                             KeyExchangeParams.getInstance();
                     PublicKey pk = keyParams.getPublicKey();
@@ -441,7 +446,7 @@ public class BleichenbacherTimingTest implements Observer {
                     } catch (BadPaddingException e) {
                         e.printStackTrace();
                     }
-
+                    
                     cke.setExchangeKeys(encPMS);
                     trace.setCurrentRecord(cke);
                     break;
@@ -501,7 +506,7 @@ public class BleichenbacherTimingTest implements Observer {
     //@BeforeMethod
     public final void setUp() {
         try {
-            System.setProperty("javax.net.debug", "ssl");
+            // System.setProperty("javax.net.debug", "ssl");
             logger.info("Starting SSL Server");
             sslServer = new SSLServer(PATH_TO_JKS, JKS_PASSWORD,
                     protocolShortName, PORT, PRINT_INFO);

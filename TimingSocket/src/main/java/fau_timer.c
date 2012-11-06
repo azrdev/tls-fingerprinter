@@ -44,7 +44,7 @@ void error(char *msg)
  * 
  * @return	number of cpu ticks since cpu started
 */
-ticks get_ticks()
+inline ticks get_ticks()
 {
 	ticks           ret = 0;
 	unsigned long   minor = 0;
