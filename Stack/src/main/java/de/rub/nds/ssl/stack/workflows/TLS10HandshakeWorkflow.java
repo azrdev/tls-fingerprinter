@@ -175,44 +175,27 @@ public final class TLS10HandshakeWorkflow extends AWorkflow {
             /*
              * create ClientKeyExchange
              */
-            trace = new MessageContainer();
+            MessageContainer trace1 = new MessageContainer();
             record = msgBuilder.createClientKeyExchange(protocolVersion, this);
-            setRecordTrace(trace, record);
+            setRecordTrace(trace1, record);
             // change status and notify observers
-            switchToState(trace, EStates.CLIENT_KEY_EXCHANGE);
-            // drop it on the wire!
-            prepareAndSend(trace);
-            logger.debug("Client Key Exchange message sent");
-            // add trace to ArrayList
-            addToTraceList(new MessageContainer(EStates.CLIENT_KEY_EXCHANGE,
-                    trace.getCurrentRecord(),
-                    trace.getOldRecord(), false));
-            // hash current record
-            updateHash(hashBuilder, trace);
+            switchToState(trace1, EStates.CLIENT_KEY_EXCHANGE);
+
 
             /*
              * create ChangeCipherSepc
              */
-            trace = new MessageContainer();
+            MessageContainer trace2 = new MessageContainer();
             record = new ChangeCipherSpec(protocolVersion);
-            setRecordTrace(trace, record);
+            setRecordTrace(trace2, record);
             //change status and notify observers
-            switchToState(trace, EStates.CLIENT_CHANGE_CIPHER_SPEC);
-            // drop it on the wire!
-            prepareAndSend(trace);
-            logger.debug("Change Cipher Spec message sent");
-            // switch to encrypted mode
-            encrypted = true;
-            // add trace to ArrayList
-            addToTraceList(new MessageContainer(EStates.CLIENT_CHANGE_CIPHER_SPEC,
-                    trace.
-                    getCurrentRecord(),
-                    trace.getOldRecord(), false));
+            switchToState(trace2, EStates.CLIENT_CHANGE_CIPHER_SPEC);
+
 
             /*
              * create Finished
              */
-            trace = new MessageContainer();
+            MessageContainer trace3 = new MessageContainer();
             // create the master secret
             MasterSecret masterSec = msgBuilder.createMasterSecret(this);
             // hash handshake messages
@@ -224,16 +207,39 @@ public final class TLS10HandshakeWorkflow extends AWorkflow {
             record = msgBuilder.createFinished(protocolVersion,
                     EConnectionEnd.CLIENT, handshakeHashes, masterSec);
             record = msgBuilder.encryptRecord(protocolVersion, record);
-            setRecordTrace(trace, record);
+            setRecordTrace(trace3, record);
             // change status and notify observers
-            switchToState(trace, EStates.CLIENT_FINISHED);
+            switchToState(trace3, EStates.CLIENT_FINISHED);
+            
+            
             // drop it on the wire!
-            prepareAndSend(trace);
+            prepareAndSend(trace1);
+            logger.debug("Client Key Exchange message sent");
+            // add trace to ArrayList
+            addToTraceList(new MessageContainer(EStates.CLIENT_KEY_EXCHANGE,
+                    trace1.getCurrentRecord(),
+                    trace1.getOldRecord(), false));
+            // hash current record
+            updateHash(hashBuilder, trace1);
+            
+            // drop it on the wire!
+            prepareAndSend(trace2);
+            logger.debug("Change Cipher Spec message sent");
+            // switch to encrypted mode
+            encrypted = true;
+            // add trace to ArrayList
+            addToTraceList(new MessageContainer(EStates.CLIENT_CHANGE_CIPHER_SPEC,
+                    trace2.
+                    getCurrentRecord(),
+                    trace2.getOldRecord(), false));
+            
+            // drop it on the wire!
+            prepareAndSend(trace3);
             logger.debug("Finished message sent");
             // add trace to ArrayList
-            addToTraceList(new MessageContainer(EStates.CLIENT_FINISHED, trace.
+            addToTraceList(new MessageContainer(EStates.CLIENT_FINISHED, trace3.
                     getCurrentRecord(),
-                    trace.getOldRecord(), false));
+                    trace3.getOldRecord(), false));
             sleepPoller(EStates.SERVER_FINISHED);
 
             fetcher.stopFetching();

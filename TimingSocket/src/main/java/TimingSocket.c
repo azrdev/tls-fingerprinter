@@ -24,7 +24,7 @@ void calc_ticks() {
         ticks_measured = end - start;
         ready_measurement = 1;
 
-        printf("YYYYYYYYYY Calculated ticks %llu\n", ticks_measured);
+        printf("%llu;XXXXXX\n", ticks_measured);
         fflush(stdout);
 }
 

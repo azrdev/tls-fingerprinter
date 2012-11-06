@@ -152,7 +152,7 @@ public class BleichenbacherTimingTest implements Observer {
         } else {
             logger.info("delays.csv not found");
         }
-        Object[][] ret = new Object[20][];
+        Object[][] ret = new Object[100000][];
         
         for(int i = 0; i < ret.length; i++) {
             Object temp[];
@@ -314,7 +314,7 @@ public class BleichenbacherTimingTest implements Observer {
      * @param desc Test description
      * @param tamperMAC Destroy Finished MAC of RecordFrame
      */
-    @Test(enabled = true, dataProvider = "bleichenbacher")
+    @Test(enabled = false, dataProvider = "bleichenbacher")
     public final void testBleichenbacherPossible(final byte[] mode,
             final byte[] separate, final EProtocolVersion version,
             final boolean changePadding, final MessageUtils.POSITIONS position,
@@ -329,6 +329,7 @@ public class BleichenbacherTimingTest implements Observer {
         boolean canceled = false;
         
         logger.info("\n++++ Start Test No." + counter + " (" + desc + ") ++++");
+        System.out.print(desc + ";");
         try {
             workflow = new TLS10HandshakeWorkflow(ESupportedSockets.TimingSocket);
             //workflow = new TLS10HandshakeWorkflow(ESupportedSockets.StandardSocket);
