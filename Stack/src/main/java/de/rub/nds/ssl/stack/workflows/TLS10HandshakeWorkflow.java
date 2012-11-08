@@ -28,6 +28,7 @@ import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.SocketAddress;
 import java.net.SocketException;
+import java.nio.ByteBuffer;
 import java.security.DigestException;
 import java.security.NoSuchAlgorithmException;
 import java.util.*;
@@ -180,8 +181,20 @@ public final class TLS10HandshakeWorkflow extends AWorkflow {
             setRecordTrace(trace1, record);
             // change status and notify observers
             switchToState(trace1, EStates.CLIENT_KEY_EXCHANGE);
-
-
+            // drop it on the wire!
+            /*
+             * Due to timing related issues these message will be send in bulk 
+             * together with CCS and Finished.
+             * prepareAndSend(trace1);
+             */
+            logger.debug("Client Key Exchange message sent");
+            // add trace to ArrayList
+            addToTraceList(new MessageContainer(EStates.CLIENT_KEY_EXCHANGE,
+                    trace1.getCurrentRecord(),
+                    trace1.getOldRecord(), false));
+            // hash current record
+            updateHash(hashBuilder, trace1);
+            
             /*
              * create ChangeCipherSepc
              */
@@ -190,7 +203,21 @@ public final class TLS10HandshakeWorkflow extends AWorkflow {
             setRecordTrace(trace2, record);
             //change status and notify observers
             switchToState(trace2, EStates.CLIENT_CHANGE_CIPHER_SPEC);
-
+            // drop it on the wire!
+            /*
+             * Due to timing related issues these message will be send in bulk 
+             * together with CCS and Finished.
+             * prepareAndSend(trace2);
+             */
+            logger.debug("Change Cipher Spec message sent");
+            // switch to encrypted mode
+            encrypted = true;
+            // add trace to ArrayList
+            addToTraceList(new MessageContainer(
+                    EStates.CLIENT_CHANGE_CIPHER_SPEC,
+                    trace2.
+                    getCurrentRecord(),
+                    trace2.getOldRecord(), false));
 
             /*
              * create Finished
@@ -210,31 +237,14 @@ public final class TLS10HandshakeWorkflow extends AWorkflow {
             setRecordTrace(trace3, record);
             // change status and notify observers
             switchToState(trace3, EStates.CLIENT_FINISHED);
-            
-            
             // drop it on the wire!
-            prepareAndSend(trace1);
-            logger.debug("Client Key Exchange message sent");
-            // add trace to ArrayList
-            addToTraceList(new MessageContainer(EStates.CLIENT_KEY_EXCHANGE,
-                    trace1.getCurrentRecord(),
-                    trace1.getOldRecord(), false));
-            // hash current record
-            updateHash(hashBuilder, trace1);
-            
-            // drop it on the wire!
-            prepareAndSend(trace2);
-            logger.debug("Change Cipher Spec message sent");
-            // switch to encrypted mode
-            encrypted = true;
-            // add trace to ArrayList
-            addToTraceList(new MessageContainer(EStates.CLIENT_CHANGE_CIPHER_SPEC,
-                    trace2.
-                    getCurrentRecord(),
-                    trace2.getOldRecord(), false));
-            
-            // drop it on the wire!
-            prepareAndSend(trace3);
+            /*
+             * Due to timing related issues these message will be send in bulk 
+             * together with CCS and Finished.
+             * prepareAndSend(trace3);
+             */
+            // send bulk!
+            prepareAndSend(trace1, trace2, trace3);
             logger.debug("Finished message sent");
             // add trace to ArrayList
             addToTraceList(new MessageContainer(EStates.CLIENT_FINISHED, trace3.
@@ -298,26 +308,47 @@ public final class TLS10HandshakeWorkflow extends AWorkflow {
     /**
      * Prepares the trace and delivers it to the network layer.
      *
-     * @param trace MessageContainer to be send
+     * @param messages MessageContainer(s) to be send
      */
-    private void prepareAndSend(final MessageContainer trace) throws IOException {
+    private void prepareAndSend(final MessageContainer... messages) throws
+            IOException {
         ARecordFrame rec;
         byte[] msg;
+        byte[][] byteBuffer = new byte[messages.length][1];
+        int overallCap = 0;
 
         if (out == null) {
             throw new IOException("Output stream not set");
         }
 
-        // try sending raw bytes - if no present yet, encode!
-        msg = trace.getCurrentRecordBytes();
-        if (msg == null) {
-            rec = trace.getCurrentRecord();
-            msg = rec.encode(true);
-            trace.setCurrentRecordBytes(msg);
+        // extract bytes of all messages
+        for (int i = 0; i < messages.length; i++) {
+            // try sending raw bytes - if no present yet, encode!
+            msg = messages[i].getCurrentRecordBytes();
+            if (msg == null) {
+                rec = messages[i].getCurrentRecord();
+                msg = rec.encode(true);
+                messages[i].setCurrentRecordBytes(msg);
+            }
+
+            byteBuffer[i] = msg;
+            overallCap += msg.length;
         }
-        
-        utils.sendMessage(out, msg);
-        logger.debug("Message in hex: " + Utility.bytesToHex(msg));
+
+        // put all bytes in one big byte array
+        int pointer = 0;
+        msg = new byte[overallCap];
+        for (int i = 0; i < messages.length; i++) {
+            System.arraycopy(byteBuffer[i], 0, msg, pointer,
+                    byteBuffer[i].length);
+            pointer += byteBuffer[i].length;
+        }
+
+        // send the data
+        if (msg != null) {
+            utils.sendMessage(out, msg);
+            logger.debug("Message in hex: " + Utility.bytesToHex(msg));
+        }
     }
 
     /**
@@ -428,9 +459,10 @@ public final class TLS10HandshakeWorkflow extends AWorkflow {
             fetcher = (AResponseFetcher) o;
             response = (MessageContainer) arg;
         }
-        
+
         //fetch the input bytes
-        TLSResponse tlsResponse = new TLSResponse(response.getCurrentRecordBytes(), this);
+        TLSResponse tlsResponse = new TLSResponse(response.
+                getCurrentRecordBytes(), this);
         tlsResponse.handleResponse(response);
         if (getCurrentState() == EStates.ALERT.getID()) {
             logger.debug("### Connection reset due to FATAL_ALERT.");
