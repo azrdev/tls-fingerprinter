@@ -28,7 +28,6 @@ import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.SocketAddress;
 import java.net.SocketException;
-import java.nio.ByteBuffer;
 import java.security.DigestException;
 import java.security.NoSuchAlgorithmException;
 import java.util.*;
@@ -162,8 +161,10 @@ public final class TLS10HandshakeWorkflow extends AWorkflow {
             record = trace.getCurrentRecord();
             // save the client random value for later computations
             utils.setClientRandom((ClientHello) record);
+            // encode the message
+            trace.prepare();
             // drop it on the wire!
-            prepareAndSend(trace);
+            send(trace);
             logger.debug("Client Hello message sent");
             // hash current record
             updateHash(hashBuilder, trace);
@@ -181,20 +182,23 @@ public final class TLS10HandshakeWorkflow extends AWorkflow {
             setRecordTrace(trace1, record);
             // change status and notify observers
             switchToState(trace1, EStates.CLIENT_KEY_EXCHANGE);
+            // encode the message
+            trace1.prepare();
             // drop it on the wire!
             /*
              * Due to timing related issues these message will be send in bulk 
              * together with CCS and Finished.
              * prepareAndSend(trace1);
+             * logger.debug("Client Key Exchange message sent");
              */
-            logger.debug("Client Key Exchange message sent");
             // add trace to ArrayList
             addToTraceList(new MessageContainer(EStates.CLIENT_KEY_EXCHANGE,
                     trace1.getCurrentRecord(),
                     trace1.getOldRecord(), false));
             // hash current record
             updateHash(hashBuilder, trace1);
-            
+
+            System.out.println("here");
             /*
              * create ChangeCipherSepc
              */
@@ -203,20 +207,21 @@ public final class TLS10HandshakeWorkflow extends AWorkflow {
             setRecordTrace(trace2, record);
             //change status and notify observers
             switchToState(trace2, EStates.CLIENT_CHANGE_CIPHER_SPEC);
+            // encode the message
+            trace2.prepare();
             // drop it on the wire!
             /*
              * Due to timing related issues these message will be send in bulk 
              * together with CCS and Finished.
-             * prepareAndSend(trace2);
+             * send(trace2);
+             * logger.debug("Change Cipher Spec message sent");
              */
-            logger.debug("Change Cipher Spec message sent");
             // switch to encrypted mode
             encrypted = true;
             // add trace to ArrayList
             addToTraceList(new MessageContainer(
                     EStates.CLIENT_CHANGE_CIPHER_SPEC,
-                    trace2.
-                    getCurrentRecord(),
+                    trace2.getCurrentRecord(),
                     trace2.getOldRecord(), false));
 
             /*
@@ -237,6 +242,8 @@ public final class TLS10HandshakeWorkflow extends AWorkflow {
             setRecordTrace(trace3, record);
             // change status and notify observers
             switchToState(trace3, EStates.CLIENT_FINISHED);
+            // encode the message
+            trace3.prepare();
             // drop it on the wire!
             /*
              * Due to timing related issues these message will be send in bulk 
@@ -244,7 +251,10 @@ public final class TLS10HandshakeWorkflow extends AWorkflow {
              * prepareAndSend(trace3);
              */
             // send bulk!
-            prepareAndSend(trace1, trace2, trace3);
+            send(trace1, trace2, trace3);
+            logger.debug("Client Key Exchange message sent");
+            logger.debug("Change Cipher Spec message sent");
+
             logger.debug("Finished message sent");
             // add trace to ArrayList
             addToTraceList(new MessageContainer(EStates.CLIENT_FINISHED, trace3.
@@ -306,15 +316,15 @@ public final class TLS10HandshakeWorkflow extends AWorkflow {
     }
 
     /**
-     * Prepares the trace and delivers it to the network layer.
+     * Delivers one or multiple message(s) to the network layer.
      *
      * @param messages MessageContainer(s) to be send
      */
-    private void prepareAndSend(final MessageContainer... messages) throws
+    private void send(final MessageContainer... messages) throws
             IOException {
         ARecordFrame rec;
         byte[] msg;
-        byte[][] byteBuffer = new byte[messages.length][1];
+        byte[][] byteBuffer = new byte[messages.length][];
         int overallCap = 0;
 
         if (out == null) {
@@ -323,14 +333,7 @@ public final class TLS10HandshakeWorkflow extends AWorkflow {
 
         // extract bytes of all messages
         for (int i = 0; i < messages.length; i++) {
-            // try sending raw bytes - if no present yet, encode!
             msg = messages[i].getCurrentRecordBytes();
-            if (msg == null) {
-                rec = messages[i].getCurrentRecord();
-                msg = rec.encode(true);
-                messages[i].setCurrentRecordBytes(msg);
-            }
-
             byteBuffer[i] = msg;
             overallCap += msg.length;
         }

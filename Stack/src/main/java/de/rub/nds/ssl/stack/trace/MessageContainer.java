@@ -251,4 +251,16 @@ public final class MessageContainer {
     public void setTimestamp(final Long timestamp) {
         this.timestamp = timestamp;
     }
+    
+    /**
+     * Prepares the message. 
+     * Checks if the message was already encoded and if not encodes it.
+     */
+    public void prepare() {
+        byte[] msg;
+        if (getCurrentRecordBytes() == null) {
+            msg = getCurrentRecord().encode(true);
+            setCurrentRecordBytes(msg);
+        }
+    }
 }
