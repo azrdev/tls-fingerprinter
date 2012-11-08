@@ -1,6 +1,7 @@
 package de.rub.nds.ssl.stack.workflows;
 
 import de.rub.nds.research.timingsocket.TimingSocket;
+import de.rub.nds.research.timingsocket.TimingSocketImpl;
 import de.rub.nds.ssl.stack.Utility;
 import de.rub.nds.ssl.stack.protocols.ARecordFrame;
 import de.rub.nds.ssl.stack.protocols.commons.EConnectionEnd;
@@ -198,7 +199,6 @@ public final class TLS10HandshakeWorkflow extends AWorkflow {
             // hash current record
             updateHash(hashBuilder, trace1);
 
-            System.out.println("here");
             /*
              * create ChangeCipherSepc
              */
@@ -251,6 +251,7 @@ public final class TLS10HandshakeWorkflow extends AWorkflow {
              * prepareAndSend(trace3);
              */
             // send bulk!
+            // TimingSocketImpl.startMeasurement();
             send(trace1, trace2, trace3);
             logger.debug("Client Key Exchange message sent");
             logger.debug("Change Cipher Spec message sent");

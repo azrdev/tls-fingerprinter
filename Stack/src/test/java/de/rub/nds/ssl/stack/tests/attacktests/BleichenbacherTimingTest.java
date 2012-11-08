@@ -119,7 +119,7 @@ public class BleichenbacherTimingTest implements Observer {
     /**
      * Number of repetitions.
      */
-    private static final int NUMBER_OF_REPETIIONS = 1;
+    private static final int NUMBER_OF_REPETIIONS = 15;
     /**
      * Detailed Info print out.
      */
@@ -389,7 +389,6 @@ public class BleichenbacherTimingTest implements Observer {
 
                     trace.setCurrentRecord(clientHello);
                     
-                    TimingSocketImpl.startMeasurement();
                     
                     break;
                 case CLIENT_KEY_EXCHANGE:
@@ -507,7 +506,7 @@ public class BleichenbacherTimingTest implements Observer {
     //@BeforeMethod
     public final void setUp() {
         try {
-            // System.setProperty("javax.net.debug", "ssl");
+            System.setProperty("javax.net.debug", "ssl");
             logger.info("Starting SSL Server");
             sslServer = new SSLServer(PATH_TO_JKS, JKS_PASSWORD,
                     protocolShortName, PORT, PRINT_INFO);

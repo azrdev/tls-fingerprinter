@@ -325,7 +325,7 @@ public class TimingSocketImpl extends SocketImpl {
     
     /**
      * Callback function for TimingInputStream
-     * @param ar The array that is filled with data
+     *       @param ar The array that is filled with data
      * @return The amount of bytes read
      */
     private int read(byte[] ar) {

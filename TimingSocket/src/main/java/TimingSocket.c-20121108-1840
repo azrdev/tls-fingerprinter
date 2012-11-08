@@ -23,8 +23,7 @@ void calc_ticks() {
         start_measurement = 0;
         ticks_measured = end - start;
         ready_measurement = 1;
-
-        printf("%llu;XXXXXX\n", ticks_measured);
+	printf("################################# got measurement: %llu \n", ticks_measured);
         fflush(stdout);
 }
 
@@ -136,13 +135,14 @@ JNIEXPORT jint JNICALL Java_de_rub_nds_research_timingsocket_TimingSocketImpl_c_
         fflush(stdout);
 #endif
 	if(start_measurement == 2) {
-        	len_read = read(sock, c_array + offset, 1);
-		end = get_ticks();
-        	len_read += read(sock, c_array + offset + 1, 1);
+                c_array[offset] = first_byte;
+		if(length > 1) {
+                	len_read = 1 + read(sock, c_array + offset + 1, length - 1);
+		}
 		start_measurement = 0;
-		calc_ticks();
 	} else {
-        	len_read = read(sock, c_array + offset, length);
+                len_read = read(sock, c_array + offset, length);
+
 	}
 
 #ifdef _debug
@@ -172,15 +172,18 @@ JNIEXPORT jint JNICALL Java_de_rub_nds_research_timingsocket_TimingSocketImpl_c_
         fflush(stdout);
 #endif
         len_sent = write(sock, c_array, len);
+        start = get_ticks();
+
 	if(start_measurement == 1) {
-        	start = get_ticks();
 		start_measurement = 2;
 #ifdef _debug
-	        puts("Starting measurement");
-       		fflush(stdout);
+                puts("Starting measurement");
+                fflush(stdout);
 #endif
+                read(sock, &first_byte, 1);
+                end = get_ticks();
+                calc_ticks();
 	}
-
 #ifdef _debug
         printf("finished write(), sent %d bytes\n", (int)len_sent);
         fflush(stdout);
@@ -227,22 +230,14 @@ JNIEXPORT jint JNICALL Java_de_rub_nds_research_timingsocket_TimingSocketImpl_c_
 JNIEXPORT jint JNICALL Java_de_rub_nds_research_timingsocket_TimingSocketImpl_c_1read_1no_1param(JNIEnv * env, jobject obj)
 {
 #ifdef _debug
-        printf("r");
+        printf("called c_read()");
         fflush(stdout);
 #endif
         jint buf;
-        ssize_t len_read = -1;
+        // ssize_t len_read = -1;
 
-        len_read = read(sock, &buf, 1);
-
-        if(start_measurement == 1 && start != 0) {
-#ifdef _debug
-                puts("Stopping measurement");
-                fflush(stdout);
-#endif
-                end = get_ticks();
-                calc_ticks();
-        }
+        // len_read = read(sock, &buf, 1);
+        read(sock, &buf, 1);
 
         return buf;
 }
