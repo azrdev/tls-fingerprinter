@@ -9,6 +9,7 @@
 #include <netinet/tcp.h>
 #include <errno.h>
 
+
 #define _debug
 
 static char first_byte = 0x0;
@@ -18,6 +19,8 @@ static int ready_measurement = 0;
 static unsigned long long start = 0;
 static unsigned long long end = 0;
 static unsigned long long ticks_measured = 0;
+
+
 
 void calc_ticks() {
         start_measurement = 0;
@@ -163,6 +166,7 @@ JNIEXPORT jint JNICALL Java_de_rub_nds_research_timingsocket_TimingSocketImpl_c_
 
 
 JNIEXPORT jint JNICALL Java_de_rub_nds_research_timingsocket_TimingSocketImpl_c_1write(JNIEnv *env, jobject obj, jbyteArray ar) {
+
         jbyte *c_array = (*env)->GetByteArrayElements(env, ar, 0);
         jsize len = (*env)->GetArrayLength(env, ar);
         ssize_t len_sent = -1;
@@ -171,14 +175,19 @@ JNIEXPORT jint JNICALL Java_de_rub_nds_research_timingsocket_TimingSocketImpl_c_
         printf("Called c_write(len=%d)\n", len);
         fflush(stdout);
 #endif
-        len_sent = write(sock, c_array, len);
 	if(start_measurement == 1) {
+        	len_sent = write(sock, c_array, len);
         	start = get_ticks();
 		start_measurement = 2;
 #ifdef _debug
 	        puts("Starting measurement");
        		fflush(stdout);
 #endif
+		read(sock, &first_byte, 1);
+        	end = get_ticks();
+		calc_ticks();
+	} else {
+        	len_sent = write(sock, c_array, len);
 	}
 
 #ifdef _debug
