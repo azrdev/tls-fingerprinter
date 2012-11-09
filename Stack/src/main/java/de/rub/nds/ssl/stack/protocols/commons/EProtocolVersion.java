@@ -26,7 +26,11 @@ public enum EProtocolVersion {
     /**
      * TLS 1.2 protocol version.
      */
-    TLS_1_2(new byte[]{0x3, 0x3});
+    TLS_1_2(new byte[]{0x3, 0x3}),
+    /**
+     * TLS 1.3 protocol version. For testing purposes!
+     */
+    TLS_1_3(new byte[]{0x3, 0x4});
     /**
      * Length of the protocol version id: 2 Bytes.
      */
