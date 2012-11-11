@@ -8,6 +8,7 @@
 #include "fau_timer.c"
 #include <netinet/tcp.h>
 #include <errno.h>
+#include <pthread.h>
 
 
 #define _debug
@@ -20,7 +21,7 @@ static unsigned long long start = 0;
 static unsigned long long end = 0;
 static unsigned long long ticks_measured = 0;
 
-
+pthread_mutex_t lock;
 
 void calc_ticks() {
         start_measurement = 0;
@@ -37,6 +38,8 @@ JNIEXPORT jint JNICALL Java_de_rub_nds_research_timingsocket_TimingSocketImpl_c_
         puts("Called c_create()\n");
         fflush(stdout);
 #endif
+        ready_measurement = 0;
+        start_measurement = 0;
         sock = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
 
         /*
@@ -49,6 +52,11 @@ JNIEXPORT jint JNICALL Java_de_rub_nds_research_timingsocket_TimingSocketImpl_c_
                 fflush(stdout);
                 return -1;
         }
+
+	if(pthread_mutex_init(&lock, NULL) != 0) {
+                printf("ERROR initializing mutex!");
+                fflush(stdout);
+	}
 
 	return sock;
 }
@@ -131,25 +139,64 @@ JNIEXPORT jint JNICALL Java_de_rub_nds_research_timingsocket_TimingSocketImpl_c_
 
 JNIEXPORT jint JNICALL Java_de_rub_nds_research_timingsocket_TimingSocketImpl_c_1read_1off(JNIEnv *env, jobject obj, jbyteArray ar, jint offset, jint length) { 
 
-        jint len_read = 0;
+        jint len_read = -1;
+	struct timeval tv;
+	int i;
+
         jbyte *c_array = (*env)->GetByteArrayElements(env, ar, 0);
+
+	tv.tv_sec  = 0;
+	tv.tv_usec = 100000; // Timeout is 100 milliseconds
+        setsockopt(sock, SOL_SOCKET, SO_RCVTIMEO,(struct timeval *)&tv,sizeof(struct timeval));
 
 #ifdef _debug
         printf("Called c_read(ar, offset=%d, length=%d)\n", offset, length);
         fflush(stdout);
 #endif
-	if(start_measurement == 2) {
-        	len_read = read(sock, c_array + offset, 1);
-		end = get_ticks();
-        	len_read += read(sock, c_array + offset + 1, 1);
-		start_measurement = 0;
-		calc_ticks();
-	} else {
-        	len_read = read(sock, c_array + offset, length);
+
+        /**
+         * We set a short timeout for the socket and then execute read() in a
+         * loop. Because of this, we unlock the mutex periodically and give
+         * the write method the opportunity to send data and perform the 
+         * measurement.
+         * If the timing measurement is ready, just return EOF, which finishes
+         * the measurement (kinda rude, I know).
+         */
+	for(i = 0; i < 20 && len_read == -1 ; i++) { // Overall time out is 100 milliseconds * 50 = 5 seconds
+        	pthread_mutex_lock(&lock);
+#ifdef _debug
+        	printf("read() locked. ");
+	        fflush(stdout);
+#endif
+
+        if(ready_measurement != 0) {
+                /*
+                 * Timing measurement is finished. Just return EOF, because
+                 * we are done.
+                 */
+                return -1;
+        }
+        
+        	if(start_measurement == 2) {
+			c_array[0] = first_byte;
+			len_read = 0;
+			if(length > 1) {
+                		len_read += read(sock, c_array + offset + 1, length - 1);
+			}
+        	} else {
+                	len_read = read(sock, c_array + offset, length);
+        	}
+
+        	pthread_mutex_unlock(&lock);
+#ifdef _debug
+                // printf("ERRNO %i --> (%s))\n", errno, strerror(errno));
+        	printf("Now unlocked. Errno %d --> %s\n", errno, strerror(errno));
+	        fflush(stdout);
+#endif
 	}
 
 #ifdef _debug
-        printf("Called c_read(ar, offset=%d, length=%d --> %d)\n", offset, length, len_read);
+        printf("finished c_read --> %d)\n", len_read);
         fflush(stdout);
 #endif
 
@@ -159,6 +206,10 @@ JNIEXPORT jint JNICALL Java_de_rub_nds_research_timingsocket_TimingSocketImpl_c_
         }
 
         (*env)->ReleaseByteArrayElements(env, ar, c_array, 0);
+
+	tv.tv_sec  = 10;
+	tv.tv_usec = 0; // Timeout is 10 seconds
+        setsockopt(sock, SOL_SOCKET, SO_RCVTIMEO,(struct timeval *)&tv,sizeof(struct timeval));
 
         return len_read;
 
@@ -171,10 +222,13 @@ JNIEXPORT jint JNICALL Java_de_rub_nds_research_timingsocket_TimingSocketImpl_c_
         jsize len = (*env)->GetArrayLength(env, ar);
         ssize_t len_sent = -1;
 
+      	pthread_mutex_lock(&lock);
+
 #ifdef _debug
-        printf("Called c_write(len=%d)\n", len);
+        printf("locked c_write(len=%d)\n", len);
         fflush(stdout);
 #endif
+
 	if(start_measurement == 1) {
         	len_sent = write(sock, c_array, len);
         	start = get_ticks();
@@ -190,8 +244,10 @@ JNIEXPORT jint JNICALL Java_de_rub_nds_research_timingsocket_TimingSocketImpl_c_
         	len_sent = write(sock, c_array, len);
 	}
 
+      	pthread_mutex_unlock(&lock);
+
 #ifdef _debug
-        printf("finished write(), sent %d bytes\n", (int)len_sent);
+        printf("unlocked write(), sent %d bytes\n", (int)len_sent);
         fflush(stdout);
 #endif
 
@@ -203,25 +259,11 @@ JNIEXPORT jint JNICALL Java_de_rub_nds_research_timingsocket_TimingSocketImpl_c_
 
 JNIEXPORT jint JNICALL Java_de_rub_nds_research_timingsocket_TimingSocketImpl_c_1read(JNIEnv *env, jobject obj, jbyteArray ar) {
 #ifdef _debug
-        printf("Called c_read(ar)\n");
+        printf("ERROR do not call\n");
         fflush(stdout);
 #endif
-        jbyte *c_array = (*env)->GetByteArrayElements(env, ar, 0);
 
-        jsize len = (*env)->GetArrayLength(env, ar);
-        ssize_t len_read = -1;
-
-	c_array[0] = first_byte;
-
-        len_read = 1 + read(sock, c_array + 1, len - 1);
-
-        printf("finished c_1read: %d\n", len);
-        fflush(stdout);
-
-        // Todo: whatever this last argument "0" means...
-        (*env)->ReleaseByteArrayElements(env, ar, c_array, 0);
-
-        return len_read;
+        return -1;
 }
 
 JNIEXPORT jint JNICALL Java_de_rub_nds_research_timingsocket_TimingSocketImpl_c_1close(JNIEnv *env, jobject obj)
@@ -230,30 +272,18 @@ JNIEXPORT jint JNICALL Java_de_rub_nds_research_timingsocket_TimingSocketImpl_c_
         puts("Called c_close()\n");
         fflush(stdout);
 #endif
+	pthread_mutex_destroy(&lock);
+
         return close(sock);
 }
 
 JNIEXPORT jint JNICALL Java_de_rub_nds_research_timingsocket_TimingSocketImpl_c_1read_1no_1param(JNIEnv * env, jobject obj)
 {
 #ifdef _debug
-        printf("r");
+        printf("ERROR do not call this!");
         fflush(stdout);
 #endif
-        jint buf;
-        ssize_t len_read = -1;
-
-        len_read = read(sock, &buf, 1);
-
-        if(start_measurement == 1 && start != 0) {
-#ifdef _debug
-                puts("Stopping measurement");
-                fflush(stdout);
-#endif
-                end = get_ticks();
-                calc_ticks();
-        }
-
-        return buf;
+        return NULL;
 }
 
 JNIEXPORT jint JNICALL Java_de_rub_nds_research_timingsocket_TimingSocketImpl_c_1available(JNIEnv *env, jobject obj)

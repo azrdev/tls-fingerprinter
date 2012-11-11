@@ -22,6 +22,7 @@ public class TimingSocketImpl extends SocketImpl {
      * This class implements callbacks to @TimingSocketImpl.
      */
     private class TimingOutputStream extends OutputStream {
+        
 
         @Override
         public void close() throws IOException {
