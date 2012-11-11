@@ -8,7 +8,7 @@ package de.rub.nds.ssl.stack.tests.attacktests;
 import de.rub.nds.ssl.stack.tests.attacks.bleichenbacher.BleichenbacherAttack;
 import de.rub.nds.ssl.stack.tests.attacks.bleichenbacher.exceptions.OracleException;
 import de.rub.nds.ssl.stack.tests.attacks.bleichenbacher.oracles.AOracle;
-import de.rub.nds.ssl.stack.tests.attacks.bleichenbacher.oracles.JSSEOracle;
+import de.rub.nds.ssl.stack.tests.attacks.bleichenbacher.oracles.JSSE16Oracle;
 import de.rub.nds.ssl.stack.tests.attacks.bleichenbacher.oracles.TimingOracle;
 import de.rub.nds.ssl.stack.tests.common.SSLServer;
 import java.net.SocketException;

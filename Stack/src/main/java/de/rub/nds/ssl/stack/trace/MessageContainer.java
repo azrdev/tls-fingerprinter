@@ -41,6 +41,10 @@ public final class MessageContainer {
      * Associated Pcap packet.
      */
     private PcapPacket pcapPacket;
+    /**
+     * Previous state.
+     */
+    private EStates previousState;
 
     /**
      * Empty constructor.
@@ -60,7 +64,7 @@ public final class MessageContainer {
         this.setTimestamp(packet.getTimeStamp());
         this.setPcapPacket(packet);
     }
-    
+
     /**
      * Public constructor of a MessageContainer object.
      *
@@ -71,7 +75,7 @@ public final class MessageContainer {
         this.setCurrentRecord(record);
         this.setTimestamp(timestamp);
     }
-   
+
     /**
      * Public constructor of a MessageContainer object.
      *
@@ -134,6 +138,24 @@ public final class MessageContainer {
      */
     public void setState(EStates state) {
         this.state = state;
+    }
+
+    /**
+     * Get the previous state in handshake.
+     *
+     * @return Previous state in handshake
+     */
+    public EStates getPreviousState() {
+        return this.previousState;
+    }
+
+    /**
+     * Set the previous state.
+     *
+     * @param state Previous state in handshake.
+     */
+    public void setPreviousState(EStates state) {
+        this.previousState = state;
     }
 
     /**
@@ -219,7 +241,7 @@ public final class MessageContainer {
     /**
      * Get the associated Pcap packet, if available.
      *
-     * @return Pcap packet 
+     * @return Pcap packet
      */
     public PcapPacket getPcapPacket() {
         return pcapPacket;
@@ -251,10 +273,10 @@ public final class MessageContainer {
     public void setTimestamp(final Long timestamp) {
         this.timestamp = timestamp;
     }
-    
+
     /**
-     * Prepares the message. 
-     * Checks if the message was already encoded and if not encodes it.
+     * Prepares the message. Checks if the message was already encoded and if
+     * not encodes it.
      */
     public void prepare() {
         byte[] msg;

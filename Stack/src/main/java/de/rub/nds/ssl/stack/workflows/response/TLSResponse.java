@@ -18,13 +18,13 @@ import org.apache.log4j.Logger;
 
 /**
  * A response during the TLS protocol processing.
- * 
+ *
  * @author Eugen Weiss - eugen.weiss@ruhr-uni-bochum.de
  * @version 0.1 Apr 15, 2012
  */
 public class TLSResponse extends ARecordFrame implements Observer {
 // TODO: Ugly and confusing class! Needs to be corrected!
-    
+
     /**
      * Current trace.
      */
@@ -43,7 +43,7 @@ public class TLSResponse extends ARecordFrame implements Observer {
      * Initialize a TLS response.
      *
      * @param response Bytes of the received response
-     * @param workflow Workflow 
+     * @param workflow Workflow
      */
     public TLSResponse(final byte[] response,
             TLS10HandshakeWorkflow workflow) {
@@ -68,6 +68,8 @@ public class TLSResponse extends ARecordFrame implements Observer {
                 logger.debug("Change Cipher Spec message received");
                 ChangeCipherSpec ccs = new ChangeCipherSpec(response, true);
                 trace.setCurrentRecord(ccs);
+                trace.setPreviousState(EStates.getStateById(workflow.
+                        getCurrentState()));
                 workflow.switchToState(trace, EStates.SERVER_CHANGE_CIPHER_SPEC);
                 trace.setState(EStates.getStateById(workflow.getCurrentState()));
                 workflow.addToTraceList(trace);
@@ -79,6 +81,7 @@ public class TLSResponse extends ARecordFrame implements Observer {
                 logger.debug("Alert message: " + alert.getAlertDescription().
                         name());
                 trace.setCurrentRecord(alert);
+                trace.setPreviousState(EStates.getStateById(workflow.getCurrentState()));
                 if (EAlertLevel.FATAL.equals(alert.getAlertLevel())) {
                     workflow.switchToState(trace, EStates.ALERT);
                 } else {
@@ -96,6 +99,8 @@ public class TLSResponse extends ARecordFrame implements Observer {
                     logger.debug("Finished message received");
                     TLSCiphertext ciphertext = new TLSCiphertext(response, true);
                     trace.setCurrentRecord(ciphertext);
+                    trace.setPreviousState(EStates.getStateById(workflow.
+                            getCurrentState()));
                     workflow.nextStateAndNotify(trace);
                     trace.setState(EStates.getStateById(
                             workflow.getCurrentState()));

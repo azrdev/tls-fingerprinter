@@ -8,8 +8,8 @@ import de.rub.nds.ssl.stack.protocols.handshake.datatypes.EncPreMasterSecret;
 import de.rub.nds.ssl.stack.protocols.handshake.datatypes.PreMasterSecret;
 import de.rub.nds.ssl.stack.tests.attacks.bleichenbacher.exceptions.OracleException;
 import de.rub.nds.ssl.stack.trace.MessageContainer;
-import de.rub.nds.ssl.stack.workflows.commons.ObservableBridge;
 import de.rub.nds.ssl.stack.workflows.TLS10HandshakeWorkflow;
+import de.rub.nds.ssl.stack.workflows.commons.ObservableBridge;
 import java.net.SocketException;
 import java.security.PublicKey;
 import java.util.Observable;
@@ -29,9 +29,9 @@ import java.util.Observable;
  *
  * May 18, 2012
  */
-public class JSSEOracle extends ASSLServerOracle {
+public class JSSE16Oracle extends ASSLServerOracle {
 
-    public JSSEOracle(final String serverAddress, final int serverPort)
+    public JSSE16Oracle(final String serverAddress, final int serverPort)
             throws SocketException {
         super(serverAddress, serverPort);
     }
@@ -73,7 +73,6 @@ public class JSSEOracle extends ASSLServerOracle {
                     PreMasterSecret pms = new PreMasterSecret(protocolVersion);
                     workflow.setPreMasterSecret(pms);
                     pms.setProtocolVersion(protocolVersion);
-                    byte[] encodedPMS = pms.encode(false);
 
                     //encrypt the PreMasterSecret
                     EncPreMasterSecret encPMS =

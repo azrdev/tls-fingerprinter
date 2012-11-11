@@ -2,7 +2,8 @@ package de.rub.nds.ssl.stack.tests.attacks.bleichenbacher;
 
 import de.rub.nds.ssl.stack.tests.attacks.bleichenbacher.exceptions.OracleException;
 import de.rub.nds.ssl.stack.tests.attacks.bleichenbacher.oracles.AOracle;
-import de.rub.nds.ssl.stack.tests.attacks.bleichenbacher.oracles.JSSEOracle;
+import de.rub.nds.ssl.stack.tests.attacks.bleichenbacher.oracles.JSSE16Oracle;
+import de.rub.nds.ssl.stack.tests.attacks.bleichenbacher.oracles.JSSE17Oracle;
 import de.rub.nds.ssl.stack.tests.common.SSLServer;
 import java.net.SocketException;
 import javax.net.ssl.SSLException;
@@ -181,11 +182,12 @@ public class BleichenbacherAttackTest {
     @DataProvider(name = "bleichenbacher")
     public Object[][] createData1() throws SSLException, SocketException {
         return new Object[][]{
-                    {"JSSE Internal_Error Test", new JSSEOracle(HOST, PORT)}
+//                    {"JSSE Internal_Error Test", new JSSE16Oracle(HSOST, PORT)},
+                    {"JSSE Premature Handshake Abortion", new JSSE17Oracle(HOST, PORT)}
                 };
     }
 
-    @Test(enabled = false, dataProvider = "bleichenbacher", invocationCount = 1)
+    @Test(enabled = true, dataProvider = "bleichenbacher", invocationCount = 1)
     public final void testBleichenbacherAttack(String desc, AOracle oracle)
             throws OracleException {
         logger.info("++++Start Test No." + counter + "(" + desc + ")++++");
