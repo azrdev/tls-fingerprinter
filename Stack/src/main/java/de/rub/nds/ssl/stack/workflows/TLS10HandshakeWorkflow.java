@@ -179,7 +179,9 @@ public final class TLS10HandshakeWorkflow extends AWorkflow {
              * create ClientKeyExchange
              */
             MessageContainer trace1 = new MessageContainer();
-            trace1.setPreviousState(EStates.getStateById(this.getCurrentState()));
+            trace1.
+                    setPreviousState(EStates.
+                    getStateById(this.getCurrentState()));
             record = msgBuilder.createClientKeyExchange(protocolVersion, this);
             setRecordTrace(trace1, record);
             // change status and notify observers
@@ -190,7 +192,7 @@ public final class TLS10HandshakeWorkflow extends AWorkflow {
             /*
              * Due to timing related issues these message will be send in bulk 
              * together with CCS and Finished.
-             * prepareAndSend(trace1);
+             * send(trace1);
              * logger.debug("Client Key Exchange message sent");
              */
             // add trace to ArrayList
@@ -204,7 +206,9 @@ public final class TLS10HandshakeWorkflow extends AWorkflow {
              * create ChangeCipherSepc
              */
             MessageContainer trace2 = new MessageContainer();
-            trace2.setPreviousState(EStates.getStateById(this.getCurrentState()));
+            trace2.
+                    setPreviousState(EStates.
+                    getStateById(this.getCurrentState()));
             record = new ChangeCipherSpec(protocolVersion);
             setRecordTrace(trace2, record);
             //change status and notify observers
@@ -230,7 +234,9 @@ public final class TLS10HandshakeWorkflow extends AWorkflow {
              * create Finished
              */
             MessageContainer trace3 = new MessageContainer();
-            trace3.setPreviousState(EStates.getStateById(this.getCurrentState()));
+            trace3.
+                    setPreviousState(EStates.
+                    getStateById(this.getCurrentState()));
             // create the master secret
             MasterSecret masterSec = msgBuilder.createMasterSecret(this);
             // hash handshake messages
@@ -251,9 +257,10 @@ public final class TLS10HandshakeWorkflow extends AWorkflow {
             /*
              * Due to timing related issues these message will be send in bulk 
              * together with CCS and Finished.
-             * prepareAndSend(trace3);
+             * send(trace3);
              */
-            // send bulk!
+
+            // send bundled!
             // TimingSocketImpl.startMeasurement();
             send(trace1, trace2, trace3);
             logger.debug("Client Key Exchange message sent");
@@ -275,8 +282,8 @@ public final class TLS10HandshakeWorkflow extends AWorkflow {
     }
 
     /**
-     * Poll the current state each 100 millis if the passed state is 
-     * reached yet.
+     * Poll the current state each 100 millis if the passed state is reached
+     * yet.
      *
      * @param desiredState State to wait for
      */
