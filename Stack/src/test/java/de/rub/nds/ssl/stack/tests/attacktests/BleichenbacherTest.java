@@ -16,12 +16,12 @@ import de.rub.nds.ssl.stack.tests.analyzer.parameters.EFingerprintIdentifier;
 import de.rub.nds.ssl.stack.tests.common.SSLServerHandler;
 import de.rub.nds.ssl.stack.tests.common.TestConfiguration;
 import de.rub.nds.ssl.stack.trace.MessageContainer;
-import de.rub.nds.ssl.stack.workflows.commons.ESupportedSockets;
-import de.rub.nds.ssl.stack.workflows.commons.ObservableBridge;
 import de.rub.nds.ssl.stack.workflows.TLS10HandshakeWorkflow;
 import de.rub.nds.ssl.stack.workflows.TLS10HandshakeWorkflow.EStates;
+import de.rub.nds.ssl.stack.workflows.commons.ESupportedSockets;
 import de.rub.nds.ssl.stack.workflows.commons.MessageBuilder;
 import de.rub.nds.ssl.stack.workflows.commons.MessageUtils;
+import de.rub.nds.ssl.stack.workflows.commons.ObservableBridge;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.security.PublicKey;
@@ -142,7 +142,6 @@ public class BleichenbacherTest implements Observer {
             throws IOException {
         logger.info("++++ Start Test No." + counter + " (" + desc + ") ++++");
         this.counter++;
-//        workflow = new TLS10HandshakeWorkflow(ESupportedSockets.VNLSocket);
         workflow = new TLS10HandshakeWorkflow(ESupportedSockets.StandardSocket);
         //connect to test server
         if (TestConfiguration.HOST.isEmpty() || TestConfiguration.PORT == 0) {

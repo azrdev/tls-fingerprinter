@@ -49,7 +49,8 @@ public abstract class ATimingOracle extends ASSLServerOracle {
      * @param secondRequest
      * @throws OracleException if training gets impossible
      */
-    public abstract void trainOracle(final byte[] firstRequest, final byte[] secondRequest) throws OracleException;
+    public abstract void trainOracle(final byte[] firstRequest,
+            final byte[] secondRequest) throws OracleException;
 
     /**
      * Update observed object.
@@ -87,16 +88,16 @@ public abstract class ATimingOracle extends ASSLServerOracle {
                             KeyExchangeParams.getInstance();
                     PublicKey pk = keyParams.getPublicKey();
                     ClientKeyExchange cke = new ClientKeyExchange(
-                            protocolVersion,
+                            PROTOCOL_VERSION,
                             keyParams.getKeyExchangeAlgorithm());
-                    PreMasterSecret pms = new PreMasterSecret(protocolVersion);
-                    workflow.setPreMasterSecret(pms);
-                    pms.setProtocolVersion(protocolVersion);
+                    PreMasterSecret pms = new PreMasterSecret(PROTOCOL_VERSION);
+                    getWorkflow().setPreMasterSecret(pms);
+                    pms.setProtocolVersion(PROTOCOL_VERSION);
 
                     //encrypt the PreMasterSecret
                     EncPreMasterSecret encPMS =
                             new EncPreMasterSecret(pk);
-                    encPMS.setEncryptedPreMasterSecret(encPMStoCheck);
+                    encPMS.setEncryptedPreMasterSecret(getEncPMStoCheck());
                     cke.setExchangeKeys(encPMS);
 
                     trace.setCurrentRecord(cke);

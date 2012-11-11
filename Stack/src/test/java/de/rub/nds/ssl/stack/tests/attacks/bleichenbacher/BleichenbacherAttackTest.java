@@ -182,8 +182,7 @@ public class BleichenbacherAttackTest {
     @DataProvider(name = "bleichenbacher")
     public Object[][] createData1() throws SSLException, SocketException {
         return new Object[][]{
-//                    {"JSSE Internal_Error Test", new JSSE16Oracle(HSOST, PORT)},
-                    {"JSSE Premature Handshake Abortion", new JSSE17Oracle(HOST, PORT)}
+                    {"JSSE Internal_Error Test", new JSSE16Oracle(HOST, PORT)},
                 };
     }
 

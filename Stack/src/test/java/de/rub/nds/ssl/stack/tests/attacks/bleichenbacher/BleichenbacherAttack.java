@@ -101,7 +101,7 @@ public class BleichenbacherAttack {
         BigInteger n = publicKey.getModulus();
         BigInteger ciphered = new BigInteger(1, encryptedMsg);
 
-        boolean pkcsConform = false;
+        boolean pkcsConform;
         byte[] tmp;
         byte[] send;
 
@@ -123,7 +123,7 @@ public class BleichenbacherAttack {
         logger.info(" Found s0 : " + si);
     }
 
-    /** extensions for feature attacks handled in the derived classes*/
+    /* extensions for feature attacks handled in the derived classes*/
     protected void stepOneB() throws OracleException {
     }
 
@@ -132,12 +132,12 @@ public class BleichenbacherAttack {
 
     protected void stepTwo(final int i) throws OracleException {
         byte[] send;
-        boolean pkcsConform = false;
         BigInteger n = publicKey.getModulus();
 
         if (i == 1) {
             this.stepTwoA();
         } else {
+            System.out.println("===> i:" + i + " m.length:" + m.length);
             if (i > 1 && m.length >= 2) {
                 stepTwoB();
             } else if (m.length == 1) {
@@ -150,7 +150,7 @@ public class BleichenbacherAttack {
 
     private void stepTwoA() throws OracleException {
         byte[] send;
-        boolean pkcsConform = false;
+        boolean pkcsConform;
         BigInteger n = publicKey.getModulus();
 
         logger.info("Step 2a: Starting the search");
@@ -177,7 +177,7 @@ public class BleichenbacherAttack {
 
     private void stepTwoB() throws OracleException {
         byte[] send;
-        boolean pkcsConform = false;
+        boolean pkcsConform;
 
         logger.info("Step 2b: Searching with more than"
                 + " one interval left");
@@ -193,7 +193,7 @@ public class BleichenbacherAttack {
 
     protected void stepTwoC() throws OracleException {
         byte[] send;
-        boolean pkcsConform = false;
+        boolean pkcsConform;
         BigInteger n = publicKey.getModulus();
 
         logger.info("Step 2c: Searching with one interval left");
@@ -237,8 +237,6 @@ public class BleichenbacherAttack {
 
     private void stepThree(final int i) {
         BigInteger n = publicKey.getModulus();
-        int upperIntervalBound;
-        int lowerIntervalBound;
         BigInteger r;
         BigInteger upperBound;
         BigInteger lowerBound;

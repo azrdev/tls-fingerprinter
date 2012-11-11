@@ -41,7 +41,7 @@ public class JSSE16Oracle extends ASSLServerOracle {
             OracleException {
         exectuteWorkflow(msg);
 
-        return oracleResult;
+        return oracleResult();
     }
 
     /**
@@ -54,7 +54,7 @@ public class JSSE16Oracle extends ASSLServerOracle {
     public void update(final Observable o, final Object arg) {
         MessageContainer trace = null;
         TLS10HandshakeWorkflow.EStates state = null;
-        oracleResult = false;
+        setOracleResult(false);
         ObservableBridge obs;
         if (o != null && o instanceof ObservableBridge) {
             obs = (ObservableBridge) o;
@@ -68,16 +68,16 @@ public class JSSE16Oracle extends ASSLServerOracle {
                             KeyExchangeParams.getInstance();
                     PublicKey pk = keyParams.getPublicKey();
                     ClientKeyExchange cke = new ClientKeyExchange(
-                            protocolVersion,
+                            PROTOCOL_VERSION,
                             keyParams.getKeyExchangeAlgorithm());
-                    PreMasterSecret pms = new PreMasterSecret(protocolVersion);
-                    workflow.setPreMasterSecret(pms);
-                    pms.setProtocolVersion(protocolVersion);
+                    PreMasterSecret pms = new PreMasterSecret(PROTOCOL_VERSION);
+                    getWorkflow().setPreMasterSecret(pms);
+                    pms.setProtocolVersion(PROTOCOL_VERSION);
 
                     //encrypt the PreMasterSecret
                     EncPreMasterSecret encPMS =
                             new EncPreMasterSecret(pk);
-                    encPMS.setEncryptedPreMasterSecret(encPMStoCheck);
+                    encPMS.setEncryptedPreMasterSecret(getEncPMStoCheck());
                     cke.setExchangeKeys(encPMS);
 
                     trace.setCurrentRecord(cke);
@@ -88,7 +88,7 @@ public class JSSE16Oracle extends ASSLServerOracle {
 
                     if (EAlertDescription.INTERNAL_ERROR.equals(alert.
                             getAlertDescription())) {
-                        oracleResult = true;
+                        setOracleResult(true);
                     }
                     break;
                 default:

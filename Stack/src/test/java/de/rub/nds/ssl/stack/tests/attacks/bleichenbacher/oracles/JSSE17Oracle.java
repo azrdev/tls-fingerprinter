@@ -34,7 +34,7 @@ public class JSSE17Oracle extends ASSLServerOracle {
             OracleException {
         exectuteWorkflow(msg);
 
-        return oracleResult;
+        return oracleResult();
     }
 
     /**
@@ -47,7 +47,7 @@ public class JSSE17Oracle extends ASSLServerOracle {
     public void update(final Observable o, final Object arg) {
         MessageContainer trace = null;
         TLS10HandshakeWorkflow.EStates state = null;
-        oracleResult = false;
+        setOracleResult(false);
         ObservableBridge obs;
         if (o != null && o instanceof ObservableBridge) {
             obs = (ObservableBridge) o;
@@ -61,16 +61,16 @@ public class JSSE17Oracle extends ASSLServerOracle {
                             KeyExchangeParams.getInstance();
                     PublicKey pk = keyParams.getPublicKey();
                     ClientKeyExchange cke = new ClientKeyExchange(
-                            protocolVersion,
+                            PROTOCOL_VERSION,
                             keyParams.getKeyExchangeAlgorithm());
-                    PreMasterSecret pms = new PreMasterSecret(protocolVersion);
-                    workflow.setPreMasterSecret(pms);
-                    pms.setProtocolVersion(protocolVersion);
+                    PreMasterSecret pms = new PreMasterSecret(PROTOCOL_VERSION);
+                    getWorkflow().setPreMasterSecret(pms);
+                    pms.setProtocolVersion(PROTOCOL_VERSION);
 
                     //encrypt the PreMasterSecret
                     EncPreMasterSecret encPMS =
                             new EncPreMasterSecret(pk);
-                    encPMS.setEncryptedPreMasterSecret(encPMStoCheck);
+                    encPMS.setEncryptedPreMasterSecret(getEncPMStoCheck());
                     cke.setExchangeKeys(encPMS);
 
                     trace.setCurrentRecord(cke);
@@ -79,14 +79,13 @@ public class JSSE17Oracle extends ASSLServerOracle {
                     Alert alert = new Alert(trace.getCurrentRecord().
                             encode(false), false);
 
-                    if (EAlertDescription.HANDSHAKE_FAILURE.equals(alert.
-                            getAlertDescription())
-                            && !(TLS10HandshakeWorkflow.EStates.
-                            SERVER_CHANGE_CIPHER_SPEC.equals(
-                            trace.getPreviousState())
+                    if (EAlertDescription.HANDSHAKE_FAILURE.equals(
+                            alert.getAlertDescription())
+                            && !(TLS10HandshakeWorkflow.EStates.SERVER_CHANGE_CIPHER_SPEC.
+                            equals(trace.getPreviousState())
                             || TLS10HandshakeWorkflow.EStates.SERVER_FINISHED.
                             equals(trace.getPreviousState()))) {
-                        oracleResult = true;
+                        setOracleResult(true);
                     }
                     break;
                 default:

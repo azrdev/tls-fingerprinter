@@ -36,11 +36,11 @@ public class TimingOracle extends ATimingOracle {
 
         for (int i = 0; i < 10; i++) {
             exectuteWorkflow(firstRequest);
-            delay = getTimeDelay(workflow.getTraceList());
+            delay = getTimeDelay(getWorkflow().getTraceList());
             System.out.println("delay 1: " + delay);
 
             exectuteWorkflow(secondRequest);
-            delay = getTimeDelay(workflow.getTraceList());
+            delay = getTimeDelay(getWorkflow().getTraceList());
             System.out.println("delay 2: " + delay);
         }
         
@@ -52,7 +52,7 @@ public class TimingOracle extends ATimingOracle {
     public boolean checkPKCSConformity(byte[] msg) throws OracleException {
 
         exectuteWorkflow(msg);
-        long delay = getTimeDelay(workflow.getTraceList());
+        long delay = getTimeDelay(getWorkflow().getTraceList());
 
         // analyze delay
 

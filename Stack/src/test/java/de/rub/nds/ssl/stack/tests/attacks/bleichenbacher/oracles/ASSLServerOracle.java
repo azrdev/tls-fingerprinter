@@ -2,8 +2,8 @@ package de.rub.nds.ssl.stack.tests.attacks.bleichenbacher.oracles;
 
 import de.rub.nds.ssl.stack.protocols.commons.EProtocolVersion;
 import de.rub.nds.ssl.stack.tests.attacks.bleichenbacher.exceptions.OracleException;
-import de.rub.nds.ssl.stack.workflows.commons.ESupportedSockets;
 import de.rub.nds.ssl.stack.workflows.TLS10HandshakeWorkflow;
+import de.rub.nds.ssl.stack.workflows.commons.ESupportedSockets;
 import java.io.IOException;
 import java.net.ConnectException;
 import java.net.SocketException;
@@ -31,16 +31,16 @@ public abstract class ASSLServerOracle extends AOracle implements Observer {
     /**
      * Handshake workflow to observe.
      */
-    TLS10HandshakeWorkflow workflow;
+    private TLS10HandshakeWorkflow workflow;
     /**
      * TLS protocol version.
      */
-    EProtocolVersion protocolVersion = EProtocolVersion.TLS_1_0;
-    String host;
-    int port;
-    byte[] encPMStoCheck;
-    boolean oracleResult = false;
-    Logger logger = Logger.getRootLogger();
+    public static EProtocolVersion PROTOCOL_VERSION = EProtocolVersion.TLS_1_0;
+    private String host;
+    private int port;
+    private byte[] encPMStoCheck;
+    private boolean oracleResult = false;
+    private Logger logger = Logger.getRootLogger();
 
     public ASSLServerOracle(final String serverAddress, final int serverPort)
             throws SocketException {
@@ -48,20 +48,22 @@ public abstract class ASSLServerOracle extends AOracle implements Observer {
         this.port = serverPort;
     }
 
-    public static PublicKey fetchServerPublicKey(String serverHost,
-            int serverPort) throws
+    public static PublicKey fetchServerPublicKey(final String serverHost,
+            final int serverPort) throws
             GeneralSecurityException, IOException {
         // everyone is our friend - let's trust the whole world
         TrustManager trustManager = new X509TrustManager() {
-
+            @Override
             public X509Certificate[] getAcceptedIssuers() {
                 return null;
             }
 
+            @Override
             public void checkClientTrusted(X509Certificate[] certs,
                     String authType) {
             }
 
+            @Override
             public void checkServerTrusted(X509Certificate[] certs,
                     String authType) {
             }
@@ -81,25 +83,25 @@ public abstract class ASSLServerOracle extends AOracle implements Observer {
 
         return peerCerts[0].getPublicKey();
     }
-    
+
     void exectuteWorkflow(final byte[] msg) throws OracleException {
         try {
-            workflow = new TLS10HandshakeWorkflow(ESupportedSockets.StandardSocket);
-            workflow.addObserver(this, 
+            setWorkflow(new TLS10HandshakeWorkflow(
+                     ESupportedSockets.StandardSocket));
+            getWorkflow().addObserver(this,
                     TLS10HandshakeWorkflow.EStates.CLIENT_HELLO);
-            workflow.addObserver(this, 
+            getWorkflow().addObserver(this,
                     TLS10HandshakeWorkflow.EStates.CLIENT_KEY_EXCHANGE);
-            workflow.addObserver(this, TLS10HandshakeWorkflow.EStates.ALERT);
-
-            workflow.connectToTestServer(this.host, this.port);
-
+            getWorkflow().addObserver(this, TLS10HandshakeWorkflow.EStates.ALERT);
+            
+            getWorkflow().connectToTestServer(this.getHost(), this.getPort());
             numberOfQueries++;
-
-            encPMStoCheck = msg;
-            workflow.start();
-            workflow.closeSocket();
+            
+            setEncPMStoCheck(msg);
+            getWorkflow().start();
+            getWorkflow().closeSocket();
         } catch (SocketException e) {
-            throw new OracleException(e.getLocalizedMessage(), e, 
+            throw new OracleException(e.getLocalizedMessage(), e,
                     LogLevel.DEBUG);
         }
     }
@@ -139,8 +141,8 @@ public abstract class ASSLServerOracle extends AOracle implements Observer {
     public PublicKey getPublicKey() {
         if (this.publicKey == null) {
             try {
-                this.publicKey = (RSAPublicKey) fetchServerPublicKey(this.host,
-                        this.port);
+                this.publicKey = (RSAPublicKey) fetchServerPublicKey(this.
+                        getHost(), this.getPort());
             } catch (GeneralSecurityException ex) {
                 ex.printStackTrace();
             } catch (ConnectException e) {
@@ -164,4 +166,88 @@ public abstract class ASSLServerOracle extends AOracle implements Observer {
         return cs.toArray(new String[cs.size()]);
     }
 
+    /**
+     * @return the logger
+     */
+    public Logger getLogger() {
+        return logger;
+    }
+
+    /**
+     * @param logger the logger to set
+     */
+    public void setLogger(final Logger logger) {
+        this.logger = logger;
+    }
+
+    /**
+     * @return the oracleResult
+     */
+    public boolean oracleResult() {
+        return oracleResult;
+    }
+
+    /**
+     * @param oracleResult the oracleResult to set
+     */
+    protected void setOracleResult(boolean oracleResult) {
+        this.oracleResult = oracleResult;
+    }
+
+    /**
+     * @return the host
+     */
+    public String getHost() {
+        return host;
+    }
+
+    /**
+     * @param host the host to set
+     */
+    public void setHost(final String host) {
+        this.host = host;
+    }
+
+    /**
+     * @return the port
+     */
+    public int getPort() {
+        return port;
+    }
+
+    /**
+     * @param port the port to set
+     */
+    public void setPort(final int port) {
+        this.port = port;
+    }
+
+    /**
+     * @return the encPMStoCheck
+     */
+    public byte[] getEncPMStoCheck() {
+        return encPMStoCheck;
+    }
+
+    /**
+     * @param msg the encPMStoCheck to set
+     */
+    public void setEncPMStoCheck(final byte[] msg) {
+        this.encPMStoCheck = new byte[msg.length];
+        System.arraycopy(msg, 0, getEncPMStoCheck(), 0, msg.length);
+    }
+
+    /**
+     * @return the workflow
+     */
+    public TLS10HandshakeWorkflow getWorkflow() {
+        return workflow;
+    }
+
+    /**
+     * @param workflow the workflow to set
+     */
+    public void setWorkflow(TLS10HandshakeWorkflow workflow) {
+        this.workflow = workflow;
+    }
 }
