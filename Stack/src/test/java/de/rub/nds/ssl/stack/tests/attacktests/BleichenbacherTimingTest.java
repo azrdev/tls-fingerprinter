@@ -119,7 +119,7 @@ public class BleichenbacherTimingTest implements Observer {
     /**
      * Number of repetitions.
      */
-    private static final int NUMBER_OF_REPETIIONS = 15;
+    private static final int NUMBER_OF_REPETIIONS = 1000;
     /**
      * Detailed Info print out.
      */
@@ -137,6 +137,11 @@ public class BleichenbacherTimingTest implements Observer {
      */
     private int counter = 1;
     private int timingCounter = 1;
+    
+    /**
+     * Enable debug logging for SSL server
+     */
+    private boolean debug = false;
        
     /**
      * Test parameters for the Bleichenbacher Tests.
@@ -332,7 +337,7 @@ public class BleichenbacherTimingTest implements Observer {
         System.out.print(desc + ";");
         try {
             workflow = new TLS10HandshakeWorkflow(ESupportedSockets.TimingSocket);
-            //workflow = new TLS10HandshakeWorkflow(ESupportedSockets.StandardSocket);
+            // workflow = new TLS10HandshakeWorkflow(ESupportedSockets.StandardSocket);
             workflow.connectToTestServer(HOST, PORT);
             workflow.addObserver(this, EStates.CLIENT_HELLO);
             workflow.addObserver(this, EStates.CLIENT_KEY_EXCHANGE);
@@ -506,7 +511,9 @@ public class BleichenbacherTimingTest implements Observer {
     //@BeforeMethod
     public final void setUp() {
         try {
-            System.setProperty("javax.net.debug", "ssl");
+            if(debug) {
+                System.setProperty("javax.net.debug", "ssl");
+            }
             logger.info("Starting SSL Server");
             sslServer = new SSLServer(PATH_TO_JKS, JKS_PASSWORD,
                     protocolShortName, PORT, PRINT_INFO);
@@ -525,21 +532,13 @@ public class BleichenbacherTimingTest implements Observer {
      * @return Timing delay.
      */
     private static long analyzeTrace(final List<MessageContainer> traces) {
-        Long delay = 0L;
-        Long timestamp = 0L;
-        Long overall = -1L;
-
-        boolean started = false;
+        
         for (MessageContainer trace : traces) {
             if (trace.getState() != null) {
-                timestamp = trace.getTimestamp();
-
-                if(trace.getState() == EStates.CLIENT_KEY_EXCHANGE) {
-                    delay = timestamp;
-                    started = true;
-                } else if(started) {
-                    overall = timestamp - delay;
-                    return overall;
+                Long timestamp = trace.getTimestamp();
+                
+                if(timestamp > 0) {
+                    return timestamp;
                 }
             } else {
                 logger.error("race.getState() == null");
