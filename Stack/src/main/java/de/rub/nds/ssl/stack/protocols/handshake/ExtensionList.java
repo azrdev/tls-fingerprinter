@@ -83,7 +83,7 @@ public class ExtensionList extends APubliclySerializable {
 			if (c != null) {
 				try {
 					ex = c.newInstance();
-				} catch (InstantiationException | IllegalAccessException e) {
+				} catch (Exception e) {
 					e.printStackTrace();
 					throw new RuntimeException(e);
 				}
