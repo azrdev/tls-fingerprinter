@@ -58,15 +58,17 @@ public abstract class ATestOracle extends AOracle {
                     break;
 
                 case JSSE:
-                    throw new UnsupportedOperationException("Not supported yet.");
-
+                    if (checkJSSE(msg)) {
+                        conform = true;
+                    }
+                    break;
             }
         }
         return conform;
     }
 
     /**
-     * Returns true if and only the message contains a 0x00 byte in the
+     * Returns true if and only if the message contains a 0x00 byte in the
      * decrypted text (except of the first 8 bytes)
      *
      * @param msg
@@ -111,5 +113,37 @@ public abstract class ATestOracle extends AOracle {
         } else {
             return false;
         }
+    }
+    
+    /**
+     * JSSE bug Plaintext oracle, for testing purposes:
+     * 
+     * Example for 256 byte long RSA key:
+     * The oracle returns true if:
+     * <ul>
+     *   <li>first 8 bytes are not 0x00</li>
+     *   <li>the following 117 bytes contain at least one 0x00 byte</li>
+     * </ul>
+     * 
+     * @param msg
+     * @return 
+     */
+    private boolean checkJSSE(byte[] msg) {
+        if(msg.length <= 128) {
+            throw new UnsupportedOperationException("The oracle not supported for"
+                    + "keys < 1024 bits.");
+        }
+        // check first 8 bytes
+        if(! checkSecond(msg)) {
+            return false;
+        }
+        // check the following bytes (excluding the last PMS and 80 padding bytes)
+        int last = msg.length - 49 - 80;
+        for (int i=9; i< last; i++) {
+            if (msg[i] == 0x00) {
+                return true;
+            }
+        }
+        return false;
     }
 }

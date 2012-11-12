@@ -30,13 +30,13 @@ public class BleichenbacherAttackPlaintextTest {
      */
     static Logger logger = Logger.getRootLogger();
 
-    @Test(enabled = false)
+    @Test(enabled = true)
     public final void testBleichenbacherAttack()
             throws Exception {
 
         Security.addProvider(new BouncyCastleProvider());
         KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("RSA");
-        keyPairGenerator.initialize(1024);
+        keyPairGenerator.initialize(4096);
         KeyPair keyPair = keyPairGenerator.genKeyPair();
 
         SecureRandom sr = new SecureRandom();
@@ -51,13 +51,12 @@ public class BleichenbacherAttackPlaintextTest {
         cipher = Cipher.getInstance("RSA/None/NoPadding");
         cipher.init(Cipher.DECRYPT_MODE, keyPair.getPrivate());
         byte[] message = cipher.doFinal(cipherBytes);
-
+        
         AOracle oracle = new StdPlainOracle(keyPair.getPublic(),
-                ATestOracle.OracleType.TTT, cipher.getBlockSize());
+                ATestOracle.OracleType.JSSE, cipher.getBlockSize());
 
-        BleichenbacherAttackCrypto attacker = new BleichenbacherAttackCrypto(
-                message,
-                oracle, 500, false);
+        BleichenbacherAttack attacker = new BleichenbacherAttack(message, 
+                oracle, true);
         attacker.attack();
 
         logger.info("------------------------------");
