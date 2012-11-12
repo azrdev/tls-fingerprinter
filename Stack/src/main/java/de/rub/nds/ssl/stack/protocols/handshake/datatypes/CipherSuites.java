@@ -1,5 +1,7 @@
 package de.rub.nds.ssl.stack.protocols.handshake.datatypes;
 
+import java.util.Arrays;
+
 import de.rub.nds.ssl.stack.protocols.commons.APubliclySerializable;
 import de.rub.nds.ssl.stack.protocols.commons.ECipherSuite;
 
@@ -25,6 +27,10 @@ public final class CipherSuites extends APubliclySerializable {
      * List of all cipher suites of this object.
      */
     private ECipherSuite[] suites;
+    
+    public String toString() {
+    	return Arrays.toString(suites);
+    }
 
     /**
      * Initializes a cipher suites object as defined in RFC-2246 All supported

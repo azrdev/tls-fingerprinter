@@ -4,6 +4,7 @@ import de.rub.nds.ssl.stack.protocols.commons.APubliclySerializable;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.security.SecureRandom;
+import java.util.Arrays;
 
 /**
  * Random value message part - as defined in RFC-2246.
@@ -36,6 +37,10 @@ public final class RandomValue extends APubliclySerializable {
      * Unix timestamp - 32 bit UNIX timestamp = 4 bytes.
      */
     private byte[] unixTimestamp = new byte[LENGTH_UNIX_TIMESTAMP];
+    
+    public String toString() {
+    	return "RandomValue: " + Arrays.toString(unixTimestamp) + " " + Arrays.toString(value);
+    }
 
     /**
      * Initializes a random value object as defined in RFC-2246.

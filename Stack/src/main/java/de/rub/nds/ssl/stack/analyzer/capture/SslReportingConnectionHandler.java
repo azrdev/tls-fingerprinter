@@ -1,20 +1,12 @@
 package de.rub.nds.ssl.stack.analyzer.capture;
 
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 
-import de.rub.nds.ssl.stack.protocols.ARecordFrame;
-import de.rub.nds.ssl.stack.protocols.handshake.ServerHello;
-import de.rub.nds.ssl.stack.protocols.handshake.datatypes.EKeyExchangeAlgorithm;
-import de.rub.nds.ssl.stack.protocols.msgs.ChangeCipherSpec;
-import de.rub.nds.ssl.stack.trace.MessageContainer;
 import de.rub.nds.virtualnetworklayer.connection.pcap.ConnectionHandler;
 import de.rub.nds.virtualnetworklayer.connection.pcap.PcapConnection;
 import de.rub.nds.virtualnetworklayer.connection.pcap.PcapTrace;
-import de.rub.nds.virtualnetworklayer.packet.PcapPacket;
-import de.rub.nds.virtualnetworklayer.packet.header.Header;
-import de.rub.nds.virtualnetworklayer.packet.header.application.TlsHeader;
+import de.rub.nds.virtualnetworklayer.p0f.P0fFile;
+import de.rub.nds.virtualnetworklayer.packet.Packet.Direction;
 import de.rub.nds.virtualnetworklayer.packet.header.transport.SocketSession;
 
 /**
@@ -25,6 +17,10 @@ import de.rub.nds.virtualnetworklayer.packet.header.transport.SocketSession;
  *
  */
 public final class SslReportingConnectionHandler extends ConnectionHandler {
+
+	static {
+		registerP0fFile(P0fFile.Embedded);
+	}
 
     /**
      * Default SSL Port.
@@ -55,77 +51,25 @@ public final class SslReportingConnectionHandler extends ConnectionHandler {
             // A new frame has arrived
             handleUpdate(connection);
         }
-//        else {
-        // System.out.println("nothing of intrested");
-//        }
-    }
-
-    private static List<MessageContainer> decodeTrace(final PcapTrace trace) {
-        List<MessageContainer> frameList = new ArrayList<MessageContainer>();
-        EKeyExchangeAlgorithm keyExchangeAlgorithm = null;
-
-        // Now, iterate over all packets and find TLS record layer frames
-        for (PcapPacket packet : trace) {
-        	/*
-            System.out.println(packet + " " + packet.getHeaders());
-            System.out.println("direction " + packet.getDirection());
-            */
-            for (Header header : packet.getHeaders()) {
-                if (header instanceof TlsHeader) {
-                    // Get the raw bytes of the frame, including the header
-                    byte[] content = header.getHeaderAndPayload();
-
-                    // Decode these bytes
-                    ARecordFrame[] frames = ACaptureConverter
-                            .decodeRecordFrames(content, keyExchangeAlgorithm);
-
-                    // Convert all Frames to MessageContainer and add them to
-                    // the list
-                    for (int i = 0; i < frames.length; i++) {
-                    	if (frames[i] == null) {
-                    		// Something went wrong
-                    		System.out.println("failed to parse something: " + packet + " " + packet.getHeaders());
-                    	}
-                        frameList.add(new MessageContainer(frames[i], packet));
-                        if (frames[i] instanceof ChangeCipherSpec) {
-                            /*
-                             * From now on, there is encryption and we cannot 
-                             * decode it anymore.
-                             */
-                            return frameList;
-                        }
-                        if (frames[i] instanceof ServerHello) {
-                        	ServerHello sh = (ServerHello)frames[i];
-                        	keyExchangeAlgorithm = sh.getCipherSuite().getKeyExchangeAlgorithm();
-                        	
-                        }
-                    }
-                }
-            }
-        }
-        return frameList;
     }
 
 	public void handleUpdate(final PcapConnection connection) {
 
-		// Get a trace of all previous packets
-		PcapTrace trace = connection.getTrace();
+		// Did we handle this already?
+		SocketSession session = connection.getSession();
+		if (!reportedSessions.contains(session)) {
 
-		// Prepare a list for all MessageContainer
-		List<MessageContainer> frameList = decodeTrace(trace);
+			// Get a trace of all previous packets
+			PcapTrace trace = connection.getTrace();
 
-		if ((frameList.size() > 0)
-				&& (frameList.get(frameList.size() - 1).getCurrentRecord() instanceof ChangeCipherSpec)) {
-			// Did we handle this already?
-			SocketSession session = connection.getSession();
-			if (!reportedSessions.contains(session)) {
-
-				System.out.println("Full report for connection " + connection);
-				for (MessageContainer aRecordFrame : frameList) {
-					System.out.println(aRecordFrame.getCurrentRecord());
-				}
-				System.out.println("end of trace");
+			Connection c = new Connection(trace, connection.getLabels(Direction.Response));
+			if (c.isCompleted()) {
 				reportedSessions.add(session);
+				// c.printReport();
+				System.out.println("Found a connection to: " + c.getServerHostName());
+				System.out.println("Label was " + c.getNetworkFingerprint());
+				System.out.println("Client Hello was: " + c.getClientHelloFingerprint());
+				System.out.println("Server Hello was: " + c.getServerHelloFingerprint());
 			}
 
 		}

@@ -31,7 +31,9 @@ public final class ServerHello extends AHandshakeRecord {
             ECipherSuite.TLS_DH_RSA_WITH_3DES_EDE_CBC_SHA;
     private SessionId sessionID = new SessionId();
     private CompressionMethod compressionMethod = new CompressionMethod();
-
+    private ExtensionList extensionList = null;
+    
+    
     /**
      * Initializes a ServerHello message as defined in RFC 2246.
      *
@@ -137,6 +139,11 @@ public final class ServerHello extends AHandshakeRecord {
         // deep copy
         return new SessionId(sessionID.encode(false));
     }
+    
+    public ExtensionList getExtensionList() {
+    	return extensionList;
+    }
+
 
     /**
      * Set the session ID of this message.
@@ -339,8 +346,27 @@ public final class ServerHello extends AHandshakeRecord {
         tmpBytes = new byte[extractedLength];
         System.arraycopy(payloadCopy, pointer, tmpBytes, 0, tmpBytes.length);
         setCompressionMethod(tmpBytes);
+        pointer += tmpBytes.length;
+        
+        
 
-        // ignore additional fields if any
+        // Now check for extions
+        try {
+        	if (payloadCopy.length > pointer) {
+        		// OK, extensions present
+        		byte[] extension_part = new byte[payloadCopy.length - pointer];
+        		System.arraycopy(payloadCopy, pointer, extension_part, 0, extension_part.length);
+        		// System.err.println("Found an extension list of size " + extension_part.length);
+        		ExtensionList el = new ExtensionList();
+        		el.decode(extension_part, false);
+        		this.extensionList = el;
+        	} else {
+        		extensionList = null;
+        	}
+        } catch (Exception e) {
+        	// That is OK, parsing doesn't need to succeed here.
+        	e.printStackTrace();
+        }
     }
 
     /**

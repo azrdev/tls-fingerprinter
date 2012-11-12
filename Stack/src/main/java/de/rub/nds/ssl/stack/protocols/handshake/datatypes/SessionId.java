@@ -1,5 +1,7 @@
 package de.rub.nds.ssl.stack.protocols.handshake.datatypes;
 
+import java.util.Arrays;
+
 import de.rub.nds.ssl.stack.protocols.commons.APubliclySerializable;
 
 /**
@@ -24,6 +26,10 @@ public final class SessionId extends APubliclySerializable {
      * Session id.
      */
     private byte[] id = new byte[0];
+    
+    public String toString() {
+    	return Arrays.toString(id);
+    }
 
     /**
      * Initializes a session id object as defined in RFC-2246. Set by default to

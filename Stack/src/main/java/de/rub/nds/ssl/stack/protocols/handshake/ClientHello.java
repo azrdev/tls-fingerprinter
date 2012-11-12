@@ -31,6 +31,17 @@ public final class ClientHello extends AHandshakeRecord {
     private CipherSuites cipherSuites = new CipherSuites();
     private SessionId sessionID = new SessionId();
     private CompressionMethod compressionMethod = new CompressionMethod();
+    private ExtensionList extensionList = null;
+    
+    public String toString() {
+    	return "SSL Client Hello:\n" + 
+    			" EProtocolVersion = " + msgProtocolVersion + "\n" +
+    			" RandomValue = " + random + "\n" +
+    			" CipherSuites = " + cipherSuites + "\n" +
+    			" SessionId = " + sessionID + "\n" +
+    			" CompressionMethod = " + compressionMethod + "\n" +
+    			" ExtensionList = " + extensionList;
+    }
 
     /**
      * Initializes a ClientHello message as defined in RFC 2246.
@@ -136,6 +147,10 @@ public final class ClientHello extends AHandshakeRecord {
     public SessionId getSessionID() {
         // deep copy
         return new SessionId(sessionID.encode(false));
+    }
+    
+    public ExtensionList getExtensionList() {
+    	return extensionList;
     }
 
     /**
@@ -348,8 +363,25 @@ public final class ClientHello extends AHandshakeRecord {
         tmpBytes = new byte[extractedLength];
         System.arraycopy(payloadCopy, pointer, tmpBytes, 0, tmpBytes.length);
         setCompressionMethod(tmpBytes);
-
-        // ignore additional fields if any
+        pointer += tmpBytes.length;
+        
+        // Now check for extions
+        try {
+        	if (payloadCopy.length > pointer) {
+        		// OK, extensions present
+        		byte[] extension_part = new byte[payloadCopy.length - pointer];
+        		System.arraycopy(payloadCopy, pointer, extension_part, 0, extension_part.length);
+        		// System.err.println("Found an extension list of size " + extension_part.length);
+        		ExtensionList el = new ExtensionList();
+        		el.decode(extension_part, false);
+        		this.extensionList = el;
+        	} else {
+        		extensionList = null;
+        	}
+        } catch (Exception e) {
+        	// That is OK, parsing doesn't need to succeed here.
+        	e.printStackTrace();
+        }
     }
 
     /**
