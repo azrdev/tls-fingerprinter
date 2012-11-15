@@ -137,7 +137,6 @@ public class BleichenbacherAttack {
         if (i == 1) {
             this.stepTwoA();
         } else {
-            System.out.println("===> i:" + i + " m.length:" + m.length);
             if (i > 1 && m.length >= 2) {
                 stepTwoB();
             } else if (m.length == 1) {
