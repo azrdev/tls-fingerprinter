@@ -3,7 +3,6 @@ package de.rub.nds.ssl.stack.tests.attacks.bleichenbacher;
 import de.rub.nds.ssl.stack.tests.attacks.bleichenbacher.exceptions.OracleException;
 import de.rub.nds.ssl.stack.tests.attacks.bleichenbacher.oracles.AOracle;
 import de.rub.nds.ssl.stack.tests.attacks.bleichenbacher.oracles.JSSE16Oracle;
-import de.rub.nds.ssl.stack.tests.attacks.bleichenbacher.oracles.JSSE17Oracle;
 import de.rub.nds.ssl.stack.tests.common.SSLServer;
 import java.net.SocketException;
 import javax.net.ssl.SSLException;
