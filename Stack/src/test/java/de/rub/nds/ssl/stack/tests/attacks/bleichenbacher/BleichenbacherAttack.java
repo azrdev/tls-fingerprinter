@@ -55,7 +55,7 @@ public class BleichenbacherAttack {
         tmp = ((tmp / 8) - 2) * 8;
         bigB = BigInteger.valueOf(2).pow(tmp);
         logger.info("B computed: " + bigB);
-        logger.info("Blocksize: " + blockSize);
+        logger.info("Blocksize: " + blockSize + " bytes");
         //decryptedMsg = oracle.decrypt(encryptedMsg);
         //System.out.println("our goal: " + new BigInteger(decryptedMsg));
     }
