@@ -5,20 +5,15 @@
 
 package de.rub.nds.ssl.stack.tests.attacktests;
 
-import de.rub.nds.ssl.stack.tests.attacks.bleichenbacher.BleichenbacherAttack;
 import de.rub.nds.ssl.stack.tests.attacks.bleichenbacher.exceptions.OracleException;
-import de.rub.nds.ssl.stack.tests.attacks.bleichenbacher.oracles.AOracle;
-import de.rub.nds.ssl.stack.tests.attacks.bleichenbacher.oracles.JSSE16Oracle;
 import de.rub.nds.ssl.stack.tests.attacks.bleichenbacher.oracles.TimingOracle;
 import de.rub.nds.ssl.stack.tests.common.SSLServer;
 import java.net.SocketException;
-import javax.net.ssl.SSLException;
 import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
-import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 /**
@@ -193,12 +188,16 @@ public class TimingOracleTest {
         logger.info("------------------------------");
     }
 
+    
     /**
      * Initialize logging properties
      */
     @BeforeClass
     public void setUpClass() {
         PropertyConfigurator.configure("logging.properties");
+        logger.info("##################################");
+        logger.info(this.getClass().getSimpleName());
+        logger.info("##################################");
     }
 
     /**

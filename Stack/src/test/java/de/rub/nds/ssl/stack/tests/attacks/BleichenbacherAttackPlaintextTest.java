@@ -2,8 +2,9 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package de.rub.nds.ssl.stack.tests.attacks.bleichenbacher;
+package de.rub.nds.ssl.stack.tests.attacks;
 
+import de.rub.nds.ssl.stack.tests.attacks.bleichenbacher.BleichenbacherAttack;
 import de.rub.nds.ssl.stack.tests.attacks.bleichenbacher.oracles.AOracle;
 import de.rub.nds.ssl.stack.tests.attacks.bleichenbacher.oracles.ATestOracle;
 import de.rub.nds.ssl.stack.tests.attacks.bleichenbacher.oracles.StdPlainOracle;
@@ -70,5 +71,8 @@ public class BleichenbacherAttackPlaintextTest {
     @BeforeClass
     public void setUpClass() {
         PropertyConfigurator.configure("logging.properties");
+        logger.info("##################################");
+        logger.info(this.getClass().getSimpleName());
+        logger.info("##################################");
     }
 }

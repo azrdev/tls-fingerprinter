@@ -1,8 +1,11 @@
-package de.rub.nds.ssl.stack.tests.attacks.bleichenbacher;
+package de.rub.nds.ssl.stack.tests.attacks;
 
+import de.rub.nds.ssl.stack.tests.attacks.bleichenbacher.BleichenbacherAttack;
 import de.rub.nds.ssl.stack.tests.attacks.bleichenbacher.exceptions.OracleException;
 import de.rub.nds.ssl.stack.tests.attacks.bleichenbacher.oracles.AOracle;
+import de.rub.nds.ssl.stack.tests.attacks.bleichenbacher.oracles.ATestOracle;
 import de.rub.nds.ssl.stack.tests.attacks.bleichenbacher.oracles.JSSE16Oracle;
+import de.rub.nds.ssl.stack.tests.attacks.bleichenbacher.oracles.StdPlainOracle;
 import de.rub.nds.ssl.stack.tests.common.SSLServer;
 import java.net.SocketException;
 import javax.net.ssl.SSLException;
@@ -181,7 +184,7 @@ public class BleichenbacherAttackTest {
     @DataProvider(name = "bleichenbacher")
     public Object[][] createData1() throws SSLException, SocketException {
         return new Object[][]{
-                    {"JSSE Internal_Error Test", new JSSE16Oracle(HOST, PORT)},
+                    {"JSSE Internal_Error Test", new JSSE16Oracle(HOST, PORT)}
                 };
     }
 
@@ -204,8 +207,10 @@ public class BleichenbacherAttackTest {
     @BeforeClass
     public void setUpClass() {
         PropertyConfigurator.configure("logging.properties");
+        logger.info("##################################");
+        logger.info(this.getClass().getSimpleName());
+        logger.info("##################################");
     }
-
     /**
      * Start the target SSL Server.
      */
