@@ -55,6 +55,8 @@ public class BleichenbacherAttackPlaintextTest {
         AOracle oracle = new StdPlainOracle(keyPair.getPublic(),
                 ATestOracle.OracleType.JSSE, cipher.getBlockSize());
 
+        logger.info("++++Start Test No. 1 (Bleichenbacher Plaintext)++++");
+
         BleichenbacherAttack attacker = new BleichenbacherAttack(message, 
                 oracle, true);
         attacker.attack();
