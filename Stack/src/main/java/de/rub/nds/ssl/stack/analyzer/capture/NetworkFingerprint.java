@@ -1,48 +1,73 @@
 package de.rub.nds.ssl.stack.analyzer.capture;
 
-import de.rub.nds.virtualnetworklayer.p0f.Label;
+import java.util.List;
+
+import de.rub.nds.virtualnetworklayer.fingerprint.Fingerprint;
+
 
 public class NetworkFingerprint {
-	private String os;
-	private int ttl;
+	private Fingerprint.Signature mtuFingerprint = null;
+	private Fingerprint.Signature tcpFingerprint = null;
 	
-	public NetworkFingerprint(Label l, int ttl) {
-		this.os = l.toString();
-		this.ttl = ttl;
+	
+	public NetworkFingerprint(Fingerprint.Signature mtuFingerprint, Fingerprint.Signature tcpFingerprint) {
+		this.mtuFingerprint = mtuFingerprint;
+		this.tcpFingerprint = tcpFingerprint;
 	}
 
-	public String getOs() {
-		return os;
-	}
-
-	public void setOs(String os) {
-		this.os = os;
-	}
-
-	public int getTtl() {
-		return ttl;
-	}
-
-	public void setTtl(int ttl) {
-		this.ttl = ttl;
+	public NetworkFingerprint(List<Fingerprint.Signature> fingerprints) {
+		this.mtuFingerprint = fingerprints.get(0);
+		this.tcpFingerprint = fingerprints.get(1);
+		if (this.tcpFingerprint == null || this.mtuFingerprint == null) {
+			// System.err.println("warning, some null fields in NetworkFingerprint: " + fingerprints.toString());
+		}
+		
 	}
 	
 	public String toString() {
-		return "NetworkFingerprint: ttl = " + this.getTtl() + ", os = " + this.getOs();
+		return "NetworkFingerprint: mtuFingerprint = " + mtuFingerprint + "\ntcpFingerprint = " + tcpFingerprint;
 	}
 	
-	@Override
-	public int hashCode() {
-		return this.toString().hashCode();
+	public Fingerprint.Signature getMtuFingerprint() {
+		return mtuFingerprint;
 	}
 
-	public boolean equals(Object o) {
-		if (o instanceof NetworkFingerprint) {
-			NetworkFingerprint nf = (NetworkFingerprint) o;
-			return this.getOs().equals(nf.getOs()) && (this.getTtl() == nf.getTtl());
-		} else {
-			return super.equals(o);
-		}
+	public Fingerprint.Signature getTcpFingerprint() {
+		return tcpFingerprint;
 	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result
+				+ ((mtuFingerprint == null) ? 0 : mtuFingerprint.hashCode());
+		result = prime * result
+				+ ((tcpFingerprint == null) ? 0 : tcpFingerprint.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		NetworkFingerprint other = (NetworkFingerprint) obj;
+		if (mtuFingerprint == null) {
+			if (other.mtuFingerprint != null)
+				return false;
+		} else if (!mtuFingerprint.equals(other.mtuFingerprint))
+			return false;
+		if (tcpFingerprint == null) {
+			if (other.tcpFingerprint != null)
+				return false;
+		} else if (!tcpFingerprint.equals(other.tcpFingerprint))
+			return false;
+		return true;
+	}
+
 
 }

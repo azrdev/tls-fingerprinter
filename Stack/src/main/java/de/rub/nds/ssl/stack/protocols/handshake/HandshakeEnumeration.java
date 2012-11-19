@@ -197,10 +197,12 @@ final public class HandshakeEnumeration extends ARecordFrame {
 		} catch (IllegalAccessException ex) {
 			ex.printStackTrace();
 		} catch (InvocationTargetException ex) {
-			System.err.println("failed to invoke method for class "
-					+ implClass.getCanonicalName());
-			System.err.println("Key exchange type was: " + keyEKeyExchangeAlgorithm);
-			ex.printStackTrace();
+//			System.err.println("failed to invoke method for class "
+//					+ implClass.getCanonicalName());
+//			System.err.println("Key exchange type was: " + keyEKeyExchangeAlgorithm);
+//			ex.printStackTrace();
+			// Happens with ClientKeyExchange message.
+			throw new RuntimeException(ex);
 		} catch (NoSuchMethodException ex) {
 			System.err.println("Could not find a suiteable method for type "
 					+ type + " and class " + implClass.getCanonicalName());

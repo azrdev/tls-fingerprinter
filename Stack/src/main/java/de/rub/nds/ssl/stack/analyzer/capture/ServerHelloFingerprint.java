@@ -24,8 +24,28 @@ public class ServerHelloFingerprint {
 		
 	}
 	
+	
+	
 
-    public String toString() {
+    @Override
+	public int hashCode() {
+		// FIXME: This can be done better.
+		return this.toString().hashCode();
+	}
+
+
+
+
+	@Override
+	public boolean equals(Object obj) {
+		// FIXME: This can be done better.
+		return this.toString().equals(obj.toString());
+	}
+
+
+
+
+	public String toString() {
     	StringBuffer sb = new StringBuffer();
     	sb.append("Fingerprint for ServerHello:\n");
     	sb.append("  ProtocolVersion = " + this.msgProtocolVersion.toString() + "\n");

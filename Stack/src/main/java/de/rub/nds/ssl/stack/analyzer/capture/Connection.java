@@ -12,24 +12,24 @@ import de.rub.nds.ssl.stack.protocols.handshake.ServerNameExtension;
 import de.rub.nds.ssl.stack.protocols.handshake.datatypes.EKeyExchangeAlgorithm;
 import de.rub.nds.ssl.stack.protocols.msgs.ChangeCipherSpec;
 import de.rub.nds.ssl.stack.trace.MessageContainer;
+import de.rub.nds.virtualnetworklayer.connection.pcap.PcapConnection;
 import de.rub.nds.virtualnetworklayer.connection.pcap.PcapTrace;
-import de.rub.nds.virtualnetworklayer.p0f.Label;
-import de.rub.nds.virtualnetworklayer.packet.Headers;
+import de.rub.nds.virtualnetworklayer.fingerprint.Fingerprint;
 import de.rub.nds.virtualnetworklayer.packet.Packet.Direction;
 import de.rub.nds.virtualnetworklayer.packet.PcapPacket;
 import de.rub.nds.virtualnetworklayer.packet.header.Header;
 import de.rub.nds.virtualnetworklayer.packet.header.application.TlsHeader;
-import de.rub.nds.virtualnetworklayer.packet.header.internet.Ip4Header;
 
 public class Connection {
 	private PcapTrace trace;
 	private List<MessageContainer> fl;
-	private List<Label> labels;
+	private List<Fingerprint.Signature> fingerprints;
 	
-	public Connection(PcapTrace trace, List<Label> labels) {
-		this.trace = trace;
-		this.labels = labels;
+	public Connection(PcapConnection pcapConnection) {
+		this.trace = pcapConnection.getTrace();
+		this.fingerprints = pcapConnection.getSignatures(Direction.Response);
 		this.fl = this.decodeTrace();
+		
 	}
 	
 	public boolean isCompleted() {
@@ -46,6 +46,10 @@ public class Connection {
 		}
 		// No Server Hello?
 		throw new RuntimeException("Could not find a ServerHello");
+	}
+	
+	public ServerFingerprint getServerFingerprint() {
+		return new ServerFingerprint(this.getNetworkFingerprint(), this.getServerHelloFingerprint());
 	}
 	
 	public ClientHelloFingerprint getClientHelloFingerprint() {
@@ -68,24 +72,14 @@ public class Connection {
 		return null;
 	}
 	
-	public List<Label> getLabels() {
-		return labels;
-	}
-	
+
+
+
 	public NetworkFingerprint getNetworkFingerprint() {
-		return new NetworkFingerprint(this.getLabels().get(1), this.getServerTTL());
+		return new NetworkFingerprint(this.fingerprints);
 	}
 	
-	public int getServerTTL() {
-		for (PcapPacket packet : trace) {
-			if (packet.getDirection() == Direction.Response) {
-				Ip4Header h = packet.getHeader(Headers.Ip4.getId());
-				return h.getTimeToLive();
-			}
-			
-		}
-		throw new RuntimeException("Header not found");
-	}
+
 	
 	public void printReport() {
 		if (fl != null) {

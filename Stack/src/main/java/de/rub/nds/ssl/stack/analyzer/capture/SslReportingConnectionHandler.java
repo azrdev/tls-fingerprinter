@@ -4,9 +4,7 @@ import java.util.HashSet;
 
 import de.rub.nds.virtualnetworklayer.connection.pcap.ConnectionHandler;
 import de.rub.nds.virtualnetworklayer.connection.pcap.PcapConnection;
-import de.rub.nds.virtualnetworklayer.connection.pcap.PcapTrace;
 import de.rub.nds.virtualnetworklayer.p0f.P0fFile;
-import de.rub.nds.virtualnetworklayer.packet.Packet.Direction;
 import de.rub.nds.virtualnetworklayer.packet.header.transport.SocketSession;
 
 /**
@@ -26,6 +24,8 @@ public final class SslReportingConnectionHandler extends ConnectionHandler {
      * Default SSL Port.
      */
     private static final int SSL_PORT = 443;
+    
+    private ChangeDetector cd = new ChangeDetector(new PrintingChangeReporter());
 
     /**
      * Check if a certain connection has source or destination port 443.
@@ -44,7 +44,7 @@ public final class SslReportingConnectionHandler extends ConnectionHandler {
     public void newConnection(final Event event,
             final PcapConnection connection) {
         if (event == Event.New && isSsl(connection)) {
-            System.out.println("new connection");
+            // System.out.println("new connection");
             // There is a new SSL connection
             handleUpdate(connection);
         } else if (event == Event.Update && isSsl(connection)) {
@@ -59,17 +59,23 @@ public final class SslReportingConnectionHandler extends ConnectionHandler {
 		SocketSession session = connection.getSession();
 		if (!reportedSessions.contains(session)) {
 
-			// Get a trace of all previous packets
-			PcapTrace trace = connection.getTrace();
-
-			Connection c = new Connection(trace, connection.getLabels(Direction.Response));
+			Connection c = null;
+			try {
+				c = new Connection(connection);
+			} catch (Throwable e) {
+				// Ignore that for now
+				return;
+			}
 			if (c.isCompleted()) {
 				reportedSessions.add(session);
+				cd.reportConnection(c.getClientHelloFingerprint(), c.getServerFingerprint());
 				// c.printReport();
+				/*
 				System.out.println("Found a connection to: " + c.getServerHostName());
 				System.out.println("Label was " + c.getNetworkFingerprint());
 				System.out.println("Client Hello was: " + c.getClientHelloFingerprint());
 				System.out.println("Server Hello was: " + c.getServerHelloFingerprint());
+				*/
 			}
 
 		}
