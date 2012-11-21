@@ -32,8 +32,7 @@ public final class ServerHello extends AHandshakeRecord {
     private SessionId sessionID = new SessionId();
     private CompressionMethod compressionMethod = new CompressionMethod();
     private ExtensionList extensionList = null;
-    
-    
+
     /**
      * Initializes a ServerHello message as defined in RFC 2246.
      *
@@ -139,11 +138,10 @@ public final class ServerHello extends AHandshakeRecord {
         // deep copy
         return new SessionId(sessionID.encode(false));
     }
-    
-    public ExtensionList getExtensionList() {
-    	return extensionList;
-    }
 
+    public ExtensionList getExtensionList() {
+        return extensionList;
+    }
 
     /**
      * Set the session ID of this message.
@@ -336,9 +334,7 @@ public final class ServerHello extends AHandshakeRecord {
         pointer += tmpBytes.length;
 
         // 5. extract compression method
-        extractedLength = CompressionMethod.LENGTH_MINIMUM_ENCODED
-                + extractLength(payloadCopy, pointer,
-                CompressionMethod.LENGTH_MINIMUM_ENCODED);
+        extractedLength = CompressionMethod.LENGTH_MINIMUM_ENCODED;
         if (pointer + extractedLength > payloadCopy.length) {
             throw new IllegalArgumentException(
                     "Compression method length invalid.");
@@ -347,25 +343,25 @@ public final class ServerHello extends AHandshakeRecord {
         System.arraycopy(payloadCopy, pointer, tmpBytes, 0, tmpBytes.length);
         setCompressionMethod(tmpBytes);
         pointer += tmpBytes.length;
-        
-        
 
         // Now check for extions
         try {
-        	if (payloadCopy.length > pointer) {
-        		// OK, extensions present
-        		byte[] extension_part = new byte[payloadCopy.length - pointer];
-        		System.arraycopy(payloadCopy, pointer, extension_part, 0, extension_part.length);
-        		// System.err.println("Found an extension list of size " + extension_part.length);
-        		ExtensionList el = new ExtensionList();
-        		el.decode(extension_part, false);
-        		this.extensionList = el;
-        	} else {
-        		extensionList = null;
-        	}
+            if (payloadCopy.length > pointer) {
+                // OK, extensions present
+                byte[] extension_part = new byte[payloadCopy.length - pointer];
+                System.arraycopy(payloadCopy, pointer, extension_part, 0,
+                        extension_part.length);
+                // System.err.println("Found an extension list of size " 
+                //  + extension_part.length);
+                ExtensionList el = new ExtensionList();
+                el.decode(extension_part, false);
+                this.extensionList = el;
+            } else {
+                extensionList = null;
+            }
         } catch (Exception e) {
-        	// That is OK, parsing doesn't need to succeed here.
-        	e.printStackTrace();
+            // That is OK, parsing doesn't need to succeed here.
+            e.printStackTrace();
         }
     }
 

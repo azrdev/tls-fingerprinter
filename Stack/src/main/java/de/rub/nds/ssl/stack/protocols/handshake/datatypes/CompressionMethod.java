@@ -1,8 +1,7 @@
 package de.rub.nds.ssl.stack.protocols.handshake.datatypes;
 
-import java.util.Arrays;
-
 import de.rub.nds.ssl.stack.protocols.commons.APubliclySerializable;
+import java.util.Arrays;
 
 /**
  * Compression method message part - as defined in RFC-2246.
@@ -26,9 +25,10 @@ public final class CompressionMethod extends APubliclySerializable {
      * Compression method.
      */
     private byte[] methods = new byte[]{0x0};
-    
+
+    @Override
     public String toString() {
-    	return Arrays.toString(methods);
+        return Arrays.toString(methods);
     }
 
     /**
