@@ -28,7 +28,7 @@ public class ConnectionDifferenceSet {
 	}
 	
 	public static ConnectionDifferenceSet generateFromMap(Map<String, Object> a, Map<String, Object> b) {
-		HashSet<String> keys = new HashSet<>();
+		HashSet<String> keys = new HashSet<String>();
 		ConnectionDifferenceSet cds = new ConnectionDifferenceSet();
 		keys.addAll(a.keySet());
 		keys.addAll(b.keySet());
