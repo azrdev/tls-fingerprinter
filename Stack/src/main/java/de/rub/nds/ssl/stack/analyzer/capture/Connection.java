@@ -29,6 +29,9 @@ public class Connection {
 		this.trace = pcapConnection.getTrace();
 		this.fingerprints = pcapConnection.getSignatures(Direction.Response);
 		this.fl = this.decodeTrace();
+//		if ((this.fingerprints.size() != 2) || (this.fingerprints.get(0) == null)) {
+//			System.err.println("Sorry, incorrect fingerprints!");
+//		}
 		
 	}
 	

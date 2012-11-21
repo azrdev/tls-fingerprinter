@@ -48,6 +48,10 @@ public abstract class Fingerprint {
         public <T> T getSign(String key) {
             return (T) signs.get(key);
         }
+        
+        public Map<String, Object> getSigns() {
+        	return (Map<String, Object>) signs.clone();
+        }
 
         protected void addQuirk(Quirk quirk) {
             if (!quirks.contains(quirk)) {
@@ -120,7 +124,7 @@ public abstract class Fingerprint {
             for (Map.Entry<String, Object> entry : signs.entrySet()) {
                 builder.append("- ");
                 builder.append(StringFormatter.firstToUppercase(entry.getKey()));
-                builder.append(": ").append(entry.getValue().toString());
+                builder.append(": ").append(entry.getValue().toString() + " [" + entry.getValue().getClass().getCanonicalName()  + "]");
                 builder.append('\n');
             }
 

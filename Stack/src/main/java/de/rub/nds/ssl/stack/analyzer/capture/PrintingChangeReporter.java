@@ -11,8 +11,9 @@ public class PrintingChangeReporter implements ChangeReporter {
 		System.out.println("WARNING: Change detected!");
 		System.out.println("ClientHelloFingerprint is: " + chf);
 		System.out.println("New Server Response is: " + sf);
-		System.out.println("Previous responses were:");
+		System.out.println("Difference to previous:");
 		for (ServerFingerprint serverHelloFingerprint : previousResponses) {
+			System.out.println(serverHelloFingerprint.getDifference(sf));
 			System.out.println(serverHelloFingerprint);
 		}
 		System.out.println("End of responses");

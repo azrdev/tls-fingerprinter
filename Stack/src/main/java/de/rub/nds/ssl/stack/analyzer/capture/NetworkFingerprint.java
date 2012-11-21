@@ -10,6 +10,8 @@ public class NetworkFingerprint {
 	private Fingerprint.Signature tcpFingerprint = null;
 	
 	
+	
+	
 	public NetworkFingerprint(Fingerprint.Signature mtuFingerprint, Fingerprint.Signature tcpFingerprint) {
 		this.mtuFingerprint = mtuFingerprint;
 		this.tcpFingerprint = tcpFingerprint;
@@ -19,7 +21,7 @@ public class NetworkFingerprint {
 		this.mtuFingerprint = fingerprints.get(0);
 		this.tcpFingerprint = fingerprints.get(1);
 		if (this.tcpFingerprint == null || this.mtuFingerprint == null) {
-			// System.err.println("warning, some null fields in NetworkFingerprint: " + fingerprints.toString());
+			System.err.println("warning, some null fields in NetworkFingerprint: " + fingerprints.toString());
 		}
 		
 	}
@@ -69,5 +71,18 @@ public class NetworkFingerprint {
 		return true;
 	}
 
+	
+	public ConnectionDifferenceSet getMtuDifference(NetworkFingerprint b) {
+		if (this.getMtuFingerprint() == null || b.getMtuFingerprint() == null) {
+			return null;
+		}
+		return ConnectionDifferenceSet.generateFromMap(this.getMtuFingerprint().getSigns(), b.getMtuFingerprint().getSigns());
+	}
 
+	public ConnectionDifferenceSet getTcpDifference(NetworkFingerprint b) {
+		if (this.getTcpFingerprint() == null || b.getTcpFingerprint() == null) {
+			return null; 
+		}
+		return ConnectionDifferenceSet.generateFromMap(this.getTcpFingerprint().getSigns(), b.getTcpFingerprint().getSigns());
+	}
 }

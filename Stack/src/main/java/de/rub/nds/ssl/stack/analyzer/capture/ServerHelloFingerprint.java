@@ -1,6 +1,8 @@
 package de.rub.nds.ssl.stack.analyzer.capture;
 
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 
 import de.rub.nds.ssl.stack.protocols.commons.ECipherSuite;
 import de.rub.nds.ssl.stack.protocols.commons.EProtocolVersion;
@@ -43,6 +45,15 @@ public class ServerHelloFingerprint {
 	}
 
 
+	public Map<String, Object> getAsMap() {
+		HashMap<String, Object> result = new HashMap<String, Object>();
+		result.put("msgProtocolVersion", this.msgProtocolVersion);
+		result.put("cipherSuite", this.cipherSuite);
+		result.put("sessionIDlen", this.sessionIDlen);
+		result.put("compressionMethod", Arrays.toString(this.compressionMethod));
+		result.put("extensionList", this.extensionList);
+		return result;
+	}
 
 
 	public String toString() {

@@ -33,6 +33,38 @@ public class ExtensionList extends APubliclySerializable {
 	public List<Extension> getExtensions() {
 		return (List<Extension>) extensions.clone();
 	}
+	
+	
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result
+				+ ((extensions == null) ? 0 : extensions.hashCode());
+		return result;
+	}
+
+
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		ExtensionList other = (ExtensionList) obj;
+		if (extensions == null) {
+			if (other.extensions != null)
+				return false;
+		} else if (!extensions.equals(other.extensions))
+			return false;
+		return true;
+	}
+
+
 
 	public String toString() {
 		StringBuffer sb = new StringBuffer();

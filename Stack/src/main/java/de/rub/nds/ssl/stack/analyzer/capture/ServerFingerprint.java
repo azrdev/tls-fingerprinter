@@ -4,15 +4,12 @@ public class ServerFingerprint {
 	private NetworkFingerprint networkFingerprint;
 	private ServerHelloFingerprint serverHelloFingerprint;
 	
-	
 	public ServerFingerprint(NetworkFingerprint networkFingerprint,
 			ServerHelloFingerprint serverHelloFingerprint) {
 		this.networkFingerprint = networkFingerprint;
 		this.serverHelloFingerprint = serverHelloFingerprint;
 	}
 	
-
-
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -27,8 +24,6 @@ public class ServerFingerprint {
 						: serverHelloFingerprint.hashCode());
 		return result;
 	}
-
-
 
 	@Override
 	public boolean equals(Object obj) {
@@ -52,8 +47,6 @@ public class ServerFingerprint {
 		return true;
 	}
 
-
-
 	@Override
 	public String toString() {
 		return "ServerFingerprint\n" +
@@ -61,21 +54,33 @@ public class ServerFingerprint {
 				+ "serverHelloFingerprint = " + serverHelloFingerprint;
 	}
 
-
-
 	public NetworkFingerprint getNetworkFingerprint() {
 		return networkFingerprint;
 	}
+	
 	public void setNetworkFingerpritn(NetworkFingerprint networkFingerprint) {
 		this.networkFingerprint = networkFingerprint;
 	}
+	
 	public ServerHelloFingerprint getServerHelloFingerprint() {
 		return serverHelloFingerprint;
 	}
+	
 	public void setServerHelloFingerprint(
 			ServerHelloFingerprint serverHelloFingerprint) {
 		this.serverHelloFingerprint = serverHelloFingerprint;
 	}
+	
+	public ServerFingerprintDifference getDifference(ServerFingerprint sf) {
+		return new ServerFingerprintDifference(this.getNetworkFingerprint()
+				.getMtuDifference(sf.getNetworkFingerprint()), this
+				.getNetworkFingerprint().getTcpDifference(
+						sf.getNetworkFingerprint()),
+				ConnectionDifferenceSet.generateFromMap(this
+						.getServerHelloFingerprint().getAsMap(), sf
+						.getServerHelloFingerprint().getAsMap()));
+	}
+	
 	
 	
 
