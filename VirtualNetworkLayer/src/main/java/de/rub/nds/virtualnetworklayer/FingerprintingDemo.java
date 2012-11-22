@@ -36,6 +36,9 @@ public class FingerprintingDemo {
         System.out.println("Direction Labels");
         System.out.println("Request   " + connection.getLabels(Packet.Direction.Request));
         System.out.println("Response  " + connection.getLabels(Packet.Direction.Response));
+        System.out.println("Signatures");
+        System.out.println("Request   " + connection.getSignatures(Packet.Direction.Request));
+        System.out.println("Response  " + connection.getSignatures(Packet.Direction.Response));
         System.out.println();
 
         connection.close();
