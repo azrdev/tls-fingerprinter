@@ -38,6 +38,28 @@ public class PassiveSslReporter {
         
         // Give control to pcap, pcap will use callbacks.
         pcap.loopAsynchronous(handler);
+        
+        System.out.println("looping done");
+	}
+	
+	public void startMonitorThread() {
+		Runnable t = new Runnable() {
+			
+			@Override
+			public void run() {
+				while(true) {
+					handler.printStats();
+					try {
+						Thread.sleep(5000);
+					} catch (InterruptedException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				}
+				
+			}
+		};
+		(new Thread(t)).start();
 	}
 
 	/**
@@ -46,12 +68,14 @@ public class PassiveSslReporter {
 	 */
 	public static void main(String[] args) {
 		PassiveSslReporter psr = new PassiveSslReporter();
+		psr.startMonitorThread();
 		if (args.length == 0) {
 			psr.run();
 		} else {
-			psr.run(args[0]);
+			for (String string : args) {
+				psr.run(string);
+			}
 		}
-
 		System.exit(0);
 	}
 

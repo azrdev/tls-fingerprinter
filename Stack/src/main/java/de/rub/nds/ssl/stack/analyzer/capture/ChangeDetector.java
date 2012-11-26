@@ -9,11 +9,12 @@ public class ChangeDetector {
 	
 	private Map<ClientHelloFingerprint, List<ServerFingerprint>> fingerprints;
 	private ChangeReporter changeReporter;
+	private int changes;
 	
 	public ChangeDetector(ChangeReporter changeReporter) {
 		this.fingerprints = new HashMap<ClientHelloFingerprint, List<ServerFingerprint>>();
 		this.changeReporter = changeReporter;
-		
+		this.changes = 0;
 	}
 	
 	public void reportConnection(ClientHelloFingerprint chf, ServerFingerprint sf) {
@@ -31,9 +32,14 @@ public class ChangeDetector {
 			}
 			// A new fingerprint, and not the first one!
 			changeReporter.reportChange(chf, sf, previousFingerprints);
+			changes++;
 			previousFingerprints.add(sf);
 		}
 		
+	}
+	
+	public String toString() {
+		return "ChangeDetector: " + fingerprints.size() + " different fingerprints seen, " + this.changes + " changes so far.";
 	}
 	
 	

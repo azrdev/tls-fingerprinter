@@ -75,9 +75,16 @@ public class FragmentSequence {
     }
 
     public void merge(FragmentSequence sequence) {
-        for (PcapPacket packet : sequence.getPackets()) {
-            add(packet);
-        }
+		try {
+
+			for (PcapPacket packet : sequence.getPackets()) {
+				add(packet);
+
+			}
+		} catch (Exception e) {
+			// TODO: Fix this, this might trow exceptions
+
+		}
     }
 
     /**

@@ -96,18 +96,49 @@ public class ServerNameExtension extends Extension {
 
 	}
 	
-	public boolean equals(Object o) {
-		if (o instanceof ServerNameExtension) {
-			ServerNameExtension sne = (ServerNameExtension) o;
-			return sne.hostNames.equals(this.hostNames);
-		} else {
-			return super.equals(o);
-		}
-	}
+//	public boolean equals(Object o) {
+//		if (o instanceof ServerNameExtension) {
+//			ServerNameExtension sne = (ServerNameExtension) o;
+//			return sne.hostNames.equals(this.hostNames);
+//		} else {
+//			return super.equals(o);
+//		}
+//	}
+//	
+	
 	
 	@SuppressWarnings("unchecked")
 	public List<String> getServerNames() {
 		return (List<String>) hostNames.clone();
+	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result
+				+ ((hostNames == null) ? 0 : hostNames.hashCode());
+		result = prime * result + (wasZeroLength ? 1231 : 1237);
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		ServerNameExtension other = (ServerNameExtension) obj;
+		if (hostNames == null) {
+			if (other.hostNames != null)
+				return false;
+		} else if (!hostNames.equals(other.hostNames))
+			return false;
+		if (wasZeroLength != other.wasZeroLength)
+			return false;
+		return true;
 	}
 
 }

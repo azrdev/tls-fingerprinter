@@ -20,8 +20,8 @@ public class NetworkFingerprint {
 	public NetworkFingerprint(List<Fingerprint.Signature> fingerprints) {
 		this.mtuFingerprint = fingerprints.get(0);
 		this.tcpFingerprint = fingerprints.get(1);
-		if (this.tcpFingerprint == null || this.mtuFingerprint == null) {
-			System.err.println("warning, some null fields in NetworkFingerprint: " + fingerprints.toString());
+		if ((this.tcpFingerprint == null) || (this.mtuFingerprint == null)) {
+			throw new RuntimeException("sorry, null fields passed to constructor");
 		}
 		
 	}

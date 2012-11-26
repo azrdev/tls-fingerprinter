@@ -46,18 +46,42 @@ public class GenericExtension extends Extension {
 
 	}
 	
-	public boolean equals(Object o) {
-		if (o instanceof GenericExtension) {
-			GenericExtension ge = (GenericExtension) o;
-			return (this.getType() == ge.getType()) && Arrays.equals(ge.extension_data, extension_data);
-		} else {
-			return super.equals(o);
-		}
-	}
+//	public boolean equals(Object o) {
+//		if (o instanceof GenericExtension) {
+//			GenericExtension ge = (GenericExtension) o;
+//			return (this.getType() == ge.getType()) && Arrays.equals(ge.extension_data, extension_data);
+//		} else {
+//			return super.equals(o);
+//		}
+//	}
+	
 
 	@Override
 	protected byte[] encode_content() {
 		return extension_data.clone();
+	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + Arrays.hashCode(extension_data);
+		result = prime * result + this.getType();
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		GenericExtension other = (GenericExtension) obj;
+		if (!(Arrays.equals(extension_data, other.extension_data) && (this.getType() == other.getType())) )
+			return false;
+		return true;
 	}
 
 }

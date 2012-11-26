@@ -24,11 +24,13 @@ public class Connection {
 	private PcapTrace trace;
 	private List<MessageContainer> fl;
 	private List<Fingerprint.Signature> fingerprints;
+	private NetworkFingerprint networkFingerprint;
 	
 	public Connection(PcapConnection pcapConnection) {
 		this.trace = pcapConnection.getTrace();
 		this.fingerprints = pcapConnection.getSignatures(Direction.Response);
 		this.fl = this.decodeTrace();
+		this.networkFingerprint = new NetworkFingerprint(this.fingerprints);
 //		if ((this.fingerprints.size() != 2) || (this.fingerprints.get(0) == null)) {
 //			System.err.println("Sorry, incorrect fingerprints!");
 //		}
@@ -60,26 +62,27 @@ public class Connection {
 		ClientHello ch = (ClientHello) clientHelloMC.getCurrentRecord();
 		return new ClientHelloFingerprint(ch);
 	}
-	
+
 	public String getServerHostName() {
 		MessageContainer clientHelloMC = fl.get(0);
 		ClientHello ch = (ClientHello) clientHelloMC.getCurrentRecord();
 		ExtensionList el = ch.getExtensionList();
-		List<Extension> extensions = el.getExtensions();
-		for (Extension ex : extensions) {
-			if (ex instanceof ServerNameExtension) {
-				ServerNameExtension sne = (ServerNameExtension)ex;
-				return sne.getServerNames().get(0);
+		if (el != null) {
+			List<Extension> extensions = el.getExtensions();
+			for (Extension ex : extensions) {
+				if (ex instanceof ServerNameExtension) {
+					ServerNameExtension sne = (ServerNameExtension) ex;
+					return sne.getServerNames().get(0);
+				}
 			}
 		}
 		return null;
 	}
-	
 
 
 
 	public NetworkFingerprint getNetworkFingerprint() {
-		return new NetworkFingerprint(this.fingerprints);
+		return this.networkFingerprint;
 	}
 	
 

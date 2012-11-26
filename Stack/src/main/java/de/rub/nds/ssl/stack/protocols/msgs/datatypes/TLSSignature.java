@@ -127,13 +127,14 @@ public class TLSSignature extends APubliclySerializable {
             System.arraycopy(paramCopy, 0, parameters, 0,
                     paramCopy.length - (sigLength + 2));
             setServerParams(parameters);
-            if (!(checkSignature(tmpBytes))) {
-                try {
-                    throw new Exception("Signature invalid");
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
+            // TODO: Re-Enable the signature check
+//            if (!(checkSignature(tmpBytes))) {
+//                try {
+//                    throw new Exception("Signature invalid");
+//                } catch (Exception e) {
+//                    e.printStackTrace();
+//                }
+//            }
         }
     }
 

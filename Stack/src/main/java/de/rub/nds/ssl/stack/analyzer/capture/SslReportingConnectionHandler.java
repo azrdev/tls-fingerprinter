@@ -26,6 +26,10 @@ public final class SslReportingConnectionHandler extends ConnectionHandler {
     private static final int SSL_PORT = 443;
     
     private ChangeDetector cd = new ChangeDetector(new PrintingChangeReporter());
+    
+    public void printStats() {
+    	System.out.println(cd.toString());
+    }
 
     /**
      * Check if a certain connection has source or destination port 443.
@@ -43,6 +47,7 @@ public final class SslReportingConnectionHandler extends ConnectionHandler {
     @Override
     public void newConnection(final Event event,
             final PcapConnection connection) {
+    	
         if (event == Event.New && isSsl(connection)) {
             // System.out.println("new connection");
             // There is a new SSL connection
@@ -68,7 +73,11 @@ public final class SslReportingConnectionHandler extends ConnectionHandler {
 			}
 			if (c.isCompleted()) {
 				reportedSessions.add(session);
-				cd.reportConnection(c.getClientHelloFingerprint(), c.getServerFingerprint());
+				
+				// We are interested only in those which a server host name
+				if (c.getServerHostName() != null) {
+					cd.reportConnection(c.getClientHelloFingerprint(), c.getServerFingerprint());
+				}
 				// c.printReport();
 				/*
 				System.out.println("Found a connection to: " + c.getServerHostName());

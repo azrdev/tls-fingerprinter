@@ -63,7 +63,7 @@ public class ServerHelloFingerprint {
     	sb.append("  CipherSuite = " + this.cipherSuite + "\n");
     	sb.append("  CompressionMethod = " + Arrays.toString(this.compressionMethod) + "\n");
     	sb.append("  Length of SessionID = " + this.sessionIDlen + "\n");
-    	sb.append("  Extensions = " + this.extensionList.toString());
+    	sb.append("  Extensions = " + this.extensionList);
     	
     	return new String(sb);
     }

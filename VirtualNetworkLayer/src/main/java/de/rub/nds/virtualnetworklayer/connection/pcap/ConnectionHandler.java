@@ -15,6 +15,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.logging.Logger;
 
 /**
@@ -25,6 +26,9 @@ import java.util.logging.Logger;
  * @see Fingerprint
  */
 public abstract class ConnectionHandler extends PacketHandler {
+	
+	private static int TIMEOUT = 300*1000*1000; // 120 seconds
+	private static int TIMEOUT_INTERVAL = 5000; // Every 5000 Packets
 
     /**
      * A quiet connection handler discards all reporting.
@@ -53,6 +57,7 @@ public abstract class ConnectionHandler extends PacketHandler {
     private static List<Fingerprint> prints = new LinkedList<Fingerprint>();
 
     private HashMap<SocketSession, PcapConnection> connections = new HashMap<SocketSession, PcapConnection>();
+    private int timeout_counter = 0;
 
     static {
         signatures = (Map<Fingerprint.Signature, Label>[]) new HashMap<?, ?>[getHeaderCount()];
@@ -132,9 +137,29 @@ public abstract class ConnectionHandler extends PacketHandler {
             return connections.get(session);
         }
     }
+    
+    private void gc(long timestamp) {
+    	HashMap<SocketSession, PcapConnection> tmp = new HashMap<>();
+    	for (Entry<SocketSession, PcapConnection> e : this.connections.entrySet()) {
+			if (e.getValue().getTrace().getLast().getTimeStamp() + TIMEOUT > timestamp) {
+				tmp.put(e.getKey(), e.getValue());
+			}
+		}
+    	int cleared = this.connections.size() - tmp.size();
+    	if (cleared > 0) {
+    		// System.err.println("cleared " + cleared + " connections");
+    	}
+    	this.connections = tmp;
+    	
+    }
 
     @Override
     protected final void newPacket(PcapPacket packet) {
+    	timeout_counter++;
+    	if (timeout_counter > TIMEOUT_INTERVAL) {
+    		this.gc(packet.getTimeStamp());
+    		timeout_counter = 0;
+    	}
         SocketSession session = packet.getSession();
 
         if (session != null) {

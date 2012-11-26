@@ -9,6 +9,8 @@ public abstract class Extension extends APubliclySerializable {
 		return this.extension_type;
 	}
 	
+	
+	
 	protected abstract void decode_content(byte[] content);
 	protected abstract byte[] encode_content();
 	
