@@ -139,7 +139,7 @@ public abstract class ConnectionHandler extends PacketHandler {
     }
     
     private void gc(long timestamp) {
-    	HashMap<SocketSession, PcapConnection> tmp = new HashMap<>();
+    	HashMap<SocketSession, PcapConnection> tmp = new HashMap<SocketSession, PcapConnection>();
     	for (Entry<SocketSession, PcapConnection> e : this.connections.entrySet()) {
 			if (e.getValue().getTrace().getLast().getTimeStamp() + TIMEOUT > timestamp) {
 				tmp.put(e.getKey(), e.getValue());
