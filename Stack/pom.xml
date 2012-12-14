@@ -102,10 +102,6 @@
                             <artifactId>javancss-maven-plugin</artifactId>
                             <version>2.0</version>
                         </plugin>
-<!--                        <plugin>
-                            <groupId>lint4j</groupId>
-                            <artifactId>jutils-lint4j-plugin</artifactId>
-                        </plugin>-->
                     </reportPlugins>
                 </configuration>
             </plugin>
@@ -118,11 +114,6 @@
             <artifactId>testng</artifactId>
             <version>6.4</version>
             <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>TimingSocket</artifactId>
-            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
@@ -149,12 +140,6 @@
             <groupId>${project.groupId}</groupId>
             <artifactId>VirtualNetworkLayer</artifactId>
             <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>Analyzer</artifactId>
-            <version>${project.version}</version>
-            <scope>test</scope>
         </dependency>
     </dependencies>
     
