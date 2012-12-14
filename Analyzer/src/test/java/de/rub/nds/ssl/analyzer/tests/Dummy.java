@@ -18,7 +18,7 @@ public class Dummy {
         // code that will be invoked before this test starts
     }
     
-    @Test
+    @Test(enabled = true)
     public void aTest() {
         System.out.println("Test");
     }
