@@ -4,7 +4,7 @@ import de.rub.nds.ssl.analyzer.common.AnalyzeTraceList;
 import de.rub.nds.ssl.analyzer.common.ETLSImplementation;
 import de.rub.nds.ssl.analyzer.common.ScoreCounter;
 import de.rub.nds.ssl.analyzer.db.Database;
-import de.rub.nds.ssl.stack.tests.parameters.AParameters;
+import de.rub.nds.ssl.analyzer.tests.parameters.AParameters;
 import de.rub.nds.ssl.stack.trace.MessageContainer;
 import de.rub.nds.ssl.stack.workflows.TLS10HandshakeWorkflow.EStates;
 import java.sql.ResultSet;

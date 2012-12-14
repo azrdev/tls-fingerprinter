@@ -9,7 +9,7 @@ import de.rub.nds.ssl.stack.protocols.handshake.datatypes.RandomValue;
 import de.rub.nds.ssl.stack.protocols.msgs.TLSCiphertext;
 import de.rub.nds.ssl.stack.protocols.msgs.datatypes.GenericBlockCipher;
 import de.rub.nds.ssl.analyzer.common.SSLServerHandler;
-import de.rub.nds.ssl.stack.tests.parameters.FinishedParameters;
+import de.rub.nds.ssl.analyzer.tests.parameters.FinishedParameters;
 import de.rub.nds.ssl.stack.trace.MessageContainer;
 import de.rub.nds.ssl.stack.workflows.TLS10HandshakeWorkflow;
 import de.rub.nds.ssl.stack.workflows.TLS10HandshakeWorkflow.EStates;
