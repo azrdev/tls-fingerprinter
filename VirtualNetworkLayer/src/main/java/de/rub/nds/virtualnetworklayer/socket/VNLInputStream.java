@@ -80,7 +80,12 @@ public class VNLInputStream extends InputStream {
      * @throws IOException
      */
     public Packet readPacket() throws IOException {
-        return connection.read(1000);
+        Packet result = null;
+        synchronized(connection) {
+            result = connection.read(1000);
+        }
+                
+        return result;
     }
 
     /**

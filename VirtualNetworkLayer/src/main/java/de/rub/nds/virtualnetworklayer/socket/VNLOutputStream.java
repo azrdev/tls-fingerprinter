@@ -31,7 +31,15 @@ public class VNLOutputStream extends OutputStream {
     
     @Override
     public void write(final int b) throws IOException {
-        connection.write(intToBytes(b));
+        byte[] bytes = intToBytes(b);
+        write(bytes);
+    }
+    
+    @Override
+    public void write(final byte b[]) throws IOException {
+        synchronized (connection) {
+            connection.write(b);
+        }
     }
     
     /**
