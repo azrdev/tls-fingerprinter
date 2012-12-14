@@ -1,0 +1,75 @@
+package de.rub.nds.ssl.stack.tests.parameters;
+
+import de.rub.nds.ssl.stack.Utility;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+
+/**
+ * Defines the ChangeCipherSpec parameters for tests.
+ *
+ * @author Eugen Weiss - eugen.weiss@ruhr-uni-bochum
+ * @version 0.1 Jun. 21, 2012
+ */
+public class ChangeCipherSpecParams extends AParameters {
+
+    /**
+     * CHangeCipherSpec payload
+     */
+    private byte[] payload;
+
+    /**
+     * Get the value of the ChangeCipherSpec payload.
+     *
+     * @return ChangeCipherSpec payload
+     */
+    public byte[] getPayload() {
+        if (this.payload != null) {
+            return this.payload.clone();
+        } else {
+            return null;
+        }
+    }
+
+    /**
+     * Set the value of the ChangeCipherSpec payload.
+     *
+     * @param payload ChangeCipherSpec payload
+     */
+    public void setPayload(byte[] payload) {
+        if (payload != null) {
+            this.payload = payload.clone();
+        } else {
+            this.payload = null;
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String computeHash() {
+        MessageDigest sha1 = null;
+        try {
+            sha1 = MessageDigest.getInstance("SHA");
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+        }
+        updateHash(sha1, getIdentifier().name().getBytes());
+        updateHash(sha1, getDescription().getBytes());
+        updateHash(sha1, getPayload());
+        byte[] hash = sha1.digest();
+        String hashValue = Utility.bytesToHex(hash);
+        hashValue = hashValue.replace(" ", "");
+        return hashValue;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void updateHash(MessageDigest sha1, byte[] input) {
+        if (input != null) {
+            sha1.update(input);
+        }
+    }
+}
