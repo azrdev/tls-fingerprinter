@@ -4,7 +4,6 @@
  */
 package de.rub.nds.ssl.analyzer.attacks;
 
-import de.rub.nds.ssl.analyzer.attacks.bleichenbacher.BleichenbacherAttack;
 import de.rub.nds.ssl.analyzer.attacks.bleichenbacher.oracles.AOracle;
 import de.rub.nds.ssl.analyzer.attacks.bleichenbacher.oracles.ATestOracle;
 import de.rub.nds.ssl.analyzer.attacks.bleichenbacher.oracles.StdPlainOracle;
@@ -58,7 +57,7 @@ public class BleichenbacherAttackPlaintextTest {
 
         logger.info("++++Start Test No. 1 (Bleichenbacher Plaintext)++++");
 
-        BleichenbacherAttack attacker = new BleichenbacherAttack(message, 
+        Bleichenbacher attacker = new Bleichenbacher(message, 
                 oracle, true);
         attacker.attack();
 

@@ -1,7 +1,6 @@
 package de.rub.nds.ssl.analyzer.attacks;
 
-import de.rub.nds.ssl.analyzer.attacks.bleichenbacher.BleichenbacherAttack;
-import de.rub.nds.ssl.analyzer.attacks.bleichenbacher.exceptions.OracleException;
+import de.rub.nds.ssl.analyzer.attacks.bleichenbacher.OracleException;
 import de.rub.nds.ssl.analyzer.attacks.bleichenbacher.oracles.AOracle;
 import de.rub.nds.ssl.analyzer.attacks.bleichenbacher.oracles.JSSE16Oracle;
 import de.rub.nds.ssl.analyzer.common.SSLServer;
@@ -191,7 +190,7 @@ public class BleichenbacherAttackTest {
             throws OracleException {
         logger.info("++++Start Test No." + counter + "(" + desc + ")++++");
 
-        BleichenbacherAttack attacker = new BleichenbacherAttack(encryptedPKCS,
+        Bleichenbacher attacker = new Bleichenbacher(encryptedPKCS,
                 oracle, true);
         attacker.attack();
 

@@ -34,24 +34,41 @@ public enum EFingerprintTests {
     FIN("Finished Message Test", FIN.class),
     FIN_HH("Finished Message Handshake Header Test", FINHandshakeHeader.class),
     FIN_RH("Finished Message Record Header Test", FINRecordHeader.class);
-    
     /**
      * Fingerprint Test description.
      */
     private String description;
     /**
-     * Test implementor.
+     * Test implementer.
      */
-    private Class implementor;
+    private Class implementer;
 
     /**
      * Prepare Fingerprint Test listing,
-     * 
+     *
      * @param description Test description
-     * @param implementor Test implementor
+     * @param implementer Test implementer
      */
-    private EFingerprintTests(final String description, final Class implementor) {
+    private EFingerprintTests(final String description, final Class implementer) {
         this.description = description;
-        this.implementor = implementor;
+        this.implementer = implementer;
+    }
+
+    /**
+     * Getter for Fingerprint Test description.
+     *
+     * @return Fingerprint Test description
+     */
+    public String getDescritpion() {
+        return this.description;
+    }
+
+    /**
+     * Getter for Fingerprint Test implementer.
+     *
+     * @return Fingerprint Test implementer
+     */
+    public Class getImplementer() {
+        return this.implementer;
     }
 }

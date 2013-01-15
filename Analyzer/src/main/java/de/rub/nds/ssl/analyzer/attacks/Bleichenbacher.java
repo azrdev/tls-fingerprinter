@@ -1,8 +1,9 @@
-package de.rub.nds.ssl.analyzer.attacks.bleichenbacher;
+package de.rub.nds.ssl.analyzer.attacks;
 
-import de.rub.nds.ssl.stack.Utility;
-import de.rub.nds.ssl.analyzer.attacks.bleichenbacher.exceptions.OracleException;
+import de.rub.nds.ssl.analyzer.attacks.bleichenbacher.Interval;
+import de.rub.nds.ssl.analyzer.attacks.bleichenbacher.OracleException;
 import de.rub.nds.ssl.analyzer.attacks.bleichenbacher.oracles.AOracle;
+import de.rub.nds.ssl.stack.Utility;
 import java.math.BigInteger;
 import java.security.interfaces.RSAPublicKey;
 import java.util.ArrayList;
@@ -17,7 +18,7 @@ import org.apache.log4j.Logger;
  *
  * May 18, 2012
  */
-public class BleichenbacherAttack {
+public class Bleichenbacher {
 
     protected final AOracle oracle;
     //protected final byte[] decryptedMsg;
@@ -35,7 +36,7 @@ public class BleichenbacherAttack {
      */
     static Logger logger = Logger.getRootLogger();
 
-    public BleichenbacherAttack(final byte[] msg,
+    public Bleichenbacher(final byte[] msg,
             final AOracle pkcsOracle, final boolean msgPKCScofnorm) {
         this.encryptedMsg = msg.clone();
         this.publicKey = (RSAPublicKey) pkcsOracle.getPublicKey();

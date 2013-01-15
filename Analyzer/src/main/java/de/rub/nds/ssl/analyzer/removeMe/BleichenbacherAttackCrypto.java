@@ -1,12 +1,10 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
-package de.rub.nds.ssl.analyzer.attacks.bleichenbacher;
+package de.rub.nds.ssl.analyzer.removeMe;
 
-import de.rub.nds.ssl.stack.Utility;
-import de.rub.nds.ssl.analyzer.attacks.bleichenbacher.exceptions.OracleException;
+import de.rub.nds.ssl.analyzer.attacks.Bleichenbacher;
+import de.rub.nds.ssl.analyzer.attacks.bleichenbacher.Interval;
+import de.rub.nds.ssl.analyzer.attacks.bleichenbacher.OracleException;
 import de.rub.nds.ssl.analyzer.attacks.bleichenbacher.oracles.AOracle;
+import de.rub.nds.ssl.stack.Utility;
 import java.math.BigInteger;
 import java.util.LinkedList;
 import java.util.List;
@@ -17,7 +15,7 @@ import java.util.List;
  * 
  * @author juraj
  */
-public class BleichenbacherAttackCrypto extends BleichenbacherAttack {
+public class BleichenbacherAttackCrypto extends Bleichenbacher {
 
     /**
      * max divisor applied
@@ -75,8 +73,7 @@ public class BleichenbacherAttackCrypto extends BleichenbacherAttack {
             uList.add(t.add(BigInteger.ONE));
 
             if (isDivisible(t, uList)) {
-
-                logger.info("Testing max intervals");
+//                logger.info("Testing max intervals");
                 tList.add(t);
             }
             t = t.add(BigInteger.ONE);

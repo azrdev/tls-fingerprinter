@@ -4,7 +4,7 @@
  */
 package de.rub.nds.ssl.analyzer.attacks.bleichenbacher.oracles;
 
-import de.rub.nds.ssl.analyzer.attacks.bleichenbacher.exceptions.OracleException;
+import de.rub.nds.ssl.analyzer.attacks.bleichenbacher.OracleException;
 import java.net.SocketException;
 
 /**

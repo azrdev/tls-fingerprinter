@@ -1,6 +1,7 @@
-package de.rub.nds.ssl.analyzer.attacks.bleichenbacher;
+package de.rub.nds.ssl.analyzer.removeMe;
 
-import de.rub.nds.ssl.analyzer.attacks.bleichenbacher.exceptions.OracleException;
+import de.rub.nds.ssl.analyzer.attacks.Bleichenbacher;
+import de.rub.nds.ssl.analyzer.attacks.bleichenbacher.OracleException;
 import de.rub.nds.ssl.analyzer.attacks.bleichenbacher.oracles.AOracle;
 import de.rub.nds.ssl.analyzer.attacks.bleichenbacher.oracles.ATestOracle;
 import de.rub.nds.ssl.analyzer.attacks.bleichenbacher.oracles.StandardOracle;
@@ -129,7 +130,7 @@ public class TestLauncher {
         // real world oracle FFF
         AOracle oracle = new StandardOracle(key, cert.getPublicKey(),
                 ATestOracle.OracleType.FFF);
-        BleichenbacherAttack attacker = new BleichenbacherAttack(encryptedPKCS,
+        Bleichenbacher attacker = new Bleichenbacher(encryptedPKCS,
                 oracle, true);
 
         attacker.attack();
