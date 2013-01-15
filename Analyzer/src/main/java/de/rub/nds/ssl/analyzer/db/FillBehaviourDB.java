@@ -6,6 +6,7 @@ import de.rub.nds.ssl.analyzer.tests.parameters.AParameters;
 import de.rub.nds.ssl.stack.trace.MessageContainer;
 import de.rub.nds.ssl.stack.workflows.TLS10HandshakeWorkflow.EStates;
 import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.ArrayList;
 
 /**
@@ -70,5 +71,41 @@ public class FillBehaviourDB {
         // testcase id
         prepared.setInt(6, 26);
         prepared.executeUpdate();
+    }
+    
+    public void insertFingerprint(AParameters parameters,
+            ArrayList<MessageContainer> traceList, String testedState, String testcase,
+            String implementation) throws SQLException{
+    	Connection conn = db.getConnection();
+        //prepared insert statement
+        java.sql.PreparedStatement prepared = conn.
+                prepareStatement("insert into tls_fuzzer_fingerprint"
+                + " values (default,?,?,?,?,?,?)");
+        String lastState = null;
+        String alertDesc = null;
+        AnalyzeTraceList analyzeList = new AnalyzeTraceList();
+        //assign the alert description and last state
+        alertDesc = analyzeList.getAlertFromTraceList(traceList);
+        if (alertDesc != null) {
+            lastState = EStates.ALERT.name();
+        } else {
+            MessageContainer lastTrace = analyzeList.getLastTrace(traceList);
+            lastState = lastTrace.getState().name();
+        }
+        String fingerprint = parameters.computeHash();
+        // hash
+        prepared.setString(1, fingerprint);
+        // state
+        prepared.setString(2, lastState);
+        // alert description
+        prepared.setString(3, alertDesc);
+        // implementation
+        prepared.setString(4, implementation);
+        // name of tested state
+        prepared.setString(5, testedState);
+        // testcase name
+        prepared.setString(6, testcase);
+        prepared.executeUpdate();
+    	
     }
 }
