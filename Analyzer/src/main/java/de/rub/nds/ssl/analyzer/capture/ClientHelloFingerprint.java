@@ -1,14 +1,13 @@
 package de.rub.nds.ssl.analyzer.capture;
 
-import java.util.Arrays;
-import java.util.List;
-
 import de.rub.nds.ssl.stack.protocols.commons.ECipherSuite;
 import de.rub.nds.ssl.stack.protocols.commons.EProtocolVersion;
 import de.rub.nds.ssl.stack.protocols.handshake.ClientHello;
 import de.rub.nds.ssl.stack.protocols.handshake.Extension;
 import de.rub.nds.ssl.stack.protocols.handshake.ExtensionList;
 import de.rub.nds.ssl.stack.protocols.handshake.ServerNameExtension;
+import java.util.Arrays;
+import java.util.List;
 
 public class ClientHelloFingerprint {
     private EProtocolVersion msgProtocolVersion;

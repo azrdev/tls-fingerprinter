@@ -3,8 +3,11 @@ package de.rub.nds.ssl.analyzer.tests.fingerprint;
 import de.rub.nds.ssl.analyzer.AFingerprintAnalyzer;
 import de.rub.nds.ssl.analyzer.TestHashAnalyzer;
 import de.rub.nds.ssl.analyzer.removeMe.TestConfiguration;
-import de.rub.nds.ssl.stack.protocols.handshake.ClientKeyExchange;
 import de.rub.nds.ssl.analyzer.tests.parameters.EFingerprintIdentifier;
+import de.rub.nds.ssl.stack.protocols.commons.ECipherSuite;
+import de.rub.nds.ssl.stack.protocols.handshake.ClientHello;
+import de.rub.nds.ssl.stack.protocols.handshake.datatypes.CipherSuites;
+import de.rub.nds.ssl.stack.protocols.handshake.datatypes.RandomValue;
 import de.rub.nds.ssl.stack.trace.MessageContainer;
 import de.rub.nds.ssl.stack.workflows.TLS10HandshakeWorkflow;
 import de.rub.nds.ssl.stack.workflows.TLS10HandshakeWorkflow.EStates;
@@ -16,13 +19,25 @@ import java.util.Observer;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.Test;
 
-public class FingerprintCKEHandshakeHeader extends GenericFingerprintTest implements Observer {
+/**
+ * Fingerprint the Client Hello handshake header. Perform Tests by manipulating
+ * the message type, protocol version and length bytes in the header.
+ *
+ * @author Eugen Weiss - eugen.weiss@ruhr-uni-bochum.de
+ * @version 0.1 May 31, 2012
+ */
+public class CHHandshakeHeader extends GenericFingerprintTest implements Observer {
+    /**
+     * Test port.
+     */
+    protected int PORT = 443;
 
     @Test(enabled = true, dataProviderClass = FingerprintDataProviders.class,
     dataProvider = "handshakeHeader", invocationCount = 1)
-    public void manipulateCKERecordHeader(String desc, byte[] msgType,
-            byte[] recordLength) throws SocketException {
+    public void manipulateCHHandshakeHeader(String desc, byte[] msgType,
+           byte[] recordLength) throws SocketException {
         logger.info("++++Start Test No." + counter + "(" + desc + ")++++");
+        logger.info("Following test parameters are used:");
         workflow = new TLS10HandshakeWorkflow();
         //connect to test server
         if (TestConfiguration.HOST.isEmpty() || TestConfiguration.PORT == 0) {
@@ -35,13 +50,13 @@ public class FingerprintCKEHandshakeHeader extends GenericFingerprintTest implem
                     "Test Server: " + TestConfiguration.HOST + ":" + TestConfiguration.PORT);
         }
         //add the observer
-        workflow.addObserver(this, EStates.CLIENT_KEY_EXCHANGE);
-        logger.info(EStates.CLIENT_KEY_EXCHANGE.name() + " state is observed");
+        workflow.addObserver(this, EStates.CLIENT_HELLO);
+        logger.info(EStates.CLIENT_HELLO.name() + " state is observed");
 
         //set the test parameters
         parameters.setMsgType(msgType);
         parameters.setRecordLength(recordLength);
-        parameters.setIdentifier(EFingerprintIdentifier.CKEHandshakeHeader);
+        parameters.setIdentifier(EFingerprintIdentifier.CHHandshakeHeader);
         parameters.setDescription(desc);
 
         //start the handshake
@@ -62,21 +77,27 @@ public class FingerprintCKEHandshakeHeader extends GenericFingerprintTest implem
      * @param arg Arguments
      */
     @Override
-    public void update(final Observable o, final Object arg) {
+    public void update(Observable o, Object arg) {
         MessageBuilder msgBuilder = new MessageBuilder();
         MessageContainer trace = null;
         EStates states = null;
         ObservableBridge obs;
-        if (o != null && o instanceof ObservableBridge) {
+        if (o instanceof ObservableBridge) {
             obs = (ObservableBridge) o;
             states = (EStates) obs.getState();
             trace = (MessageContainer) arg;
         }
-        if (states == EStates.CLIENT_KEY_EXCHANGE) {
-            ClientKeyExchange cke = msgBuilder.createClientKeyExchange(
-                    protocolVersion, workflow);
-            byte[] payload = cke.encode(true);
-            //change msgType of the message
+        if (states == EStates.CLIENT_HELLO) {
+            ECipherSuite[] suites = new ECipherSuite[]{
+                ECipherSuite.TLS_RSA_WITH_AES_128_CBC_SHA};
+            CipherSuites cipherSuites = new CipherSuites();
+            cipherSuites.setSuites(suites);
+            RandomValue random = new RandomValue();
+            byte[] compMethod = new byte[]{0x00};
+            ClientHello clientHello = msgBuilder.createClientHello(this.protocolVersion.
+                    getId(),
+                    random.encode(false), cipherSuites.encode(false), compMethod);
+            byte[] payload = clientHello.encode(true);
             if (parameters.getMsgType() != null) {
                 byte[] msgType = parameters.getMsgType();
                 System.arraycopy(msgType, 0, payload, 5, msgType.length);
@@ -86,9 +107,8 @@ public class FingerprintCKEHandshakeHeader extends GenericFingerprintTest implem
                 System.arraycopy(recordLength, 0, payload, 6,
                         recordLength.length);
             }
-            //update the trace object
             trace.setCurrentRecordBytes(payload);
-            trace.setCurrentRecord(cke);
+            trace.setCurrentRecord(clientHello);
         }
     }
 

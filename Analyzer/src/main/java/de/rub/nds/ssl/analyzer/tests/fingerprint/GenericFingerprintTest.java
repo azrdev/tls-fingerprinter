@@ -1,13 +1,12 @@
 package de.rub.nds.ssl.analyzer.tests.fingerprint;
 
+import de.rub.nds.ssl.analyzer.tests.parameters.HeaderParameters;
+import de.rub.nds.ssl.stack.protocols.commons.EProtocolVersion;
+import de.rub.nds.ssl.stack.workflows.TLS10HandshakeWorkflow;
+import de.rub.nds.ssl.stack.workflows.commons.MessageUtils;
 import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
 import org.testng.annotations.BeforeClass;
-
-import de.rub.nds.ssl.stack.protocols.commons.EProtocolVersion;
-import de.rub.nds.ssl.analyzer.tests.parameters.HeaderParameters;
-import de.rub.nds.ssl.stack.workflows.commons.MessageUtils;
-import de.rub.nds.ssl.stack.workflows.TLS10HandshakeWorkflow;
 
 public abstract class GenericFingerprintTest {
     /**

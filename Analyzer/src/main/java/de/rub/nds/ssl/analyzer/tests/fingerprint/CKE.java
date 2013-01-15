@@ -3,6 +3,8 @@ package de.rub.nds.ssl.analyzer.tests.fingerprint;
 import de.rub.nds.ssl.analyzer.AFingerprintAnalyzer;
 import de.rub.nds.ssl.analyzer.TestHashAnalyzer;
 import de.rub.nds.ssl.analyzer.removeMe.TestConfiguration;
+import de.rub.nds.ssl.analyzer.tests.parameters.ClientKeyExchangeParams;
+import de.rub.nds.ssl.analyzer.tests.parameters.EFingerprintIdentifier;
 import de.rub.nds.ssl.stack.protocols.commons.ECipherSuite;
 import de.rub.nds.ssl.stack.protocols.commons.EProtocolVersion;
 import de.rub.nds.ssl.stack.protocols.handshake.ClientHello;
@@ -10,8 +12,6 @@ import de.rub.nds.ssl.stack.protocols.handshake.ClientKeyExchange;
 import de.rub.nds.ssl.stack.protocols.handshake.datatypes.CipherSuites;
 import de.rub.nds.ssl.stack.protocols.handshake.datatypes.ClientDHPublic;
 import de.rub.nds.ssl.stack.protocols.handshake.datatypes.RandomValue;
-import de.rub.nds.ssl.analyzer.tests.parameters.ClientKeyExchangeParams;
-import de.rub.nds.ssl.analyzer.tests.parameters.EFingerprintIdentifier;
 import de.rub.nds.ssl.stack.trace.MessageContainer;
 import de.rub.nds.ssl.stack.workflows.TLS10HandshakeWorkflow;
 import de.rub.nds.ssl.stack.workflows.TLS10HandshakeWorkflow.EStates;
@@ -24,7 +24,7 @@ import org.testng.annotations.AfterMethod;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
-public class FingerprintClientKeyExchange extends GenericFingerprintTest
+public class CKE extends GenericFingerprintTest
         implements Observer {
 
     /**
@@ -37,7 +37,7 @@ public class FingerprintClientKeyExchange extends GenericFingerprintTest
     private ClientKeyExchangeParams parameters = new ClientKeyExchangeParams();
 
     /**
-     * Test parameters for ClientKeyExchange fingerprinting.
+     * Test parameters for CKE fingerprinting.
      *
      * @return List of parameters
      */

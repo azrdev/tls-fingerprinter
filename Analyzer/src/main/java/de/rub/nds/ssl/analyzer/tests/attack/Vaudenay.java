@@ -1,5 +1,7 @@
-package de.rub.nds.ssl.analyzer.attacktests;
+package de.rub.nds.ssl.analyzer.tests.attack;
 
+import de.rub.nds.ssl.analyzer.removeMe.SSLServerHandler;
+import de.rub.nds.ssl.analyzer.tests.parameters.FinishedParameters;
 import de.rub.nds.ssl.stack.Utility;
 import de.rub.nds.ssl.stack.protocols.commons.*;
 import de.rub.nds.ssl.stack.protocols.handshake.ClientHello;
@@ -8,8 +10,6 @@ import de.rub.nds.ssl.stack.protocols.handshake.datatypes.CipherSuites;
 import de.rub.nds.ssl.stack.protocols.handshake.datatypes.RandomValue;
 import de.rub.nds.ssl.stack.protocols.msgs.TLSCiphertext;
 import de.rub.nds.ssl.stack.protocols.msgs.datatypes.GenericBlockCipher;
-import de.rub.nds.ssl.analyzer.common.SSLServerHandler;
-import de.rub.nds.ssl.analyzer.tests.parameters.FinishedParameters;
 import de.rub.nds.ssl.stack.trace.MessageContainer;
 import de.rub.nds.ssl.stack.workflows.TLS10HandshakeWorkflow;
 import de.rub.nds.ssl.stack.workflows.TLS10HandshakeWorkflow.EStates;
@@ -36,7 +36,7 @@ import org.testng.annotations.*;
  * @author Eugen Weiss -eugen.weiss@ruhr-uni-bochum.de
  * @version 0.1 Mar 22, 2012
  */
-public class VaudenayTest implements Observer {
+public class Vaudenay implements Observer {
 
     /**
      * Handshake workflow to observe.

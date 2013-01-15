@@ -1,5 +1,9 @@
-package de.rub.nds.ssl.analyzer.attacktests;
+package de.rub.nds.ssl.analyzer.tests.attack;
 
+import de.rub.nds.ssl.analyzer.removeMe.SSLServerHandler;
+import de.rub.nds.ssl.analyzer.removeMe.TestConfiguration;
+import de.rub.nds.ssl.analyzer.tests.parameters.BleichenbacherParameters;
+import de.rub.nds.ssl.analyzer.tests.parameters.EFingerprintIdentifier;
 import de.rub.nds.ssl.stack.Utility;
 import de.rub.nds.ssl.stack.protocols.commons.ECipherSuite;
 import de.rub.nds.ssl.stack.protocols.commons.EProtocolVersion;
@@ -11,10 +15,6 @@ import de.rub.nds.ssl.stack.protocols.handshake.datatypes.EncPreMasterSecret;
 import de.rub.nds.ssl.stack.protocols.handshake.datatypes.PreMasterSecret;
 import de.rub.nds.ssl.stack.protocols.handshake.datatypes.RandomValue;
 import de.rub.nds.ssl.stack.protocols.msgs.datatypes.RsaUtil;
-import de.rub.nds.ssl.analyzer.common.SSLServerHandler;
-import de.rub.nds.ssl.analyzer.common.TestConfiguration;
-import de.rub.nds.ssl.analyzer.tests.parameters.BleichenbacherParameters;
-import de.rub.nds.ssl.analyzer.tests.parameters.EFingerprintIdentifier;
 import de.rub.nds.ssl.stack.trace.MessageContainer;
 import de.rub.nds.ssl.stack.workflows.TLS10HandshakeWorkflow;
 import de.rub.nds.ssl.stack.workflows.TLS10HandshakeWorkflow.EStates;
@@ -38,7 +38,7 @@ import org.testng.annotations.*;
  * @author Eugen Weiss - eugen.weiss@ruhr-uni-bochum.de
  * @version 0.1 Apr 12, 2012
  */
-public class BleichenbacherTest implements Observer {
+public class Bleichenbacher implements Observer {
 
     /**
      * Handshake workflow to observe.

@@ -3,11 +3,11 @@ package de.rub.nds.ssl.analyzer.tests.fingerprint;
 import de.rub.nds.ssl.analyzer.AFingerprintAnalyzer;
 import de.rub.nds.ssl.analyzer.TestHashAnalyzer;
 import de.rub.nds.ssl.analyzer.removeMe.TestConfiguration;
+import de.rub.nds.ssl.analyzer.tests.parameters.EFingerprintIdentifier;
 import de.rub.nds.ssl.stack.protocols.commons.ECipherSuite;
 import de.rub.nds.ssl.stack.protocols.handshake.ClientHello;
 import de.rub.nds.ssl.stack.protocols.handshake.datatypes.CipherSuites;
 import de.rub.nds.ssl.stack.protocols.handshake.datatypes.RandomValue;
-import de.rub.nds.ssl.analyzer.tests.parameters.EFingerprintIdentifier;
 import de.rub.nds.ssl.stack.trace.MessageContainer;
 import de.rub.nds.ssl.stack.workflows.TLS10HandshakeWorkflow;
 import de.rub.nds.ssl.stack.workflows.TLS10HandshakeWorkflow.EStates;
@@ -20,24 +20,23 @@ import org.testng.annotations.AfterMethod;
 import org.testng.annotations.Test;
 
 /**
- * Fingerprint the Client Hello handshake header. Perform Tests by manipulating
- * the message type, protocol version and length bytes in the header.
+ * Fingerprint the ClientHello record header. Perform Tests by manipulating the
+ * message type, protocol version and length bytes in the record header.
  *
  * @author Eugen Weiss - eugen.weiss@ruhr-uni-bochum.de
- * @version 0.1 May 31, 2012
+ * @version 0.1 May 30, 2012
  */
-public class FingerprintCHHandshakeHeader extends GenericFingerprintTest implements Observer {
+public class CHRecordHeader extends GenericFingerprintTest implements Observer {
     /**
      * Test port.
      */
     protected int PORT = 443;
 
     @Test(enabled = true, dataProviderClass = FingerprintDataProviders.class,
-    dataProvider = "handshakeHeader", invocationCount = 1)
-    public void manipulateCHHandshakeHeader(String desc, byte[] msgType,
-           byte[] recordLength) throws SocketException {
+    dataProvider = "recordHeader", invocationCount = 1)
+    public void manipulateCHRecordHeader(String desc, byte[] msgType,
+            byte[] protocolVersion, byte[] recordLength) throws SocketException {
         logger.info("++++Start Test No." + counter + "(" + desc + ")++++");
-        logger.info("Following test parameters are used:");
         workflow = new TLS10HandshakeWorkflow();
         //connect to test server
         if (TestConfiguration.HOST.isEmpty() || TestConfiguration.PORT == 0) {
@@ -55,8 +54,9 @@ public class FingerprintCHHandshakeHeader extends GenericFingerprintTest impleme
 
         //set the test parameters
         parameters.setMsgType(msgType);
+        parameters.setProtocolVersion(protocolVersion);
         parameters.setRecordLength(recordLength);
-        parameters.setIdentifier(EFingerprintIdentifier.CHHandshakeHeader);
+        parameters.setIdentifier(EFingerprintIdentifier.CHRecordHeader);
         parameters.setDescription(desc);
 
         //start the handshake
@@ -94,19 +94,28 @@ public class FingerprintCHHandshakeHeader extends GenericFingerprintTest impleme
             cipherSuites.setSuites(suites);
             RandomValue random = new RandomValue();
             byte[] compMethod = new byte[]{0x00};
+            //create ClientHello message
             ClientHello clientHello = msgBuilder.createClientHello(this.protocolVersion.
                     getId(),
                     random.encode(false), cipherSuites.encode(false), compMethod);
             byte[] payload = clientHello.encode(true);
+            //change msgType of the message
             if (parameters.getMsgType() != null) {
                 byte[] msgType = parameters.getMsgType();
-                System.arraycopy(msgType, 0, payload, 5, msgType.length);
+                System.arraycopy(msgType, 0, payload, 0, msgType.length);
             }
+            //change record length of the message
             if (parameters.getRecordLength() != null) {
                 byte[] recordLength = parameters.getRecordLength();
-                System.arraycopy(recordLength, 0, payload, 6,
+                System.arraycopy(recordLength, 0, payload, 3,
                         recordLength.length);
             }
+            //change protocol version of the message
+            if (parameters.getProtocolVersion() != null) {
+                byte[] protVersion = parameters.getProtocolVersion();
+                System.arraycopy(protVersion, 0, payload, 1, protVersion.length);
+            }
+            //update the trace object
             trace.setCurrentRecordBytes(payload);
             trace.setCurrentRecord(clientHello);
         }

@@ -3,12 +3,12 @@ package de.rub.nds.ssl.analyzer.tests.fingerprint;
 import de.rub.nds.ssl.analyzer.AFingerprintAnalyzer;
 import de.rub.nds.ssl.analyzer.TestHashAnalyzer;
 import de.rub.nds.ssl.analyzer.removeMe.TestConfiguration;
+import de.rub.nds.ssl.analyzer.tests.parameters.ClientHelloParameters;
+import de.rub.nds.ssl.analyzer.tests.parameters.EFingerprintIdentifier;
 import de.rub.nds.ssl.stack.protocols.commons.ECipherSuite;
 import de.rub.nds.ssl.stack.protocols.handshake.ClientHello;
 import de.rub.nds.ssl.stack.protocols.handshake.datatypes.CipherSuites;
 import de.rub.nds.ssl.stack.protocols.handshake.datatypes.RandomValue;
-import de.rub.nds.ssl.analyzer.tests.parameters.ClientHelloParameters;
-import de.rub.nds.ssl.analyzer.tests.parameters.EFingerprintIdentifier;
 import de.rub.nds.ssl.stack.trace.MessageContainer;
 import de.rub.nds.ssl.stack.workflows.TLS10HandshakeWorkflow;
 import de.rub.nds.ssl.stack.workflows.TLS10HandshakeWorkflow.EStates;
@@ -22,12 +22,12 @@ import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 /**
- * Fingerprint the ClientHello SSL message.
+ * Fingerprint the CH SSL message.
  *
  * @author Eugen Weiss -eugen.weiss@ruhr-uni-bochum.de
  * @version 0.1 Apr 18, 2012
  */
-public class FingerprintClientHello extends GenericFingerprintTest implements Observer {
+public class CH extends GenericFingerprintTest implements Observer {
     /**
      * Test port.
      */
@@ -115,7 +115,7 @@ public class FingerprintClientHello extends GenericFingerprintTest implements Ob
 
 
     /**
-     * Test parameters for ClientHello fingerprinting.
+     * Test parameters for CH fingerprinting.
      *
      * @return List of parameters
      */

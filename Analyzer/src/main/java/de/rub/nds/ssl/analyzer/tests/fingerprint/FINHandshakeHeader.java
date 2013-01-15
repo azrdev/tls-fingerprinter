@@ -3,37 +3,43 @@ package de.rub.nds.ssl.analyzer.tests.fingerprint;
 import de.rub.nds.ssl.analyzer.AFingerprintAnalyzer;
 import de.rub.nds.ssl.analyzer.TestHashAnalyzer;
 import de.rub.nds.ssl.analyzer.removeMe.TestConfiguration;
+import de.rub.nds.ssl.analyzer.tests.parameters.EFingerprintIdentifier;
 import de.rub.nds.ssl.stack.protocols.commons.EConnectionEnd;
+import de.rub.nds.ssl.stack.protocols.commons.EContentType;
+import de.rub.nds.ssl.stack.protocols.commons.SecurityParameters;
 import de.rub.nds.ssl.stack.protocols.handshake.Finished;
 import de.rub.nds.ssl.stack.protocols.handshake.datatypes.MasterSecret;
 import de.rub.nds.ssl.stack.protocols.msgs.TLSCiphertext;
-import de.rub.nds.ssl.analyzer.tests.parameters.EFingerprintIdentifier;
+import de.rub.nds.ssl.stack.protocols.msgs.datatypes.GenericBlockCipher;
 import de.rub.nds.ssl.stack.trace.MessageContainer;
 import de.rub.nds.ssl.stack.workflows.TLS10HandshakeWorkflow;
 import de.rub.nds.ssl.stack.workflows.TLS10HandshakeWorkflow.EStates;
+import de.rub.nds.ssl.stack.workflows.commons.KeyMaterial;
 import de.rub.nds.ssl.stack.workflows.commons.MessageBuilder;
 import de.rub.nds.ssl.stack.workflows.commons.ObservableBridge;
 import java.net.SocketException;
 import java.util.Observable;
 import java.util.Observer;
+import javax.crypto.BadPaddingException;
+import javax.crypto.Cipher;
+import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.SecretKey;
+import javax.crypto.spec.SecretKeySpec;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.Test;
 
-/**
- * Fingerprint the Finished record header. Perform Tests by manipulating the
- * message type, protocol version and length bytes in the record header.
- *
- * @author Eugen Weiss - eugen.weiss@ruhr-uni-bochum.de
- * @version 0.1 Jun 06, 2012
- */
-public class FingerprintFinishedRecordHeader extends GenericFingerprintTest implements Observer {
+public class FINHandshakeHeader extends GenericFingerprintTest
+        implements Observer {
 
-	protected int PORT = 443;
+    /**
+     * Test counter.
+     */
+    private int counter = 1;
 
     @Test(enabled = true, dataProviderClass = FingerprintDataProviders.class,
-    dataProvider = "recordHeader", invocationCount = 1)
-    public void manipulateFinishedRecordHeader(String desc, byte[] msgType,
-            byte[] protocolVersion, byte[] recordLength) throws SocketException {
+    dataProvider = "handshakeHeader", invocationCount = 1)
+    public void manipulateFinishedHandshakeHeader(String desc, byte[] msgType,
+            byte[] recordLength) throws SocketException {
         logger.info("++++Start Test No." + counter + "(" + desc + ")++++");
         workflow = new TLS10HandshakeWorkflow();
         //connect to test server
@@ -43,7 +49,8 @@ public class FingerprintFinishedRecordHeader extends GenericFingerprintTest impl
         } else {
             workflow.connectToTestServer(TestConfiguration.HOST,
                     TestConfiguration.PORT);
-            logger.info(
+            logger.
+                    info(
                     "Test Server: " + TestConfiguration.HOST + ":" + TestConfiguration.PORT);
         }
         //add the observer
@@ -52,9 +59,8 @@ public class FingerprintFinishedRecordHeader extends GenericFingerprintTest impl
 
         //set the test parameters
         parameters.setMsgType(msgType);
-        parameters.setProtocolVersion(protocolVersion);
         parameters.setRecordLength(recordLength);
-        parameters.setIdentifier(EFingerprintIdentifier.FinRecordHeader);
+        parameters.setIdentifier(EFingerprintIdentifier.FinHandshakeHeader);
         parameters.setDescription(desc);
 
         //start the handshake
@@ -86,13 +92,14 @@ public class FingerprintFinishedRecordHeader extends GenericFingerprintTest impl
             trace = (MessageContainer) arg;
         }
         if (states == EStates.CLIENT_FINISHED) {
+            SecurityParameters param = SecurityParameters.getInstance();
+            //create the key material
+            KeyMaterial keyMat = new KeyMaterial();
             MasterSecret master = msgBuilder.createMasterSecret(workflow);
             Finished finished = msgBuilder.createFinished(
                     protocolVersion, EConnectionEnd.CLIENT, workflow.getHash(),
                     master);
-            TLSCiphertext rec = msgBuilder.encryptRecord(protocolVersion,
-                    finished);
-            byte[] payload = rec.encode(true);
+            byte[] payload = finished.encode(true);
             //change msgType of the message
             if (parameters.getMsgType() != null) {
                 byte[] msgType = parameters.getMsgType();
@@ -101,17 +108,49 @@ public class FingerprintFinishedRecordHeader extends GenericFingerprintTest impl
             //change record length of the message
             if (parameters.getRecordLength() != null) {
                 byte[] recordLength = parameters.getRecordLength();
-                System.arraycopy(recordLength, 0, payload, 3,
+                System.arraycopy(recordLength, 0, payload, 1,
                         recordLength.length);
             }
-            //change protocol version of the message
-            if (parameters.getProtocolVersion() != null) {
-                byte[] protVersion = parameters.getProtocolVersion();
-                System.arraycopy(protVersion, 0, payload, 1, protVersion.length);
+
+            //encrypt Finished message
+            String cipherName =
+                    param.getBulkCipherAlgorithm().toString();
+            String macName = param.getMacAlgorithm().toString();
+            SecretKey macKey = new SecretKeySpec(
+                    keyMat.getClientMACSecret(), macName);
+            SecretKey symmKey = new SecretKeySpec(keyMat.getClientKey(),
+                    cipherName);
+            TLSCiphertext rec = new TLSCiphertext(protocolVersion,
+                    EContentType.HANDSHAKE);
+            GenericBlockCipher blockCipher = new GenericBlockCipher(
+                    finished);
+            blockCipher.computePayloadMAC(macKey, macName);
+
+            if (payload != null) {
+                try {
+                    byte[] payloadMAC, plaintext;
+                    payloadMAC = blockCipher.getMAC();
+                    plaintext = blockCipher.concatenateDataMAC(payload,
+                            payloadMAC);
+                    Cipher symmCipher = blockCipher.initBlockCipher(
+                            symmKey,
+                            cipherName, keyMat.getClientIV());
+                    byte[] paddedData, encryptedData = null;
+                    int blockSize = symmCipher.getBlockSize();
+                    paddedData = utils.addPadding(plaintext, blockSize,
+                            false);
+                    encryptedData = symmCipher.doFinal(paddedData);
+                    rec.setGenericCipher(encryptedData);
+                } catch (IllegalBlockSizeException e1) {
+                    e1.printStackTrace();
+                } catch (BadPaddingException e1) {
+                    e1.printStackTrace();
+                }
             }
+            byte[] encrypted = rec.encode(true);
             //update the trace object
-            trace.setCurrentRecordBytes(payload);
-            trace.setCurrentRecord(finished);
+            trace.setCurrentRecordBytes(encrypted);
+            trace.setCurrentRecord(rec);
         }
     }
 

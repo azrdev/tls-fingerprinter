@@ -3,6 +3,8 @@ package de.rub.nds.ssl.analyzer.tests.fingerprint;
 import de.rub.nds.ssl.analyzer.AFingerprintAnalyzer;
 import de.rub.nds.ssl.analyzer.TestHashAnalyzer;
 import de.rub.nds.ssl.analyzer.removeMe.TestConfiguration;
+import de.rub.nds.ssl.analyzer.tests.parameters.EFingerprintIdentifier;
+import de.rub.nds.ssl.analyzer.tests.parameters.FinishedParameters;
 import de.rub.nds.ssl.stack.Utility;
 import de.rub.nds.ssl.stack.protocols.commons.EConnectionEnd;
 import de.rub.nds.ssl.stack.protocols.commons.EContentType;
@@ -10,8 +12,6 @@ import de.rub.nds.ssl.stack.protocols.commons.SecurityParameters;
 import de.rub.nds.ssl.stack.protocols.handshake.Finished;
 import de.rub.nds.ssl.stack.protocols.msgs.TLSCiphertext;
 import de.rub.nds.ssl.stack.protocols.msgs.datatypes.GenericBlockCipher;
-import de.rub.nds.ssl.analyzer.tests.parameters.EFingerprintIdentifier;
-import de.rub.nds.ssl.analyzer.tests.parameters.FinishedParameters;
 import de.rub.nds.ssl.stack.trace.MessageContainer;
 import de.rub.nds.ssl.stack.workflows.TLS10HandshakeWorkflow;
 import de.rub.nds.ssl.stack.workflows.TLS10HandshakeWorkflow.EStates;
@@ -30,7 +30,7 @@ import org.testng.annotations.AfterMethod;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
-public class FingerprintFinished extends GenericFingerprintTest implements Observer {
+public class FIN extends GenericFingerprintTest implements Observer {
 
     /**
      * Test parameters.
@@ -112,7 +112,7 @@ public class FingerprintFinished extends GenericFingerprintTest implements Obser
              //create the key material
              KeyMaterial keyMat = new KeyMaterial();
 
-             //create Finished message
+             //create FIN message
              byte[] data = null;
              Finished finished = new Finished(protocolVersion,
                      EConnectionEnd.CLIENT);
@@ -130,7 +130,7 @@ public class FingerprintFinished extends GenericFingerprintTest implements Obser
                  }
              }
 
-             //encrypt Finished message
+             //encrypt FIN message
              String cipherName =
                      param.getBulkCipherAlgorithm().toString();
              String macName = param.getMacAlgorithm().toString();

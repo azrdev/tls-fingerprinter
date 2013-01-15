@@ -3,9 +3,9 @@ package de.rub.nds.ssl.analyzer.tests.fingerprint;
 import de.rub.nds.ssl.analyzer.AFingerprintAnalyzer;
 import de.rub.nds.ssl.analyzer.TestHashAnalyzer;
 import de.rub.nds.ssl.analyzer.removeMe.TestConfiguration;
-import de.rub.nds.ssl.stack.protocols.msgs.ChangeCipherSpec;
 import de.rub.nds.ssl.analyzer.tests.parameters.ChangeCipherSpecParams;
 import de.rub.nds.ssl.analyzer.tests.parameters.EFingerprintIdentifier;
+import de.rub.nds.ssl.stack.protocols.msgs.ChangeCipherSpec;
 import de.rub.nds.ssl.stack.trace.MessageContainer;
 import de.rub.nds.ssl.stack.workflows.TLS10HandshakeWorkflow;
 import de.rub.nds.ssl.stack.workflows.TLS10HandshakeWorkflow.EStates;
@@ -17,7 +17,7 @@ import org.testng.annotations.AfterMethod;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
-public class FingerprintChangeCipherSpec extends GenericFingerprintTest implements Observer {
+public class CCS extends GenericFingerprintTest implements Observer {
 
     /**
      * Test parameters.
@@ -25,7 +25,7 @@ public class FingerprintChangeCipherSpec extends GenericFingerprintTest implemen
 	private ChangeCipherSpecParams parameters = new ChangeCipherSpecParams();
 
     /**
-     * Test parameters for ChangeCipherSpec fingerprinting.
+     * Test parameters for CCS fingerprinting.
      *
      * @return List of parameters
      */
@@ -38,7 +38,7 @@ public class FingerprintChangeCipherSpec extends GenericFingerprintTest implemen
     }
 
     /**
-     * Fingerprint the ChangeCipherSpec message.
+     * Fingerprint the CCS message.
      *
      * @throws InterruptedException
      * @throws IOException

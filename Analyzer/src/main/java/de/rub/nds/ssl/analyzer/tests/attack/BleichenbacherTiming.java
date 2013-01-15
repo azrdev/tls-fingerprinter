@@ -1,6 +1,6 @@
-package de.rub.nds.ssl.analyzer.attacktests;
+package de.rub.nds.ssl.analyzer.tests.attack;
 
-import de.rub.nds.research.timingsocket.TimingSocketImpl;
+import de.rub.nds.ssl.analyzer.removeMe.SSLServer;
 import de.rub.nds.ssl.stack.protocols.ARecordFrame;
 import de.rub.nds.ssl.stack.protocols.commons.ECipherSuite;
 import de.rub.nds.ssl.stack.protocols.commons.EProtocolVersion;
@@ -11,7 +11,6 @@ import de.rub.nds.ssl.stack.protocols.handshake.datatypes.CipherSuites;
 import de.rub.nds.ssl.stack.protocols.handshake.datatypes.EncPreMasterSecret;
 import de.rub.nds.ssl.stack.protocols.handshake.datatypes.PreMasterSecret;
 import de.rub.nds.ssl.stack.protocols.handshake.datatypes.RandomValue;
-import de.rub.nds.ssl.analyzer.common.SSLServer;
 import de.rub.nds.ssl.stack.trace.MessageContainer;
 import de.rub.nds.ssl.stack.workflows.TLS10HandshakeWorkflow;
 import de.rub.nds.ssl.stack.workflows.TLS10HandshakeWorkflow.EStates;
@@ -46,7 +45,7 @@ import sun.security.rsa.RSACore;
  * @author Christopher Meyer - christopher.meyer@ruhr-uni-bochum.de
  * @version 0.2 Apr 12, 2012
  */
-public class BleichenbacherTimingTest implements Observer {
+public class BleichenbacherTiming implements Observer {
 
     /**
      * Client hello message.
@@ -357,7 +356,7 @@ public class BleichenbacherTimingTest implements Observer {
             timingCounter += 1;
             fw.close();
         } catch (IOException ex) {
-            java.util.logging.Logger.getLogger(BleichenbacherTimingTest.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(BleichenbacherTiming.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
 
         this.counter++;
