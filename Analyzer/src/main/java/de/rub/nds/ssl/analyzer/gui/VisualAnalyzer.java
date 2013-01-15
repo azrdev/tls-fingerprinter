@@ -40,6 +40,8 @@ public class VisualAnalyzer extends javax.swing.JFrame {
         errorOKButton = new javax.swing.JButton();
         tabbedPane = new javax.swing.JTabbedPane();
         scannerConfiguration = new javax.swing.JPanel();
+        jScrollPane1 = new javax.swing.JScrollPane();
+        scannerConfigurationTable = new javax.swing.JTable();
         attackerPanel = new javax.swing.JPanel();
         progressBar = new javax.swing.JProgressBar();
         openListButton = new javax.swing.JButton();
@@ -94,15 +96,26 @@ public class VisualAnalyzer extends javax.swing.JFrame {
 
         tabbedPane.setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
 
+        scannerConfigurationTable.setModel(new ScannerConfigurationData());
+        scannerConfigurationTable.setAutoResizeMode(javax.swing.JTable.AUTO_RESIZE_ALL_COLUMNS);
+        scannerConfigurationTable.getTableHeader().setReorderingAllowed(false);
+        jScrollPane1.setViewportView(scannerConfigurationTable);
+
         javax.swing.GroupLayout scannerConfigurationLayout = new javax.swing.GroupLayout(scannerConfiguration);
         scannerConfiguration.setLayout(scannerConfigurationLayout);
         scannerConfigurationLayout.setHorizontalGroup(
             scannerConfigurationLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 514, Short.MAX_VALUE)
+            .addGroup(scannerConfigurationLayout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 490, Short.MAX_VALUE)
+                .addContainerGap())
         );
         scannerConfigurationLayout.setVerticalGroup(
             scannerConfigurationLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 298, Short.MAX_VALUE)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, scannerConfigurationLayout.createSequentialGroup()
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 209, Short.MAX_VALUE)
+                .addContainerGap())
         );
 
         tabbedPane.addTab("Scanner Configuration", scannerConfiguration);
@@ -115,7 +128,7 @@ public class VisualAnalyzer extends javax.swing.JFrame {
         );
         attackerPanelLayout.setVerticalGroup(
             attackerPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 298, Short.MAX_VALUE)
+            .addGap(0, 233, Short.MAX_VALUE)
         );
 
         tabbedPane.addTab("Attacker Configuration", attackerPanel);
@@ -173,8 +186,8 @@ public class VisualAnalyzer extends javax.swing.JFrame {
                         .addComponent(openListButton))
                     .addComponent(targetListScrollPane, javax.swing.GroupLayout.PREFERRED_SIZE, 135, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(tabbedPane)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(tabbedPane, javax.swing.GroupLayout.PREFERRED_SIZE, 262, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addComponent(progressBar, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
         );
 
@@ -268,10 +281,12 @@ public class VisualAnalyzer extends javax.swing.JFrame {
     private javax.swing.JLabel errorLabel;
     private javax.swing.JButton errorOKButton;
     private javax.swing.JFileChooser jFileChooser1;
+    private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JButton openListButton;
     private javax.swing.JProgressBar progressBar;
     private javax.swing.JButton scanTargetsButton;
     private javax.swing.JPanel scannerConfiguration;
+    private javax.swing.JTable scannerConfigurationTable;
     private javax.swing.JTabbedPane tabbedPane;
     private javax.swing.JLabel targetListLabel;
     private javax.swing.JScrollPane targetListScrollPane;

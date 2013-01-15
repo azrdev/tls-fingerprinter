@@ -59,7 +59,7 @@ public enum EFingerprintTests {
      *
      * @return Fingerprint Test description
      */
-    public String getDescritpion() {
+    public String getDescription() {
         return this.description;
     }
 
