@@ -30,6 +30,7 @@ public class FINRecordHeader extends GenericFingerprintTest implements Observer 
 
 	protected int PORT = 443;
 
+    
     @Test(enabled = true, dataProviderClass = FingerprintDataProviders.class,
     dataProvider = "recordHeader", invocationCount = 1)
     public void manipulateFinishedRecordHeader(String desc, byte[] msgType,
@@ -121,5 +122,10 @@ public class FINRecordHeader extends GenericFingerprintTest implements Observer 
     @AfterMethod
     public void tearDown() {
         workflow.closeSocket();
+    }
+
+    @Override
+    public Object call() throws Exception {
+        throw new UnsupportedOperationException("Not supported yet.");
     }
 }

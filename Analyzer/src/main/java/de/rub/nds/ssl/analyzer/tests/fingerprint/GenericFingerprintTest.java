@@ -1,5 +1,6 @@
 package de.rub.nds.ssl.analyzer.tests.fingerprint;
 
+import de.rub.nds.ssl.analyzer.AAnalyzerComponent;
 import de.rub.nds.ssl.analyzer.tests.parameters.HeaderParameters;
 import de.rub.nds.ssl.stack.protocols.commons.EProtocolVersion;
 import de.rub.nds.ssl.stack.workflows.TLS10HandshakeWorkflow;
@@ -8,7 +9,7 @@ import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
 import org.testng.annotations.BeforeClass;
 
-public abstract class GenericFingerprintTest {
+public abstract class GenericFingerprintTest extends AAnalyzerComponent {
     /**
      * Help utilities for testing.
      */
@@ -42,7 +43,6 @@ public abstract class GenericFingerprintTest {
      * Test counter.
      */
     protected int counter = 1;
-
 
     /**
      * Load the logging properties.

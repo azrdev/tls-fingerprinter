@@ -19,7 +19,7 @@ public class CheckEnumeration extends GenericFingerprintTest {
      * Test port.
      */
     protected int PORT = 9443;
-
+    
     /**
      * Execute handshake.
      */
@@ -48,5 +48,10 @@ public class CheckEnumeration extends GenericFingerprintTest {
     @AfterMethod
     public void tearDown() {
         workflow.closeSocket();
+    }
+
+    @Override
+    public Object call() throws Exception {
+        throw new UnsupportedOperationException("Not supported yet.");
     }
 }

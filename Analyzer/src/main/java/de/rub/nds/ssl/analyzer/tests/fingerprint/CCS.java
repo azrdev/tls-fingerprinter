@@ -2,7 +2,6 @@ package de.rub.nds.ssl.analyzer.tests.fingerprint;
 
 import de.rub.nds.ssl.analyzer.AFingerprintAnalyzer;
 import de.rub.nds.ssl.analyzer.TestHashAnalyzer;
-import de.rub.nds.ssl.analyzer.removeMe.TestConfiguration;
 import de.rub.nds.ssl.analyzer.tests.parameters.ChangeCipherSpecParams;
 import de.rub.nds.ssl.analyzer.tests.parameters.EFingerprintIdentifier;
 import de.rub.nds.ssl.stack.protocols.msgs.ChangeCipherSpec;
@@ -10,54 +9,32 @@ import de.rub.nds.ssl.stack.trace.MessageContainer;
 import de.rub.nds.ssl.stack.workflows.TLS10HandshakeWorkflow;
 import de.rub.nds.ssl.stack.workflows.TLS10HandshakeWorkflow.EStates;
 import de.rub.nds.ssl.stack.workflows.commons.ObservableBridge;
+import java.net.MalformedURLException;
 import java.net.SocketException;
+import java.net.URL;
 import java.util.Observable;
 import java.util.Observer;
-import org.testng.annotations.AfterMethod;
-import org.testng.annotations.DataProvider;
-import org.testng.annotations.Test;
 
 public class CCS extends GenericFingerprintTest implements Observer {
 
     /**
      * Test parameters.
      */
-	private ChangeCipherSpecParams parameters = new ChangeCipherSpecParams();
-
-    /**
-     * Test parameters for CCS fingerprinting.
-     *
-     * @return List of parameters
-     */
-    @DataProvider(name = "changeCipherSpec")
-    public Object[][] createData1() {
-        return new Object[][]{
-                    {"Wrong payload", new byte[]{(byte) 0xff}},
-                    {"Invalid payload", new byte[]{0x02, 0x01}}
-                };
-    }
+    private ChangeCipherSpecParams parameters = new ChangeCipherSpecParams();
 
     /**
      * Fingerprint the CCS message.
-     *
-     * @throws InterruptedException
-     * @throws IOException
      */
-    @Test(enabled = true, dataProvider = "changeCipherSpec")
-    public void fingerprintChangeCipherSpec(String desc,
-            byte[] payload) throws SocketException {
+    private void fingerprintChangeCipherSpec(String desc,
+            byte[] payload) throws SocketException, MalformedURLException {
         logger.info("++++Start Test No." + counter + "(" + desc + ")++++");
+        URL url = targetAsURL();
         workflow = new TLS10HandshakeWorkflow();
+        
         //connect to test server
-        if (TestConfiguration.HOST.isEmpty() || TestConfiguration.PORT == 0) {
-            workflow.connectToTestServer(HOST, PORT);
-            logger.info("Test Server: " + HOST + ":" + PORT);
-        } else {
-            workflow.connectToTestServer(TestConfiguration.HOST,
-                    TestConfiguration.PORT);
-            logger.info(
-                    "Test Server: " + TestConfiguration.HOST + ":" + TestConfiguration.PORT);
-        }
+        workflow.connectToTestServer(url.getHost(), url.getDefaultPort());
+        logger.info("Test Server: " + HOST + ":" + PORT);
+        
         //add the observer
         workflow.addObserver(this, EStates.CLIENT_CHANGE_CIPHER_SPEC);
         logger.info(EStates.CLIENT_FINISHED.name() + " state is observed");
@@ -70,11 +47,14 @@ public class CCS extends GenericFingerprintTest implements Observer {
         workflow.start();
 
         //analyze the handshake trace
-        AFingerprintAnalyzer analyzer = new TestHashAnalyzer(parameters);
-        analyzer.analyze(workflow.getTraceList());
+//        AFingerprintAnalyzer analyzer = new TestHashAnalyzer(parameters);
+//        analyzer.analyze(workflow.getTraceList());
 
         this.counter++;
         logger.info("++++Test finished.++++");
+
+        // close the Socket after the test run
+        workflow.closeSocket();
     }
 
     /**
@@ -113,11 +93,20 @@ public class CCS extends GenericFingerprintTest implements Observer {
 
     }
 
-    /**
-     * Close the Socket after the test run.
-     */
-    @AfterMethod
-    public void tearDown() {
-        workflow.closeSocket();
+    @Override
+    public Object call() throws Exception {
+        Object result = null;
+
+        //Test parameters for CCS fingerprinting.
+        Object[][] parameters = new Object[][]{
+            {"Wrong payload", new byte[]{(byte) 0xff}},
+            {"Invalid payload", new byte[]{0x02, 0x01}}
+        };
+
+        for (Object[] tmpParams : parameters) {
+            fingerprintChangeCipherSpec((String) tmpParams[0],
+                    (byte[]) tmpParams[1]);
+        }
+        return result;
     }
 }

@@ -1,5 +1,7 @@
 package de.rub.nds.ssl.analyzer.gui;
 
+import de.rub.nds.ssl.analyzer.gui.models.AttackerConfigurationData;
+import de.rub.nds.ssl.analyzer.gui.models.ScannerConfigurationData;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
@@ -43,6 +45,8 @@ public class VisualAnalyzer extends javax.swing.JFrame {
         jScrollPane1 = new javax.swing.JScrollPane();
         scannerConfigurationTable = new javax.swing.JTable();
         attackerPanel = new javax.swing.JPanel();
+        jScrollPane2 = new javax.swing.JScrollPane();
+        attackerConfigurationTable = new javax.swing.JTable();
         progressBar = new javax.swing.JProgressBar();
         openListButton = new javax.swing.JButton();
         targetListScrollPane = new javax.swing.JScrollPane();
@@ -58,6 +62,11 @@ public class VisualAnalyzer extends javax.swing.JFrame {
         errorDecoratorLabel.setText("An error occured:");
 
         errorOKButton.setText("OK");
+        errorOKButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                errorOKButtonActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout errorDialogLayout = new javax.swing.GroupLayout(errorDialog.getContentPane());
         errorDialog.getContentPane().setLayout(errorDialogLayout);
@@ -113,22 +122,31 @@ public class VisualAnalyzer extends javax.swing.JFrame {
         scannerConfigurationLayout.setVerticalGroup(
             scannerConfigurationLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, scannerConfigurationLayout.createSequentialGroup()
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 209, Short.MAX_VALUE)
-                .addContainerGap())
+                .addGap(0, 12, Short.MAX_VALUE)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 221, javax.swing.GroupLayout.PREFERRED_SIZE))
         );
 
         tabbedPane.addTab("Scanner Configuration", scannerConfiguration);
+
+        attackerConfigurationTable.setModel(new AttackerConfigurationData());
+        attackerConfigurationTable.setAutoResizeMode(javax.swing.JTable.AUTO_RESIZE_ALL_COLUMNS);
+        attackerConfigurationTable.getTableHeader().setReorderingAllowed(false);
+        jScrollPane2.setViewportView(attackerConfigurationTable);
 
         javax.swing.GroupLayout attackerPanelLayout = new javax.swing.GroupLayout(attackerPanel);
         attackerPanel.setLayout(attackerPanelLayout);
         attackerPanelLayout.setHorizontalGroup(
             attackerPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 514, Short.MAX_VALUE)
+            .addGroup(attackerPanelLayout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 490, Short.MAX_VALUE)
+                .addContainerGap())
         );
         attackerPanelLayout.setVerticalGroup(
             attackerPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 233, Short.MAX_VALUE)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, attackerPanelLayout.createSequentialGroup()
+                .addGap(0, 12, Short.MAX_VALUE)
+                .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 221, javax.swing.GroupLayout.PREFERRED_SIZE))
         );
 
         tabbedPane.addTab("Attacker Configuration", attackerPanel);
@@ -213,6 +231,10 @@ public class VisualAnalyzer extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_openFileDialog
 
+    private void errorOKButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_errorOKButtonActionPerformed
+        errorDialog.setVisible(false);
+    }//GEN-LAST:event_errorOKButtonActionPerformed
+
     private void createErrorDialog(final String title, final String message) {
         errorDialog.setTitle(title);
         errorLabel.setText(message);
@@ -275,6 +297,7 @@ public class VisualAnalyzer extends javax.swing.JFrame {
     }
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton attackTargetsButton;
+    private javax.swing.JTable attackerConfigurationTable;
     private javax.swing.JPanel attackerPanel;
     private javax.swing.JLabel errorDecoratorLabel;
     private javax.swing.JDialog errorDialog;
@@ -282,6 +305,7 @@ public class VisualAnalyzer extends javax.swing.JFrame {
     private javax.swing.JButton errorOKButton;
     private javax.swing.JFileChooser jFileChooser1;
     private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JButton openListButton;
     private javax.swing.JProgressBar progressBar;
     private javax.swing.JButton scanTargetsButton;

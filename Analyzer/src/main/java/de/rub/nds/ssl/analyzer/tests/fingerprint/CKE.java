@@ -35,7 +35,7 @@ public class CKE extends GenericFingerprintTest
      * Test parameters.
      */
     private ClientKeyExchangeParams parameters = new ClientKeyExchangeParams();
-
+    
     /**
      * Test parameters for CKE fingerprinting.
      *
@@ -144,5 +144,10 @@ public class CKE extends GenericFingerprintTest
     @AfterMethod
     public void tearDown() {
         workflow.closeSocket();
+    }
+
+    @Override
+    public Object call() throws Exception {
+        throw new UnsupportedOperationException("Not supported yet.");
     }
 }

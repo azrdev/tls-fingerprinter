@@ -32,6 +32,7 @@ public class CHHandshakeHeader extends GenericFingerprintTest implements Observe
      */
     protected int PORT = 443;
 
+    
     @Test(enabled = true, dataProviderClass = FingerprintDataProviders.class,
     dataProvider = "handshakeHeader", invocationCount = 1)
     public void manipulateCHHandshakeHeader(String desc, byte[] msgType,
@@ -118,5 +119,10 @@ public class CHHandshakeHeader extends GenericFingerprintTest implements Observe
     @AfterMethod
     public void tearDown() {
         workflow.closeSocket();
+    }
+
+    @Override
+    public Object call() throws Exception {
+        throw new UnsupportedOperationException("Not supported yet.");
     }
 }

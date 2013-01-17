@@ -99,4 +99,9 @@ public class CKEHandshakeHeader extends GenericFingerprintTest implements Observ
     public void tearDown() {
         workflow.closeSocket();
     }
+
+    @Override
+    public Object call() throws Exception {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
 }

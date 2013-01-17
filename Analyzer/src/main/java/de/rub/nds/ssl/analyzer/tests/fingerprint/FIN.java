@@ -36,7 +36,7 @@ public class FIN extends GenericFingerprintTest implements Observer {
      * Test parameters.
      */
     private FinishedParameters parameters = new FinishedParameters();
-
+    
     @DataProvider(name = "finished")
     public Object[][] createFinishedData() {
         return new Object[][]{
@@ -185,5 +185,10 @@ public class FIN extends GenericFingerprintTest implements Observer {
     @AfterMethod
     public void tearDown() {
         workflow.closeSocket();
+    }
+
+    @Override
+    public Object call() throws Exception {
+        throw new UnsupportedOperationException("Not supported yet.");
     }
 }

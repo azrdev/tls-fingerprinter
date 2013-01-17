@@ -161,4 +161,9 @@ public class FINHandshakeHeader extends GenericFingerprintTest
     public void tearDown() {
         workflow.closeSocket();
     }
+
+    @Override
+    public Object call() throws Exception {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
 }

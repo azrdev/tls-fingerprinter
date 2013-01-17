@@ -26,7 +26,6 @@ import org.testng.annotations.Test;
  */
 public class CCSRecordHeader extends GenericFingerprintTest implements Observer {
 
-
     @Test(enabled = true, dataProviderClass = FingerprintDataProviders.class,
     dataProvider = "recordHeader", invocationCount = 1)
     public void manipulateCCSRecordHeader(String desc, byte[] msgType,
@@ -144,5 +143,10 @@ public class CCSRecordHeader extends GenericFingerprintTest implements Observer 
         float result;
         result = ((float) impl / (float) total) * 100;
         return result;
+    }
+
+    @Override
+    public Object call() throws Exception {
+        throw new UnsupportedOperationException("Not supported yet.");
     }
 }

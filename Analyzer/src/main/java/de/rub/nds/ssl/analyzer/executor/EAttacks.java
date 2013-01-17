@@ -38,7 +38,7 @@ public enum EAttacks {
      * Getter for attack description.
      * @return Attack description
      */
-    public String getDescritpion() {
+    public String getDescription() {
         return this.description;
     }
     

@@ -34,7 +34,7 @@ public class CKERecordHeader extends GenericFingerprintTest implements Observer 
      * Test counter.
      */
     private int counter = 1;
-
+    
     @DataProvider(name = "ckeHeader")
     public Object[][] createData1() {
         return new Object[][]{
@@ -134,5 +134,10 @@ public class CKERecordHeader extends GenericFingerprintTest implements Observer 
     @AfterMethod
     public void tearDown() {
         workflow.closeSocket();
+    }
+
+    @Override
+    public Object call() throws Exception {
+        throw new UnsupportedOperationException("Not supported yet.");
     }
 }

@@ -43,7 +43,7 @@ public class GoodCase extends GenericFingerprintTest implements Observer {
      * Handler to start/stop a test server.
      */
     private SSLServerHandler serverHandler = new SSLServerHandler();
-
+    
     /**
      * Cipher suites for ClientHello.
      *
@@ -126,4 +126,10 @@ public class GoodCase extends GenericFingerprintTest implements Observer {
         workflow.closeSocket();
         serverHandler.shutdownTestServer();
     }
+
+    @Override
+    public Object call() throws Exception {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
 }

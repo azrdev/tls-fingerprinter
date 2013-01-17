@@ -28,92 +28,91 @@ import org.testng.annotations.Test;
  * @version 0.1 Apr 18, 2012
  */
 public class CH extends GenericFingerprintTest implements Observer {
+
     /**
      * Test port.
      */
     protected int PORT = 443;
-
     /**
      * Test parameters.
      */
     private ClientHelloParameters parameters = new ClientHelloParameters();
     byte[] sessionID = new byte[]{(byte) 0xff, (byte) 0x0f, (byte) 0x0f,
-            (byte) 0x0f, (byte) 0x0f,
-            (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f,
-            (byte) 0x0f, (byte) 0x0f,
-            (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f,
-            (byte) 0x0f, (byte) 0x0f,
-            (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f,
-            (byte) 0x0f, (byte) 0x0f,
-            (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f,
-            (byte) 0x0f, (byte) 0x0f,
-            (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f,
-            (byte) 0x0f, (byte) 0x0f,
-            (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f,
-            (byte) 0x0f, (byte) 0x0f,
-            (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f,
-            (byte) 0x0f, (byte) 0x0f,
-            (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f,
-            (byte) 0x0f, (byte) 0x0f,
-            (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f,
-            (byte) 0x0f, (byte) 0x0f,
-            (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f,
-            (byte) 0x0f, (byte) 0x0f,
-            (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f,
-            (byte) 0x0f, (byte) 0x0f,
-            (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f,
-            (byte) 0x0f, (byte) 0x0f,
-            (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f,
-            (byte) 0x0f, (byte) 0x0f,
-            (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f,
-            (byte) 0x0f, (byte) 0x0f,
-            (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f,
-            (byte) 0x0f, (byte) 0x0f,
-            (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f,
-            (byte) 0x0f, (byte) 0x0f,
-            (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f,
-            (byte) 0x0f, (byte) 0x0f,
-            (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f,
-            (byte) 0x0f, (byte) 0x0f,
-            (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f,
-            (byte) 0x0f, (byte) 0x0f,
-            (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f,
-            (byte) 0x0f, (byte) 0x0f,
-            (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f,
-            (byte) 0x0f, (byte) 0x0f,
-            (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f,
-            (byte) 0x0f, (byte) 0x0f,
-            (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f,
-            (byte) 0x0f, (byte) 0x0f,
-            (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f,
-            (byte) 0x0f, (byte) 0x0f,
-            (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f,
-            (byte) 0x0f, (byte) 0x0f,
-            (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f,
-            (byte) 0x0f, (byte) 0x0f,
-            (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f,
-            (byte) 0x0f, (byte) 0x0f,
-            (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f,
-            (byte) 0x0f, (byte) 0x0f,
-            (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f,
-            (byte) 0x0f, (byte) 0x0f,
-            (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f,
-            (byte) 0x0f, (byte) 0x0f,
-            (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f,
-            (byte) 0x0f, (byte) 0x0f,
-            (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f,
-            (byte) 0x0f, (byte) 0x0f,
-            (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f,
-            (byte) 0x0f, (byte) 0x0f,
-            (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f,
-            (byte) 0x0f, (byte) 0x0f,
-            (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f,
-            (byte) 0x0f, (byte) 0x0f,
-            (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f,
-            (byte) 0x0f
+        (byte) 0x0f, (byte) 0x0f,
+        (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f,
+        (byte) 0x0f, (byte) 0x0f,
+        (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f,
+        (byte) 0x0f, (byte) 0x0f,
+        (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f,
+        (byte) 0x0f, (byte) 0x0f,
+        (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f,
+        (byte) 0x0f, (byte) 0x0f,
+        (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f,
+        (byte) 0x0f, (byte) 0x0f,
+        (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f,
+        (byte) 0x0f, (byte) 0x0f,
+        (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f,
+        (byte) 0x0f, (byte) 0x0f,
+        (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f,
+        (byte) 0x0f, (byte) 0x0f,
+        (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f,
+        (byte) 0x0f, (byte) 0x0f,
+        (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f,
+        (byte) 0x0f, (byte) 0x0f,
+        (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f,
+        (byte) 0x0f, (byte) 0x0f,
+        (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f,
+        (byte) 0x0f, (byte) 0x0f,
+        (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f,
+        (byte) 0x0f, (byte) 0x0f,
+        (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f,
+        (byte) 0x0f, (byte) 0x0f,
+        (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f,
+        (byte) 0x0f, (byte) 0x0f,
+        (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f,
+        (byte) 0x0f, (byte) 0x0f,
+        (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f,
+        (byte) 0x0f, (byte) 0x0f,
+        (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f,
+        (byte) 0x0f, (byte) 0x0f,
+        (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f,
+        (byte) 0x0f, (byte) 0x0f,
+        (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f,
+        (byte) 0x0f, (byte) 0x0f,
+        (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f,
+        (byte) 0x0f, (byte) 0x0f,
+        (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f,
+        (byte) 0x0f, (byte) 0x0f,
+        (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f,
+        (byte) 0x0f, (byte) 0x0f,
+        (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f,
+        (byte) 0x0f, (byte) 0x0f,
+        (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f,
+        (byte) 0x0f, (byte) 0x0f,
+        (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f,
+        (byte) 0x0f, (byte) 0x0f,
+        (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f,
+        (byte) 0x0f, (byte) 0x0f,
+        (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f,
+        (byte) 0x0f, (byte) 0x0f,
+        (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f,
+        (byte) 0x0f, (byte) 0x0f,
+        (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f,
+        (byte) 0x0f, (byte) 0x0f,
+        (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f,
+        (byte) 0x0f, (byte) 0x0f,
+        (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f,
+        (byte) 0x0f, (byte) 0x0f,
+        (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f,
+        (byte) 0x0f, (byte) 0x0f,
+        (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f,
+        (byte) 0x0f, (byte) 0x0f,
+        (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f,
+        (byte) 0x0f, (byte) 0x0f,
+        (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f,
+        (byte) 0x0f
     };
-
-
+    
     /**
      * Test parameters for CH fingerprinting.
      *
@@ -122,14 +121,18 @@ public class CH extends GenericFingerprintTest implements Observer {
     @DataProvider(name = "clientHello")
     public Object[][] createData1() {
         return new Object[][]{
-                	{"Invalid protocol version 0xff,0xff",
-                		new byte[]{(byte) 0xff, (byte) 0xff},null, null, null, null, null},
+                    {"Invalid protocol version 0xff,0xff",
+                        new byte[]{(byte) 0xff, (byte) 0xff}, null, null, null,
+                        null, null},
                     {"Invalid protocol version 0x00,0x00",
-                		new byte[]{(byte) 0x00, (byte) 0x00},null, null, null, null, null},
+                        new byte[]{(byte) 0x00, (byte) 0x00}, null, null, null,
+                        null, null},
                     {"Invalid protocol version SSLv3",
-                		new byte[]{(byte) 0x03, (byte) 0x00},null, null, null, null, null},
+                        new byte[]{(byte) 0x03, (byte) 0x00}, null, null, null,
+                        null, null},
                     {"Invalid protocol version TLSv1.2",
-                		new byte[]{(byte) 0x03, (byte) 0x03},null, null, null, null, null},
+                        new byte[]{(byte) 0x03, (byte) 0x03}, null, null, null,
+                        null, null},
                     {"No session ID defined but value is set to 0xff",
                         null, new byte[]{(byte) 0xff},
                         null, null, null, null},
@@ -144,8 +147,7 @@ public class CH extends GenericFingerprintTest implements Observer {
                         new byte[]{(byte) 0x01}, null},
                     {"Wrong value for cipher suite length 0x00", null, null,
                         null, null,
-                        new byte[]{(byte) 0x00}, null},
-                        };
+                        new byte[]{(byte) 0x00}, null},};
     }
 
     /**
@@ -159,7 +161,8 @@ public class CH extends GenericFingerprintTest implements Observer {
      */
     @Test(enabled = true, dataProvider = "clientHello", invocationCount = 1)
     public void fingerprintClientHello(String desc,
-            byte [] protVersion, byte[] noSessionValue, byte[] session, byte[] sessionIdLength,
+            byte[] protVersion, byte[] noSessionValue, byte[] session,
+            byte[] sessionIdLength,
             byte[] cipherLength, byte[] compMethod) throws SocketException {
         logger.info("++++Start Test No." + counter + "(" + desc + ")++++");
         workflow = new TLS10HandshakeWorkflow();
@@ -170,13 +173,14 @@ public class CH extends GenericFingerprintTest implements Observer {
         } else {
             workflow.connectToTestServer(TestConfiguration.HOST,
                     TestConfiguration.PORT);
-            logger.info(
+            logger.
+                    info(
                     "Test Server: " + TestConfiguration.HOST + ":" + TestConfiguration.PORT);
         }
         //add the observer
         workflow.addObserver(this, EStates.CLIENT_HELLO);
         logger.info(EStates.CLIENT_HELLO.name() + " state is observed");
-        
+
         //set the test parameters
         parameters.setProtocolVersion(protVersion);
         parameters.setNoSessionIdValue(noSessionValue);
@@ -186,7 +190,7 @@ public class CH extends GenericFingerprintTest implements Observer {
         parameters.setCompMethod(compMethod);
         parameters.setIdentifier(EFingerprintIdentifier.ClientHello);
         parameters.setDescription(desc);
-        
+
         //start the handshake
         workflow.start();
 
@@ -222,7 +226,8 @@ public class CH extends GenericFingerprintTest implements Observer {
             cipherSuites.setSuites(suites);
             RandomValue random = new RandomValue();
             byte[] compMethod = new byte[]{0x00};
-            ClientHello clientHello = msgBuilder.createClientHello(this.protocolVersion.
+            ClientHello clientHello = msgBuilder.
+                    createClientHello(this.protocolVersion.
                     getId(),
                     random.encode(false), cipherSuites.encode(false), compMethod);
             byte[] payload;
@@ -263,5 +268,10 @@ public class CH extends GenericFingerprintTest implements Observer {
     @AfterMethod
     public void tearDown() {
         workflow.closeSocket();
+    }
+
+    @Override
+    public Object call() throws Exception {
+        throw new UnsupportedOperationException("Not supported yet.");
     }
 }
