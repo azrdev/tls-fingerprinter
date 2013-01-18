@@ -1,9 +1,9 @@
 package de.rub.nds.ssl.analyzer.removeMe;
 
-import de.rub.nds.ssl.analyzer.attacks.Bleichenbacher;
-import de.rub.nds.ssl.analyzer.attacks.bleichenbacher.Interval;
-import de.rub.nds.ssl.analyzer.attacks.bleichenbacher.OracleException;
-import de.rub.nds.ssl.analyzer.attacks.bleichenbacher.oracles.AOracle;
+import de.rub.nds.ssl.analyzer.attacker.Bleichenbacher;
+import de.rub.nds.ssl.analyzer.attacker.bleichenbacher.Interval;
+import de.rub.nds.ssl.analyzer.attacker.bleichenbacher.OracleException;
+import de.rub.nds.ssl.analyzer.attacker.bleichenbacher.oracles.AOracle;
 import de.rub.nds.ssl.stack.Utility;
 import java.math.BigInteger;
 import java.util.LinkedList;

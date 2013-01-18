@@ -12,7 +12,7 @@ import java.util.concurrent.Callable;
  *
  * Jan 16, 2013
  */
-public abstract class AAnalyzerComponent implements Callable<Object> {
+public abstract class AAnalyzerComponent implements Callable<ResultWrapper[]> {
 
     private String target;
 
@@ -49,5 +49,36 @@ public abstract class AAnalyzerComponent implements Callable<Object> {
         }
         
         return result;
+    }
+    
+    /**
+     * Returns the target port.
+     * @return Port of the target
+     */
+    public final int getTargetPort() {
+        int result = -1;
+        URL url = targetAsURL();
+        if(url != null) {
+            result = url.getPort();
+            if(result < 0) {
+                result = url.getDefaultPort();
+            }
+        }
+        
+        return result;
+    }
+    
+    /**
+     * Returns the target host.
+     * @return Host address of the target
+     */
+    public final String getTargetHost() {
+        String host = null;
+        URL url = targetAsURL();
+        if(url != null) {
+            host = url.getHost();
+        }
+        
+        return host;
     }
 }

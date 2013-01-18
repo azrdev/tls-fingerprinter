@@ -1,10 +1,10 @@
 package de.rub.nds.ssl.analyzer.removeMe;
 
-import de.rub.nds.ssl.analyzer.attacks.Bleichenbacher;
-import de.rub.nds.ssl.analyzer.attacks.bleichenbacher.OracleException;
-import de.rub.nds.ssl.analyzer.attacks.bleichenbacher.oracles.AOracle;
-import de.rub.nds.ssl.analyzer.attacks.bleichenbacher.oracles.ATestOracle;
-import de.rub.nds.ssl.analyzer.attacks.bleichenbacher.oracles.StandardOracle;
+import de.rub.nds.ssl.analyzer.attacker.Bleichenbacher;
+import de.rub.nds.ssl.analyzer.attacker.bleichenbacher.OracleException;
+import de.rub.nds.ssl.analyzer.attacker.bleichenbacher.oracles.AOracle;
+import de.rub.nds.ssl.analyzer.attacker.bleichenbacher.oracles.ATestOracle;
+import de.rub.nds.ssl.analyzer.attacker.bleichenbacher.oracles.StandardOracle;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;

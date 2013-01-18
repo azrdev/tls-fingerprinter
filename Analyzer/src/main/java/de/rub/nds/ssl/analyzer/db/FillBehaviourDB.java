@@ -1,13 +1,13 @@
 package de.rub.nds.ssl.analyzer.db;
 
-import de.rub.nds.ssl.analyzer.common.AnalyzeTraceList;
-import de.rub.nds.ssl.analyzer.common.ETLSImplementation;
-import de.rub.nds.ssl.analyzer.tests.parameters.AParameters;
+import de.rub.nds.ssl.analyzer.fingerprinter.AnalyzeTraceList;
+import de.rub.nds.ssl.analyzer.fingerprinter.ETLSImplementation;
+import de.rub.nds.ssl.analyzer.parameters.AParameters;
 import de.rub.nds.ssl.stack.trace.MessageContainer;
 import de.rub.nds.ssl.stack.workflows.TLS10HandshakeWorkflow.EStates;
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Example how to add a fingerprint to the database.
@@ -38,7 +38,7 @@ public class FillBehaviourDB {
      * @throws Exception
      */
     public void insertBehaviour(AParameters parameters,
-            ArrayList<MessageContainer> traceList,
+            List<MessageContainer> traceList,
             ETLSImplementation impl) throws Exception {
         Connection conn = db.getConnection();
         //prepared insert statement
@@ -74,7 +74,7 @@ public class FillBehaviourDB {
     }
     
     public void insertFingerprint(AParameters parameters,
-            ArrayList<MessageContainer> traceList, String testedState, String testcase,
+            List<MessageContainer> traceList, String testedState, String testcase,
             String implementation) throws SQLException{
     	Connection conn = db.getConnection();
         //prepared insert statement

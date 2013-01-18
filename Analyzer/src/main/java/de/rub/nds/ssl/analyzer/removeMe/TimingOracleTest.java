@@ -1,7 +1,7 @@
 package de.rub.nds.ssl.analyzer.removeMe;
 
-import de.rub.nds.ssl.analyzer.attacks.bleichenbacher.OracleException;
-import de.rub.nds.ssl.analyzer.attacks.bleichenbacher.oracles.TimingOracle;
+import de.rub.nds.ssl.analyzer.attacker.bleichenbacher.OracleException;
+import de.rub.nds.ssl.analyzer.attacker.bleichenbacher.oracles.TimingOracle;
 import java.net.SocketException;
 import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;

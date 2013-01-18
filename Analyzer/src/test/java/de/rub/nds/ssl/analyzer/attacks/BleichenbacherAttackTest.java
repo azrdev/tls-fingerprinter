@@ -1,8 +1,9 @@
 package de.rub.nds.ssl.analyzer.attacks;
 
-import de.rub.nds.ssl.analyzer.attacks.bleichenbacher.OracleException;
-import de.rub.nds.ssl.analyzer.attacks.bleichenbacher.oracles.AOracle;
-import de.rub.nds.ssl.analyzer.attacks.bleichenbacher.oracles.JSSE16Oracle;
+import de.rub.nds.ssl.analyzer.attacker.Bleichenbacher;
+import de.rub.nds.ssl.analyzer.attacker.bleichenbacher.OracleException;
+import de.rub.nds.ssl.analyzer.attacker.bleichenbacher.oracles.AOracle;
+import de.rub.nds.ssl.analyzer.attacker.bleichenbacher.oracles.JSSE16Oracle;
 import de.rub.nds.ssl.analyzer.common.SSLServer;
 import java.net.SocketException;
 import javax.net.ssl.SSLException;

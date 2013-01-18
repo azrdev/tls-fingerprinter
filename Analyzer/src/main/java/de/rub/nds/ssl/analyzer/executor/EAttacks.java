@@ -1,6 +1,6 @@
 package de.rub.nds.ssl.analyzer.executor;
 
-import de.rub.nds.ssl.analyzer.attacks.Bleichenbacher;
+import de.rub.nds.ssl.analyzer.attacker.Bleichenbacher;
 
 /**
  * Listing of all available attacks.

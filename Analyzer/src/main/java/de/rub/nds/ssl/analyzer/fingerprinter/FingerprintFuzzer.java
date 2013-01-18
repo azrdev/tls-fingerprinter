@@ -1,11 +1,12 @@
-package de.rub.nds.ssl.analyzer;
+package de.rub.nds.ssl.analyzer.fingerprinter;
 
-import de.rub.nds.ssl.analyzer.common.ETLSImplementation;
 import de.rub.nds.ssl.analyzer.db.FillBehaviourDB;
-import de.rub.nds.ssl.analyzer.tests.parameters.AParameters;
+import de.rub.nds.ssl.analyzer.fingerprinter.ETLSImplementation;
+import de.rub.nds.ssl.analyzer.fingerprinter.IFingerprinter;
+import de.rub.nds.ssl.analyzer.parameters.AParameters;
 import de.rub.nds.ssl.stack.trace.MessageContainer;
 import de.rub.nds.ssl.stack.workflows.TLS10HandshakeWorkflow.EStates;
-import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Fingerprint fuzzer to create a database of fingerprints
@@ -13,7 +14,7 @@ import java.util.ArrayList;
  * @author Eugen Weiss - eugen.weiss@ruhr-uni-bochum.de
  * @version 0.1 Jan 10, 2012
  */
-public class FingerprintFuzzer extends AFingerprintAnalyzer {
+public class FingerprintFuzzer implements IFingerprinter {
 
     /**
      * Test implementation
@@ -51,7 +52,7 @@ public class FingerprintFuzzer extends AFingerprintAnalyzer {
      * {@inheritDoc}
      */
     @Override
-    public void analyze(ArrayList<MessageContainer> traceList) {
+    public void analyze(List<MessageContainer> traceList) {
         FillBehaviourDB behaviour = new FillBehaviourDB();
         try {
             behaviour.insertFingerprint(parameters, traceList, 
@@ -60,5 +61,11 @@ public class FingerprintFuzzer extends AFingerprintAnalyzer {
             e.printStackTrace();
         }
 
+    }
+
+
+    @Override
+    public void init(AParameters parameters) {
+        throw new UnsupportedOperationException("Not supported yet.");
     }
 }

@@ -1,9 +1,14 @@
 package de.rub.nds.ssl.analyzer.executor;
 
 import de.rub.nds.ssl.analyzer.AAnalyzerComponent;
-import java.lang.reflect.Constructor;
+import de.rub.nds.ssl.analyzer.ResultWrapper;
+import de.rub.nds.ssl.analyzer.fingerprinter.IFingerprinter;
+import de.rub.nds.ssl.analyzer.fingerprinter.TestHashAnalyzer;
+import de.rub.nds.ssl.analyzer.parameters.AParameters;
+import de.rub.nds.ssl.stack.trace.MessageContainer;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -27,7 +32,7 @@ public abstract class Launcher {
     }
 
     public static void start(final String[] targetList, final Class[] components)
-            throws InterruptedException {
+            throws InterruptedException, ExecutionException {
         // deep copy target list
         String[] targets = new String[targetList.length];
         System.arraycopy(targetList, 0, targets, 0, targetList.length);
@@ -46,18 +51,48 @@ public abstract class Launcher {
         }
 
         // invoke components
-        List<Future<Object>> results;
+        List<ResultWrapper[]> results;
         for (String tmpTarget : targets) {
-            for (AAnalyzerComponent tmpComponent : instances) {
-                tmpComponent.setTarget(tmpTarget);
-            }
-            results = executor.invokeAll(instances);
-
-            // wait for results
+            results = invokeExecutor(instances, tmpTarget);
+            invokeAnalyzer(results);
         }
     }
 
-    public static void main(String args[]) throws InterruptedException {
+    private static List<ResultWrapper[]> invokeExecutor(
+            final List<AAnalyzerComponent> instances, final String target)
+            throws InterruptedException, ExecutionException {
+        for (AAnalyzerComponent tmpComponent : instances) {
+            tmpComponent.setTarget(target);
+        }
+
+        List<Future<ResultWrapper[]>> futures = executor.invokeAll(instances);
+        // wait for results (estimated 5 test per instance)
+        List<ResultWrapper[]> results = 
+                new ArrayList<ResultWrapper[]>(instances.size() * 5);
+        for (Future<ResultWrapper[]> future : futures) {
+            if (future.isCancelled()) {
+                continue;
+            }
+            results.add(future.get());
+
+            System.out.println("back to the future!");
+        }
+
+        return results;
+    }
+
+    private static void invokeAnalyzer(List<ResultWrapper[]> results) {
+        IFingerprinter analyzer = new TestHashAnalyzer();
+        for (ResultWrapper[] resultWrappers : results) {
+            for(ResultWrapper tmpResult : resultWrappers) {
+                analyzer.init(tmpResult.getParameters());
+                analyzer.analyze(tmpResult.getTraceList());
+            }   
+        }
+    }
+
+    public static void main(String args[]) throws InterruptedException,
+            ExecutionException {
         Launcher.start(new String[]{"https://www.rub.de"},
                 new Class[]{EFingerprintTests.CCS.getImplementer()});
     }

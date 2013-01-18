@@ -1,15 +1,12 @@
-package de.rub.nds.ssl.analyzer;
+package de.rub.nds.ssl.analyzer.fingerprinter;
 
-import de.rub.nds.ssl.analyzer.common.AnalyzeTraceList;
-import de.rub.nds.ssl.analyzer.common.ETLSImplementation;
-import de.rub.nds.ssl.analyzer.common.ScoreCounter;
 import de.rub.nds.ssl.analyzer.db.Database;
-import de.rub.nds.ssl.analyzer.tests.parameters.AParameters;
+import de.rub.nds.ssl.analyzer.parameters.AParameters;
 import de.rub.nds.ssl.stack.trace.MessageContainer;
 import de.rub.nds.ssl.stack.workflows.TLS10HandshakeWorkflow.EStates;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
+import java.util.List;
 import org.apache.log4j.Logger;
 
 /**
@@ -19,7 +16,7 @@ import org.apache.log4j.Logger;
  * @author Eugen Weiss - eugen.weiss@ruhr-uni-bochum.de
  * @version 0.1 Jun 05, 2012
  */
-public class TestHashAnalyzer extends AFingerprintAnalyzer {
+public class TestHashAnalyzer implements IFingerprinter {
 
     /**
      * Hash value of the test parameters.
@@ -31,21 +28,27 @@ public class TestHashAnalyzer extends AFingerprintAnalyzer {
     private static Logger logger = Logger.getRootLogger();
 
     /**
-     * Initialize the analyzer and compute the hash value.
-     *
-     * @param parameters Test parameters
+     * Standard constructor.
      */
-    public TestHashAnalyzer(final AParameters parameters) {
-        //compute the hash value of the test parameters
-        this.hashValue = parameters.computeHash();
-        logger.debug("Hash value: " + this.hashValue);
+    public TestHashAnalyzer() {
+        
     }
-
+    
     /**
      * {@inheritDoc}
      */
     @Override
-    public void analyze(final ArrayList<MessageContainer> traceList) {
+    public final void init(final AParameters parameters) {
+        //compute the hash value of the test parameters
+        this.hashValue = parameters.computeHash();
+        logger.debug("Hash value: " + this.hashValue);
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void analyze(final List<MessageContainer> traceList) {
         boolean dbHit = false;
         String lastState = null;
         String alertDesc = null;

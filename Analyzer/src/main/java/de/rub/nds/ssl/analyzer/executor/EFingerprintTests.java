@@ -1,16 +1,17 @@
 package de.rub.nds.ssl.analyzer.executor;
 
-import de.rub.nds.ssl.analyzer.tests.fingerprint.CCS;
-import de.rub.nds.ssl.analyzer.tests.fingerprint.CCSRecordHeader;
-import de.rub.nds.ssl.analyzer.tests.fingerprint.CH;
-import de.rub.nds.ssl.analyzer.tests.fingerprint.CHHandshakeHeader;
-import de.rub.nds.ssl.analyzer.tests.fingerprint.CHRecordHeader;
-import de.rub.nds.ssl.analyzer.tests.fingerprint.CKE;
-import de.rub.nds.ssl.analyzer.tests.fingerprint.CKEHandshakeHeader;
-import de.rub.nds.ssl.analyzer.tests.fingerprint.CKERecordHeader;
-import de.rub.nds.ssl.analyzer.tests.fingerprint.FIN;
-import de.rub.nds.ssl.analyzer.tests.fingerprint.FINHandshakeHeader;
-import de.rub.nds.ssl.analyzer.tests.fingerprint.FINRecordHeader;
+import de.rub.nds.ssl.analyzer.fingerprinter.TestHashAnalyzer;
+import de.rub.nds.ssl.analyzer.fingerprinter.tests.CCS;
+import de.rub.nds.ssl.analyzer.fingerprinter.tests.CCSRecordHeader;
+import de.rub.nds.ssl.analyzer.fingerprinter.tests.CH;
+import de.rub.nds.ssl.analyzer.fingerprinter.tests.CHHandshakeHeader;
+import de.rub.nds.ssl.analyzer.fingerprinter.tests.CHRecordHeader;
+import de.rub.nds.ssl.analyzer.fingerprinter.tests.CKE;
+import de.rub.nds.ssl.analyzer.fingerprinter.tests.CKEHandshakeHeader;
+import de.rub.nds.ssl.analyzer.fingerprinter.tests.CKERecordHeader;
+import de.rub.nds.ssl.analyzer.fingerprinter.tests.FIN;
+import de.rub.nds.ssl.analyzer.fingerprinter.tests.FINHandshakeHeader;
+import de.rub.nds.ssl.analyzer.fingerprinter.tests.FINRecordHeader;
 
 /**
  * Listing of all available Fingerprinting tests.
@@ -22,18 +23,28 @@ import de.rub.nds.ssl.analyzer.tests.fingerprint.FINRecordHeader;
  */
 public enum EFingerprintTests {
 
-    CCS("ChangeCipherSpec Message Test", CCS.class),
-    CCS_RH("ChangeCiperSpec Message Record Header Test", CCSRecordHeader.class),
-    CH("ClientHello Message Test", CH.class),
-    CH_HH("ClientHello Message Handshake Header Test", CHHandshakeHeader.class),
-    CH_RH("ClientHello Message Record Header Test", CHRecordHeader.class),
-    CKE("ClientKeyExchange Message Test", CKE.class),
+    CCS("ChangeCipherSpec Message Test", 
+            CCS.class, TestHashAnalyzer.class),
+    CCS_RH("ChangeCiperSpec Message Record Header Test", 
+            CCSRecordHeader.class, TestHashAnalyzer.class),
+    CH("ClientHello Message Test", 
+            CH.class, TestHashAnalyzer.class),
+    CH_HH("ClientHello Message Handshake Header Test", 
+            CHHandshakeHeader.class, TestHashAnalyzer.class),
+    CH_RH("ClientHello Message Record Header Test", 
+            CHRecordHeader.class, TestHashAnalyzer.class),
+    CKE("ClientKeyExchange Message Test", 
+            CKE.class, TestHashAnalyzer.class),
     CKE_HH("ClientKeyExchange Message Handshake Header Test",
-    CKEHandshakeHeader.class),
-    CKE_RH("ClientKeyExchange Message Record Header Test", CKERecordHeader.class),
-    FIN("Finished Message Test", FIN.class),
-    FIN_HH("Finished Message Handshake Header Test", FINHandshakeHeader.class),
-    FIN_RH("Finished Message Record Header Test", FINRecordHeader.class);
+            CKEHandshakeHeader.class, TestHashAnalyzer.class),
+    CKE_RH("ClientKeyExchange Message Record Header Test", 
+            CKERecordHeader.class, TestHashAnalyzer.class),
+    FIN("Finished Message Test", 
+            FIN.class, TestHashAnalyzer.class),
+    FIN_HH("Finished Message Handshake Header Test", 
+            FINHandshakeHeader.class, TestHashAnalyzer.class),
+    FIN_RH("Finished Message Record Header Test", 
+            FINRecordHeader.class, TestHashAnalyzer.class);
     /**
      * Fingerprint Test description.
      */
@@ -42,16 +53,23 @@ public enum EFingerprintTests {
      * Test implementer.
      */
     private Class implementer;
+    /**
+     * Analyzer implementer.
+     */
+    private Class analyzer;
 
     /**
      * Prepare Fingerprint Test listing,
      *
      * @param description Test description
      * @param implementer Test implementer
+     * @param analyzer Test analyzer
      */
-    private EFingerprintTests(final String description, final Class implementer) {
+    private EFingerprintTests(final String description, final Class implementer,
+            final Class analyzer) {
         this.description = description;
         this.implementer = implementer;
+        this.analyzer = analyzer;
     }
 
     /**
@@ -70,5 +88,14 @@ public enum EFingerprintTests {
      */
     public Class getImplementer() {
         return this.implementer;
+    }
+
+    /**
+     * Getter for Fingerprint Test analyzer.
+     *
+     * @return Fingerprint Test analyzer
+     */
+    public Class getAnalyzer() {
+        return this.analyzer;
     }
 }

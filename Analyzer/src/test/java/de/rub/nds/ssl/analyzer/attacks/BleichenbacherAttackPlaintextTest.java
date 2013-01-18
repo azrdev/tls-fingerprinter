@@ -1,8 +1,9 @@
 package de.rub.nds.ssl.analyzer.attacks;
 
-import de.rub.nds.ssl.analyzer.attacks.bleichenbacher.oracles.AOracle;
-import de.rub.nds.ssl.analyzer.attacks.bleichenbacher.oracles.ATestOracle;
-import de.rub.nds.ssl.analyzer.attacks.bleichenbacher.oracles.StdPlainOracle;
+import de.rub.nds.ssl.analyzer.attacker.Bleichenbacher;
+import de.rub.nds.ssl.analyzer.attacker.bleichenbacher.oracles.AOracle;
+import de.rub.nds.ssl.analyzer.attacker.bleichenbacher.oracles.ATestOracle;
+import de.rub.nds.ssl.analyzer.attacker.bleichenbacher.oracles.StdPlainOracle;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.SecureRandom;
