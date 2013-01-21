@@ -6,20 +6,17 @@ import de.rub.nds.ssl.stack.protocols.commons.EProtocolVersion;
 import de.rub.nds.ssl.stack.workflows.TLS10HandshakeWorkflow;
 import de.rub.nds.ssl.stack.workflows.commons.MessageUtils;
 import org.apache.log4j.Logger;
-import org.apache.log4j.PropertyConfigurator;
-import org.testng.annotations.BeforeClass;
 
-public abstract class GenericFingerprintTest extends AAnalyzerComponent {
+public abstract class AGenericFingerprintTest extends AAnalyzerComponent {
+
     /**
      * Help utilities for testing.
      */
     protected MessageUtils utils = new MessageUtils();
-
     /**
      * Handshake workflow to observe.
      */
     protected TLS10HandshakeWorkflow workflow;
-    
     /**
      * Default protocol version.
      */
@@ -38,12 +35,11 @@ public abstract class GenericFingerprintTest extends AAnalyzerComponent {
     protected int counter = 1;
 
     /**
-     * Load the logging properties.
+     * Print the test banner.
      */
-    @BeforeClass
-    public void setUp() {
-        PropertyConfigurator.configure("logging.properties");
+    protected void printBanner() {
+        logger.info("########################################################");
+        logger.info(this.getClass().getCanonicalName());
+        logger.info("########################################################");
     }
-
-
 }

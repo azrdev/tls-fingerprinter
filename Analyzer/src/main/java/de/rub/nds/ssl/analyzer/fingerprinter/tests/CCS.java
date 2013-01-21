@@ -13,7 +13,7 @@ import java.net.SocketException;
 import java.util.Observable;
 import java.util.Observer;
 
-public class CCS extends GenericFingerprintTest implements Observer {
+public class CCS extends AGenericFingerprintTest implements Observer {
 
     /**
      * Test headerParameters.
@@ -40,7 +40,7 @@ public class CCS extends GenericFingerprintTest implements Observer {
         ccsParameters.setPayload(payload);
         ccsParameters.setIdentifier(EFingerprintIdentifier.ChangeCipherSpec);
         ccsParameters.setDescription(desc);
-       
+
         try {
             workflow.start();
 
@@ -91,12 +91,15 @@ public class CCS extends GenericFingerprintTest implements Observer {
     }
 
     @Override
-    public ResultWrapper[] call() throws Exception {
+    public synchronized ResultWrapper[] call() throws Exception {
         Object[][] parameters = new Object[][]{
             {"Wrong payload", new byte[]{(byte) 0xff}},
             {"Invalid payload", new byte[]{0x02, 0x01}}
         };
 
+        // Print Test Banner
+        printBanner();
+        // execute test(s)
         ResultWrapper[] result = new ResultWrapper[parameters.length];
         for (int i = 0; i < parameters.length; i++) {
             result[i] = fingerprintChangeCipherSpec((String) parameters[i][0],

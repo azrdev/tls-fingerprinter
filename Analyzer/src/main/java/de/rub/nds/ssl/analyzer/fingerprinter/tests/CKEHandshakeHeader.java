@@ -12,7 +12,7 @@ import java.net.SocketException;
 import java.util.Observable;
 import java.util.Observer;
 
-public class CKEHandshakeHeader extends GenericFingerprintTest implements
+public class CKEHandshakeHeader extends AGenericFingerprintTest implements
         Observer {
 
     /**
@@ -93,14 +93,17 @@ public class CKEHandshakeHeader extends GenericFingerprintTest implements
     }
 
     @Override
-    public ResultWrapper[] call() throws Exception {
+    public synchronized ResultWrapper[] call() throws Exception {
         Object[][] parameters = new Object[][]{
             {"Wrong message type", new byte[]{(byte) 0xff}, null},
             {"Invalid length 0x00,0x00,0x00", null,
                 new byte[]{(byte) 0x00, (byte) 0x00, (byte) 0x00}},
             {"Invalid length 0xff,0xff,0xff", null,
-                new byte[]{(byte) 0xff, (byte) 0xff, (byte) 0xff}},};
-
+                new byte[]{(byte) 0xff, (byte) 0xff, (byte) 0xff}}};
+        
+        // Print Test Banner
+        printBanner();
+        // execute test(s)
         ResultWrapper[] result = new ResultWrapper[parameters.length];
         for (int i = 0; i < parameters.length; i++) {
             result[i] = manipulateCKEHandshakeHeader((String) parameters[i][0],

@@ -11,13 +11,16 @@ import java.net.SocketException;
  * @author Eugen Weiss - eugen.weiss@ruhr-uni-bochum.de
  * @version 0.1 Jun 30, 2012
  */
-public class CheckEnumeration extends GenericFingerprintTest {
+public class CheckEnumeration extends AGenericFingerprintTest {
 
     /**
      *
      * @return @throws SocketException
      */
     public ResultWrapper executeHandshake() throws SocketException {
+        String desc = "Check Handshake Enum";
+        
+        logger.info("++++Start Test No." + counter + "(" + desc + ")++++");
         workflow = new TLS10HandshakeWorkflow();
         //connect to test server
         workflow.connectToTestServer(getTargetHost(), getTargetPort());
@@ -25,7 +28,7 @@ public class CheckEnumeration extends GenericFingerprintTest {
 
         //set the test headerParameters
         headerParameters.setIdentifier(EFingerprintIdentifier.CheckHandEnum);
-        headerParameters.setDescription("Check Handshake Enum");
+        headerParameters.setDescription(desc);
         
         try {
             workflow.start();
@@ -44,7 +47,10 @@ public class CheckEnumeration extends GenericFingerprintTest {
     }
 
     @Override
-    public ResultWrapper[] call() throws Exception {
+    public synchronized ResultWrapper[] call() throws Exception {
+        // Print Test Banner
+        printBanner();
+        // execute test(s)
         return new ResultWrapper[]{executeHandshake()};
     }
 }

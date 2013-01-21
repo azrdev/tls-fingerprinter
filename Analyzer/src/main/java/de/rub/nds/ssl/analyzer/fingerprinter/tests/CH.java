@@ -22,7 +22,7 @@ import java.util.Observer;
  * @author Eugen Weiss -eugen.weiss@ruhr-uni-bochum.de
  * @version 0.1 Apr 18, 2012
  */
-public class CH extends GenericFingerprintTest implements Observer {
+public class CH extends AGenericFingerprintTest implements Observer {
 
     /**
      * Test headerParameters.
@@ -218,7 +218,7 @@ public class CH extends GenericFingerprintTest implements Observer {
     }
 
     @Override
-    public ResultWrapper[] call() throws Exception {
+    public synchronized ResultWrapper[] call() throws Exception {
         Object[][] parameters = new Object[][]{
             {"Invalid protocol version 0xff,0xff",
                 new byte[]{(byte) 0xff, (byte) 0xff}, null, null, null, null,
@@ -244,6 +244,9 @@ public class CH extends GenericFingerprintTest implements Observer {
             {"Wrong value for cipher suite length 0x00", null, null, null, null,
                 new byte[]{(byte) 0x00}, null}};
 
+        // Print Test Banner
+        printBanner();
+        // execute test(s)
         ResultWrapper[] result = new ResultWrapper[parameters.length];
         for (int i = 0; i < parameters.length; i++) {
             result[i] = fingerprintClientHello((String) parameters[i][0],

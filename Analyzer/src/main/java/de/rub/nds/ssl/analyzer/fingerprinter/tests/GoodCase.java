@@ -21,7 +21,7 @@ import java.util.Observer;
  * @author Eugen Weiss - eugen.weiss@ruhr-uni-bochum.de
  * @version 0.1 Jun 30, 2012
  */
-public class GoodCase extends GenericFingerprintTest implements Observer {
+public class GoodCase extends AGenericFingerprintTest implements Observer {
 
     /**
      * Cipher suite.
@@ -30,12 +30,15 @@ public class GoodCase extends GenericFingerprintTest implements Observer {
 
     /**
      *
+     * @param desc
      * @param suite
      * @return
      * @throws SocketException
      */
-    public ResultWrapper executeHandshake(ECipherSuite[] suite) throws
+    public ResultWrapper executeHandshake(String desc, ECipherSuite[] suite)
+            throws
             SocketException {
+        logger.info("++++Start Test No." + counter + "(" + desc + ")++++");
         workflow = new TLS10HandshakeWorkflow();
         workflow.connectToTestServer(getTargetHost(), getTargetPort());
         logger.info("Test Server: " + getTargetHost() + ":" + getTargetPort());
@@ -44,8 +47,8 @@ public class GoodCase extends GenericFingerprintTest implements Observer {
 
         //set the test headerParameters
         headerParameters.setIdentifier(EFingerprintIdentifier.GoodCase);
-        headerParameters.setDescription("Good Case");
-        
+        headerParameters.setDescription(desc);
+
         try {
             workflow.start();
 
@@ -90,14 +93,18 @@ public class GoodCase extends GenericFingerprintTest implements Observer {
     }
 
     @Override
-    public ResultWrapper[] call() throws Exception {
-        Object[][] parameters = new Object[][]{
-            {new ECipherSuite[]{ECipherSuite.TLS_RSA_WITH_AES_128_CBC_SHA}}
+    public synchronized ResultWrapper[] call() throws Exception {
+        Object[][] parameters = new Object[][]{{"Good case",
+                new ECipherSuite[]{ECipherSuite.TLS_RSA_WITH_AES_128_CBC_SHA}}
         };
 
+        // Print Test Banner
+        printBanner();
+        // execute test(s)
         ResultWrapper[] result = new ResultWrapper[parameters.length];
         for (int i = 0; i < parameters.length; i++) {
-            result[i] = executeHandshake((ECipherSuite[]) parameters[i][0]);
+            result[i] = executeHandshake((String) parameters[i][0],
+                    (ECipherSuite[]) parameters[i][1]);
         }
 
         return result;

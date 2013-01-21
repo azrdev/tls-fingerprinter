@@ -24,7 +24,7 @@ import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 
-public class FINHandshakeHeader extends GenericFingerprintTest
+public class FINHandshakeHeader extends AGenericFingerprintTest
         implements Observer {
 
     public ResultWrapper manipulateFinishedHandshakeHeader(String desc,
@@ -55,7 +55,7 @@ public class FINHandshakeHeader extends GenericFingerprintTest
             // close the Socket after the test run
             workflow.closeSocket();
         }
-        
+
         return new ResultWrapper(headerParameters, workflow.getTraceList());
     }
 
@@ -140,14 +140,17 @@ public class FINHandshakeHeader extends GenericFingerprintTest
     }
 
     @Override
-    public ResultWrapper[] call() throws Exception {
+    public synchronized ResultWrapper[] call() throws Exception {
         Object[][] parameters = new Object[][]{
             {"Wrong message type", new byte[]{(byte) 0xff}, null},
             {"Invalid length 0x00,0x00,0x00", null,
                 new byte[]{(byte) 0x00, (byte) 0x00, (byte) 0x00}},
             {"Invalid length 0xff,0xff,0xff", null,
-                new byte[]{(byte) 0xff, (byte) 0xff, (byte) 0xff}},};
+                new byte[]{(byte) 0xff, (byte) 0xff, (byte) 0xff}}};
 
+        // Print Test Banner
+        printBanner();
+        // execute test(s)
         ResultWrapper[] result = new ResultWrapper[parameters.length];
         for (int i = 0; i < parameters.length; i++) {
             result[i] = manipulateFinishedHandshakeHeader(

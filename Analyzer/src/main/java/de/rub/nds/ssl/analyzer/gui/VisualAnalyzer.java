@@ -1,5 +1,7 @@
 package de.rub.nds.ssl.analyzer.gui;
 
+import de.rub.nds.ssl.analyzer.executor.EFingerprintTests;
+import de.rub.nds.ssl.analyzer.executor.Launcher;
 import de.rub.nds.ssl.analyzer.gui.models.AttackerConfigurationData;
 import de.rub.nds.ssl.analyzer.gui.models.ScannerConfigurationData;
 import java.io.BufferedReader;
@@ -8,7 +10,9 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 import javax.swing.JFileChooser;
+import org.apache.log4j.PropertyConfigurator;
 
 /**
  *
@@ -19,11 +23,18 @@ import javax.swing.JFileChooser;
  */
 public class VisualAnalyzer extends javax.swing.JFrame {
 
+    private ScannerConfigurationData scannerConfigurationData;
+    private AttackerConfigurationData attackerConfigurationData;
+
     /**
      * Creates new form VisualAnalyzer
      */
     public VisualAnalyzer() {
+        scannerConfigurationData = new ScannerConfigurationData();
+        attackerConfigurationData = new AttackerConfigurationData();
+
         initComponents();
+        PropertyConfigurator.configure("logging.properties");
     }
 
     /**
@@ -105,7 +116,7 @@ public class VisualAnalyzer extends javax.swing.JFrame {
 
         tabbedPane.setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
 
-        scannerConfigurationTable.setModel(new ScannerConfigurationData());
+        scannerConfigurationTable.setModel(scannerConfigurationData);
         scannerConfigurationTable.setAutoResizeMode(javax.swing.JTable.AUTO_RESIZE_ALL_COLUMNS);
         scannerConfigurationTable.getTableHeader().setReorderingAllowed(false);
         jScrollPane1.setViewportView(scannerConfigurationTable);
@@ -128,7 +139,7 @@ public class VisualAnalyzer extends javax.swing.JFrame {
 
         tabbedPane.addTab("Scanner Configuration", scannerConfiguration);
 
-        attackerConfigurationTable.setModel(new AttackerConfigurationData());
+        attackerConfigurationTable.setModel(attackerConfigurationData);
         attackerConfigurationTable.setAutoResizeMode(javax.swing.JTable.AUTO_RESIZE_ALL_COLUMNS);
         attackerConfigurationTable.getTableHeader().setReorderingAllowed(false);
         jScrollPane2.setViewportView(attackerConfigurationTable);
@@ -165,8 +176,18 @@ public class VisualAnalyzer extends javax.swing.JFrame {
 
         scanTargetsButton.setActionCommand("Fingerprint target(s)");
         scanTargetsButton.setLabel("Fingerprint target(s)");
+        scanTargetsButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                scanTargetsButtonActionPerformed(evt);
+            }
+        });
 
         attackTargetsButton.setText("Attack target(s)");
+        attackTargetsButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                attackTargetsButtonActionPerformed(evt);
+            }
+        });
 
         targetListLabel.setText("Please select target(s)");
 
@@ -235,12 +256,36 @@ public class VisualAnalyzer extends javax.swing.JFrame {
         errorDialog.setVisible(false);
     }//GEN-LAST:event_errorOKButtonActionPerformed
 
+    private void attackTargetsButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_attackTargetsButtonActionPerformed
+    }//GEN-LAST:event_attackTargetsButtonActionPerformed
+
+    private void scanTargetsButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_scanTargetsButtonActionPerformed
+        Object[][] conf = scannerConfigurationData.getConfiguration();
+        String lineSeparator = System.getProperty("line.separator");
+        String[] targets = targetListTextArea.getText().split(lineSeparator);
+
+        List<EFingerprintTests> selectedTests = new ArrayList<EFingerprintTests>(
+                10);
+        for (Object[] confSet : conf) {
+            if ((Boolean) confSet[1] == true) {
+                selectedTests.add((EFingerprintTests) confSet[2]);
+            }
+        }
+
+        try {
+            Launcher.start(targets, selectedTests.toArray(
+                    new EFingerprintTests[selectedTests.size()]));
+        } catch (ExecutionException e) {
+        } catch (InterruptedException e) {
+        }
+    }//GEN-LAST:event_scanTargetsButtonActionPerformed
+
     private void createErrorDialog(final String title, final String message) {
         errorDialog.setTitle(title);
         errorLabel.setText(message);
         errorDialog.setVisible(true);
     }
-    
+
     private List<String> parseTargetsFile(final File targetsFile) throws
             IOException {
         FileReader fileReader = new FileReader(targetsFile);

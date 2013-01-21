@@ -46,9 +46,7 @@ public abstract class Launcher {
                 new ArrayList<AAnalyzerComponent>(components.length);
         for (EFingerprintTests tmp : components) {
             try {
-                logger.info("################################################");
-                logger.info(tmp.getDescription());
-                logger.info("################################################");
+                System.out.println("///// implementer: " + tmp.getDescription());
                 instances.add(
                         (AAnalyzerComponent) tmp.getImplementer().newInstance());
             } catch (IllegalAccessException e) {
@@ -62,7 +60,7 @@ public abstract class Launcher {
         List<ResultWrapper[]> results;
         for (String tmpTarget : targets) {
             results = invokeExecutor(instances, tmpTarget);
-            invokeAnalyzer(results);
+//            invokeAnalyzer(results);
         }
     }
 
@@ -101,6 +99,6 @@ public abstract class Launcher {
             ExecutionException {
         PropertyConfigurator.configure("logging.properties");
         Launcher.start(new String[]{"https://www.rub.de"},
-                new EFingerprintTests[]{EFingerprintTests.GOOD});
+                new EFingerprintTests[]{EFingerprintTests.GOOD, EFingerprintTests.HANDSHAKE_ENUM, EFingerprintTests.CCS});
     }
 }

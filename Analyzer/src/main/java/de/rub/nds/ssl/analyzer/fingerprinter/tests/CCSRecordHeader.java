@@ -18,7 +18,7 @@ import java.util.Observer;
  * @author Eugen Weiss - eugen.weiss@ruhr-uni-bochum.de
  * @version 0.1 Jun 06, 2012
  */
-public class CCSRecordHeader extends GenericFingerprintTest implements Observer {
+public class CCSRecordHeader extends AGenericFingerprintTest implements Observer {
 
     /**
      *
@@ -105,7 +105,7 @@ public class CCSRecordHeader extends GenericFingerprintTest implements Observer 
     }
 
     @Override
-    public ResultWrapper[] call() throws Exception {
+    public synchronized ResultWrapper[] call() throws Exception {
         Object[][] parameters = new Object[][]{
             {"Wrong message type", new byte[]{(byte) 0x17}, null, null},
             {"Invalid protocol version 0xff,0xff", null,
@@ -115,6 +115,9 @@ public class CCSRecordHeader extends GenericFingerprintTest implements Observer 
             {"Invalid length 0xff,0xff", null, null,
                 new byte[]{(byte) 0xff, (byte) 0xff}},};
 
+        // Print Test Banner
+        printBanner();
+        // execute test(s)
         ResultWrapper[] result = new ResultWrapper[parameters.length];
         for (int i = 0; i < parameters.length; i++) {
             result[i] = manipulateCCSRecordHeader((String) parameters[i][0],

@@ -25,7 +25,7 @@ import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 
-public class FIN extends GenericFingerprintTest implements Observer {
+public class FIN extends AGenericFingerprintTest implements Observer {
 
     /**
      * Test headerParameters.
@@ -162,7 +162,7 @@ public class FIN extends GenericFingerprintTest implements Observer {
     }
 
     @Override
-    public ResultWrapper[] call() throws Exception {
+    public synchronized ResultWrapper[] call() throws Exception {
         Object[][] parameters = new Object[][]{
             {"Wrong padding", true, false, false, false, false},
             {"Destroy MAC", false, true, false, false, false},
@@ -171,6 +171,9 @@ public class FIN extends GenericFingerprintTest implements Observer {
             {"Change length byte of padding", false, false, false, false, true}
         };
 
+        // Print Test Banner
+        printBanner();
+        // execute test(s)
         ResultWrapper[] result = new ResultWrapper[parameters.length];
         for (int i = 0; i < parameters.length; i++) {
             result[i] = manipulateFinishedRecordHeader((String) parameters[i][0],

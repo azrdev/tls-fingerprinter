@@ -105,4 +105,5 @@ public enum EFingerprintTests {
     public Class getAnalyzer() {
         return this.analyzer;
     }
+    
 }

@@ -19,7 +19,7 @@ import java.net.SocketException;
 import java.util.Observable;
 import java.util.Observer;
 
-public class CKE extends GenericFingerprintTest
+public class CKE extends AGenericFingerprintTest
         implements Observer {
 
     /**
@@ -112,13 +112,16 @@ public class CKE extends GenericFingerprintTest
     }
 
     @Override
-    public ResultWrapper[] call() throws Exception {
+    public synchronized ResultWrapper[] call() throws Exception {
         Object[][] parameters = new Object[][]{
             {"Invalid payload for RSA key exchange", new ECipherSuite[]{
                     ECipherSuite.TLS_DHE_RSA_WITH_AES_128_CBC_SHA},
                 new byte[]{(byte) 0x00, (byte) 0x00}}
         };
-
+        
+        // Print Test Banner
+        printBanner();
+        // execute test(s)
         ResultWrapper[] result = new ResultWrapper[parameters.length];
         for (int i = 0; i < parameters.length; i++) {
             result[i] = fingerprintClientKeyExchange((String) parameters[i][0],
