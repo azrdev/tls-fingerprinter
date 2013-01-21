@@ -79,6 +79,7 @@ public class TestHashAnalyzer implements IFingerprinter {
                                 result.getInt("POINTS"));
                         // TODO logging
 // Reporter.log("Found fingerprint hit for " + result.getString("TLS_IMPL"));
+                        logger.info("Found fingerprint hit for " + result.getString("TLS_IMPL"));
                     }
                 } else if (result.getString("LAST_STATE").equalsIgnoreCase(
                         lastState)) {
@@ -88,6 +89,7 @@ public class TestHashAnalyzer implements IFingerprinter {
                             result.getInt("POINTS"));
                     // TODO logging
 // Reporter.log("Found fingerprint hit for " + result.getString("TLS_IMPL"));
+                    logger.info("Found fingerprint hit for " + result.getString("TLS_IMPL"));
                 }
             }
             //assign 2 points for "no hit" if there is no hit in the database

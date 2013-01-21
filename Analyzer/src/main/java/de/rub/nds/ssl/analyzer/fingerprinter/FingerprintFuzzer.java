@@ -1,8 +1,6 @@
 package de.rub.nds.ssl.analyzer.fingerprinter;
 
 import de.rub.nds.ssl.analyzer.db.FillBehaviourDB;
-import de.rub.nds.ssl.analyzer.fingerprinter.ETLSImplementation;
-import de.rub.nds.ssl.analyzer.fingerprinter.IFingerprinter;
 import de.rub.nds.ssl.analyzer.parameters.AParameters;
 import de.rub.nds.ssl.stack.trace.MessageContainer;
 import de.rub.nds.ssl.stack.workflows.TLS10HandshakeWorkflow.EStates;
@@ -36,8 +34,10 @@ public class FingerprintFuzzer implements IFingerprinter {
     /**
      * Initialize the fuzzer
      *
+     * @param testcase 
      * @param parameters Test parameters
      * @param impl Test implementation
+     * @param state  
      */
     public FingerprintFuzzer(String testcase, ETLSImplementation impl,
             EStates state,

@@ -59,7 +59,7 @@ public abstract class Launcher {
         List<ResultWrapper[]> results;
         for (String tmpTarget : targets) {
             results = invokeExecutor(instances, tmpTarget);
-//            invokeAnalyzer(results);
+            invokeAnalyzer(results);
         }
     }
 
@@ -94,10 +94,10 @@ public abstract class Launcher {
         }
     }
 
-    public static void main(String args[]) throws InterruptedException,
-            ExecutionException {
-        PropertyConfigurator.configure("logging.properties");
-        Launcher.start(new String[]{"https://www.rub.de"},
-                new EFingerprintTests[]{EFingerprintTests.GOOD, EFingerprintTests.HANDSHAKE_ENUM, EFingerprintTests.CCS});
-    }
+//    public static void main(String args[]) throws InterruptedException,
+//            ExecutionException {
+//        PropertyConfigurator.configure("logging.properties");
+//        Launcher.start(new String[]{"https://www.rub.de"},
+//                new EFingerprintTests[]{EFingerprintTests.GOOD, EFingerprintTests.HANDSHAKE_ENUM, EFingerprintTests.CCS});
+//    }
 }
