@@ -1,7 +1,6 @@
 package de.rub.nds.ssl.analyzer.fingerprinter.tests;
 
 import de.rub.nds.ssl.analyzer.ResultWrapper;
-import de.rub.nds.ssl.analyzer.fingerprinter.ScoreCounter;
 import de.rub.nds.ssl.analyzer.parameters.EFingerprintIdentifier;
 import de.rub.nds.ssl.stack.protocols.msgs.ChangeCipherSpec;
 import de.rub.nds.ssl.stack.trace.MessageContainer;
@@ -11,9 +10,6 @@ import de.rub.nds.ssl.stack.workflows.commons.ObservableBridge;
 import java.net.SocketException;
 import java.util.Observable;
 import java.util.Observer;
-import org.testng.annotations.AfterClass;
-import org.testng.annotations.AfterMethod;
-import org.testng.annotations.Test;
 
 /**
  * Fingerprint the ChangeCipherSpec record header. Perform Tests by manipulating
@@ -24,10 +20,18 @@ import org.testng.annotations.Test;
  */
 public class CCSRecordHeader extends GenericFingerprintTest implements Observer {
 
-    @Test(enabled = true, dataProviderClass = FingerprintDataProviders.class,
-    dataProvider = "recordHeader", invocationCount = 1)
-    public void manipulateCCSRecordHeader(String desc, byte[] msgType,
-            byte[] protocolVersion, byte[] recordLength) throws SocketException {
+    /**
+     *
+     * @param desc
+     * @param msgType
+     * @param protocolVersion
+     * @param recordLength
+     * @return
+     * @throws SocketException
+     */
+    public ResultWrapper manipulateCCSRecordHeader(String desc,
+            byte[] msgType, byte[] protocolVersion, byte[] recordLength)
+            throws SocketException {
         logger.info("++++Start Test No." + counter + "(" + desc + ")++++");
         workflow = new TLS10HandshakeWorkflow();
         //connect to test server
@@ -36,8 +40,8 @@ public class CCSRecordHeader extends GenericFingerprintTest implements Observer 
 
         //add the observer
         workflow.addObserver(this, EStates.CLIENT_CHANGE_CIPHER_SPEC);
-        logger.info(
-                EStates.CLIENT_CHANGE_CIPHER_SPEC.name() + " state is observed");
+        logger.info(EStates.CLIENT_CHANGE_CIPHER_SPEC.name()
+                + " state is observed");
 
         //set the test headerParameters
         headerParameters.setMsgType(msgType);
@@ -46,11 +50,17 @@ public class CCSRecordHeader extends GenericFingerprintTest implements Observer 
         headerParameters.setIdentifier(EFingerprintIdentifier.CCSRecordHeader);
         headerParameters.setDescription(desc);
 
-        //start the handshake
-        workflow.start();
+        try {
+            workflow.start();
 
-        this.counter++;
-        logger.info("++++Test finished.++++");
+            this.counter++;
+            logger.info("++++Test finished.++++");
+        } finally {
+            // close the Socket after the test run
+            workflow.closeSocket();
+        }
+
+        return new ResultWrapper(headerParameters, workflow.getTraceList());
     }
 
     /**
@@ -94,47 +104,24 @@ public class CCSRecordHeader extends GenericFingerprintTest implements Observer 
         }
     }
 
-    /**
-     * Close the Socket after the test run.
-     */
-    @AfterMethod
-    public void tearDown() {
-        workflow.closeSocket();
-    }
-
-    @AfterClass
-    public void generateReport() {
-        ScoreCounter counter = ScoreCounter.getInstance();
-        int jsse = counter.getJSSEStandardScore();
-        int openssl = counter.getOpenSSLScore();
-        int gnutls = counter.getGNUtlsScore();
-        int total = counter.getTotalCounter();
-        int noHit = counter.getNoHitCounter();
-        float result;
-        System.out.println("JSSE Points: " + jsse);
-        System.out.println("GNUtls Points: " + gnutls);
-        System.out.println("OpenSSL Points: " + openssl);
-        System.out.println("NoHit: " + noHit);
-        //compute Probability
-        result = this.computeProbability(jsse, total);
-        System.out.println("Probability for JSSE: " + result);
-        result = this.computeProbability(gnutls, total);
-        System.out.println("Probability for GNUtls: " + result);
-        result = this.computeProbability(openssl, total);
-        System.out.println("Probability for OpenSSL: " + result);
-        result = this.computeProbability(noHit, total);
-        System.out.println("No hit in DB: " + result);
-
-    }
-
-    private float computeProbability(int impl, int total) {
-        float result;
-        result = ((float) impl / (float) total) * 100;
-        return result;
-    }
-
     @Override
     public ResultWrapper[] call() throws Exception {
-        throw new UnsupportedOperationException("Not supported yet.");
+        Object[][] parameters = new Object[][]{
+            {"Wrong message type", new byte[]{(byte) 0x17}, null, null},
+            {"Invalid protocol version 0xff,0xff", null,
+                new byte[]{(byte) 0xff, (byte) 0xff}, null},
+            {"Invalid length 0x00,0x00", null, null,
+                new byte[]{(byte) 0x00, (byte) 0x00}},
+            {"Invalid length 0xff,0xff", null, null,
+                new byte[]{(byte) 0xff, (byte) 0xff}},};
+
+        ResultWrapper[] result = new ResultWrapper[parameters.length];
+        for (int i = 0; i < parameters.length; i++) {
+            result[i] = manipulateCCSRecordHeader((String) parameters[i][0],
+                    (byte[]) parameters[i][1], (byte[]) parameters[i][2],
+                    (byte[]) parameters[i][3]);
+        }
+
+        return result;
     }
 }

@@ -32,7 +32,7 @@ public class AnalyzeResults {
         System.out.println("No hit in DB: " + result);
 
     }
-
+    
     /**
      * Compute the probability for a specific implementation.
      * @param impl Implementation score

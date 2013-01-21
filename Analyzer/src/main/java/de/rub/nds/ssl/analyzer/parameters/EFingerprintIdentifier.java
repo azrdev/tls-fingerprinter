@@ -7,6 +7,7 @@ package de.rub.nds.ssl.analyzer.parameters;
  * Aug 2, 2012
  */
 public enum EFingerprintIdentifier {	
+        GoodCase,
 	ClientHello,
 	CHRecordHeader,
 	CHHandshakeHeader,

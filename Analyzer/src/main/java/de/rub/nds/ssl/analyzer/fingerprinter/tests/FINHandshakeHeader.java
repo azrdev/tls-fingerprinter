@@ -23,21 +23,12 @@ import javax.crypto.Cipher;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
-import org.testng.annotations.AfterMethod;
-import org.testng.annotations.Test;
 
 public class FINHandshakeHeader extends GenericFingerprintTest
         implements Observer {
 
-    /**
-     * Test counter.
-     */
-    private int counter = 1;
-
-    @Test(enabled = true, dataProviderClass = FingerprintDataProviders.class,
-    dataProvider = "handshakeHeader", invocationCount = 1)
-    public void manipulateFinishedHandshakeHeader(String desc, byte[] msgType,
-            byte[] recordLength) throws SocketException {
+    public ResultWrapper manipulateFinishedHandshakeHeader(String desc,
+            byte[] msgType, byte[] recordLength) throws SocketException {
         logger.info("++++Start Test No." + counter + "(" + desc + ")++++");
         workflow = new TLS10HandshakeWorkflow();
         //connect to test server
@@ -55,11 +46,17 @@ public class FINHandshakeHeader extends GenericFingerprintTest
                 setIdentifier(EFingerprintIdentifier.FinHandshakeHeader);
         headerParameters.setDescription(desc);
 
-        //start the handshake
-        workflow.start();
+        try {
+            workflow.start();
 
-        this.counter++;
-        logger.info("++++Test finished.++++");
+            this.counter++;
+            logger.info("++++Test finished.++++");
+        } finally {
+            // close the Socket after the test run
+            workflow.closeSocket();
+        }
+        
+        return new ResultWrapper(headerParameters, workflow.getTraceList());
     }
 
     /**
@@ -142,16 +139,22 @@ public class FINHandshakeHeader extends GenericFingerprintTest
         }
     }
 
-    /**
-     * Close the Socket after the test run.
-     */
-    @AfterMethod
-    public void tearDown() {
-        workflow.closeSocket();
-    }
-
     @Override
     public ResultWrapper[] call() throws Exception {
-        throw new UnsupportedOperationException("Not supported yet.");
+        Object[][] parameters = new Object[][]{
+            {"Wrong message type", new byte[]{(byte) 0xff}, null},
+            {"Invalid length 0x00,0x00,0x00", null,
+                new byte[]{(byte) 0x00, (byte) 0x00, (byte) 0x00}},
+            {"Invalid length 0xff,0xff,0xff", null,
+                new byte[]{(byte) 0xff, (byte) 0xff, (byte) 0xff}},};
+
+        ResultWrapper[] result = new ResultWrapper[parameters.length];
+        for (int i = 0; i < parameters.length; i++) {
+            result[i] = manipulateFinishedHandshakeHeader(
+                    (String) parameters[i][0], (byte[]) parameters[i][1],
+                    (byte[]) parameters[i][2]);
+        }
+
+        return result;
     }
 }

@@ -27,11 +27,11 @@ public class CCS extends GenericFingerprintTest implements Observer {
             byte[] payload) throws SocketException, MalformedURLException {
         logger.info("++++Start Test No." + counter + "(" + desc + ")++++");
         workflow = new TLS10HandshakeWorkflow();
-        
+
         //connect to test server
         workflow.connectToTestServer(getTargetHost(), getTargetPort());
         logger.info("Test Server: " + getTargetHost() + ":" + getTargetPort());
-        
+
         //add the observer
         workflow.addObserver(this, EStates.CLIENT_CHANGE_CIPHER_SPEC);
         logger.info(EStates.CLIENT_FINISHED.name() + " state is observed");
@@ -40,15 +40,17 @@ public class CCS extends GenericFingerprintTest implements Observer {
         ccsParameters.setPayload(payload);
         ccsParameters.setIdentifier(EFingerprintIdentifier.ChangeCipherSpec);
         ccsParameters.setDescription(desc);
-
-        workflow.start();
        
-        this.counter++;
-        logger.info("++++Test finished.++++");
+        try {
+            workflow.start();
 
-        // close the Socket after the test run
-        workflow.closeSocket();
-        
+            this.counter++;
+            logger.info("++++Test finished.++++");
+        } finally {
+            // close the Socket after the test run
+            workflow.closeSocket();
+        }
+
         return new ResultWrapper(ccsParameters, workflow.getTraceList());
     }
 
@@ -90,7 +92,6 @@ public class CCS extends GenericFingerprintTest implements Observer {
 
     @Override
     public ResultWrapper[] call() throws Exception {
-        //Test headerParameters for CCS fingerprinting.
         Object[][] parameters = new Object[][]{
             {"Wrong payload", new byte[]{(byte) 0xff}},
             {"Invalid payload", new byte[]{0x02, 0x01}}
@@ -101,7 +102,7 @@ public class CCS extends GenericFingerprintTest implements Observer {
             result[i] = fingerprintChangeCipherSpec((String) parameters[i][0],
                     (byte[]) parameters[i][1]);
         }
-        
+
         return result;
     }
 }

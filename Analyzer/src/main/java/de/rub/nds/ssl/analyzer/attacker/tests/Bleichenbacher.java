@@ -1,9 +1,9 @@
 package de.rub.nds.ssl.analyzer.attacker.tests;
 
-import de.rub.nds.ssl.analyzer.removeMe.SSLServerHandler;
-import de.rub.nds.ssl.analyzer.removeMe.TestConfiguration;
 import de.rub.nds.ssl.analyzer.parameters.BleichenbacherParameters;
 import de.rub.nds.ssl.analyzer.parameters.EFingerprintIdentifier;
+import de.rub.nds.ssl.analyzer.removeMe.SSLServerHandler;
+import de.rub.nds.ssl.analyzer.removeMe.TestConfiguration;
 import de.rub.nds.ssl.stack.Utility;
 import de.rub.nds.ssl.stack.protocols.commons.ECipherSuite;
 import de.rub.nds.ssl.stack.protocols.commons.EProtocolVersion;

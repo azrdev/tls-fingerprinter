@@ -18,44 +18,24 @@ import de.rub.nds.ssl.stack.workflows.commons.ObservableBridge;
 import java.net.SocketException;
 import java.util.Observable;
 import java.util.Observer;
-import org.testng.annotations.AfterMethod;
-import org.testng.annotations.DataProvider;
-import org.testng.annotations.Test;
 
 public class CKE extends GenericFingerprintTest
         implements Observer {
 
-    /**
-     * Test port.
-     */
-    protected int PORT = 443;
     /**
      * Test headerParameters.
      */
     private ClientKeyExchangeParams ckeParameters = new ClientKeyExchangeParams();
 
     /**
-     * Test headerParameters for CKE fingerprinting.
      *
-     * @return List of headerParameters
+     * @param desc
+     * @param cipherSuite
+     * @param payload
+     * @return
+     * @throws SocketException
      */
-    @DataProvider(name = "clientKeyExchange")
-    public Object[][] createData1() {
-        return new Object[][]{
-                    {"Invalid payload for RSA key exchange", new ECipherSuite[]{
-                            ECipherSuite.TLS_DHE_RSA_WITH_AES_128_CBC_SHA},
-                        new byte[]{(byte) 0x00, (byte) 0x00}}
-                };
-    }
-
-    /**
-     * Start SSL handshake.
-     *
-     * @throws InterruptedException
-     * @throws IOException
-     */
-    @Test(enabled = true, dataProvider = "clientKeyExchange")
-    public void fingerprintClientKeyExchange(String desc,
+    public ResultWrapper fingerprintClientKeyExchange(String desc,
             ECipherSuite[] cipherSuite, byte[] payload) throws SocketException {
         logger.info("++++Start Test No." + counter + "(" + desc + ")++++");
         workflow = new TLS10HandshakeWorkflow();
@@ -74,11 +54,17 @@ public class CKE extends GenericFingerprintTest
         ckeParameters.setIdentifier(EFingerprintIdentifier.ClientKeyExchange);
         ckeParameters.setDescription(desc);
 
-        //start the handshake
-        workflow.start();
+        try {
+            workflow.start();
 
-        this.counter++;
-        logger.info("++++Test finished.++++");
+            this.counter++;
+            logger.info("++++Test finished.++++");
+        } finally {
+            // close the Socket after the test run
+            workflow.closeSocket();
+        }
+
+        return new ResultWrapper(ckeParameters, workflow.getTraceList());
     }
 
     /**
@@ -125,16 +111,20 @@ public class CKE extends GenericFingerprintTest
         }
     }
 
-    /**
-     * Close the Socket after the test run.
-     */
-    @AfterMethod
-    public void tearDown() {
-        workflow.closeSocket();
-    }
-
     @Override
     public ResultWrapper[] call() throws Exception {
-        throw new UnsupportedOperationException("Not supported yet.");
+        Object[][] parameters = new Object[][]{
+            {"Invalid payload for RSA key exchange", new ECipherSuite[]{
+                    ECipherSuite.TLS_DHE_RSA_WITH_AES_128_CBC_SHA},
+                new byte[]{(byte) 0x00, (byte) 0x00}}
+        };
+
+        ResultWrapper[] result = new ResultWrapper[parameters.length];
+        for (int i = 0; i < parameters.length; i++) {
+            result[i] = fingerprintClientKeyExchange((String) parameters[i][0],
+                    (ECipherSuite[]) parameters[i][1], (byte[]) parameters[i][2]);
+        }
+
+        return result;
     }
 }

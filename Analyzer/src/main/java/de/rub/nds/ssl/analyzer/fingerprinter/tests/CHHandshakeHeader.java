@@ -14,8 +14,6 @@ import de.rub.nds.ssl.stack.workflows.commons.ObservableBridge;
 import java.net.SocketException;
 import java.util.Observable;
 import java.util.Observer;
-import org.testng.annotations.AfterMethod;
-import org.testng.annotations.Test;
 
 /**
  * Fingerprint the Client Hello handshake header. Perform Tests by manipulating
@@ -28,14 +26,15 @@ public class CHHandshakeHeader extends GenericFingerprintTest implements
         Observer {
 
     /**
-     * Test port.
+     *
+     * @param desc
+     * @param msgType
+     * @param recordLength
+     * @return
+     * @throws SocketException
      */
-    protected int PORT = 443;
-
-    @Test(enabled = true, dataProviderClass = FingerprintDataProviders.class,
-    dataProvider = "handshakeHeader", invocationCount = 1)
-    public void manipulateCHHandshakeHeader(String desc, byte[] msgType,
-            byte[] recordLength) throws SocketException {
+    public ResultWrapper manipulateCHHandshakeHeader(String desc,
+            byte[] msgType, byte[] recordLength) throws SocketException {
         logger.info("++++Start Test No." + counter + "(" + desc + ")++++");
         logger.info("Following test parameters are used:");
         workflow = new TLS10HandshakeWorkflow();
@@ -53,11 +52,17 @@ public class CHHandshakeHeader extends GenericFingerprintTest implements
         headerParameters.setIdentifier(EFingerprintIdentifier.CHHandshakeHeader);
         headerParameters.setDescription(desc);
 
-        //start the handshake
-        workflow.start();
+        try {
+            workflow.start();
 
-        this.counter++;
-        logger.info("++++Test finished.++++");
+            this.counter++;
+            logger.info("++++Test finished.++++");
+        } finally {
+            // close the Socket after the test run
+            workflow.closeSocket();
+        }
+
+        return new ResultWrapper(headerParameters, workflow.getTraceList());
     }
 
     /**
@@ -103,16 +108,21 @@ public class CHHandshakeHeader extends GenericFingerprintTest implements
         }
     }
 
-    /**
-     * Close the Socket after the test run.
-     */
-    @AfterMethod
-    public void tearDown() {
-        workflow.closeSocket();
-    }
-
     @Override
     public ResultWrapper[] call() throws Exception {
-        throw new UnsupportedOperationException("Not supported yet.");
+        Object[][] parameters = new Object[][]{
+            {"Wrong message type", new byte[]{(byte) 0xff}, null},
+            {"Invalid length 0x00,0x00,0x00", null,
+                new byte[]{(byte) 0x00, (byte) 0x00, (byte) 0x00}},
+            {"Invalid length 0xff,0xff,0xff", null,
+                new byte[]{(byte) 0xff, (byte) 0xff, (byte) 0xff}},};
+
+        ResultWrapper[] result = new ResultWrapper[parameters.length];
+        for (int i = 0; i < parameters.length; i++) {
+            result[i] = manipulateCHHandshakeHeader((String) parameters[i][0],
+                    (byte[]) parameters[i][1], (byte[]) parameters[i][2]);
+        }
+
+        return result;
     }
 }

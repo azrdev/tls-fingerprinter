@@ -1,5 +1,6 @@
 package de.rub.nds.ssl.analyzer.executor;
 
+import de.rub.nds.ssl.analyzer.fingerprinter.HandshakeEnumCheck;
 import de.rub.nds.ssl.analyzer.fingerprinter.TestHashAnalyzer;
 import de.rub.nds.ssl.analyzer.fingerprinter.tests.CCS;
 import de.rub.nds.ssl.analyzer.fingerprinter.tests.CCSRecordHeader;
@@ -9,9 +10,11 @@ import de.rub.nds.ssl.analyzer.fingerprinter.tests.CHRecordHeader;
 import de.rub.nds.ssl.analyzer.fingerprinter.tests.CKE;
 import de.rub.nds.ssl.analyzer.fingerprinter.tests.CKEHandshakeHeader;
 import de.rub.nds.ssl.analyzer.fingerprinter.tests.CKERecordHeader;
+import de.rub.nds.ssl.analyzer.fingerprinter.tests.CheckEnumeration;
 import de.rub.nds.ssl.analyzer.fingerprinter.tests.FIN;
 import de.rub.nds.ssl.analyzer.fingerprinter.tests.FINHandshakeHeader;
 import de.rub.nds.ssl.analyzer.fingerprinter.tests.FINRecordHeader;
+import de.rub.nds.ssl.analyzer.fingerprinter.tests.GoodCase;
 
 /**
  * Listing of all available Fingerprinting tests.
@@ -44,7 +47,11 @@ public enum EFingerprintTests {
     FIN_HH("Finished Message Handshake Header Test", 
             FINHandshakeHeader.class, TestHashAnalyzer.class),
     FIN_RH("Finished Message Record Header Test", 
-            FINRecordHeader.class, TestHashAnalyzer.class);
+            FINRecordHeader.class, TestHashAnalyzer.class),
+    GOOD("Good Case - Clean Run Test", 
+            GoodCase.class, TestHashAnalyzer.class),
+    HANDSHAKE_ENUM("Handshake Enumeration Test", 
+            CheckEnumeration.class, HandshakeEnumCheck.class);
     /**
      * Fingerprint Test description.
      */

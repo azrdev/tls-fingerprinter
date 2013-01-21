@@ -1,9 +1,6 @@
 package de.rub.nds.ssl.analyzer.fingerprinter.tests;
 
 import de.rub.nds.ssl.analyzer.ResultWrapper;
-import de.rub.nds.ssl.analyzer.fingerprinter.IFingerprinter;
-import de.rub.nds.ssl.analyzer.fingerprinter.TestHashAnalyzer;
-import de.rub.nds.ssl.analyzer.removeMe.TestConfiguration;
 import de.rub.nds.ssl.analyzer.parameters.EFingerprintIdentifier;
 import de.rub.nds.ssl.stack.protocols.handshake.ClientKeyExchange;
 import de.rub.nds.ssl.stack.trace.MessageContainer;
@@ -14,16 +11,20 @@ import de.rub.nds.ssl.stack.workflows.commons.ObservableBridge;
 import java.net.SocketException;
 import java.util.Observable;
 import java.util.Observer;
-import org.testng.annotations.AfterMethod;
-import org.testng.annotations.Test;
 
 public class CKEHandshakeHeader extends GenericFingerprintTest implements
         Observer {
 
-    @Test(enabled = true, dataProviderClass = FingerprintDataProviders.class,
-    dataProvider = "handshakeHeader", invocationCount = 1)
-    public void manipulateCKERecordHeader(String desc, byte[] msgType,
-            byte[] recordLength) throws SocketException {
+    /**
+     *
+     * @param desc
+     * @param msgType
+     * @param recordLength
+     * @return
+     * @throws SocketException
+     */
+    public ResultWrapper manipulateCKEHandshakeHeader(String desc,
+            byte[] msgType, byte[] recordLength) throws SocketException {
         logger.info("++++Start Test No." + counter + "(" + desc + ")++++");
         workflow = new TLS10HandshakeWorkflow();
         //connect to test server
@@ -41,11 +42,17 @@ public class CKEHandshakeHeader extends GenericFingerprintTest implements
                 setIdentifier(EFingerprintIdentifier.CKEHandshakeHeader);
         headerParameters.setDescription(desc);
 
-        //start the handshake
-        workflow.start();
+        try {
+            workflow.start();
 
-        this.counter++;
-        logger.info("++++Test finished.++++");
+            this.counter++;
+            logger.info("++++Test finished.++++");
+        } finally {
+            // close the Socket after the test run
+            workflow.closeSocket();
+        }
+
+        return new ResultWrapper(headerParameters, workflow.getTraceList());
     }
 
     /**
@@ -85,16 +92,21 @@ public class CKEHandshakeHeader extends GenericFingerprintTest implements
         }
     }
 
-    /**
-     * Close the Socket after the test run.
-     */
-    @AfterMethod
-    public void tearDown() {
-        workflow.closeSocket();
-    }
-
     @Override
     public ResultWrapper[] call() throws Exception {
-        throw new UnsupportedOperationException("Not supported yet.");
+        Object[][] parameters = new Object[][]{
+            {"Wrong message type", new byte[]{(byte) 0xff}, null},
+            {"Invalid length 0x00,0x00,0x00", null,
+                new byte[]{(byte) 0x00, (byte) 0x00, (byte) 0x00}},
+            {"Invalid length 0xff,0xff,0xff", null,
+                new byte[]{(byte) 0xff, (byte) 0xff, (byte) 0xff}},};
+
+        ResultWrapper[] result = new ResultWrapper[parameters.length];
+        for (int i = 0; i < parameters.length; i++) {
+            result[i] = manipulateCKEHandshakeHeader((String) parameters[i][0],
+                    (byte[]) parameters[i][1], (byte[]) parameters[i][2]);
+        }
+
+        return result;
     }
 }

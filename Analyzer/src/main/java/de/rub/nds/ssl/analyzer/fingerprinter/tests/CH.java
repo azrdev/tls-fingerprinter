@@ -15,9 +15,6 @@ import de.rub.nds.ssl.stack.workflows.commons.ObservableBridge;
 import java.net.SocketException;
 import java.util.Observable;
 import java.util.Observer;
-import org.testng.annotations.AfterMethod;
-import org.testng.annotations.DataProvider;
-import org.testng.annotations.Test;
 
 /**
  * Fingerprint the CH SSL message.
@@ -27,10 +24,6 @@ import org.testng.annotations.Test;
  */
 public class CH extends GenericFingerprintTest implements Observer {
 
-    /**
-     * Test port.
-     */
-    protected int PORT = 443;
     /**
      * Test headerParameters.
      */
@@ -112,56 +105,22 @@ public class CH extends GenericFingerprintTest implements Observer {
     };
 
     /**
-     * Test headerParameters for CH fingerprinting.
-     *
-     * @return List of headerParameters
-     */
-    @DataProvider(name = "clientHello")
-    public Object[][] createData1() {
-        return new Object[][]{
-                    {"Invalid protocol version 0xff,0xff",
-                        new byte[]{(byte) 0xff, (byte) 0xff}, null, null, null,
-                        null, null},
-                    {"Invalid protocol version 0x00,0x00",
-                        new byte[]{(byte) 0x00, (byte) 0x00}, null, null, null,
-                        null, null},
-                    {"Invalid protocol version SSLv3",
-                        new byte[]{(byte) 0x03, (byte) 0x00}, null, null, null,
-                        null, null},
-                    {"Invalid protocol version TLSv1.2",
-                        new byte[]{(byte) 0x03, (byte) 0x03}, null, null, null,
-                        null, null},
-                    {"No session ID defined but value is set to 0xff",
-                        null, new byte[]{(byte) 0xff},
-                        null, null, null, null},
-                    {"256 Byte sessionID", null,
-                        null, sessionID, null, null, null},
-                    {"256 Byte sessionID and sessionID length 0x00", null,
-                        null, sessionID, new byte[]{(byte) 0x00}, null, null},
-                    {"Compression method 0xa1", null, null, null,
-                        null, null, new byte[]{(byte) 0xa1}},
-                    {"Wrong value for cipher suite length 0x01", null, null,
-                        null, null,
-                        new byte[]{(byte) 0x01}, null},
-                    {"Wrong value for cipher suite length 0x00", null, null,
-                        null, null,
-                        new byte[]{(byte) 0x00}, null},};
-    }
-
-    /**
      * Manipulate Client Hello message to perform fingerprinting tests
      *
      * @param desc Test description
      * @param protocolVersion TLS protocol version
-     * @param random Random value
-     * @param suites Cipher suites
+     * @param noSessionValue
+     * @param session
+     * @param sessionIdLength
+     * @param cipherLength
      * @param compMethod Compression method
+     * @return
+     * @throws SocketException
      */
-    @Test(enabled = true, dataProvider = "clientHello", invocationCount = 1)
-    public void fingerprintClientHello(String desc,
-            byte[] protVersion, byte[] noSessionValue, byte[] session,
-            byte[] sessionIdLength,
-            byte[] cipherLength, byte[] compMethod) throws SocketException {
+    public ResultWrapper fingerprintClientHello(String desc,
+            byte[] protocolVersion, byte[] noSessionValue, byte[] session,
+            byte[] sessionIdLength, byte[] cipherLength, byte[] compMethod)
+            throws SocketException {
         logger.info("++++Start Test No." + counter + "(" + desc + ")++++");
         workflow = new TLS10HandshakeWorkflow();
         //connect to test server
@@ -173,7 +132,7 @@ public class CH extends GenericFingerprintTest implements Observer {
         logger.info(EStates.CLIENT_HELLO.name() + " state is observed");
 
         //set the test headerParameters
-        chParameters.setProtocolVersion(protVersion);
+        chParameters.setProtocolVersion(protocolVersion);
         chParameters.setNoSessionIdValue(noSessionValue);
         chParameters.setSessionId(session);
         chParameters.setSessionIdLen(sessionIdLength);
@@ -185,8 +144,17 @@ public class CH extends GenericFingerprintTest implements Observer {
         //start the handshake
         workflow.start();
 
-        this.counter++;
-        logger.info("++++Test finished.++++");
+        try {
+            workflow.start();
+
+            this.counter++;
+            logger.info("++++Test finished.++++");
+        } finally {
+            // close the Socket after the test run
+            workflow.closeSocket();
+        }
+
+        return new ResultWrapper(chParameters, workflow.getTraceList());
     }
 
     /**
@@ -249,16 +217,41 @@ public class CH extends GenericFingerprintTest implements Observer {
         }
     }
 
-    /**
-     * Close the Socket after the test run.
-     */
-    @AfterMethod
-    public void tearDown() {
-        workflow.closeSocket();
-    }
-
     @Override
     public ResultWrapper[] call() throws Exception {
-        throw new UnsupportedOperationException("Not supported yet.");
+        Object[][] parameters = new Object[][]{
+            {"Invalid protocol version 0xff,0xff",
+                new byte[]{(byte) 0xff, (byte) 0xff}, null, null, null, null,
+                null},
+            {"Invalid protocol version 0x00,0x00",
+                new byte[]{(byte) 0x00, (byte) 0x00}, null, null, null, null,
+                null},
+            {"Invalid protocol version SSLv3",
+                new byte[]{(byte) 0x03, (byte) 0x00}, null, null, null, null,
+                null},
+            {"Invalid protocol version TLSv1.2",
+                new byte[]{(byte) 0x03, (byte) 0x03}, null, null, null, null,
+                null},
+            {"No session ID defined but value is set to 0xff",
+                null, new byte[]{(byte) 0xff}, null, null, null, null},
+            {"256 Byte sessionID", null, null, sessionID, null, null, null},
+            {"256 Byte sessionID and sessionID length 0x00", null, null,
+                sessionID, new byte[]{(byte) 0x00}, null, null},
+            {"Compression method 0xa1", null, null, null, null, null,
+                new byte[]{(byte) 0xa1}},
+            {"Wrong value for cipher suite length 0x01", null, null, null, null,
+                new byte[]{(byte) 0x01}, null},
+            {"Wrong value for cipher suite length 0x00", null, null, null, null,
+                new byte[]{(byte) 0x00}, null}};
+
+        ResultWrapper[] result = new ResultWrapper[parameters.length];
+        for (int i = 0; i < parameters.length; i++) {
+            result[i] = fingerprintClientHello((String) parameters[i][0],
+                    (byte[]) parameters[i][1], (byte[]) parameters[i][2],
+                    (byte[]) parameters[i][3], (byte[]) parameters[i][4],
+                    (byte[]) parameters[i][5], (byte[]) parameters[i][6]);
+        }
+
+        return result;
     }
 }

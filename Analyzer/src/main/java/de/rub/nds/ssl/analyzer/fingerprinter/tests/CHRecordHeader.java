@@ -14,8 +14,6 @@ import de.rub.nds.ssl.stack.workflows.commons.ObservableBridge;
 import java.net.SocketException;
 import java.util.Observable;
 import java.util.Observer;
-import org.testng.annotations.AfterMethod;
-import org.testng.annotations.Test;
 
 /**
  * Fingerprint the ClientHello record header. Perform Tests by manipulating the
@@ -25,22 +23,24 @@ import org.testng.annotations.Test;
  * @version 0.1 May 30, 2012
  */
 public class CHRecordHeader extends GenericFingerprintTest implements Observer {
-    /**
-     * Test port.
-     */
-    protected int PORT = 443;
 
-    
-    @Test(enabled = true, dataProviderClass = FingerprintDataProviders.class,
-    dataProvider = "recordHeader", invocationCount = 1)
-    public void manipulateCHRecordHeader(String desc, byte[] msgType,
+    /**
+     *
+     * @param desc
+     * @param msgType
+     * @param protocolVersion
+     * @param recordLength
+     * @return
+     * @throws SocketException
+     */
+    public ResultWrapper manipulateCHRecordHeader(String desc, byte[] msgType,
             byte[] protocolVersion, byte[] recordLength) throws SocketException {
         logger.info("++++Start Test No." + counter + "(" + desc + ")++++");
         workflow = new TLS10HandshakeWorkflow();
         //connect to test server
-                workflow.connectToTestServer(getTargetHost(), getTargetPort());
+        workflow.connectToTestServer(getTargetHost(), getTargetPort());
         logger.info("Test Server: " + getTargetHost() + ":" + getTargetPort());
-        
+
         //add the observer
         workflow.addObserver(this, EStates.CLIENT_HELLO);
         logger.info(EStates.CLIENT_HELLO.name() + " state is observed");
@@ -52,11 +52,17 @@ public class CHRecordHeader extends GenericFingerprintTest implements Observer {
         headerParameters.setIdentifier(EFingerprintIdentifier.CHRecordHeader);
         headerParameters.setDescription(desc);
 
-        //start the handshake
-        workflow.start();
+        try {
+            workflow.start();
 
-        this.counter++;
-        logger.info("++++Test finished.++++");
+            this.counter++;
+            logger.info("++++Test finished.++++");
+        } finally {
+            // close the Socket after the test run
+            workflow.closeSocket();
+        }
+
+        return new ResultWrapper(headerParameters, workflow.getTraceList());
     }
 
     /**
@@ -84,7 +90,8 @@ public class CHRecordHeader extends GenericFingerprintTest implements Observer {
             RandomValue random = new RandomValue();
             byte[] compMethod = new byte[]{0x00};
             //create ClientHello message
-            ClientHello clientHello = msgBuilder.createClientHello(this.protocolVersion.
+            ClientHello clientHello = msgBuilder.
+                    createClientHello(this.protocolVersion.
                     getId(),
                     random.encode(false), cipherSuites.encode(false), compMethod);
             byte[] payload = clientHello.encode(true);
@@ -110,16 +117,24 @@ public class CHRecordHeader extends GenericFingerprintTest implements Observer {
         }
     }
 
-    /**
-     * Close the Socket after the test run.
-     */
-    @AfterMethod
-    public void tearDown() {
-        workflow.closeSocket();
-    }
-
     @Override
     public ResultWrapper[] call() throws Exception {
-        throw new UnsupportedOperationException("Not supported yet.");
+        Object[][] parameters = new Object[][]{
+            {"Wrong message type", new byte[]{(byte) 0x17}, null, null},
+            {"Invalid protocol version 0xff,0xff", null,
+                new byte[]{(byte) 0xff, (byte) 0xff}, null},
+            {"Invalid length 0x00,0x00", null, null,
+                new byte[]{(byte) 0x00, (byte) 0x00}},
+            {"Invalid length 0xff,0xff", null, null,
+                new byte[]{(byte) 0xff, (byte) 0xff}},};
+
+        ResultWrapper[] result = new ResultWrapper[parameters.length];
+        for (int i = 0; i < parameters.length; i++) {
+            result[i] = manipulateCHRecordHeader((String) parameters[i][0],
+                    (byte[]) parameters[i][1], (byte[]) parameters[i][2],
+                    (byte[]) parameters[i][3]);
+        }
+
+        return result;
     }
 }

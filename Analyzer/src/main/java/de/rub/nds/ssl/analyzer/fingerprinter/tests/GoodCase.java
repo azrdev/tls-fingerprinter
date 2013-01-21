@@ -1,7 +1,7 @@
 package de.rub.nds.ssl.analyzer.fingerprinter.tests;
 
 import de.rub.nds.ssl.analyzer.ResultWrapper;
-import de.rub.nds.ssl.analyzer.removeMe.SSLServerHandler;
+import de.rub.nds.ssl.analyzer.parameters.EFingerprintIdentifier;
 import de.rub.nds.ssl.stack.protocols.commons.ECipherSuite;
 import de.rub.nds.ssl.stack.protocols.handshake.ClientHello;
 import de.rub.nds.ssl.stack.protocols.handshake.datatypes.CipherSuites;
@@ -14,12 +14,6 @@ import de.rub.nds.ssl.stack.workflows.commons.ObservableBridge;
 import java.net.SocketException;
 import java.util.Observable;
 import java.util.Observer;
-import org.apache.log4j.PropertyConfigurator;
-import org.testng.annotations.AfterMethod;
-import org.testng.annotations.BeforeClass;
-import org.testng.annotations.BeforeMethod;
-import org.testng.annotations.DataProvider;
-import org.testng.annotations.Test;
 
 /**
  * Execute the handshake with valid headerParameters.
@@ -33,34 +27,36 @@ public class GoodCase extends GenericFingerprintTest implements Observer {
      * Cipher suite.
      */
     private ECipherSuite[] suite;
-    /**
-     * Handler to start/stop a test server.
-     */
-    private SSLServerHandler serverHandler = new SSLServerHandler();
 
     /**
-     * Cipher suites for ClientHello.
      *
-     * @return List of headerParameters
+     * @param suite
+     * @return
+     * @throws SocketException
      */
-    @DataProvider(name = "cipher")
-    public Object[][] createData1() {
-        return new Object[][]{
-                    {new ECipherSuite[]{
-                            ECipherSuite.TLS_RSA_WITH_AES_128_CBC_SHA}},};
-    }
-
-    /**
-     * Execute handshake.
-     */
-    @Test(enabled = true, dataProvider = "cipher")
-    public void executeHandshake(ECipherSuite[] suite) throws SocketException {
+    public ResultWrapper executeHandshake(ECipherSuite[] suite) throws
+            SocketException {
         workflow = new TLS10HandshakeWorkflow();
         workflow.connectToTestServer(getTargetHost(), getTargetPort());
         logger.info("Test Server: " + getTargetHost() + ":" + getTargetPort());
         workflow.addObserver(this, EStates.CLIENT_HELLO);
         this.suite = suite;
-        workflow.start();
+
+        //set the test headerParameters
+        headerParameters.setIdentifier(EFingerprintIdentifier.GoodCase);
+        headerParameters.setDescription("Good Case");
+        
+        try {
+            workflow.start();
+
+            this.counter++;
+            logger.info("++++Test finished.++++");
+        } finally {
+            // close the Socket after the test run
+            workflow.closeSocket();
+        }
+
+        return new ResultWrapper(headerParameters, workflow.getTraceList());
     }
 
     /**
@@ -93,37 +89,17 @@ public class GoodCase extends GenericFingerprintTest implements Observer {
 
     }
 
-    /**
-     * Initialize logging properties
-     */
-    @BeforeClass
-    public void setUpClass() {
-        PropertyConfigurator.configure("logging.properties");
-        logger.info("##################################");
-        logger.info(this.getClass().getSimpleName());
-        logger.info("##################################");
-    }
-
-    /**
-     * Start the target SSL Server.
-     */
-    @BeforeMethod
-    public void setUp() {
-//        System.setProperty("javax.net.debug", "ssl");
-        serverHandler.startTestServer();
-    }
-
-    /**
-     * Close the Socket after the test run.
-     */
-    @AfterMethod
-    public void tearDown() {
-        workflow.closeSocket();
-        serverHandler.shutdownTestServer();
-    }
-
     @Override
     public ResultWrapper[] call() throws Exception {
-        throw new UnsupportedOperationException("Not supported yet.");
+        Object[][] parameters = new Object[][]{
+            {new ECipherSuite[]{ECipherSuite.TLS_RSA_WITH_AES_128_CBC_SHA}}
+        };
+
+        ResultWrapper[] result = new ResultWrapper[parameters.length];
+        for (int i = 0; i < parameters.length; i++) {
+            result[i] = executeHandshake((ECipherSuite[]) parameters[i][0]);
+        }
+
+        return result;
     }
 }

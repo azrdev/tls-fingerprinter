@@ -11,9 +11,6 @@ import de.rub.nds.ssl.stack.workflows.commons.ObservableBridge;
 import java.net.SocketException;
 import java.util.Observable;
 import java.util.Observer;
-import org.testng.annotations.AfterMethod;
-import org.testng.annotations.DataProvider;
-import org.testng.annotations.Test;
 
 /**
  * Fingerprint the ClientKeyExchange record header. Perform Tests by
@@ -26,29 +23,15 @@ import org.testng.annotations.Test;
 public class CKERecordHeader extends GenericFingerprintTest implements Observer {
 
     /**
-     * Test port.
+     *
+     * @param desc
+     * @param msgType
+     * @param protocolVersion
+     * @param recordLength
+     * @return
+     * @throws SocketException
      */
-    protected int PORT = 443;
-    /**
-     * Test counter.
-     */
-    private int counter = 1;
-
-    @DataProvider(name = "ckeHeader")
-    public Object[][] createData1() {
-        return new Object[][]{
-                    {"Wrong message type", new byte[]{(byte) 0xff},
-                        null, null},
-                    {"Invalid protocol version 0xff,0xff",
-                        null, new byte[]{(byte) 0xff, (byte) 0xff}, null},
-                    {"Invalid length 0x00,0x00",
-                        null, null, new byte[]{(byte) 0x00, (byte) 0x00}},
-                    {"Invalid length 0xff,0xff",
-                        null, null, new byte[]{(byte) 0xff, (byte) 0xff}},};
-    }
-
-    @Test(enabled = true, dataProvider = "ckeHeader", invocationCount = 1)
-    public void manipulateCKERecordHeader(String desc, byte[] msgType,
+    public ResultWrapper manipulateCKERecordHeader(String desc, byte[] msgType,
             byte[] protocolVersion, byte[] recordLength) throws SocketException {
         logger.info("++++Start Test No." + counter + "(" + desc + ")++++");
         workflow = new TLS10HandshakeWorkflow();
@@ -67,11 +50,17 @@ public class CKERecordHeader extends GenericFingerprintTest implements Observer 
         headerParameters.setIdentifier(EFingerprintIdentifier.CKERecordHeader);
         headerParameters.setDescription(desc);
 
-        //start the handshake
-        workflow.start();
+        try {
+            workflow.start();
 
-        this.counter++;
-        logger.info("++++Test finished.++++");
+            this.counter++;
+            logger.info("++++Test finished.++++");
+        } finally {
+            // close the Socket after the test run
+            workflow.closeSocket();
+        }
+
+        return new ResultWrapper(headerParameters, workflow.getTraceList());
     }
 
     /**
@@ -117,16 +106,24 @@ public class CKERecordHeader extends GenericFingerprintTest implements Observer 
         }
     }
 
-    /**
-     * Close the Socket after the test run.
-     */
-    @AfterMethod
-    public void tearDown() {
-        workflow.closeSocket();
-    }
-
     @Override
     public ResultWrapper[] call() throws Exception {
-        throw new UnsupportedOperationException("Not supported yet.");
+        Object[][] parameters = new Object[][]{
+            {"Wrong message type", new byte[]{(byte) 0xff}, null, null},
+            {"Invalid protocol version 0xff,0xff", null,
+                new byte[]{(byte) 0xff, (byte) 0xff}, null},
+            {"Invalid length 0x00,0x00", null, null,
+                new byte[]{(byte) 0x00, (byte) 0x00}},
+            {"Invalid length 0xff,0xff", null, null,
+                new byte[]{(byte) 0xff, (byte) 0xff}}};
+
+        ResultWrapper[] result = new ResultWrapper[parameters.length];
+        for (int i = 0; i < parameters.length; i++) {
+            result[i] = manipulateCKERecordHeader((String) parameters[i][0],
+                    (byte[]) parameters[i][1], (byte[]) parameters[i][2],
+                    (byte[]) parameters[i][3]);
+        }
+
+        return result;
     }
 }

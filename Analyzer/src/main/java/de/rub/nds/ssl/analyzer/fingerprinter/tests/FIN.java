@@ -1,9 +1,6 @@
 package de.rub.nds.ssl.analyzer.fingerprinter.tests;
 
 import de.rub.nds.ssl.analyzer.ResultWrapper;
-import de.rub.nds.ssl.analyzer.fingerprinter.IFingerprinter;
-import de.rub.nds.ssl.analyzer.fingerprinter.TestHashAnalyzer;
-import de.rub.nds.ssl.analyzer.removeMe.TestConfiguration;
 import de.rub.nds.ssl.analyzer.parameters.EFingerprintIdentifier;
 import de.rub.nds.ssl.analyzer.parameters.FinishedParameters;
 import de.rub.nds.ssl.stack.Utility;
@@ -27,9 +24,6 @@ import javax.crypto.Cipher;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
-import org.testng.annotations.AfterMethod;
-import org.testng.annotations.DataProvider;
-import org.testng.annotations.Test;
 
 public class FIN extends GenericFingerprintTest implements Observer {
 
@@ -38,20 +32,7 @@ public class FIN extends GenericFingerprintTest implements Observer {
      */
     private FinishedParameters finParameters = new FinishedParameters();
 
-    @DataProvider(name = "finished")
-    public Object[][] createFinishedData() {
-        return new Object[][]{
-                    {"Wrong padding", true, false, false, false, false},
-                    {"Destroy MAC", false, true, false, false, false},
-                    {"Destroy hash value", false, false, true, false, false},
-                    {"Destroy Verify", false, false, false, true, false},
-                    {"Change length byte of padding", false, false, false, false,
-                        true}
-                };
-    }
-
-    @Test(enabled = true, dataProvider = "finished", invocationCount = 1)
-    public void manipulateFinishedRecordHeader(String desc,
+    public ResultWrapper manipulateFinishedRecordHeader(String desc,
             boolean changePadding, boolean destroyMAC,
             boolean destroyHash, boolean destroyVerify, boolean changePadLength)
             throws SocketException {
@@ -74,11 +55,17 @@ public class FIN extends GenericFingerprintTest implements Observer {
         finParameters.setIdentifier(EFingerprintIdentifier.Finished);
         finParameters.setDescription(desc);
 
-        //start the handshake
-        workflow.start();
+        try {
+            workflow.start();
 
-        this.counter++;
-        logger.info("++++Test finished.++++");
+            this.counter++;
+            logger.info("++++Test finished.++++");
+        } finally {
+            // close the Socket after the test run
+            workflow.closeSocket();
+        }
+
+        return new ResultWrapper(finParameters, workflow.getTraceList());
     }
 
     /**
@@ -174,16 +161,24 @@ public class FIN extends GenericFingerprintTest implements Observer {
         }
     }
 
-    /**
-     * Close the Socket after the test run.
-     */
-    @AfterMethod
-    public void tearDown() {
-        workflow.closeSocket();
-    }
-
     @Override
     public ResultWrapper[] call() throws Exception {
-        throw new UnsupportedOperationException("Not supported yet.");
+        Object[][] parameters = new Object[][]{
+            {"Wrong padding", true, false, false, false, false},
+            {"Destroy MAC", false, true, false, false, false},
+            {"Destroy hash value", false, false, true, false, false},
+            {"Destroy Verify", false, false, false, true, false},
+            {"Change length byte of padding", false, false, false, false, true}
+        };
+
+        ResultWrapper[] result = new ResultWrapper[parameters.length];
+        for (int i = 0; i < parameters.length; i++) {
+            result[i] = manipulateFinishedRecordHeader((String) parameters[i][0],
+                    (Boolean) parameters[i][1], (Boolean) parameters[i][2],
+                    (Boolean) parameters[i][3], (Boolean) parameters[i][4],
+                    (Boolean) parameters[i][5]);
+        }
+
+        return result;
     }
 }
