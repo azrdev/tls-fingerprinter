@@ -1,7 +1,6 @@
 package de.rub.nds.ssl.stack.workflows;
 
 import de.rub.nds.research.timingsocket.TimingSocket;
-import de.rub.nds.research.timingsocket.TimingSocketImpl;
 import de.rub.nds.ssl.stack.Utility;
 import de.rub.nds.ssl.stack.protocols.ARecordFrame;
 import de.rub.nds.ssl.stack.protocols.commons.EConnectionEnd;

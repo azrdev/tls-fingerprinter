@@ -42,9 +42,9 @@ public enum EMessageType {
      *
      * @param id Id of this message type
      */
-    EMessageType(final byte id, final Class implementor) {
+    EMessageType(final byte id, final Class implementer) {
         this.id = id;
-        this.implementingClass = implementor;
+        this.implementingClass = implementer;
     }
 
     /**

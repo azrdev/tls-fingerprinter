@@ -1,10 +1,8 @@
 package de.rub.nds.ssl.stack.protocols.handshake;
 
 import de.rub.nds.ssl.stack.protocols.ARecordFrame;
-import de.rub.nds.ssl.stack.protocols.commons.ECipherSuite;
 import de.rub.nds.ssl.stack.protocols.commons.EProtocolVersion;
 import de.rub.nds.ssl.stack.protocols.handshake.datatypes.EKeyExchangeAlgorithm;
-
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -27,16 +25,17 @@ final public class HandshakeEnumeration extends ARecordFrame {
     final private static int DEFAULT_LIST_SIZE = 3;
     final private List<AHandshakeRecord> messages =
             new ArrayList<AHandshakeRecord>(DEFAULT_LIST_SIZE);
-
-    
     private EKeyExchangeAlgorithm keyEKeyExchangeAlgorithm = null;
+
     /**
      * Slicer/Combiner for multiple handshake messages
      *
      * @param message (Multiple) handshake messages in encoded form
      * @param chained Decode single or chained with underlying frames
+     * @param keyExchangeAlgorithm
      */
-    public HandshakeEnumeration(final byte[] message, final boolean chained, EKeyExchangeAlgorithm keyExchangeAlgorithm) {
+    public HandshakeEnumeration(final byte[] message, final boolean chained,
+            EKeyExchangeAlgorithm keyExchangeAlgorithm) {
         // dummy call - decoding will invoke decoders of the parents if desired
         super();
         this.keyEKeyExchangeAlgorithm = keyExchangeAlgorithm;
@@ -75,6 +74,7 @@ final public class HandshakeEnumeration extends ARecordFrame {
     /**
      * {@inheritDoc}
      */
+    @Override
     public void decode(final byte[] message, final boolean chained) {
         byte[] payloadCopy;
         byte[] tmpMessage;
@@ -154,62 +154,56 @@ final public class HandshakeEnumeration extends ARecordFrame {
                     + type);
         }
 
-		try {
+        try {
+            // Can we decide this in another way?
+            if ((implClass.equals(ServerKeyExchange.class) || (implClass
+                    .equals(ClientKeyExchange.class)))) {
+                Class[] parameter = new Class[3];
+                parameter[0] = byte[].class;
+                parameter[1] = EKeyExchangeAlgorithm.class;
+                parameter[2] = boolean.class;
+                Constructor<AHandshakeRecord> constructor = implClass
+                        .getConstructor(parameter);
+                result = constructor.newInstance(message,
+                        keyEKeyExchangeAlgorithm, false);
+                result.setMessageType(type);
 
-			// Can we decide this in another way?
-			if ((implClass.equals(ServerKeyExchange.class) || (implClass
-					.equals(ClientKeyExchange.class)))) {
-				Class[] parameter = new Class[3];
-				parameter[0] = byte[].class;
-				parameter[1] = EKeyExchangeAlgorithm.class;
-				parameter[2] = boolean.class;
-				Constructor<AHandshakeRecord> constructor = implClass
-						.getConstructor(parameter);
-				result = constructor.newInstance(message, keyEKeyExchangeAlgorithm, false);
-				result.setMessageType(type);
+                // set protocol version
+                Method setProtocolVersion = ARecordFrame.class
+                        .getDeclaredMethod("setProtocolVersion",
+                        EProtocolVersion.class);
+                setProtocolVersion.setAccessible(true);
+                setProtocolVersion.invoke(result, version);
+            } else {
+                Class[] parameter = new Class[2];
+                parameter[0] = byte[].class;
+                parameter[1] = boolean.class;
+                Constructor<AHandshakeRecord> constructor = implClass
+                        .getConstructor(parameter);
+                result = constructor.newInstance(message, false);
+                result.setMessageType(type);
 
-				// set protocol version
-				Method setProtocolVersion = ARecordFrame.class
-						.getDeclaredMethod("setProtocolVersion",
-								EProtocolVersion.class);
-				setProtocolVersion.setAccessible(true);
-				setProtocolVersion.invoke(result, version);
-
-			} else {
-				Class[] parameter = new Class[2];
-				parameter[0] = byte[].class;
-				parameter[1] = boolean.class;
-				Constructor<AHandshakeRecord> constructor = implClass
-						.getConstructor(parameter);
-				result = constructor.newInstance(message, false);
-				result.setMessageType(type);
-
-				// set protocol version
-				Method setProtocolVersion = ARecordFrame.class
-						.getDeclaredMethod("setProtocolVersion",
-								EProtocolVersion.class);
-				setProtocolVersion.setAccessible(true);
-				setProtocolVersion.invoke(result, version);
-
-			}
-		} catch (InstantiationException ex) {
-			ex.printStackTrace();
-		} catch (IllegalAccessException ex) {
-			ex.printStackTrace();
-		} catch (InvocationTargetException ex) {
-//			System.err.println("failed to invoke method for class "
-//					+ implClass.getCanonicalName());
-//			System.err.println("Key exchange type was: " + keyEKeyExchangeAlgorithm);
-//			ex.printStackTrace();
-			// Happens with ClientKeyExchange message.
-			throw new RuntimeException(ex);
-		} catch (NoSuchMethodException ex) {
-			System.err.println("Could not find a suiteable method for type "
-					+ type + " and class " + implClass.getCanonicalName());
-			ex.printStackTrace();
-		}
-		return result;
-
+                // set protocol version
+                Method setProtocolVersion = ARecordFrame.class
+                        .getDeclaredMethod("setProtocolVersion",
+                        EProtocolVersion.class);
+                setProtocolVersion.setAccessible(true);
+                setProtocolVersion.invoke(result, version);
+            }
+        } catch (InstantiationException ex) {
+            ex.printStackTrace();
+        } catch (IllegalAccessException ex) {
+            ex.printStackTrace();
+        } catch (InvocationTargetException ex) {
+            // Happens with ClientKeyExchange message - 
+            // TODO why and when? (CM)
+            ex.printStackTrace();
+        } catch (NoSuchMethodException ex) {
+            System.err.println("Could not find a suiteable method for type "
+                    + type + " and class " + implClass.getCanonicalName());
+            ex.printStackTrace();
+        }
+        return result;
     }
 
     public AHandshakeRecord[] getMessages() {
