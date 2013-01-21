@@ -127,9 +127,9 @@ public class FINHandshakeHeader extends AGenericFingerprintTest
                     encryptedData = symmCipher.doFinal(paddedData);
                     rec.setGenericCipher(encryptedData);
                 } catch (IllegalBlockSizeException e1) {
-                    e1.printStackTrace();
+                    logger.error("Wrong blocksize.", e1);
                 } catch (BadPaddingException e1) {
-                    e1.printStackTrace();
+                    logger.error("Invalid padding.", e1);
                 }
             }
             byte[] encrypted = rec.encode(true);

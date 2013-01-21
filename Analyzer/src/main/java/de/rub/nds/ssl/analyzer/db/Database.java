@@ -5,9 +5,7 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Timestamp;
-
-import de.rub.nds.ssl.stack.protocols.commons.SecurityParameters;
+import org.apache.log4j.Logger;
 
 /**
  * Establish a connection to the fingerprint database and execute
@@ -18,6 +16,10 @@ import de.rub.nds.ssl.stack.protocols.commons.SecurityParameters;
  */
 public class Database {
 
+    /**
+     * Log4j logger initialization.
+     */
+    private static Logger logger = Logger.getRootLogger();
     /**
      * Instance of Database.
      */
@@ -81,9 +83,9 @@ public class Database {
             prepared.setString(1, hash);
             result = prepared.executeQuery();
         } catch (SQLException e) {
-            e.printStackTrace();
+            logger.error("Database error.", e);
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("Unspecified Error.", e);
         }
         return result;
     }

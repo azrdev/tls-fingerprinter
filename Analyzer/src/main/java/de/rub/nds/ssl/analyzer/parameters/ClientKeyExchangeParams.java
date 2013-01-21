@@ -4,6 +4,7 @@ import de.rub.nds.ssl.stack.Utility;
 import de.rub.nds.ssl.stack.protocols.commons.ECipherSuite;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import org.apache.log4j.Logger;
 
 /**
  * Defines the ClientKeyExchange parameters for tests.
@@ -13,6 +14,10 @@ import java.security.NoSuchAlgorithmException;
  */
 public class ClientKeyExchangeParams extends AParameters {
 
+    /**
+     * Log4j logger initialization.
+     */
+    private static Logger logger = Logger.getRootLogger();
     /**
      * Cipher suite for tests
      */
@@ -65,7 +70,7 @@ public class ClientKeyExchangeParams extends AParameters {
         try {
             sha1 = MessageDigest.getInstance("SHA");
         } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
+            logger.error("Wrong algorithm.", e);
         }
         updateHash(sha1, getIdentifier().name().getBytes());
         updateHash(sha1, getDescription().getBytes());

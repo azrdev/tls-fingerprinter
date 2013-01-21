@@ -107,7 +107,7 @@ public class FIN extends AGenericFingerprintTest implements Observer {
                         data[8] = (byte) 0x00;
                     }
                 } catch (InvalidKeyException e1) {
-                    e1.printStackTrace();
+                    logger.error("Invalid key.", e1);
                 }
             }
 
@@ -149,9 +149,9 @@ public class FIN extends AGenericFingerprintTest implements Observer {
                     encryptedData = symmCipher.doFinal(paddedData);
                     rec.setGenericCipher(encryptedData);
                 } catch (IllegalBlockSizeException e1) {
-                    e1.printStackTrace();
+                    logger.error("Wrong blocksize.", e1);
                 } catch (BadPaddingException e1) {
-                    e1.printStackTrace();
+                    logger.error("Invalid padding.", e1);
                 }
             }
             byte[] payload = rec.encode(true);

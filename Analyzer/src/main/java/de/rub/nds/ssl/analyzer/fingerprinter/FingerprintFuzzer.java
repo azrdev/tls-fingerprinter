@@ -5,6 +5,7 @@ import de.rub.nds.ssl.analyzer.parameters.AParameters;
 import de.rub.nds.ssl.stack.trace.MessageContainer;
 import de.rub.nds.ssl.stack.workflows.TLS10HandshakeWorkflow.EStates;
 import java.util.List;
+import org.apache.log4j.Logger;
 
 /**
  * Fingerprint fuzzer to create a database of fingerprints
@@ -14,6 +15,10 @@ import java.util.List;
  */
 public class FingerprintFuzzer implements IFingerprinter {
 
+    /**
+     * Log4j logger initialization.
+     */
+    private static Logger logger = Logger.getRootLogger();
     /**
      * Test implementation
      */
@@ -58,7 +63,7 @@ public class FingerprintFuzzer implements IFingerprinter {
             behaviour.insertFingerprint(parameters, traceList, 
                     this.state.name(), this.testcase, this.impl.name());
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("Unspecified Error.", e);
         }
 
     }

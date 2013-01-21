@@ -3,6 +3,7 @@ package de.rub.nds.ssl.analyzer.parameters;
 import de.rub.nds.ssl.stack.Utility;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import org.apache.log4j.Logger;
 
 /**
  * Defines the ChangeCipherSpec parameters for tests.
@@ -12,6 +13,10 @@ import java.security.NoSuchAlgorithmException;
  */
 public class ChangeCipherSpecParams extends AParameters {
 
+    /**
+     * Log4j logger initialization.
+     */
+    private static Logger logger = Logger.getRootLogger();
     /**
      * ChangeCipherSpec payload
      */
@@ -52,7 +57,7 @@ public class ChangeCipherSpecParams extends AParameters {
         try {
             sha1 = MessageDigest.getInstance("SHA");
         } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
+            logger.error("Wrong algorithm.", e);
         }
         updateHash(sha1, getIdentifier().name().getBytes());
         updateHash(sha1, getDescription().getBytes());

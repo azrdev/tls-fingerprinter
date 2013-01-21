@@ -4,6 +4,7 @@ import de.rub.nds.ssl.stack.Utility;
 import de.rub.nds.ssl.stack.protocols.commons.EProtocolVersion;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import org.apache.log4j.Logger;
 
 /**
  * Defines the test parameters used for Vaudenay Test.
@@ -13,6 +14,10 @@ import java.security.NoSuchAlgorithmException;
  */
 public class VaudenayParameters extends AParameters {
 
+    /**
+     * Log4j logger initialization.
+     */
+    private static Logger logger = Logger.getRootLogger();
     /**
      * Protocol version of finished message.
      */
@@ -67,7 +72,7 @@ public class VaudenayParameters extends AParameters {
         try {
             sha1 = MessageDigest.getInstance("SHA");
         } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
+            logger.error("Wrong algorithm.", e);
         }
         updateHash(sha1, getProtocolVersion().getId());
         updateHash(sha1, String.valueOf(isChangePadding()).getBytes());

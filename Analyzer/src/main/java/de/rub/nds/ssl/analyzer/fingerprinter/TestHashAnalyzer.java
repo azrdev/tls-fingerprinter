@@ -97,7 +97,7 @@ public class TestHashAnalyzer implements IFingerprinter {
                 counter.countNoHit(2);
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            logger.error("Database error.", e);
         }
     }
 }

@@ -4,6 +4,7 @@ import de.rub.nds.ssl.stack.Utility;
 import de.rub.nds.ssl.stack.workflows.commons.MessageUtils;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import org.apache.log4j.Logger;
 
 /**
  * Defines the test parameters used for Bleichenbacher Test.
@@ -13,6 +14,10 @@ import java.security.NoSuchAlgorithmException;
  */
 public class BleichenbacherParameters extends AParameters {
 
+    /**
+     * Log4j logger initialization.
+     */
+    private static Logger logger = Logger.getRootLogger();
     /**
      * Mode as defined in PKCS#1 standard.
      */
@@ -155,7 +160,7 @@ public class BleichenbacherParameters extends AParameters {
         try {
             sha1 = MessageDigest.getInstance("SHA");
         } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
+            logger.error("Wrong algorithm.", e);
         }
         updateHash(sha1, getIdentifier().name().getBytes());
         updateHash(sha1, getDescription().getBytes());

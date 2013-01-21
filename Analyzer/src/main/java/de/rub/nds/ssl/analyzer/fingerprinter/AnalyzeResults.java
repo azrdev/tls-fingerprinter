@@ -1,5 +1,7 @@
 package de.rub.nds.ssl.analyzer.fingerprinter;
 
+import org.apache.log4j.Logger;
+
 /**
  * Assign a fingerprint score for a specific implementation.
  * @author Eugen Weiss - eugen.weiss@ruhr-uni-bochum.de
@@ -8,6 +10,11 @@ package de.rub.nds.ssl.analyzer.fingerprinter;
  */
 public class AnalyzeResults {
 
+    /**
+     * Log4j logger initialization.
+     */
+    private static Logger logger = Logger.getRootLogger();
+    
     public void generateReport() {
         ScoreCounter counter = ScoreCounter.getInstance();
         int jsse = counter.getJSSEStandardScore();
@@ -17,19 +24,19 @@ public class AnalyzeResults {
         int noHit = counter.getNoHitCounter();
         float result;
         //output the score for each implementation
-        System.out.println("JSSE Points: " + jsse);
-        System.out.println("GNUtls Points: " + gnutls);
-        System.out.println("OpenSSL Points: " + openssl);
-        System.out.println("NoHit: " + noHit);
+        logger.info("JSSE Points: " + jsse);
+        logger.info("GNUtls Points: " + gnutls);
+        logger.info("OpenSSL Points: " + openssl);
+        logger.info("NoHit: " + noHit);
         //compute probability
         result = this.computeProbability(jsse, total);
-        System.out.println("Probability for JSSE: " + result);
+        logger.info("Probability for JSSE: " + result);
         result = this.computeProbability(gnutls, total);
-        System.out.println("Probability for GNUtls: " + result);
+        logger.info("Probability for GNUtls: " + result);
         result = this.computeProbability(openssl, total);
-        System.out.println("Probability for OpenSSL: " + result);
+        logger.info("Probability for OpenSSL: " + result);
         result = this.computeProbability(noHit, total);
-        System.out.println("No hit in DB: " + result);
+        logger.info("No hit in DB: " + result);
 
     }
     
