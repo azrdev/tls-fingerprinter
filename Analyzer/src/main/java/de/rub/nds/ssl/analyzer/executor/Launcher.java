@@ -25,7 +25,7 @@ import org.apache.log4j.PropertyConfigurator;
  */
 public abstract class Launcher {
 
-    private static ExecutorService executor = Executors.newCachedThreadPool();
+    private static ExecutorService executor = Executors.newSingleThreadExecutor();
     private static Logger logger = Logger.getRootLogger();
 
     /**
@@ -46,7 +46,6 @@ public abstract class Launcher {
                 new ArrayList<AAnalyzerComponent>(components.length);
         for (EFingerprintTests tmp : components) {
             try {
-                System.out.println("///// implementer: " + tmp.getDescription());
                 instances.add(
                         (AAnalyzerComponent) tmp.getImplementer().newInstance());
             } catch (IllegalAccessException e) {

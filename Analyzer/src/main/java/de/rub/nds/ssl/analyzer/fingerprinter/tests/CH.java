@@ -141,9 +141,6 @@ public class CH extends AGenericFingerprintTest implements Observer {
         chParameters.setIdentifier(EFingerprintIdentifier.ClientHello);
         chParameters.setDescription(desc);
 
-        //start the handshake
-        workflow.start();
-
         try {
             workflow.start();
 
