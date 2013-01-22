@@ -151,7 +151,7 @@ public class CH extends AGenericFingerprintTest implements Observer {
             workflow.closeSocket();
         }
 
-        return new ResultWrapper(chParameters, workflow.getTraceList());
+        return new ResultWrapper(chParameters, workflow.getTraceList(), getAnalyzer());
     }
 
     /**
@@ -161,7 +161,7 @@ public class CH extends AGenericFingerprintTest implements Observer {
      * @param arg Arguments
      */
     @Override
-    public void update(Observable o, Object arg) {
+    public void update(final Observable o, final Object arg) {
         MessageBuilder msgBuilder = new MessageBuilder();
         MessageContainer trace = null;
         EStates states = null;
@@ -218,7 +218,7 @@ public class CH extends AGenericFingerprintTest implements Observer {
      * {@inheritDoc}
      */
     @Override
-    public synchronized ResultWrapper[] call() throws Exception {
+    public final synchronized ResultWrapper[] call() throws Exception {
         Object[][] parameters = new Object[][]{
             {"Invalid protocol version 0xff,0xff",
                 new byte[]{(byte) 0xff, (byte) 0xff}, null, null, null, null,

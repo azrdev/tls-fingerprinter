@@ -171,7 +171,7 @@ public class Bleichenbacher implements Observer {
 
         //analyze the handshake trace
 //        AFingerprintAnalyzer analyzer = new TestHashAnalyzer(params);
-//        analyzer.analyze(workflow.getTraceList());
+//        analyzer.analyze(workflow.getTraceList(), getAnalyzer());
 
         logger.info("------------------------------");
     }

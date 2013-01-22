@@ -60,7 +60,7 @@ public class CKERecordHeader extends AGenericFingerprintTest implements Observer
             workflow.closeSocket();
         }
 
-        return new ResultWrapper(headerParameters, workflow.getTraceList());
+        return new ResultWrapper(headerParameters, workflow.getTraceList(), getAnalyzer());
     }
 
     /**
@@ -110,7 +110,7 @@ public class CKERecordHeader extends AGenericFingerprintTest implements Observer
      * {@inheritDoc}
      */
     @Override
-    public synchronized ResultWrapper[] call() throws Exception {
+    public final synchronized ResultWrapper[] call() throws Exception {
         Object[][] parameters = new Object[][]{
             {"Wrong message type", new byte[]{(byte) 0xff}, null, null},
             {"Invalid protocol version 0xff,0xff", null,

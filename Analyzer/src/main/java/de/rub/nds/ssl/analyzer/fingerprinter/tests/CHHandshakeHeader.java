@@ -62,7 +62,7 @@ public class CHHandshakeHeader extends AGenericFingerprintTest implements
             workflow.closeSocket();
         }
 
-        return new ResultWrapper(headerParameters, workflow.getTraceList());
+        return new ResultWrapper(headerParameters, workflow.getTraceList(), getAnalyzer());
     }
 
     /**
@@ -72,7 +72,7 @@ public class CHHandshakeHeader extends AGenericFingerprintTest implements
      * @param arg Arguments
      */
     @Override
-    public void update(Observable o, Object arg) {
+    public void update(final Observable o, final Object arg) {
         MessageBuilder msgBuilder = new MessageBuilder();
         MessageContainer trace = null;
         EStates states = null;
@@ -112,7 +112,7 @@ public class CHHandshakeHeader extends AGenericFingerprintTest implements
      * {@inheritDoc}
      */
     @Override
-    public synchronized ResultWrapper[] call() throws Exception {
+    public final synchronized ResultWrapper[] call() throws Exception {
         Object[][] parameters = new Object[][]{
             {"Wrong message type", new byte[]{(byte) 0xff}, null},
             {"Invalid length 0x00,0x00,0x00", null,

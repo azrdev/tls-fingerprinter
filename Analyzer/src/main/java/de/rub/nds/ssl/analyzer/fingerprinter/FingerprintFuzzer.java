@@ -8,59 +8,42 @@ import java.util.List;
 import org.apache.log4j.Logger;
 
 /**
- * Fingerprint fuzzer to create a database of fingerprints
+ * Fingerprint fuzzer to create a database of fingerprints.
  *
  * @author Eugen Weiss - eugen.weiss@ruhr-uni-bochum.de
  * @version 0.1 Jan 10, 2012
  */
-public class FingerprintFuzzer implements IFingerprinter {
+public final class FingerprintFuzzer implements IFingerprinter {
 
     /**
      * Log4j logger initialization.
      */
     private static Logger logger = Logger.getRootLogger();
     /**
-     * Test implementation
+     * Test implementation.
      */
-    public ETLSImplementation impl;
+    private ETLSImplementation impl;
     /**
-     * Fingerprint testcase
+     * Fingerprint testcase.
      */
-    public String testcase;
+    private String testcase;
     /**
-     * Tested handshake state
+     * Tested handshake state.
      */
-    public EStates state;
+    private EStates state;
     /**
-     * Test parameters
+     * Test parameters.
      */
-    public AParameters parameters;
-
-    /**
-     * Initialize the fuzzer
-     *
-     * @param testcase 
-     * @param parameters Test parameters
-     * @param impl Test implementation
-     * @param state  
-     */
-    public FingerprintFuzzer(String testcase, ETLSImplementation impl,
-            EStates state,
-            AParameters parameters) {
-        this.testcase = testcase;
-        this.impl = impl;
-        this.state = state;
-        this.parameters = parameters;
-    }
+    private AParameters parameters;
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public void analyze(List<MessageContainer> traceList) {
+    public void analyze(final List<MessageContainer> traceList) {
         FillBehaviourDB behaviour = new FillBehaviourDB();
         try {
-            behaviour.insertFingerprint(parameters, traceList, 
+            behaviour.insertFingerprint(parameters, traceList,
                     this.state.name(), this.testcase, this.impl.name());
         } catch (Exception e) {
             logger.error("Unspecified Error.", e);
@@ -68,9 +51,23 @@ public class FingerprintFuzzer implements IFingerprinter {
 
     }
 
-
     @Override
-    public void init(AParameters parameters) {
-        throw new UnsupportedOperationException("Not supported yet.");
+    public void init(final AParameters parameters) {
+        this.parameters = parameters;
     }
+
+    /**
+     * @param testcase the testcase to set
+     */
+    public void setTestcase(String testcase) {
+        this.testcase = testcase;
+    }
+
+    /**
+     * @param state the state to set
+     */
+    public void setState(EStates state) {
+        this.state = state;
+    }
+    
 }

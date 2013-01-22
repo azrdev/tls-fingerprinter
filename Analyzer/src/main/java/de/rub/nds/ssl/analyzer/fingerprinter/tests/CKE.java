@@ -64,7 +64,7 @@ public class CKE extends AGenericFingerprintTest
             workflow.closeSocket();
         }
 
-        return new ResultWrapper(ckeParameters, workflow.getTraceList());
+        return new ResultWrapper(ckeParameters, workflow.getTraceList(), getAnalyzer());
     }
 
     /**
@@ -74,7 +74,7 @@ public class CKE extends AGenericFingerprintTest
      * @param arg Arguments
      */
     @Override
-    public void update(Observable o, Object arg) {
+    public void update(final Observable o, final Object arg) {
         MessageBuilder msgBuilder = new MessageBuilder();
         MessageContainer trace = null;
         EStates states = null;
@@ -115,7 +115,7 @@ public class CKE extends AGenericFingerprintTest
      * {@inheritDoc}
      */
     @Override
-    public synchronized ResultWrapper[] call() throws Exception {
+    public final synchronized ResultWrapper[] call() throws Exception {
         Object[][] parameters = new Object[][]{
             {"Invalid payload for RSA key exchange", new ECipherSuite[]{
                     ECipherSuite.TLS_DHE_RSA_WITH_AES_128_CBC_SHA},

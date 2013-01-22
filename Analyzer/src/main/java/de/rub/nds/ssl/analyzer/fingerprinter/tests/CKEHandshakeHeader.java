@@ -52,7 +52,7 @@ public class CKEHandshakeHeader extends AGenericFingerprintTest implements
             workflow.closeSocket();
         }
 
-        return new ResultWrapper(headerParameters, workflow.getTraceList());
+        return new ResultWrapper(headerParameters, workflow.getTraceList(), getAnalyzer());
     }
 
     /**
@@ -96,7 +96,7 @@ public class CKEHandshakeHeader extends AGenericFingerprintTest implements
      * {@inheritDoc}
      */
     @Override
-    public synchronized ResultWrapper[] call() throws Exception {
+    public final synchronized ResultWrapper[] call() throws Exception {
         Object[][] parameters = new Object[][]{
             {"Wrong message type", new byte[]{(byte) 0xff}, null},
             {"Invalid length 0x00,0x00,0x00", null,

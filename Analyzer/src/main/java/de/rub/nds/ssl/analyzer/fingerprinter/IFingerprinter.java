@@ -16,11 +16,12 @@ public interface IFingerprinter {
      *
      * @param traceList MessageContainer list of a testrun
      */
-    public void analyze(List<MessageContainer> traceList);
-    
+    void analyze(final List<MessageContainer> traceList);
+
     /**
      * (Re-)Initialize analyzer.
+     *
      * @param parameters Test parameters
      */
-    public void init(final AParameters parameters);
+    void init(final AParameters parameters);
 }

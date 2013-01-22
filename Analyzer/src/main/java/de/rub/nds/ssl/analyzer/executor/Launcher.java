@@ -2,6 +2,8 @@ package de.rub.nds.ssl.analyzer.executor;
 
 import de.rub.nds.ssl.analyzer.AAnalyzerComponent;
 import de.rub.nds.ssl.analyzer.ResultWrapper;
+import de.rub.nds.ssl.analyzer.fingerprinter.ETLSImplementation;
+import de.rub.nds.ssl.analyzer.fingerprinter.FingerprintFuzzer;
 import de.rub.nds.ssl.analyzer.fingerprinter.IFingerprinter;
 import de.rub.nds.ssl.analyzer.fingerprinter.TestHashAnalyzer;
 import java.util.ArrayList;
@@ -23,12 +25,12 @@ import org.apache.log4j.Logger;
 public abstract class Launcher {
 
     /**
-     *
+     * Thread executor.
      */
     private static ExecutorService executor =
             Executors.newSingleThreadExecutor();
     /**
-     *
+     * Log4j logger initialization.
      */
     private static Logger logger = Logger.getRootLogger();
 
@@ -39,55 +41,80 @@ public abstract class Launcher {
     }
 
     /**
+     * Launch fingerprint scan.
      *
-     * @param targetList
-     * @param components
+     * @param targetList List of targets to scan
+     * @param components List of components to scan
      * @throws InterruptedException
      * @throws ExecutionException
      */
-    public static void start(final String[] targetList,
+    public static void startScan(final String[] targetList,
             final EFingerprintTests[] components)
             throws InterruptedException, ExecutionException {
         // deep copy target list
         String[] targets = new String[targetList.length];
         System.arraycopy(targetList, 0, targets, 0, targetList.length);
 
-        // fetch instances of components
-        List<AAnalyzerComponent> instances =
-                new ArrayList<AAnalyzerComponent>(components.length);
-        Class<AAnalyzerComponent> implementer;
-        for (EFingerprintTests tmp : components) {
-            try {
-                implementer = tmp.getImplementer();
-                instances.add((AAnalyzerComponent) implementer.newInstance());
-            } catch (IllegalAccessException e) {
-                logger.error("Illegal Access.", e);
-            } catch (InstantiationException e) {
-                logger.error("Problems during instantiation.", e);
-            }
-        }
-
         // invoke components
         List<ResultWrapper[]> results;
         for (String tmpTarget : targets) {
-            results = invokeExecutor(instances, tmpTarget);
+            results = invokeExecutor(components, tmpTarget);
             invokeAnalyzer(results);
         }
     }
 
     /**
+     * Launch fingerprint fuzzing.
      *
-     * @param instances
-     * @param target
-     * @return
+     * @param targetList List of targets to scan
+     * @param implementation Implementation of the target
+     * @throws InterruptedException
+     * @throws ExecutionException
+     */
+    public static void startFuzzing(final String[] targetList,
+            final ETLSImplementation implementation)
+            throws InterruptedException, ExecutionException {
+        // deep copy target list
+        String[] targets = new String[targetList.length];
+        System.arraycopy(targetList, 0, targets, 0, targetList.length);
+
+        // invoke components
+        List<ResultWrapper[]> results;
+        for (String tmpTarget : targets) {
+            results = invokeExecutor(EFingerprintTests.values(), tmpTarget);
+            invokeFuzzer(results, implementation);
+        }
+    }
+
+    /**
+     * Invokes the thread executor.
+     *
+     * @param components Componentns to be executed
+     * @param target Targets for the instances
+     * @return Component results.
      * @throws InterruptedException
      * @throws ExecutionException
      */
     private static List<ResultWrapper[]> invokeExecutor(
-            final List<AAnalyzerComponent> instances, final String target)
+            final EFingerprintTests[] components, final String target)
             throws InterruptedException, ExecutionException {
-        for (AAnalyzerComponent tmpComponent : instances) {
-            tmpComponent.setTarget(target);
+        // fetch instances of components
+        List<AAnalyzerComponent> instances =
+                new ArrayList<AAnalyzerComponent>(components.length);
+
+        Class<AAnalyzerComponent> implementer;
+        AAnalyzerComponent tmpComponent;
+        for (EFingerprintTests tmp : components) {
+            try {
+                implementer = tmp.getImplementer();
+                tmpComponent = implementer.newInstance();
+                tmpComponent.setTarget(target);
+                tmpComponent.setAnalyzer(tmp.getAnalyzer());
+            } catch (IllegalAccessException e) {
+                logger.error("Illegal Access.", e);
+            } catch (InstantiationException e) {
+                logger.error("Problems during instantiation.", e);
+            }
         }
 
         List<Future<ResultWrapper[]>> futures = executor.invokeAll(instances);
@@ -105,23 +132,37 @@ public abstract class Launcher {
     }
 
     /**
+     * Invoke analyzer(s) to analyze result(s).
      *
-     * @param results
+     * @param results Results to be analyzed
      */
     private static void invokeAnalyzer(final List<ResultWrapper[]> results) {
-        IFingerprinter analyzer = new TestHashAnalyzer();
+        IFingerprinter analyzer;
+        for (ResultWrapper[] resultWrappers : results) {
+            for (ResultWrapper tmpResult : resultWrappers) {
+                try {
+                    analyzer = tmpResult.getAnalyzer().newInstance();
+                    analyzer.init(tmpResult.getParameters());
+                    analyzer.analyze(tmpResult.getTraceList());
+                } catch (IllegalAccessException e) {
+                    logger.error("Illegal Access.", e);
+                } catch (InstantiationException e) {
+                    logger.error("Problems during instantiation.", e);
+                }
+            }
+        }
+    }
+
+    private static void invokeFuzzer(final List<ResultWrapper[]> results,
+            final ETLSImplementation implementation) {
+        FingerprintFuzzer analyzer = new FingerprintFuzzer();
         for (ResultWrapper[] resultWrappers : results) {
             for (ResultWrapper tmpResult : resultWrappers) {
                 analyzer.init(tmpResult.getParameters());
                 analyzer.analyze(tmpResult.getTraceList());
+                
+                //setState, setTestcase name
             }
         }
     }
-//    public static void main(String args[]) throws InterruptedException,
-//            ExecutionException {
-//        PropertyConfigurator.configure("logging.properties");
-//        Launcher.start(new String[]{"https://www.rub.de"},
-//                new EFingerprintTests[]{EFingerprintTests.GOOD, 
-//                  EFingerprintTests.HANDSHAKE_ENUM, EFingerprintTests.CCS});
-//    }
 }

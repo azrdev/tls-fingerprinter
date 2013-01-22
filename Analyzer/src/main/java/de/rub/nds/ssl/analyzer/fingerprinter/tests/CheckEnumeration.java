@@ -40,14 +40,14 @@ public class CheckEnumeration extends AGenericFingerprintTest {
             workflow.closeSocket();
         }
 
-        return new ResultWrapper(headerParameters, workflow.getTraceList());
+        return new ResultWrapper(headerParameters, workflow.getTraceList(), getAnalyzer());
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public synchronized ResultWrapper[] call() throws Exception {
+    public final synchronized ResultWrapper[] call() throws Exception {
         // Print Test Banner
         printBanner();
         // execute test(s)

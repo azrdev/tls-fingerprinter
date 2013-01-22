@@ -1,8 +1,10 @@
 package de.rub.nds.ssl.analyzer;
 
+import de.rub.nds.ssl.analyzer.fingerprinter.IFingerprinter;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.concurrent.Callable;
+import org.apache.log4j.Logger;
 
 /**
  * Analyzer component prototype.
@@ -14,7 +16,18 @@ import java.util.concurrent.Callable;
  */
 public abstract class AAnalyzerComponent implements Callable<ResultWrapper[]> {
 
+    /**
+     * Log4j logger initialization.
+     */
+    private static Logger logger = Logger.getRootLogger();
+    /**
+     * Target URL (protocol://domain:port).
+     */
     private String target;
+    /**
+     * Analyzer for this component.
+     */
+    private Class<IFingerprinter> analyzer;
 
     /**
      * Getter for target URL.
@@ -30,12 +43,13 @@ public abstract class AAnalyzerComponent implements Callable<ResultWrapper[]> {
      *
      * @param target Target URL to set
      */
-    public final void setTarget(String target) {
+    public final void setTarget(final String target) {
         this.target = target;
     }
 
     /**
      * Returns the target as URL.
+     *
      * @return Target as URL
      */
     public final URL targetAsURL() {
@@ -45,40 +59,60 @@ public abstract class AAnalyzerComponent implements Callable<ResultWrapper[]> {
                 result = new URL(target);
             }
         } catch (MalformedURLException e) {
-            // TODO: log me
+            logger.error("Invalid URL.", e);
         }
-        
+
         return result;
     }
-    
+
     /**
      * Returns the target port.
+     *
      * @return Port of the target
      */
     public final int getTargetPort() {
         int result = -1;
         URL url = targetAsURL();
-        if(url != null) {
+        if (url != null) {
             result = url.getPort();
-            if(result < 0) {
+            if (result < 0) {
                 result = url.getDefaultPort();
             }
         }
-        
+
         return result;
     }
-    
+
     /**
      * Returns the target host.
+     *
      * @return Host address of the target
      */
     public final String getTargetHost() {
         String host = null;
         URL url = targetAsURL();
-        if(url != null) {
+        if (url != null) {
             host = url.getHost();
         }
-        
+
         return host;
+    }
+
+    /**
+     * Get the implementing analyzer class for this component.
+     *
+     * @return Implementing analyzer class
+     */
+    public Class<IFingerprinter> getAnalyzer() {
+        return analyzer;
+    }
+
+    /**
+     * Set the implementing analyzer class for this component.
+     *
+     * @param analyzer Implementing analyzer class
+     */
+    public void setAnalyzer(final Class<IFingerprinter> analyzer) {
+        this.analyzer = analyzer;
     }
 }

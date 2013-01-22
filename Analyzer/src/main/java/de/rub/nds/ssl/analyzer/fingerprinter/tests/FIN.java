@@ -65,7 +65,7 @@ public class FIN extends AGenericFingerprintTest implements Observer {
             workflow.closeSocket();
         }
 
-        return new ResultWrapper(finParameters, workflow.getTraceList());
+        return new ResultWrapper(finParameters, workflow.getTraceList(), getAnalyzer());
     }
 
     /**
@@ -165,7 +165,7 @@ public class FIN extends AGenericFingerprintTest implements Observer {
      * {@inheritDoc}
      */
     @Override
-    public synchronized ResultWrapper[] call() throws Exception {
+    public final synchronized ResultWrapper[] call() throws Exception {
         Object[][] parameters = new Object[][]{
             {"Wrong padding", true, false, false, false, false},
             {"Destroy MAC", false, true, false, false, false},

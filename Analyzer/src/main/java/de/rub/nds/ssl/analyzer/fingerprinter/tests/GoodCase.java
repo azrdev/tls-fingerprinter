@@ -59,7 +59,7 @@ public class GoodCase extends AGenericFingerprintTest implements Observer {
             workflow.closeSocket();
         }
 
-        return new ResultWrapper(headerParameters, workflow.getTraceList());
+        return new ResultWrapper(headerParameters, workflow.getTraceList(), getAnalyzer());
     }
 
     /**
@@ -69,7 +69,7 @@ public class GoodCase extends AGenericFingerprintTest implements Observer {
      * @param arg Arguments
      */
     @Override
-    public void update(Observable o, Object arg) {
+    public void update(final Observable o, final Object arg) {
         MessageContainer trace = null;
         EStates states = null;
         ObservableBridge obs;
@@ -96,7 +96,7 @@ public class GoodCase extends AGenericFingerprintTest implements Observer {
      * {@inheritDoc}
      */
     @Override
-    public synchronized ResultWrapper[] call() throws Exception {
+    public final synchronized ResultWrapper[] call() throws Exception {
         Object[][] parameters = new Object[][]{{"Good case",
                 new ECipherSuite[]{ECipherSuite.TLS_RSA_WITH_AES_128_CBC_SHA}}
         };

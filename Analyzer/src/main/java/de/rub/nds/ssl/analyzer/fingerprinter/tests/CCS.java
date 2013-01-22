@@ -51,7 +51,8 @@ public class CCS extends AGenericFingerprintTest implements Observer {
             workflow.closeSocket();
         }
 
-        return new ResultWrapper(ccsParameters, workflow.getTraceList());
+        return new ResultWrapper(ccsParameters, workflow.getTraceList(),
+                getAnalyzer());
     }
 
     /**
@@ -61,7 +62,7 @@ public class CCS extends AGenericFingerprintTest implements Observer {
      * @param arg Arguments
      */
     @Override
-    public void update(Observable o, Object arg) {
+    public void update(final Observable o, final Object arg) {
         MessageContainer trace = null;
         EStates states = null;
         ObservableBridge obs;
@@ -94,7 +95,7 @@ public class CCS extends AGenericFingerprintTest implements Observer {
      * {@inheritDoc}
      */
     @Override
-    public synchronized ResultWrapper[] call() throws Exception {
+    public final synchronized ResultWrapper[] call() throws Exception {
         Object[][] parameters = new Object[][]{
             {"Wrong payload", new byte[]{(byte) 0xff}},
             {"Invalid payload", new byte[]{0x02, 0x01}}

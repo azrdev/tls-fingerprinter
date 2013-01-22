@@ -2,8 +2,11 @@ package de.rub.nds.ssl.analyzer.gui;
 
 import de.rub.nds.ssl.analyzer.executor.EFingerprintTests;
 import de.rub.nds.ssl.analyzer.executor.Launcher;
+import de.rub.nds.ssl.analyzer.fingerprinter.ETLSImplementation;
+import de.rub.nds.ssl.analyzer.fingerprinter.FingerprintFuzzer;
 import de.rub.nds.ssl.analyzer.gui.models.AttackerConfigurationData;
 import de.rub.nds.ssl.analyzer.gui.models.ScannerConfigurationData;
+import de.rub.nds.ssl.stack.workflows.TLS10HandshakeWorkflow;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
@@ -11,7 +14,9 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
+import javax.swing.DefaultComboBoxModel;
 import javax.swing.JFileChooser;
+import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
 
 /**
@@ -25,6 +30,11 @@ public class VisualAnalyzer extends javax.swing.JFrame {
 
     private ScannerConfigurationData scannerConfigurationData;
     private AttackerConfigurationData attackerConfigurationData;
+    private DefaultComboBoxModel fuzzerConfigurationData;
+    /**
+     * Log4j logger initialization.
+     */
+    private static Logger logger = Logger.getRootLogger();
 
     /**
      * Creates new form VisualAnalyzer
@@ -32,7 +42,8 @@ public class VisualAnalyzer extends javax.swing.JFrame {
     public VisualAnalyzer() {
         scannerConfigurationData = new ScannerConfigurationData();
         attackerConfigurationData = new AttackerConfigurationData();
-
+        fuzzerConfigurationData = new DefaultComboBoxModel(ETLSImplementation.
+                values());
         initComponents();
         PropertyConfigurator.configure("logging.properties");
     }
@@ -59,6 +70,9 @@ public class VisualAnalyzer extends javax.swing.JFrame {
         jScrollPane2 = new javax.swing.JScrollPane();
         attackerConfigurationTable = new javax.swing.JTable();
         fuzzerPanel = new javax.swing.JPanel();
+        fuzzingLabel = new javax.swing.JLabel();
+        jComboBox1 = new javax.swing.JComboBox();
+        createFingerprintButton = new javax.swing.JButton();
         progressBar = new javax.swing.JProgressBar();
         openListButton = new javax.swing.JButton();
         targetListScrollPane = new javax.swing.JScrollPane();
@@ -163,15 +177,43 @@ public class VisualAnalyzer extends javax.swing.JFrame {
 
         tabbedPane.addTab("Attacker Configuration", attackerPanel);
 
+        fuzzingLabel.setText("Implementation of target");
+
+        jComboBox1.setModel(fuzzerConfigurationData);
+
+        createFingerprintButton.setText("Create fingerprint(s)");
+        createFingerprintButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                createFingerprintButtonActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout fuzzerPanelLayout = new javax.swing.GroupLayout(fuzzerPanel);
         fuzzerPanel.setLayout(fuzzerPanelLayout);
         fuzzerPanelLayout.setHorizontalGroup(
             fuzzerPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 560, Short.MAX_VALUE)
+            .addGroup(fuzzerPanelLayout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(fuzzerPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(fuzzerPanelLayout.createSequentialGroup()
+                        .addComponent(fuzzingLabel)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jComboBox1, 0, 346, Short.MAX_VALUE))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, fuzzerPanelLayout.createSequentialGroup()
+                        .addGap(0, 0, Short.MAX_VALUE)
+                        .addComponent(createFingerprintButton)))
+                .addContainerGap())
         );
         fuzzerPanelLayout.setVerticalGroup(
             fuzzerPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 233, Short.MAX_VALUE)
+            .addGroup(fuzzerPanelLayout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(fuzzerPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(fuzzingLabel)
+                    .addComponent(jComboBox1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(createFingerprintButton)
+                .addContainerGap(160, Short.MAX_VALUE))
         );
 
         tabbedPane.addTab("Implementation Fuzzing", fuzzerPanel);
@@ -209,7 +251,7 @@ public class VisualAnalyzer extends javax.swing.JFrame {
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(tabbedPane, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 567, Short.MAX_VALUE)
+            .addComponent(tabbedPane, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
             .addComponent(progressBar, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
@@ -275,24 +317,40 @@ public class VisualAnalyzer extends javax.swing.JFrame {
 
     private void scanTargetsButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_scanTargetsButtonActionPerformed
         Object[][] conf = scannerConfigurationData.getConfiguration();
-        String lineSeparator = System.getProperty("line.separator");
-        String[] targets = targetListTextArea.getText().split(lineSeparator);
+        String[] targets = getTargets();
 
-        List<EFingerprintTests> selectedTests = new ArrayList<EFingerprintTests>(
-                10);
+        List<EFingerprintTests> selectedTests =
+                new ArrayList<EFingerprintTests>(10);
         for (Object[] confSet : conf) {
-            if ((Boolean) confSet[1] == true) {
+            if ((Boolean) confSet[1]) {
                 selectedTests.add((EFingerprintTests) confSet[2]);
             }
         }
 
         try {
-            Launcher.start(targets, selectedTests.toArray(
+            Launcher.startScan(targets, selectedTests.toArray(
                     new EFingerprintTests[selectedTests.size()]));
         } catch (ExecutionException e) {
+            logger.error("Could not execute component.", e);
+
         } catch (InterruptedException e) {
+            logger.error("Execution interrupted.", e);
         }
     }//GEN-LAST:event_scanTargetsButtonActionPerformed
+
+    private void createFingerprintButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_createFingerprintButtonActionPerformed
+        String[] targets = getTargets();
+        ETLSImplementation implementation =
+                (ETLSImplementation) fuzzerConfigurationData.getSelectedItem();
+        try {
+            Launcher.startFuzzing(targets, implementation);
+        } catch (ExecutionException e) {
+            logger.error("Could not execute component.", e);
+
+        } catch (InterruptedException e) {
+            logger.error("Execution interrupted.", e);
+        }
+    }//GEN-LAST:event_createFingerprintButtonActionPerformed
 
     private void createErrorDialog(final String title, final String message) {
         errorDialog.setTitle(title);
@@ -311,6 +369,13 @@ public class VisualAnalyzer extends javax.swing.JFrame {
             targets.add(line);
             line = bufferedReader.readLine();
         }
+
+        return targets;
+    }
+
+    private String[] getTargets() {
+        String lineSeparator = System.getProperty("line.separator");
+        String[] targets = targetListTextArea.getText().split(lineSeparator);
 
         return targets;
     }
@@ -358,11 +423,14 @@ public class VisualAnalyzer extends javax.swing.JFrame {
     private javax.swing.JButton attackTargetsButton;
     private javax.swing.JTable attackerConfigurationTable;
     private javax.swing.JPanel attackerPanel;
+    private javax.swing.JButton createFingerprintButton;
     private javax.swing.JLabel errorDecoratorLabel;
     private javax.swing.JDialog errorDialog;
     private javax.swing.JLabel errorLabel;
     private javax.swing.JButton errorOKButton;
     private javax.swing.JPanel fuzzerPanel;
+    private javax.swing.JLabel fuzzingLabel;
+    private javax.swing.JComboBox jComboBox1;
     private javax.swing.JFileChooser jFileChooser1;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
