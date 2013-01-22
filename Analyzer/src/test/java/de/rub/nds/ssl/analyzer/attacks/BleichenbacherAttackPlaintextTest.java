@@ -62,7 +62,7 @@ public class BleichenbacherAttackPlaintextTest {
         logger.info("------------------------------");
     }
     
-    @Test(enabled = true)
+    @Test(enabled = false)
     public final void testBleichenbacherAttackPerformance()
             throws Exception {
 
