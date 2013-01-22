@@ -61,6 +61,8 @@ public class BleichenbacherCrypto12 extends Bleichenbacher  {
             final boolean msgPKCSconform) {
         super(msg, pkcsOracle, msgPKCSconform);
         this.initOracle();
+        _2B = bigB.multiply(two);
+        _3B = bigB.multiply(three);
     }
 
     /**
