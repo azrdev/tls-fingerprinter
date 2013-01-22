@@ -37,7 +37,7 @@ public abstract class AGenericFingerprintTest extends AAnalyzerComponent {
     /**
      * Print the test banner.
      */
-    protected void printBanner() {
+    protected final void printBanner() {
         logger.info("########################################################");
         logger.info(this.getClass().getCanonicalName());
         logger.info("########################################################");

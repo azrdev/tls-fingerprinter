@@ -23,12 +23,16 @@ public class HandshakeEnumCheck implements IFingerprinter {
                  * and assign a score for an implementation.
                  */
                 if (currentTrace.isContinued()) {
-                    counter.countResult(ETLSImplementation.JSSE_STANDARD, 2);
+                    // TODO quick fix -- JSSE_STANDARD ersetzt
+                    // @ Eugen kannst du das korrekt anpassen? Die Server dürften erreichbar sein
+                    counter.countResult(ETLSImplementation.JDK_6_35, 2);
                     // TODO logging
 // Reporter.log("Found fingerprint hit for " + ETLSImplementation.JSSE_STANDARD.name());
                 } else {
                     counter.countResult(ETLSImplementation.GNUTLS, 1);
-                    counter.countResult(ETLSImplementation.OPENSSL, 1);
+                    // TODO quick fix -- JSSE_STANDARD durch ersetzt
+                    // @ Eugen kannst du das korrekt anpassen? Die Server dürften erreichbar sein
+                    counter.countResult(ETLSImplementation.OPENSSL_1_0_1, 1);
                     // TODO logging
 // Reporter.log("Found fingerprint hit for " + ETLSImplementation.GNUTLS.name() + " and " + ETLSImplementation.OPENSSL.name());
                 }

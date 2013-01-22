@@ -106,6 +106,9 @@ public class CKERecordHeader extends AGenericFingerprintTest implements Observer
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public synchronized ResultWrapper[] call() throws Exception {
         Object[][] parameters = new Object[][]{

@@ -1,29 +1,19 @@
 package de.rub.nds.ssl.analyzer.fingerprinter;
 
+import java.util.EnumMap;
+
 /**
- * Counts the points of the fingerprint analyzers,
+ * Counts the points of the fingerprint analyzers.
  *
  * @author Eugen Weiss - eugen.weiss@ruhr-uni-bochum.de
  * @version 0.1 May 24, 2012
  */
-public class ScoreCounter {
+public final class ScoreCounter {
 
-	/**
-	 * Score counter instance.
-	 */
-    private static volatile ScoreCounter counter;
     /**
-     * OpenSSL score.
+     * Score counter instance.
      */
-    private int openSSLScore = 0;
-    /**
-     * JSSE score.
-     */
-    private int jsseStandardScore = 0;
-    /**
-     * GnuTLS score.
-     */
-    private int gnutlsScore = 0;
+    private static volatile ScoreCounter instance;
     /**
      * Total score.
      */
@@ -32,84 +22,68 @@ public class ScoreCounter {
      * Score for no hits.
      */
     private int noHit = 0;
+    /**
+     * Map of counters for each implementation.
+     */
+    private EnumMap<ETLSImplementation, Integer> counter;
 
     /**
      * Empty constructor.
      */
     private ScoreCounter() {
+        counter = new EnumMap<ETLSImplementation, Integer>(
+                ETLSImplementation.class);
     }
 
     /**
      * Get an instance of ScoreCounter.
+     *
      * @return Instance of ScoreCounter
      */
     public static ScoreCounter getInstance() {
-        if (counter == null) {
-            counter = new ScoreCounter();
+        if (instance == null) {
+            instance = new ScoreCounter();
         }
-        return counter;
+        return instance;
     }
 
     /**
-     * Count the score for different implementations
+     * Count the score for different implementations.
      *
      * @param impl TLS implementation
      * @param score Score
      */
     public void countResult(final ETLSImplementation impl, final int score) {
-    	//always add the score to compute the total reachable points
+        //always add the score to compute the total reachable points
         this.totalCounter += score;
         //assign the score for a specific implementation
-        switch (impl) {
-            case OPENSSL:
-                this.openSSLScore += score;
-                break;
-            case JSSE_STANDARD:
-                this.jsseStandardScore += score;
-                break;
-            case GNUTLS:
-                this.gnutlsScore += score;
-                break;
-            default:
-                break;
-        }
-
+        Integer newValue = counter.get(impl);
+        newValue++;
+        counter.put(impl, newValue);
     }
 
     /**
      * Assign a score if DB search leads to no hit.
+     *
      * @param score Score
      */
     public void countNoHit(final int score) {
-        this.noHit = this.noHit + score;
+        this.noHit += score;
     }
 
     /**
-     * Get the score for OpenSSL.
-     * @return OpenSSL score
+     * Get the score for a given implementation.
+     *
+     * @param impl Implementation for which to receive the scoring
+     * @return Score of the passed implementation
      */
-    public int getOpenSSLScore() {
-        return this.openSSLScore;
-    }
-
-    /**
-     * Get the score for JSSE.
-     * @return JSSE score.
-     */
-    public int getJSSEStandardScore() {
-        return this.jsseStandardScore;
-    }
-
-    /**
-     * Get the score for GnuTLS.
-     * @return GnuTLS score
-     */
-    public int getGNUtlsScore() {
-        return this.gnutlsScore;
+    public int getScore(final ETLSImplementation impl) {
+        return counter.get(impl);
     }
 
     /**
      * Get the total reachable points of the fingerprint analysis.
+     *
      * @return Total score
      */
     public int getTotalCounter() {
@@ -118,6 +92,7 @@ public class ScoreCounter {
 
     /**
      * Get the points for no DB hits.
+     *
      * @return No hit score
      */
     public int getNoHitCounter() {

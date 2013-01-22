@@ -4,8 +4,6 @@ import de.rub.nds.ssl.analyzer.AAnalyzerComponent;
 import de.rub.nds.ssl.analyzer.ResultWrapper;
 import de.rub.nds.ssl.analyzer.fingerprinter.IFingerprinter;
 import de.rub.nds.ssl.analyzer.fingerprinter.TestHashAnalyzer;
-import de.rub.nds.ssl.analyzer.parameters.AParameters;
-import de.rub.nds.ssl.stack.trace.MessageContainer;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
@@ -13,7 +11,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import org.apache.log4j.Logger;
-import org.apache.log4j.PropertyConfigurator;
 
 /**
  * Launcher service.
@@ -25,7 +22,14 @@ import org.apache.log4j.PropertyConfigurator;
  */
 public abstract class Launcher {
 
-    private static ExecutorService executor = Executors.newSingleThreadExecutor();
+    /**
+     *
+     */
+    private static ExecutorService executor =
+            Executors.newSingleThreadExecutor();
+    /**
+     *
+     */
     private static Logger logger = Logger.getRootLogger();
 
     /**
@@ -34,6 +38,13 @@ public abstract class Launcher {
     private Launcher() {
     }
 
+    /**
+     *
+     * @param targetList
+     * @param components
+     * @throws InterruptedException
+     * @throws ExecutionException
+     */
     public static void start(final String[] targetList,
             final EFingerprintTests[] components)
             throws InterruptedException, ExecutionException {
@@ -44,14 +55,15 @@ public abstract class Launcher {
         // fetch instances of components
         List<AAnalyzerComponent> instances =
                 new ArrayList<AAnalyzerComponent>(components.length);
+        Class<AAnalyzerComponent> implementer;
         for (EFingerprintTests tmp : components) {
             try {
-                instances.add(
-                        (AAnalyzerComponent) tmp.getImplementer().newInstance());
+                implementer = tmp.getImplementer();
+                instances.add((AAnalyzerComponent) implementer.newInstance());
             } catch (IllegalAccessException e) {
-                // TODO: log me
+                logger.error("Illegal Access.", e);
             } catch (InstantiationException e) {
-                // TODO: log me
+                logger.error("Problems during instantiation.", e);
             }
         }
 
@@ -63,6 +75,14 @@ public abstract class Launcher {
         }
     }
 
+    /**
+     *
+     * @param instances
+     * @param target
+     * @return
+     * @throws InterruptedException
+     * @throws ExecutionException
+     */
     private static List<ResultWrapper[]> invokeExecutor(
             final List<AAnalyzerComponent> instances, final String target)
             throws InterruptedException, ExecutionException {
@@ -84,7 +104,11 @@ public abstract class Launcher {
         return results;
     }
 
-    private static void invokeAnalyzer(List<ResultWrapper[]> results) {
+    /**
+     *
+     * @param results
+     */
+    private static void invokeAnalyzer(final List<ResultWrapper[]> results) {
         IFingerprinter analyzer = new TestHashAnalyzer();
         for (ResultWrapper[] resultWrappers : results) {
             for (ResultWrapper tmpResult : resultWrappers) {
@@ -93,11 +117,11 @@ public abstract class Launcher {
             }
         }
     }
-
 //    public static void main(String args[]) throws InterruptedException,
 //            ExecutionException {
 //        PropertyConfigurator.configure("logging.properties");
 //        Launcher.start(new String[]{"https://www.rub.de"},
-//                new EFingerprintTests[]{EFingerprintTests.GOOD, EFingerprintTests.HANDSHAKE_ENUM, EFingerprintTests.CCS});
+//                new EFingerprintTests[]{EFingerprintTests.GOOD, 
+//                  EFingerprintTests.HANDSHAKE_ENUM, EFingerprintTests.CCS});
 //    }
 }

@@ -111,6 +111,9 @@ public class CKE extends AGenericFingerprintTest
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public synchronized ResultWrapper[] call() throws Exception {
         Object[][] parameters = new Object[][]{

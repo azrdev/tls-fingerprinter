@@ -40,12 +40,12 @@ public class CheckEnumeration extends AGenericFingerprintTest {
             workflow.closeSocket();
         }
 
-        //analyze the handshake trace
-//        IFingerprinter analyzer = new HandshakeEnumCheck();
-//        analyzer.analyze(workflow.getTraceList());
         return new ResultWrapper(headerParameters, workflow.getTraceList());
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public synchronized ResultWrapper[] call() throws Exception {
         // Print Test Banner

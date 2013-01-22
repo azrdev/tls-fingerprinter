@@ -58,6 +58,7 @@ public class VisualAnalyzer extends javax.swing.JFrame {
         attackerPanel = new javax.swing.JPanel();
         jScrollPane2 = new javax.swing.JScrollPane();
         attackerConfigurationTable = new javax.swing.JTable();
+        fuzzerPanel = new javax.swing.JPanel();
         progressBar = new javax.swing.JProgressBar();
         openListButton = new javax.swing.JButton();
         targetListScrollPane = new javax.swing.JScrollPane();
@@ -127,7 +128,7 @@ public class VisualAnalyzer extends javax.swing.JFrame {
             scannerConfigurationLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(scannerConfigurationLayout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 490, Short.MAX_VALUE)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 536, Short.MAX_VALUE)
                 .addContainerGap())
         );
         scannerConfigurationLayout.setVerticalGroup(
@@ -150,7 +151,7 @@ public class VisualAnalyzer extends javax.swing.JFrame {
             attackerPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(attackerPanelLayout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 490, Short.MAX_VALUE)
+                .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 536, Short.MAX_VALUE)
                 .addContainerGap())
         );
         attackerPanelLayout.setVerticalGroup(
@@ -161,6 +162,19 @@ public class VisualAnalyzer extends javax.swing.JFrame {
         );
 
         tabbedPane.addTab("Attacker Configuration", attackerPanel);
+
+        javax.swing.GroupLayout fuzzerPanelLayout = new javax.swing.GroupLayout(fuzzerPanel);
+        fuzzerPanel.setLayout(fuzzerPanelLayout);
+        fuzzerPanelLayout.setHorizontalGroup(
+            fuzzerPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 560, Short.MAX_VALUE)
+        );
+        fuzzerPanelLayout.setVerticalGroup(
+            fuzzerPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 233, Short.MAX_VALUE)
+        );
+
+        tabbedPane.addTab("Implementation Fuzzing", fuzzerPanel);
 
         openListButton.setLabel("Open list...");
         openListButton.addMouseListener(new java.awt.event.MouseAdapter() {
@@ -195,7 +209,7 @@ public class VisualAnalyzer extends javax.swing.JFrame {
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(tabbedPane, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
+            .addComponent(tabbedPane, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 567, Short.MAX_VALUE)
             .addComponent(progressBar, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
@@ -348,6 +362,7 @@ public class VisualAnalyzer extends javax.swing.JFrame {
     private javax.swing.JDialog errorDialog;
     private javax.swing.JLabel errorLabel;
     private javax.swing.JButton errorOKButton;
+    private javax.swing.JPanel fuzzerPanel;
     private javax.swing.JFileChooser jFileChooser1;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
