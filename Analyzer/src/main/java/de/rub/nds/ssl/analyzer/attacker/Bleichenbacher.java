@@ -78,8 +78,7 @@ public class Bleichenbacher {
             stepOne();
         }
         stepOneB();
-        stepOneC();
-
+        
         i++;
 
         while (!solutionFound) {
@@ -128,9 +127,6 @@ public class Bleichenbacher {
     protected void stepOneB() throws OracleException {
     }
 
-    protected void stepOneC() throws OracleException {
-    }
-
     protected void stepTwo(final int i) throws OracleException {
         byte[] send;
         BigInteger n = publicKey.getModulus();
@@ -148,7 +144,7 @@ public class Bleichenbacher {
         logger.info(" Found s" + i + ": " + si);
     }
 
-    private void stepTwoA() throws OracleException {
+    protected void stepTwoA() throws OracleException {
         byte[] send;
         boolean pkcsConform;
         BigInteger n = publicKey.getModulus();
