@@ -253,6 +253,7 @@ public class CH extends AGenericFingerprintTest implements Observer {
                     (byte[]) parameters[i][1], (byte[]) parameters[i][2],
                     (byte[]) parameters[i][3], (byte[]) parameters[i][4],
                     (byte[]) parameters[i][5], (byte[]) parameters[i][6]);
+            result[i].setTestName(this.getClass().getCanonicalName());
         }
 
         return result;

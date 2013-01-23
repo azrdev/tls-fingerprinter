@@ -59,7 +59,8 @@ public class GoodCase extends AGenericFingerprintTest implements Observer {
             workflow.closeSocket();
         }
 
-        return new ResultWrapper(headerParameters, workflow.getTraceList(), getAnalyzer());
+        return new ResultWrapper(headerParameters, workflow.getTraceList(),
+                getAnalyzer());
     }
 
     /**
@@ -108,6 +109,7 @@ public class GoodCase extends AGenericFingerprintTest implements Observer {
         for (int i = 0; i < parameters.length; i++) {
             result[i] = executeHandshake((String) parameters[i][0],
                     (ECipherSuite[]) parameters[i][1]);
+            result[i].setTestName(this.getClass().getCanonicalName());
         }
 
         return result;

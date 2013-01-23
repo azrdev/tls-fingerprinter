@@ -65,7 +65,8 @@ public class FIN extends AGenericFingerprintTest implements Observer {
             workflow.closeSocket();
         }
 
-        return new ResultWrapper(finParameters, workflow.getTraceList(), getAnalyzer());
+        return new ResultWrapper(finParameters, workflow.getTraceList(),
+                getAnalyzer());
     }
 
     /**
@@ -183,6 +184,7 @@ public class FIN extends AGenericFingerprintTest implements Observer {
                     (Boolean) parameters[i][1], (Boolean) parameters[i][2],
                     (Boolean) parameters[i][3], (Boolean) parameters[i][4],
                     (Boolean) parameters[i][5]);
+            result[i].setTestName(this.getClass().getCanonicalName());
         }
 
         return result;

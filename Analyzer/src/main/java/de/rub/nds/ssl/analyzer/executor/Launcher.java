@@ -5,7 +5,6 @@ import de.rub.nds.ssl.analyzer.ResultWrapper;
 import de.rub.nds.ssl.analyzer.fingerprinter.ETLSImplementation;
 import de.rub.nds.ssl.analyzer.fingerprinter.FingerprintFuzzer;
 import de.rub.nds.ssl.analyzer.fingerprinter.IFingerprinter;
-import de.rub.nds.ssl.analyzer.fingerprinter.TestHashAnalyzer;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
@@ -159,9 +158,9 @@ public abstract class Launcher {
         for (ResultWrapper[] resultWrappers : results) {
             for (ResultWrapper tmpResult : resultWrappers) {
                 analyzer.init(tmpResult.getParameters());
+                analyzer.setImplementation(implementation);
+                analyzer.setTestcase(tmpResult.getTestName());
                 analyzer.analyze(tmpResult.getTraceList());
-                
-                //setState, setTestcase name
             }
         }
     }

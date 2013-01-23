@@ -18,6 +18,7 @@ public class ResultWrapper {
     private AParameters parameters;
     private List<MessageContainer> traceList;
     private Class<IFingerprinter> analyzer;
+    private String testName;
 
     public ResultWrapper(final AParameters parameters,
             final List<MessageContainer> traceList,
@@ -37,5 +38,39 @@ public class ResultWrapper {
     
     public Class<IFingerprinter> getAnalyzer() {
         return this.analyzer;
+    }
+   /**
+     * @return the testName
+     */
+    public String getTestName() {
+        return testName;
+    }
+    
+    /**
+     * @param parameters the parameters to set
+     */
+    public void setParameters(final AParameters parameters) {
+        this.parameters = parameters;
+    }
+
+    /**
+     * @param traceList the traceList to set
+     */
+    public void setTraceList(final List<MessageContainer> traceList) {
+        this.traceList = traceList;
+    }
+
+    /**
+     * @param analyzer the analyzer to set
+     */
+    public void setAnalyzer(final Class<IFingerprinter> analyzer) {
+        this.analyzer = analyzer;
+    }
+
+    /**
+     * @param testName the testName to set
+     */
+    public void setTestName(String testName) {
+        this.testName = testName;
     }
 }

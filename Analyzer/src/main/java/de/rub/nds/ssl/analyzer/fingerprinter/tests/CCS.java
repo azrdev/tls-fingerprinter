@@ -108,8 +108,9 @@ public class CCS extends AGenericFingerprintTest implements Observer {
         for (int i = 0; i < parameters.length; i++) {
             result[i] = fingerprintChangeCipherSpec((String) parameters[i][0],
                     (byte[]) parameters[i][1]);
+            result[i].setTestName(this.getClass().getCanonicalName());
         }
-
+        
         return result;
     }
 }

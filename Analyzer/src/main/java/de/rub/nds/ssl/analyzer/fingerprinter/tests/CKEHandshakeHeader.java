@@ -52,7 +52,8 @@ public class CKEHandshakeHeader extends AGenericFingerprintTest implements
             workflow.closeSocket();
         }
 
-        return new ResultWrapper(headerParameters, workflow.getTraceList(), getAnalyzer());
+        return new ResultWrapper(headerParameters, workflow.getTraceList(),
+                getAnalyzer());
     }
 
     /**
@@ -103,7 +104,7 @@ public class CKEHandshakeHeader extends AGenericFingerprintTest implements
                 new byte[]{(byte) 0x00, (byte) 0x00, (byte) 0x00}},
             {"Invalid length 0xff,0xff,0xff", null,
                 new byte[]{(byte) 0xff, (byte) 0xff, (byte) 0xff}}};
-        
+
         // Print Test Banner
         printBanner();
         // execute test(s)
@@ -111,6 +112,7 @@ public class CKEHandshakeHeader extends AGenericFingerprintTest implements
         for (int i = 0; i < parameters.length; i++) {
             result[i] = manipulateCKEHandshakeHeader((String) parameters[i][0],
                     (byte[]) parameters[i][1], (byte[]) parameters[i][2]);
+            result[i].setTestName(this.getClass().getCanonicalName());
         }
 
         return result;

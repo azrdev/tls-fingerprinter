@@ -125,7 +125,8 @@ public class CCSRecordHeader extends AGenericFingerprintTest implements Observer
         for (int i = 0; i < parameters.length; i++) {
             result[i] = manipulateCCSRecordHeader((String) parameters[i][0],
                     (byte[]) parameters[i][1], (byte[]) parameters[i][2],
-                    (byte[]) parameters[i][3]);
+                    (byte[]) parameters[i][3]);            
+            result[i].setTestName(this.getClass().getCanonicalName());
         }
 
         return result;

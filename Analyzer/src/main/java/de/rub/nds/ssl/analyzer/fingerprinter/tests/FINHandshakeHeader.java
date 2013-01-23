@@ -56,7 +56,8 @@ public class FINHandshakeHeader extends AGenericFingerprintTest
             workflow.closeSocket();
         }
 
-        return new ResultWrapper(headerParameters, workflow.getTraceList(), getAnalyzer());
+        return new ResultWrapper(headerParameters, workflow.getTraceList(),
+                getAnalyzer());
     }
 
     /**
@@ -159,6 +160,7 @@ public class FINHandshakeHeader extends AGenericFingerprintTest
             result[i] = manipulateFinishedHandshakeHeader(
                     (String) parameters[i][0], (byte[]) parameters[i][1],
                     (byte[]) parameters[i][2]);
+            result[i].setTestName(this.getClass().getCanonicalName());
         }
 
         return result;

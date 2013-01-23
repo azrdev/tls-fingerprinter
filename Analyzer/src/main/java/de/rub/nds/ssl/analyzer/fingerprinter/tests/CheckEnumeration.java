@@ -19,7 +19,7 @@ public class CheckEnumeration extends AGenericFingerprintTest {
      */
     public ResultWrapper executeHandshake() throws SocketException {
         String desc = "Check Handshake Enum";
-        
+
         logger.info("++++Start Test No." + counter + "(" + desc + ")++++");
         workflow = new TLS10HandshakeWorkflow();
         //connect to test server
@@ -29,7 +29,7 @@ public class CheckEnumeration extends AGenericFingerprintTest {
         //set the test headerParameters
         headerParameters.setIdentifier(EFingerprintIdentifier.CheckHandEnum);
         headerParameters.setDescription(desc);
-        
+
         try {
             workflow.start();
 
@@ -40,7 +40,8 @@ public class CheckEnumeration extends AGenericFingerprintTest {
             workflow.closeSocket();
         }
 
-        return new ResultWrapper(headerParameters, workflow.getTraceList(), getAnalyzer());
+        return new ResultWrapper(headerParameters, workflow.getTraceList(),
+                getAnalyzer());
     }
 
     /**
@@ -51,6 +52,8 @@ public class CheckEnumeration extends AGenericFingerprintTest {
         // Print Test Banner
         printBanner();
         // execute test(s)
-        return new ResultWrapper[]{executeHandshake()};
+        ResultWrapper result = executeHandshake();
+        result.setTestName(this.getClass().getCanonicalName());
+        return new ResultWrapper[]{result};
     }
 }

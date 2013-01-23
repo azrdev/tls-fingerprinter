@@ -104,7 +104,8 @@ public class FillBehaviourDB {
         // name of tested state
         prepared.setString(5, testedState);
         // testcase name
-        prepared.setString(6, testcase);
+// TODO Eugen: habe hier mal die Description geändert ist das so ok?        
+        prepared.setString(6, testcase + " | " + parameters.getDescription());
         prepared.executeUpdate();
     	
     }

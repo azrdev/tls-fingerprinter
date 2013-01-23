@@ -60,7 +60,8 @@ public class CKERecordHeader extends AGenericFingerprintTest implements Observer
             workflow.closeSocket();
         }
 
-        return new ResultWrapper(headerParameters, workflow.getTraceList(), getAnalyzer());
+        return new ResultWrapper(headerParameters, workflow.getTraceList(),
+                getAnalyzer());
     }
 
     /**
@@ -128,6 +129,7 @@ public class CKERecordHeader extends AGenericFingerprintTest implements Observer
             result[i] = manipulateCKERecordHeader((String) parameters[i][0],
                     (byte[]) parameters[i][1], (byte[]) parameters[i][2],
                     (byte[]) parameters[i][3]);
+            result[i].setTestName(this.getClass().getCanonicalName());
         }
 
         return result;

@@ -22,7 +22,7 @@ public final class FingerprintFuzzer implements IFingerprinter {
     /**
      * Test implementation.
      */
-    private ETLSImplementation impl;
+    private ETLSImplementation implementation;
     /**
      * Fingerprint testcase.
      */
@@ -44,7 +44,7 @@ public final class FingerprintFuzzer implements IFingerprinter {
         FillBehaviourDB behaviour = new FillBehaviourDB();
         try {
             behaviour.insertFingerprint(parameters, traceList,
-                    this.state.name(), this.testcase, this.impl.name());
+                    this.state.name(), this.testcase, this.implementation.name());
         } catch (Exception e) {
             logger.error("Unspecified Error.", e);
         }
@@ -68,6 +68,13 @@ public final class FingerprintFuzzer implements IFingerprinter {
      */
     public void setState(EStates state) {
         this.state = state;
+    }
+
+    /**
+     * @param impl the impl to set
+     */
+    public void setImplementation(ETLSImplementation impl) {
+        this.implementation = impl;
     }
     
 }

@@ -64,7 +64,8 @@ public class CKE extends AGenericFingerprintTest
             workflow.closeSocket();
         }
 
-        return new ResultWrapper(ckeParameters, workflow.getTraceList(), getAnalyzer());
+        return new ResultWrapper(ckeParameters, workflow.getTraceList(),
+                getAnalyzer());
     }
 
     /**
@@ -121,7 +122,7 @@ public class CKE extends AGenericFingerprintTest
                     ECipherSuite.TLS_DHE_RSA_WITH_AES_128_CBC_SHA},
                 new byte[]{(byte) 0x00, (byte) 0x00}}
         };
-        
+
         // Print Test Banner
         printBanner();
         // execute test(s)
@@ -129,6 +130,7 @@ public class CKE extends AGenericFingerprintTest
         for (int i = 0; i < parameters.length; i++) {
             result[i] = fingerprintClientKeyExchange((String) parameters[i][0],
                     (ECipherSuite[]) parameters[i][1], (byte[]) parameters[i][2]);
+            result[i].setTestName(this.getClass().getCanonicalName());
         }
 
         return result;
