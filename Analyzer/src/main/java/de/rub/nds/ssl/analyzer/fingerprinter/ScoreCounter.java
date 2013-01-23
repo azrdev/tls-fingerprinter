@@ -58,8 +58,14 @@ public final class ScoreCounter {
         this.totalCounter += score;
         //assign the score for a specific implementation
         Integer newValue = counter.get(impl);
-        newValue++;
+        if (newValue == null) { 
+        	newValue = score;
+        }
+        else {
+        newValue += score;
+        	}
         counter.put(impl, newValue);
+        
     }
 
     /**
