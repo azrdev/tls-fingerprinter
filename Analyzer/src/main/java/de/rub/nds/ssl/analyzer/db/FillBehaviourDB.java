@@ -72,11 +72,12 @@ public class FillBehaviourDB {
         prepared.setInt(6, 26);
         prepared.executeUpdate();
     }
-    
+
     public void insertFingerprint(AParameters parameters,
-            List<MessageContainer> traceList, String testedState, String testcase,
-            String implementation) throws SQLException{
-    	Connection conn = db.getConnection();
+            List<MessageContainer> traceList, String testedState,
+            String testcase,
+            String implementation) throws SQLException {
+        Connection conn = db.getConnection();
         //prepared insert statement
         java.sql.PreparedStatement prepared = conn.
                 prepareStatement("insert into tls_fuzzer_fingerprint"
@@ -104,9 +105,14 @@ public class FillBehaviourDB {
         // name of tested state
         prepared.setString(5, testedState);
         // testcase name
-// TODO Eugen: habe hier mal die Description geändert ist das so ok?        
-        prepared.setString(6, testcase + " | " + parameters.getDescription());
+// TODO Eugen: habe hier mal die Description geändert ist das so ok?
+        String tmpDesc = parameters.getDescription();
+        String desc = testcase;
+        if (tmpDesc != null && !tmpDesc.isEmpty()) {
+            desc += " | " + parameters.getDescription();
+        }
+        prepared.setString(6, desc);
         prepared.executeUpdate();
-    	
+
     }
 }
