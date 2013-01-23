@@ -113,6 +113,7 @@ public class FillBehaviourDB {
         }
         prepared.setString(6, desc);
         prepared.executeUpdate();
+        System.out.println("Drin: " + fingerprint);
 
     }
 }

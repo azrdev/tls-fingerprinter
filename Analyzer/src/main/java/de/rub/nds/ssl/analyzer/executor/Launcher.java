@@ -5,6 +5,7 @@ import de.rub.nds.ssl.analyzer.ResultWrapper;
 import de.rub.nds.ssl.analyzer.fingerprinter.ETLSImplementation;
 import de.rub.nds.ssl.analyzer.fingerprinter.FingerprintFuzzer;
 import de.rub.nds.ssl.analyzer.fingerprinter.IFingerprinter;
+import de.rub.nds.ssl.stack.workflows.TLS10HandshakeWorkflow;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
@@ -109,6 +110,7 @@ public abstract class Launcher {
                 tmpComponent = implementer.newInstance();
                 tmpComponent.setTarget(target);
                 tmpComponent.setAnalyzer(tmp.getAnalyzer());
+                instances.add(tmpComponent);
             } catch (IllegalAccessException e) {
                 logger.error("Illegal Access.", e);
             } catch (InstantiationException e) {
