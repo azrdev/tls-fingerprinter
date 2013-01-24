@@ -119,13 +119,15 @@ public class FillBehaviourDB {
         }
 //        prepared.setString(6, desc);
 
-        logger.info("########################################################");
+        logger.info("########################################################"
+                + "################");
         logger.info("Description: " + desc);
         logger.info("Chosen implementation: " + implementation);
         logger.info("Alert description: " + alertDesc);
         logger.info("Last state: " + lastState);
         logger.info("Fingerprint: " + fingerprint);
-        logger.info("########################################################");
+        logger.info("########################################################"
+                + "################");
         
 
         //prepared.executeUpdate();

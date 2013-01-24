@@ -93,7 +93,7 @@
   <Layout>
     <DimensionLayout dim="0">
       <Group type="103" groupAlignment="0" attributes="0">
-          <Component id="tabbedPane" alignment="1" max="32767" attributes="0"/>
+          <Component id="tabbedPane" alignment="1" pref="782" max="32767" attributes="0"/>
           <Component id="progressBar" alignment="1" max="32767" attributes="0"/>
           <Group type="102" attributes="0">
               <EmptySpace max="-2" attributes="0"/>
@@ -163,7 +163,7 @@
               <Group type="103" groupAlignment="0" attributes="0">
                   <Group type="102" alignment="0" attributes="0">
                       <EmptySpace max="-2" attributes="0"/>
-                      <Component id="jScrollPane1" pref="608" max="32767" attributes="0"/>
+                      <Component id="jScrollPane1" pref="751" max="32767" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
                   </Group>
               </Group>
@@ -220,7 +220,7 @@
               <Group type="103" groupAlignment="0" attributes="0">
                   <Group type="102" alignment="0" attributes="0">
                       <EmptySpace max="-2" attributes="0"/>
-                      <Component id="jScrollPane2" pref="608" max="32767" attributes="0"/>
+                      <Component id="jScrollPane2" pref="751" max="32767" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
                   </Group>
               </Group>
@@ -281,7 +281,7 @@
                           <Group type="102" alignment="0" attributes="0">
                               <Component id="fuzzingLabel" min="-2" max="-2" attributes="0"/>
                               <EmptySpace max="-2" attributes="0"/>
-                              <Component id="jComboBox1" pref="418" max="32767" attributes="0"/>
+                              <Component id="jComboBox1" pref="561" max="32767" attributes="0"/>
                           </Group>
                           <Group type="102" alignment="1" attributes="0">
                               <EmptySpace min="0" pref="0" max="32767" attributes="0"/>
@@ -344,7 +344,7 @@
               <Group type="103" groupAlignment="0" attributes="0">
                   <Group type="102" alignment="0" attributes="0">
                       <EmptySpace max="-2" attributes="0"/>
-                      <Component id="jScrollPane3" pref="608" max="32767" attributes="0"/>
+                      <Component id="jScrollPane3" pref="751" max="32767" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
                   </Group>
               </Group>
@@ -400,6 +400,7 @@
           <Properties>
             <Property name="columns" type="int" value="20"/>
             <Property name="rows" type="int" value="5"/>
+            <Property name="text" type="java.lang.String" value="https://134.147.198.93:53098"/>
             <Property name="toolTipText" type="java.lang.String" value="[ PROTOCOL:// IP or DOMAIN (: PORT) ] - single line per target"/>
           </Properties>
         </Component>

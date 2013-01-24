@@ -145,7 +145,7 @@ public class VisualAnalyzer extends javax.swing.JFrame {
             scannerConfigurationLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(scannerConfigurationLayout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 608, Short.MAX_VALUE)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 751, Short.MAX_VALUE)
                 .addContainerGap())
         );
         scannerConfigurationLayout.setVerticalGroup(
@@ -168,7 +168,7 @@ public class VisualAnalyzer extends javax.swing.JFrame {
             attackerPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(attackerPanelLayout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 608, Short.MAX_VALUE)
+                .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 751, Short.MAX_VALUE)
                 .addContainerGap())
         );
         attackerPanelLayout.setVerticalGroup(
@@ -201,7 +201,7 @@ public class VisualAnalyzer extends javax.swing.JFrame {
                     .addGroup(fuzzerPanelLayout.createSequentialGroup()
                         .addComponent(fuzzingLabel)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jComboBox1, 0, 418, Short.MAX_VALUE))
+                        .addComponent(jComboBox1, 0, 561, Short.MAX_VALUE))
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, fuzzerPanelLayout.createSequentialGroup()
                         .addGap(0, 0, Short.MAX_VALUE)
                         .addComponent(createFingerprintButton)))
@@ -231,7 +231,7 @@ public class VisualAnalyzer extends javax.swing.JFrame {
             outputPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(outputPanelLayout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jScrollPane3, javax.swing.GroupLayout.DEFAULT_SIZE, 608, Short.MAX_VALUE)
+                .addComponent(jScrollPane3, javax.swing.GroupLayout.DEFAULT_SIZE, 751, Short.MAX_VALUE)
                 .addContainerGap())
         );
         outputPanelLayout.setVerticalGroup(
@@ -253,6 +253,7 @@ public class VisualAnalyzer extends javax.swing.JFrame {
 
         targetListTextArea.setColumns(20);
         targetListTextArea.setRows(5);
+        targetListTextArea.setText("https://134.147.198.93:53098");
         targetListTextArea.setToolTipText("[ PROTOCOL:// IP or DOMAIN (: PORT) ] - single line per target");
         targetListScrollPane.setViewportView(targetListTextArea);
 
@@ -277,7 +278,7 @@ public class VisualAnalyzer extends javax.swing.JFrame {
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(tabbedPane, javax.swing.GroupLayout.Alignment.TRAILING)
+            .addComponent(tabbedPane, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 782, Short.MAX_VALUE)
             .addComponent(progressBar, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
