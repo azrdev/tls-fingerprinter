@@ -2,7 +2,6 @@ package de.rub.nds.ssl.analyzer.gui.models;
 
 import javax.swing.JTextArea;
 import org.apache.log4j.AppenderSkeleton;
-import org.apache.log4j.WriterAppender;
 import org.apache.log4j.spi.LoggingEvent;
 
 /**
