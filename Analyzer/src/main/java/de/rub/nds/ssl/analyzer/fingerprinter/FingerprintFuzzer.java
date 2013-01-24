@@ -28,10 +28,6 @@ public final class FingerprintFuzzer implements IFingerprinter {
      */
     private String testcase;
     /**
-     * Tested handshake state.
-     */
-    private EStates state;
-    /**
      * Test parameters.
      */
     private AParameters parameters;
@@ -43,8 +39,8 @@ public final class FingerprintFuzzer implements IFingerprinter {
     public void analyze(final List<MessageContainer> traceList) {
         FillBehaviourDB behaviour = new FillBehaviourDB();
         try {
-            behaviour.insertFingerprint(parameters, traceList,
-                    this.state.name(), this.testcase, this.implementation.name());
+            behaviour.insertFingerprint(parameters, traceList, this.testcase,
+                    this.implementation.name());
         } catch (Exception e) {
             logger.error("Unspecified Error.", e);
         }
@@ -64,17 +60,9 @@ public final class FingerprintFuzzer implements IFingerprinter {
     }
 
     /**
-     * @param state the state to set
-     */
-    public void setState(EStates state) {
-        this.state = state;
-    }
-
-    /**
      * @param impl the impl to set
      */
     public void setImplementation(ETLSImplementation impl) {
         this.implementation = impl;
     }
-    
 }

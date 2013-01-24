@@ -119,7 +119,7 @@ public class CKE extends AGenericFingerprintTest
     public final synchronized ResultWrapper[] call() throws Exception {
         Object[][] parameters = new Object[][]{
             {"Invalid payload for RSA key exchange", new ECipherSuite[]{
-                    ECipherSuite.TLS_DHE_RSA_WITH_AES_128_CBC_SHA},
+                    ECipherSuite.TLS_RSA_WITH_AES_128_CBC_SHA},
                 new byte[]{(byte) 0x00, (byte) 0x00}}
         };
 
