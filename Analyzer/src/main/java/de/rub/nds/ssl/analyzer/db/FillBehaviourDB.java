@@ -1,7 +1,6 @@
 package de.rub.nds.ssl.analyzer.db;
 
 import de.rub.nds.ssl.analyzer.fingerprinter.AnalyzeTraceList;
-import de.rub.nds.ssl.analyzer.fingerprinter.ETLSImplementation;
 import de.rub.nds.ssl.analyzer.parameters.AParameters;
 import de.rub.nds.ssl.stack.trace.MessageContainer;
 import de.rub.nds.ssl.stack.workflows.TLS10HandshakeWorkflow.EStates;
@@ -34,6 +33,7 @@ public class FillBehaviourDB {
         db = Database.getInstance();
     }
 
+    
     /**
      * Insert an entry to the fingerprint database.
      *
@@ -42,15 +42,14 @@ public class FillBehaviourDB {
      * @param impl TLS implementation
      * @throws Exception
      */
-    public void insertBehaviour(AParameters parameters,
-            List<MessageContainer> traceList,
-            ETLSImplementation impl) throws Exception {
+    public void insertFingerprint(AParameters parameters,
+            List<MessageContainer> traceList, String testcase,
+            String implementation) throws SQLException {
         Connection conn = db.getConnection();
         //prepared insert statement
         java.sql.PreparedStatement prepared = conn.
-                prepareStatement("insert into tls_fingerprint_hash"
-                + " values (default,?,?,?,?,?,?)");
-        String implementation = impl.name();
+                prepareStatement("insert into tls_fuzzer_fingerprint"
+                + " values (default,?,?,?,?,?)");
         String lastState = null;
         String alertDesc = null;
         AnalyzeTraceList analyzeList = new AnalyzeTraceList();
@@ -71,53 +70,13 @@ public class FillBehaviourDB {
         prepared.setString(3, alertDesc);
         // implementation
         prepared.setString(4, implementation);
-        // points
-        prepared.setInt(5, 2);
-        // testcase id
-// TODO Eugen: wieso 26?
-        prepared.setInt(6, 26);
-        prepared.executeUpdate();
-    }
-
-    public void insertFingerprint(AParameters parameters,
-            List<MessageContainer> traceList, String testcase,
-            String implementation) throws SQLException {
-// TODO Eugen: Ich habe mal den tested state rausgeworfen, müssen wir hierzu die db anpassen?
-        Connection conn = db.getConnection();
-        //prepared insert statement
-//        java.sql.PreparedStatement prepared = conn.
-//                prepareStatement("insert into tls_fuzzer_fingerprint"
-//                + " values (default,?,?,?,?,?,?)");
-        String lastState = null;
-        String alertDesc = null;
-        AnalyzeTraceList analyzeList = new AnalyzeTraceList();
-        //assign the alert description and last state
-        alertDesc = analyzeList.getAlertFromTraceList(traceList);
-        if (alertDesc != null) {
-            lastState = EStates.ALERT.name();
-        } else {
-            MessageContainer lastTrace = analyzeList.getLastTrace(traceList);
-            lastState = lastTrace.getState().name();
-        }
-        String fingerprint = parameters.computeHash();
-        // hash
-//        prepared.setString(1, fingerprint);
-        // state
-//        prepared.setString(2, lastState);
-        // alert description
-//        prepared.setString(3, alertDesc);
-        // implementation
-//        prepared.setString(4, implementation);
-        // name of tested state
-//        prepared.setString(5, testedState);
         // testcase name
-// TODO: Eugen: Ich hab hier mal den Testnamen angepasst
         String tmpDesc = parameters.getDescription();
         String desc = testcase;
         if (tmpDesc != null && !tmpDesc.isEmpty()) {
             desc += " | " + parameters.getDescription();
         }
-//        prepared.setString(6, desc);
+        prepared.setString(5, desc);
 
         logger.info("########################################################"
                 + "################");
@@ -130,7 +89,7 @@ public class FillBehaviourDB {
                 + "################");
         
 
-        //prepared.executeUpdate();
+        prepared.executeUpdate();
 
     }
 }
