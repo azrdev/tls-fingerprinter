@@ -3,10 +3,9 @@ package de.rub.nds.ssl.analyzer.gui;
 import de.rub.nds.ssl.analyzer.executor.EFingerprintTests;
 import de.rub.nds.ssl.analyzer.executor.Launcher;
 import de.rub.nds.ssl.analyzer.fingerprinter.ETLSImplementation;
-import de.rub.nds.ssl.analyzer.fingerprinter.FingerprintFuzzer;
 import de.rub.nds.ssl.analyzer.gui.models.AttackerConfigurationData;
+import de.rub.nds.ssl.analyzer.gui.models.JTextAreaLog4JAppender;
 import de.rub.nds.ssl.analyzer.gui.models.ScannerConfigurationData;
-import de.rub.nds.ssl.stack.workflows.TLS10HandshakeWorkflow;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
@@ -46,6 +45,7 @@ public class VisualAnalyzer extends javax.swing.JFrame {
                 values());
         initComponents();
         PropertyConfigurator.configure("logging.properties");
+        logger.addAppender(new JTextAreaLog4JAppender(outputTextArea));
     }
 
     /**
@@ -73,6 +73,9 @@ public class VisualAnalyzer extends javax.swing.JFrame {
         fuzzingLabel = new javax.swing.JLabel();
         jComboBox1 = new javax.swing.JComboBox();
         createFingerprintButton = new javax.swing.JButton();
+        outputPanel = new javax.swing.JPanel();
+        jScrollPane3 = new javax.swing.JScrollPane();
+        outputTextArea = new javax.swing.JTextArea();
         progressBar = new javax.swing.JProgressBar();
         openListButton = new javax.swing.JButton();
         targetListScrollPane = new javax.swing.JScrollPane();
@@ -142,7 +145,7 @@ public class VisualAnalyzer extends javax.swing.JFrame {
             scannerConfigurationLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(scannerConfigurationLayout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 542, Short.MAX_VALUE)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 608, Short.MAX_VALUE)
                 .addContainerGap())
         );
         scannerConfigurationLayout.setVerticalGroup(
@@ -165,7 +168,7 @@ public class VisualAnalyzer extends javax.swing.JFrame {
             attackerPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(attackerPanelLayout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 542, Short.MAX_VALUE)
+                .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 608, Short.MAX_VALUE)
                 .addContainerGap())
         );
         attackerPanelLayout.setVerticalGroup(
@@ -198,7 +201,7 @@ public class VisualAnalyzer extends javax.swing.JFrame {
                     .addGroup(fuzzerPanelLayout.createSequentialGroup()
                         .addComponent(fuzzingLabel)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jComboBox1, 0, 352, Short.MAX_VALUE))
+                        .addComponent(jComboBox1, 0, 418, Short.MAX_VALUE))
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, fuzzerPanelLayout.createSequentialGroup()
                         .addGap(0, 0, Short.MAX_VALUE)
                         .addComponent(createFingerprintButton)))
@@ -217,6 +220,29 @@ public class VisualAnalyzer extends javax.swing.JFrame {
         );
 
         tabbedPane.addTab("Implementation Fuzzing", fuzzerPanel);
+
+        outputTextArea.setColumns(20);
+        outputTextArea.setRows(5);
+        jScrollPane3.setViewportView(outputTextArea);
+
+        javax.swing.GroupLayout outputPanelLayout = new javax.swing.GroupLayout(outputPanel);
+        outputPanel.setLayout(outputPanelLayout);
+        outputPanelLayout.setHorizontalGroup(
+            outputPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(outputPanelLayout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jScrollPane3, javax.swing.GroupLayout.DEFAULT_SIZE, 608, Short.MAX_VALUE)
+                .addContainerGap())
+        );
+        outputPanelLayout.setVerticalGroup(
+            outputPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, outputPanelLayout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jScrollPane3, javax.swing.GroupLayout.DEFAULT_SIZE, 209, Short.MAX_VALUE)
+                .addContainerGap())
+        );
+
+        tabbedPane.addTab("Results", outputPanel);
 
         openListButton.setLabel("Open list...");
         openListButton.addMouseListener(new java.awt.event.MouseAdapter() {
@@ -251,7 +277,7 @@ public class VisualAnalyzer extends javax.swing.JFrame {
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(tabbedPane, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 573, Short.MAX_VALUE)
+            .addComponent(tabbedPane, javax.swing.GroupLayout.Alignment.TRAILING)
             .addComponent(progressBar, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
@@ -434,7 +460,10 @@ public class VisualAnalyzer extends javax.swing.JFrame {
     private javax.swing.JFileChooser jFileChooser1;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
+    private javax.swing.JScrollPane jScrollPane3;
     private javax.swing.JButton openListButton;
+    private javax.swing.JPanel outputPanel;
+    private javax.swing.JTextArea outputTextArea;
     private javax.swing.JProgressBar progressBar;
     private javax.swing.JButton scanTargetsButton;
     private javax.swing.JPanel scannerConfiguration;
