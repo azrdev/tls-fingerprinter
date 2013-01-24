@@ -16,7 +16,7 @@ import org.apache.log4j.Logger;
  * @author Eugen Weiss - eugen.weiss@ruhr-uni-bochum.de
  * @version 0.1 Jun 05, 2012
  */
-public class TestHashAnalyzer implements IFingerprinter {
+public final class TestHashAnalyzer implements IFingerprinter {
 
     /**
      * Hash value of the test parameters.
@@ -31,9 +31,8 @@ public class TestHashAnalyzer implements IFingerprinter {
      * Standard constructor.
      */
     public TestHashAnalyzer() {
-        
     }
-    
+
     /**
      * {@inheritDoc}
      */
@@ -43,7 +42,7 @@ public class TestHashAnalyzer implements IFingerprinter {
         this.hashValue = parameters.computeHash();
         logger.debug("Hash value: " + this.hashValue);
     }
-    
+
     /**
      * {@inheritDoc}
      */
@@ -77,9 +76,8 @@ public class TestHashAnalyzer implements IFingerprinter {
                         counter.countResult(ETLSImplementation.valueOf(result.
                                 getString("TLS_IMPL")),
                                 result.getInt("POINTS"));
-                        // TODO logging
-// Reporter.log("Found fingerprint hit for " + result.getString("TLS_IMPL"));
-                        logger.info("Found fingerprint hit for " + result.getString("TLS_IMPL"));
+                        logger.info("Found fingerprint hit for " + result.
+                                getString("TLS_IMPL"));
                     }
                 } else if (result.getString("LAST_STATE").equalsIgnoreCase(
                         lastState)) {
@@ -87,9 +85,8 @@ public class TestHashAnalyzer implements IFingerprinter {
                     counter.countResult(ETLSImplementation.valueOf(result.
                             getString("TLS_IMPL")),
                             result.getInt("POINTS"));
-                    // TODO logging
-// Reporter.log("Found fingerprint hit for " + result.getString("TLS_IMPL"));
-                    logger.info("Found fingerprint hit for " + result.getString("TLS_IMPL"));
+                    logger.info("Found fingerprint hit for " + result.getString(
+                            "TLS_IMPL"));
                 }
             }
             //assign 2 points for "no hit" if there is no hit in the database

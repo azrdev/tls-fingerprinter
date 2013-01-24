@@ -75,17 +75,11 @@ public final class FingerprintFuzzer implements IFingerprinter {
         this.parameters = parameters;
     }
 
-    /**
-     * @param testcase the testcase to set
-     */
-    public void setTestcase(String testcase) {
+    public void setTestcase(final String testcase) {
         this.testcase = testcase;
     }
 
-    /**
-     * @param impl the impl to set
-     */
-    public void setImplementation(ETLSImplementation impl) {
+    public void setImplementation(final ETLSImplementation impl) {
         this.implementation = impl;
     }
 }
