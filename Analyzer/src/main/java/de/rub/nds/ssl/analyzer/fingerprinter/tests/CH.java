@@ -24,103 +24,49 @@ import java.util.Observer;
  */
 public class CH extends AGenericFingerprintTest implements Observer {
 
+    private static final byte FF = (byte) 0xff;
+    private static final byte ZF = (byte) 0x0f;
     /**
      * Test headerParameters.
      */
     private ClientHelloParameters chParameters = new ClientHelloParameters();
-    byte[] sessionID = new byte[]{(byte) 0xff, (byte) 0x0f, (byte) 0x0f,
-        (byte) 0x0f, (byte) 0x0f,
-        (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f,
-        (byte) 0x0f, (byte) 0x0f,
-        (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f,
-        (byte) 0x0f, (byte) 0x0f,
-        (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f,
-        (byte) 0x0f, (byte) 0x0f,
-        (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f,
-        (byte) 0x0f, (byte) 0x0f,
-        (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f,
-        (byte) 0x0f, (byte) 0x0f,
-        (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f,
-        (byte) 0x0f, (byte) 0x0f,
-        (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f,
-        (byte) 0x0f, (byte) 0x0f,
-        (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f,
-        (byte) 0x0f, (byte) 0x0f,
-        (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f,
-        (byte) 0x0f, (byte) 0x0f,
-        (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f,
-        (byte) 0x0f, (byte) 0x0f,
-        (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f,
-        (byte) 0x0f, (byte) 0x0f,
-        (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f,
-        (byte) 0x0f, (byte) 0x0f,
-        (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f,
-        (byte) 0x0f, (byte) 0x0f,
-        (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f,
-        (byte) 0x0f, (byte) 0x0f,
-        (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f,
-        (byte) 0x0f, (byte) 0x0f,
-        (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f,
-        (byte) 0x0f, (byte) 0x0f,
-        (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f,
-        (byte) 0x0f, (byte) 0x0f,
-        (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f,
-        (byte) 0x0f, (byte) 0x0f,
-        (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f,
-        (byte) 0x0f, (byte) 0x0f,
-        (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f,
-        (byte) 0x0f, (byte) 0x0f,
-        (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f,
-        (byte) 0x0f, (byte) 0x0f,
-        (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f,
-        (byte) 0x0f, (byte) 0x0f,
-        (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f,
-        (byte) 0x0f, (byte) 0x0f,
-        (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f,
-        (byte) 0x0f, (byte) 0x0f,
-        (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f,
-        (byte) 0x0f, (byte) 0x0f,
-        (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f,
-        (byte) 0x0f, (byte) 0x0f,
-        (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f,
-        (byte) 0x0f, (byte) 0x0f,
-        (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f,
-        (byte) 0x0f, (byte) 0x0f,
-        (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f,
-        (byte) 0x0f, (byte) 0x0f,
-        (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f,
-        (byte) 0x0f, (byte) 0x0f,
-        (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f,
-        (byte) 0x0f, (byte) 0x0f,
-        (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f,
-        (byte) 0x0f, (byte) 0x0f,
-        (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f,
-        (byte) 0x0f, (byte) 0x0f,
-        (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f,
-        (byte) 0x0f, (byte) 0x0f,
-        (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f,
-        (byte) 0x0f, (byte) 0x0f,
-        (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f, (byte) 0x0f,
-        (byte) 0x0f
+    byte[] sessionID = new byte[]{(byte) 0xff, ZF, ZF, ZF, ZF, ZF, ZF, ZF,
+        ZF, ZF, ZF, ZF, ZF, ZF, ZF, ZF, ZF, ZF, ZF, ZF, ZF, ZF, ZF, ZF,
+        ZF, ZF, ZF, ZF, ZF, ZF, ZF, ZF, ZF, ZF, ZF, ZF, ZF, ZF, ZF, ZF,
+        ZF, ZF, ZF, ZF, ZF, ZF, ZF, ZF, ZF, ZF, ZF, ZF, ZF, ZF, ZF, ZF,
+        ZF, ZF, ZF, ZF, ZF, ZF, ZF, ZF, ZF, ZF, ZF, ZF, ZF, ZF, ZF, ZF,
+        ZF, ZF, ZF, ZF, ZF, ZF, ZF, ZF, ZF, ZF, ZF, ZF, ZF, ZF, ZF, ZF,
+        ZF, ZF, ZF, ZF, ZF, ZF, ZF, ZF, ZF, ZF, ZF, ZF, ZF, ZF, ZF, ZF,
+        ZF, ZF, ZF, ZF, ZF, ZF, ZF, ZF, ZF, ZF, ZF, ZF, ZF, ZF, ZF, ZF,
+        ZF, ZF, ZF, ZF, ZF, ZF, ZF, ZF, ZF, ZF, ZF, ZF, ZF, ZF, ZF, ZF,
+        ZF, ZF, ZF, ZF, ZF, ZF, ZF, ZF, ZF, ZF, ZF, ZF, ZF, ZF, ZF, ZF,
+        ZF, ZF, ZF, ZF, ZF, ZF, ZF, ZF, ZF, ZF, ZF, ZF, ZF, ZF, ZF, ZF,
+        ZF, ZF, ZF, ZF, ZF, ZF, ZF, ZF, ZF, ZF, ZF, ZF, ZF, ZF, ZF, ZF,
+        ZF, ZF, ZF, ZF, ZF, ZF, ZF, ZF, ZF, ZF, ZF, ZF, ZF, ZF, ZF, ZF,
+        ZF, ZF, ZF, ZF, ZF, ZF, ZF, ZF, ZF, ZF, ZF, ZF, ZF, ZF, ZF, ZF,
+        ZF, ZF, ZF, ZF, ZF, ZF, ZF, ZF, ZF, ZF, ZF, ZF, ZF, ZF, ZF, ZF,
+        ZF, ZF, ZF, ZF, ZF, ZF, ZF, ZF, ZF, ZF, ZF, ZF, ZF, ZF, ZF, ZF,
+        ZF, ZF, ZF, ZF, ZF, ZF, ZF, ZF
     };
 
     /**
-     * Manipulate Client Hello message to perform fingerprinting tests
+     * Manipulate Client Hello message to perform fingerprinting tests.
      *
      * @param desc Test description
      * @param protocolVersion TLS protocol version
-     * @param noSessionValue
-     * @param session
-     * @param sessionIdLength
-     * @param cipherLength
+     * @param noSessionValue Session ID value if no sessionID is set
+     * @param session Session ID value
+     * @param sessionIdLength Length of the session id
+     * @param cipherLength CipherSuite length
      * @param compMethod Compression method
-     * @return
+     * @return Test results
      * @throws SocketException
      */
-    public ResultWrapper fingerprintClientHello(String desc,
-            byte[] protocolVersion, byte[] noSessionValue, byte[] session,
-            byte[] sessionIdLength, byte[] cipherLength, byte[] compMethod)
-            throws SocketException {
+    public ResultWrapper fingerprintClientHello(final String desc,
+            final byte[] protocolVersion, final byte[] noSessionValue,
+            final byte[] session, final byte[] sessionIdLength,
+            final byte[] cipherLength, final byte[] compMethod) throws
+            SocketException {
         logger.info("++++Start Test No." + counter + "(" + desc + ")++++");
         workflow = new TLS10HandshakeWorkflow();
         //connect to test server
@@ -151,7 +97,8 @@ public class CH extends AGenericFingerprintTest implements Observer {
             workflow.closeSocket();
         }
 
-        return new ResultWrapper(chParameters, workflow.getTraceList(), getAnalyzer());
+        return new ResultWrapper(chParameters, workflow.getTraceList(),
+                getAnalyzer());
     }
 
     /**

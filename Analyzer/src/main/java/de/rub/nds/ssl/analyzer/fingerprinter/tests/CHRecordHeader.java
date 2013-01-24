@@ -24,17 +24,9 @@ import java.util.Observer;
  */
 public class CHRecordHeader extends AGenericFingerprintTest implements Observer {
 
-    /**
-     *
-     * @param desc
-     * @param msgType
-     * @param protocolVersion
-     * @param recordLength
-     * @return
-     * @throws SocketException
-     */
-    public ResultWrapper manipulateCHRecordHeader(String desc, byte[] msgType,
-            byte[] protocolVersion, byte[] recordLength) throws SocketException {
+    private ResultWrapper manipulateCHRecordHeader(final String desc,
+            final byte[] msgType, final byte[] protocolVersion,
+            final byte[] recordLength) throws SocketException {
         logger.info("++++Start Test No." + counter + "(" + desc + ")++++");
         workflow = new TLS10HandshakeWorkflow();
         //connect to test server

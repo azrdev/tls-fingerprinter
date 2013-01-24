@@ -32,9 +32,10 @@ public class FIN extends AGenericFingerprintTest implements Observer {
      */
     private FinishedParameters finParameters = new FinishedParameters();
 
-    public ResultWrapper manipulateFinishedRecordHeader(String desc,
-            boolean changePadding, boolean destroyMAC,
-            boolean destroyHash, boolean destroyVerify, boolean changePadLength)
+    private ResultWrapper manipulateFinishedRecordHeader(final String desc,
+            final boolean changePadding, final boolean destroyMAC,
+            final boolean destroyHash, final boolean destroyVerify,
+            final boolean changePadLength)
             throws SocketException {
         logger.info("++++Start Test No." + counter + "(" + desc + ")++++");
         workflow = new TLS10HandshakeWorkflow();

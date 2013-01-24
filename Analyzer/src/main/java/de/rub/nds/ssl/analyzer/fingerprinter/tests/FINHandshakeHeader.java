@@ -27,8 +27,9 @@ import javax.crypto.spec.SecretKeySpec;
 public class FINHandshakeHeader extends AGenericFingerprintTest
         implements Observer {
 
-    public ResultWrapper manipulateFinishedHandshakeHeader(String desc,
-            byte[] msgType, byte[] recordLength) throws SocketException {
+    private ResultWrapper manipulateFinishedHandshakeHeader(final String desc,
+            final byte[] msgType, final byte[] recordLength)
+            throws SocketException {
         logger.info("++++Start Test No." + counter + "(" + desc + ")++++");
         workflow = new TLS10HandshakeWorkflow();
         //connect to test server

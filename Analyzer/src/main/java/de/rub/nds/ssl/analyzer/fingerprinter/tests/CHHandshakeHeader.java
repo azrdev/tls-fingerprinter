@@ -25,16 +25,9 @@ import java.util.Observer;
 public class CHHandshakeHeader extends AGenericFingerprintTest implements
         Observer {
 
-    /**
-     *
-     * @param desc
-     * @param msgType
-     * @param recordLength
-     * @return
-     * @throws SocketException
-     */
-    public ResultWrapper manipulateCHHandshakeHeader(String desc,
-            byte[] msgType, byte[] recordLength) throws SocketException {
+    private ResultWrapper manipulateCHHandshakeHeader(final String desc,
+            final byte[] msgType, final byte[] recordLength) throws
+            SocketException {
         logger.info("++++Start Test No." + counter + "(" + desc + ")++++");
         logger.info("Following test parameters are used:");
         workflow = new TLS10HandshakeWorkflow();
@@ -62,7 +55,8 @@ public class CHHandshakeHeader extends AGenericFingerprintTest implements
             workflow.closeSocket();
         }
 
-        return new ResultWrapper(headerParameters, workflow.getTraceList(), getAnalyzer());
+        return new ResultWrapper(headerParameters, workflow.getTraceList(),
+                getAnalyzer());
     }
 
     /**

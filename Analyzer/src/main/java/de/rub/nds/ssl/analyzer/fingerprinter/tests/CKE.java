@@ -25,7 +25,8 @@ public class CKE extends AGenericFingerprintTest
     /**
      * Test headerParameters.
      */
-    private ClientKeyExchangeParams ckeParameters = new ClientKeyExchangeParams();
+    private ClientKeyExchangeParams ckeParameters = 
+            new ClientKeyExchangeParams();
 
     /**
      *
@@ -35,8 +36,9 @@ public class CKE extends AGenericFingerprintTest
      * @return
      * @throws SocketException
      */
-    public ResultWrapper fingerprintClientKeyExchange(String desc,
-            ECipherSuite[] cipherSuite, byte[] payload) throws SocketException {
+    public ResultWrapper fingerprintClientKeyExchange(final String desc,
+            final ECipherSuite[] cipherSuite, final byte[] payload) 
+            throws SocketException {
         logger.info("++++Start Test No." + counter + "(" + desc + ")++++");
         workflow = new TLS10HandshakeWorkflow();
         //connect to test server
@@ -106,6 +108,7 @@ public class CKE extends AGenericFingerprintTest
                     cke.setExchangeKeys(clientDHPublic);
                     //update the trace object
                     trace.setCurrentRecord(cke);
+                    break;
                 default:
                     break;
             }

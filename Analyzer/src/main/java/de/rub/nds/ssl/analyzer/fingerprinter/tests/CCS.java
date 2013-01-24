@@ -20,11 +20,8 @@ public class CCS extends AGenericFingerprintTest implements Observer {
      */
     private ChangeCipherSpecParams ccsParameters = new ChangeCipherSpecParams();
 
-    /**
-     * Fingerprint the CCS message.
-     */
-    private ResultWrapper fingerprintChangeCipherSpec(String desc,
-            byte[] payload) throws SocketException, MalformedURLException {
+    private ResultWrapper fingerprintChangeCipherSpec(final String desc,
+            final byte[] payload) throws SocketException, MalformedURLException {
         logger.info("++++Start Test No." + counter + "(" + desc + ")++++");
         workflow = new TLS10HandshakeWorkflow();
 
@@ -110,7 +107,7 @@ public class CCS extends AGenericFingerprintTest implements Observer {
                     (byte[]) parameters[i][1]);
             result[i].setTestName(this.getClass().getCanonicalName());
         }
-        
+
         return result;
     }
 }

@@ -20,18 +20,9 @@ import java.util.Observer;
  */
 public class CCSRecordHeader extends AGenericFingerprintTest implements Observer {
 
-    /**
-     *
-     * @param desc
-     * @param msgType
-     * @param protocolVersion
-     * @param recordLength
-     * @return
-     * @throws SocketException
-     */
-    public ResultWrapper manipulateCCSRecordHeader(String desc,
-            byte[] msgType, byte[] protocolVersion, byte[] recordLength)
-            throws SocketException {
+    private ResultWrapper manipulateCCSRecordHeader(final String desc,
+            final byte[] msgType, final byte[] protocolVersion,
+            final byte[] recordLength) throws SocketException {
         logger.info("++++Start Test No." + counter + "(" + desc + ")++++");
         workflow = new TLS10HandshakeWorkflow();
         //connect to test server
@@ -60,7 +51,8 @@ public class CCSRecordHeader extends AGenericFingerprintTest implements Observer
             workflow.closeSocket();
         }
 
-        return new ResultWrapper(headerParameters, workflow.getTraceList(), getAnalyzer());
+        return new ResultWrapper(headerParameters, workflow.getTraceList(),
+                getAnalyzer());
     }
 
     /**
@@ -125,7 +117,7 @@ public class CCSRecordHeader extends AGenericFingerprintTest implements Observer
         for (int i = 0; i < parameters.length; i++) {
             result[i] = manipulateCCSRecordHeader((String) parameters[i][0],
                     (byte[]) parameters[i][1], (byte[]) parameters[i][2],
-                    (byte[]) parameters[i][3]);            
+                    (byte[]) parameters[i][3]);
             result[i].setTestName(this.getClass().getCanonicalName());
         }
 

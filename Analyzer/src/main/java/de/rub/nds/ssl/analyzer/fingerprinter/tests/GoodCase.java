@@ -28,16 +28,8 @@ public class GoodCase extends AGenericFingerprintTest implements Observer {
      */
     private ECipherSuite[] suite;
 
-    /**
-     *
-     * @param desc
-     * @param suite
-     * @return
-     * @throws SocketException
-     */
-    public ResultWrapper executeHandshake(String desc, ECipherSuite[] suite)
-            throws
-            SocketException {
+    private ResultWrapper executeHandshake(final String desc,
+            final ECipherSuite[] suite) throws SocketException {
         logger.info("++++Start Test No." + counter + "(" + desc + ")++++");
         workflow = new TLS10HandshakeWorkflow();
         workflow.connectToTestServer(getTargetHost(), getTargetPort());

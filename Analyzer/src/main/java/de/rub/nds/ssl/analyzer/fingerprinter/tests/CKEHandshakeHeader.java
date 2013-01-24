@@ -15,16 +15,9 @@ import java.util.Observer;
 public class CKEHandshakeHeader extends AGenericFingerprintTest implements
         Observer {
 
-    /**
-     *
-     * @param desc
-     * @param msgType
-     * @param recordLength
-     * @return
-     * @throws SocketException
-     */
-    public ResultWrapper manipulateCKEHandshakeHeader(String desc,
-            byte[] msgType, byte[] recordLength) throws SocketException {
+    private ResultWrapper manipulateCKEHandshakeHeader(final String desc,
+            final byte[] msgType, final byte[] recordLength) throws
+            SocketException {
         logger.info("++++Start Test No." + counter + "(" + desc + ")++++");
         workflow = new TLS10HandshakeWorkflow();
         //connect to test server

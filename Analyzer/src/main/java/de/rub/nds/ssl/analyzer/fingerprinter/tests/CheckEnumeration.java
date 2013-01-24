@@ -13,11 +13,7 @@ import java.net.SocketException;
  */
 public class CheckEnumeration extends AGenericFingerprintTest {
 
-    /**
-     *
-     * @return @throws SocketException
-     */
-    public ResultWrapper executeHandshake() throws SocketException {
+    private ResultWrapper executeHandshake() throws SocketException {
         String desc = "Check Handshake Enum";
 
         logger.info("++++Start Test No." + counter + "(" + desc + ")++++");
