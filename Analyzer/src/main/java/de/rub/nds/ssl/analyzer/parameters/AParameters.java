@@ -2,21 +2,20 @@ package de.rub.nds.ssl.analyzer.parameters;
 
 import java.security.MessageDigest;
 
-
 /**
  * Test Parameters for fingerprint analysis.
  *
  * @author Eugen Weiss - eugen.weiss@ruhr-uni-bochum.de
  * @version 0.1 May 26, 2012
  */
-public abstract class AParameters {
+public abstract class AParameters implements Cloneable {
 
     /**
      * Test class identifier.
      */
     private EFingerprintIdentifier id;
     /**
-     * Description of the test case
+     * Description of the test case.
      */
     private String desc;
 
@@ -25,7 +24,7 @@ public abstract class AParameters {
      *
      * @return Test case identifier
      */
-    public EFingerprintIdentifier getIdentifier() {
+    public final EFingerprintIdentifier getIdentifier() {
         return this.id;
     }
 
@@ -34,7 +33,7 @@ public abstract class AParameters {
      *
      * @param id Test case identifier
      */
-    public void setIdentifier(EFingerprintIdentifier id) {
+    public final void setIdentifier(final EFingerprintIdentifier id) {
         this.id = id;
     }
 
@@ -43,7 +42,7 @@ public abstract class AParameters {
      *
      * @return Description of the test case
      */
-    public String getDescription() {
+    public final String getDescription() {
         return this.desc;
     }
 
@@ -52,7 +51,7 @@ public abstract class AParameters {
      *
      * @param desc Decription of the test case
      */
-    public void setDescription(String desc) {
+    public final void setDescription(final String desc) {
         this.desc = desc;
     }
 
@@ -70,4 +69,12 @@ public abstract class AParameters {
      * @param input Hash input
      */
     public abstract void updateHash(MessageDigest md, byte[] input);
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public final AParameters clone() throws CloneNotSupportedException {
+        return (AParameters) super.clone();
+    }
 }

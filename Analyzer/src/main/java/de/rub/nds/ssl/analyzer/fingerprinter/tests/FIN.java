@@ -25,7 +25,7 @@ import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 
-public class FIN extends AGenericFingerprintTest implements Observer {
+public final class FIN extends AGenericFingerprintTest implements Observer {
 
     /**
      * Test headerParameters.

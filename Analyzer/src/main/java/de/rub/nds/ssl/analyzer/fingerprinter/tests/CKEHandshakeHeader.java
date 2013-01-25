@@ -12,7 +12,7 @@ import java.net.SocketException;
 import java.util.Observable;
 import java.util.Observer;
 
-public class CKEHandshakeHeader extends AGenericFingerprintTest implements
+public final class CKEHandshakeHeader extends AGenericFingerprintTest implements
         Observer {
 
     private ResultWrapper manipulateCKEHandshakeHeader(final String desc,

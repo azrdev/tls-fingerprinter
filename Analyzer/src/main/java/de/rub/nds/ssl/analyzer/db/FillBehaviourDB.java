@@ -15,7 +15,7 @@ import org.apache.log4j.Logger;
  * @author Eugen Weiss - eugen.weiss@ruhr-uni-bochum.de
  * @version 0.1 May 16, 2012
  */
-public class FillBehaviourDB {
+public final class FillBehaviourDB {
 
     /**
      * Log4j logger initialization.
@@ -33,25 +33,25 @@ public class FillBehaviourDB {
         db = Database.getInstance();
     }
 
-    
     /**
      * Insert an entry to the fingerprint database.
      *
      * @param parameters Test parameters
      * @param traceList Trace list of the handshake
-     * @param impl TLS implementation
-     * @throws Exception
+     * @param testcase Test Case description
+     * @param implementation  TLS implementation
+     * @throws SQLException
      */
-    public void insertFingerprint(AParameters parameters,
-            List<MessageContainer> traceList, String testcase,
-            String implementation) throws SQLException {
+    public void insertFingerprint(final AParameters parameters,
+            final List<MessageContainer> traceList, final String testcase,
+            final String implementation) throws SQLException {
         Connection conn = db.getConnection();
         //prepared insert statement
-        java.sql.PreparedStatement prepared = conn.
-                prepareStatement("insert into tls_fuzzer_fingerprint"
-                + " values (default,?,?,?,?,?)");
-        String lastState = null;
-        String alertDesc = null;
+//        java.sql.PreparedStatement prepared = conn.
+//                prepareStatement("insert into tls_fuzzer_fingerprint"
+//                + " values (default,?,?,?,?,?)");
+        String lastState;
+        String alertDesc;
         AnalyzeTraceList analyzeList = new AnalyzeTraceList();
         //assign the alert description and last state
         alertDesc = analyzeList.getAlertFromTraceList(traceList);
@@ -63,20 +63,20 @@ public class FillBehaviourDB {
         }
         String fingerprint = parameters.computeHash();
         // hash
-        prepared.setString(1, fingerprint);
-        // state
-        prepared.setString(2, lastState);
-        // alert description
-        prepared.setString(3, alertDesc);
-        // implementation
-        prepared.setString(4, implementation);
-        // testcase name
+//        prepared.setString(1, fingerprint);
+//        // state
+//        prepared.setString(2, lastState);
+//        // alert description
+//        prepared.setString(3, alertDesc);
+//        // implementation
+//        prepared.setString(4, implementation);
+//        // testcase name
         String tmpDesc = parameters.getDescription();
         String desc = testcase;
         if (tmpDesc != null && !tmpDesc.isEmpty()) {
-            desc += " | " + parameters.getDescription();
+            desc += " | " + tmpDesc;
         }
-        prepared.setString(5, desc);
+//        prepared.setString(5, desc);
 
         logger.info("########################################################"
                 + "################");
@@ -87,9 +87,8 @@ public class FillBehaviourDB {
         logger.info("Fingerprint: " + fingerprint);
         logger.info("########################################################"
                 + "################");
-        
 
-        prepared.executeUpdate();
+        //prepared.executeUpdate();
 
     }
 }

@@ -13,7 +13,7 @@ import java.net.SocketException;
 import java.util.Observable;
 import java.util.Observer;
 
-public class CCS extends AGenericFingerprintTest implements Observer {
+public final class CCS extends AGenericFingerprintTest implements Observer {
 
     /**
      * Test headerParameters.

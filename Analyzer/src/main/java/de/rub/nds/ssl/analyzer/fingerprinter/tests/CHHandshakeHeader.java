@@ -16,14 +16,15 @@ import java.util.Observable;
 import java.util.Observer;
 
 /**
- * Fingerprint the Client Hello handshake header. Perform Tests by manipulating
- * the message type, protocol version and length bytes in the header.
+ * Fingerprint the Client Hello handshake header. 
+ * Perform Tests by manipulating the message type, protocol version and length 
+ * bytes in the header.
  *
  * @author Eugen Weiss - eugen.weiss@ruhr-uni-bochum.de
  * @version 0.1 May 31, 2012
  */
-public class CHHandshakeHeader extends AGenericFingerprintTest implements
-        Observer {
+public final class CHHandshakeHeader extends AGenericFingerprintTest 
+    implements Observer {
 
     private ResultWrapper manipulateCHHandshakeHeader(final String desc,
             final byte[] msgType, final byte[] recordLength) throws

@@ -2,6 +2,7 @@ package de.rub.nds.ssl.analyzer.fingerprinter.tests;
 
 import de.rub.nds.ssl.analyzer.ResultWrapper;
 import de.rub.nds.ssl.analyzer.parameters.EFingerprintIdentifier;
+import de.rub.nds.ssl.analyzer.parameters.HeaderParameters;
 import de.rub.nds.ssl.stack.protocols.commons.EConnectionEnd;
 import de.rub.nds.ssl.stack.protocols.handshake.Finished;
 import de.rub.nds.ssl.stack.protocols.handshake.datatypes.MasterSecret;
@@ -22,10 +23,11 @@ import java.util.Observer;
  * @author Eugen Weiss - eugen.weiss@ruhr-uni-bochum.de
  * @version 0.1 Jun 06, 2012
  */
-public class FINRecordHeader extends AGenericFingerprintTest implements Observer {
+public final class FINRecordHeader extends AGenericFingerprintTest
+        implements Observer {
 
-    private ResultWrapper manipulateFINRecordHeader(final String desc, 
-            final byte[] msgType, final byte[] protocolVersion, 
+    private ResultWrapper manipulateFINRecordHeader(final String desc,
+            final byte[] msgType, final byte[] protocolVersion,
             final byte[] recordLength) throws SocketException {
         logger.info("++++Start Test No." + counter + "(" + desc + ")++++");
         workflow = new TLS10HandshakeWorkflow();
@@ -46,7 +48,6 @@ public class FINRecordHeader extends AGenericFingerprintTest implements Observer
 
         try {
             workflow.start();
-
             this.counter++;
             logger.info("++++Test finished.++++");
         } finally {

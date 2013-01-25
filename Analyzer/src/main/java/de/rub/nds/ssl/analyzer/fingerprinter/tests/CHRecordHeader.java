@@ -22,7 +22,7 @@ import java.util.Observer;
  * @author Eugen Weiss - eugen.weiss@ruhr-uni-bochum.de
  * @version 0.1 May 30, 2012
  */
-public class CHRecordHeader extends AGenericFingerprintTest implements Observer {
+public final class CHRecordHeader extends AGenericFingerprintTest implements Observer {
 
     private ResultWrapper manipulateCHRecordHeader(final String desc,
             final byte[] msgType, final byte[] protocolVersion,

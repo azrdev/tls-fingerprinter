@@ -22,7 +22,7 @@ import java.util.Observer;
  * @author Eugen Weiss -eugen.weiss@ruhr-uni-bochum.de
  * @version 0.1 Apr 18, 2012
  */
-public class CH extends AGenericFingerprintTest implements Observer {
+public final class CH extends AGenericFingerprintTest implements Observer {
 
     private static final byte FF = (byte) 0xff;
     private static final byte ZF = (byte) 0x0f;

@@ -24,7 +24,7 @@ import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 
-public class FINHandshakeHeader extends AGenericFingerprintTest
+public final class FINHandshakeHeader extends AGenericFingerprintTest
         implements Observer {
 
     private ResultWrapper manipulateFinishedHandshakeHeader(final String desc,

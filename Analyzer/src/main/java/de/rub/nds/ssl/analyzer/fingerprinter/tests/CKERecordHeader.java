@@ -20,7 +20,7 @@ import java.util.Observer;
  * @author Eugen Weiss - eugen.weiss@ruhr-uni-bochum.de
  * @version 0.1 Jun 04, 2012
  */
-public class CKERecordHeader extends AGenericFingerprintTest implements Observer {
+public final class CKERecordHeader extends AGenericFingerprintTest implements Observer {
 
     private ResultWrapper manipulateCKERecordHeader(final String desc,
             final byte[] msgType, final byte[] protocolVersion,

@@ -18,7 +18,7 @@ import java.util.Observer;
  * @author Eugen Weiss - eugen.weiss@ruhr-uni-bochum.de
  * @version 0.1 Jun 06, 2012
  */
-public class CCSRecordHeader extends AGenericFingerprintTest implements Observer {
+public final class CCSRecordHeader extends AGenericFingerprintTest implements Observer {
 
     private ResultWrapper manipulateCCSRecordHeader(final String desc,
             final byte[] msgType, final byte[] protocolVersion,

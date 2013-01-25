@@ -21,7 +21,7 @@ import java.util.Observer;
  * @author Eugen Weiss - eugen.weiss@ruhr-uni-bochum.de
  * @version 0.1 Jun 30, 2012
  */
-public class GoodCase extends AGenericFingerprintTest implements Observer {
+public final class GoodCase extends AGenericFingerprintTest implements Observer {
 
     /**
      * Cipher suite.

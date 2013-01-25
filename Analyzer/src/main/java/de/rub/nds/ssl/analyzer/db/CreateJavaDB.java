@@ -14,6 +14,7 @@ import java.util.Properties;
 public class CreateJavaDB {
 
     public static void main(String args[]) {
+//        args = new String[]{"YesIWouldLikeToDropAllData!"};
         // foot shot protection :-D
         if ("YesIWouldLikeToDropAllData!".equals(args[0])) {
             Connection conn = null;

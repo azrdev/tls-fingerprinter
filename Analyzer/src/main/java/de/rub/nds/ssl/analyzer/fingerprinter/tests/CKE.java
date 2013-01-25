@@ -19,13 +19,12 @@ import java.net.SocketException;
 import java.util.Observable;
 import java.util.Observer;
 
-public class CKE extends AGenericFingerprintTest
-        implements Observer {
+public final class CKE extends AGenericFingerprintTest implements Observer {
 
     /**
      * Test headerParameters.
      */
-    private ClientKeyExchangeParams ckeParameters = 
+    private ClientKeyExchangeParams ckeParameters =
             new ClientKeyExchangeParams();
 
     /**
@@ -37,7 +36,7 @@ public class CKE extends AGenericFingerprintTest
      * @throws SocketException
      */
     public ResultWrapper fingerprintClientKeyExchange(final String desc,
-            final ECipherSuite[] cipherSuite, final byte[] payload) 
+            final ECipherSuite[] cipherSuite, final byte[] payload)
             throws SocketException {
         logger.info("++++Start Test No." + counter + "(" + desc + ")++++");
         workflow = new TLS10HandshakeWorkflow();
