@@ -11,7 +11,7 @@ import org.apache.log4j.Logger;
  * @author Eugen Weiss - eugen.weiss@ruhr-uni-bochum
  * @version 0.1 Jun. 21, 2012
  */
-public class ChangeCipherSpecParams extends AParameters {
+public final class ChangeCipherSpecParams extends AParameters {
 
     /**
      * Log4j logger initialization.
@@ -44,7 +44,7 @@ public class ChangeCipherSpecParams extends AParameters {
         if (payload != null) {
             this.payload = payload.clone();
         } else {
-            this.payload = null;
+            this.payload = new byte[0];
         }
     }
 

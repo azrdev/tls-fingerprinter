@@ -11,7 +11,7 @@ import org.apache.log4j.Logger;
  * @author Eugen Weiss - eugen.weiss@ruhr-uni-bochum.de
  * @version 0.1 Jun 02, 2012
  */
-public class ClientHelloParameters extends AParameters {
+public final class ClientHelloParameters extends AParameters {
 
     /**
      * Log4j logger initialization.
@@ -40,18 +40,22 @@ public class ClientHelloParameters extends AParameters {
     private byte[] compMethod = null;
 
     public byte[] getProtocolVersion() {
+        byte[] result;
         if (this.protocolVersion != null) {
-            return this.protocolVersion.clone();
+            result = new byte[this.protocolVersion.length];
+            System.arraycopy(this.protocolVersion, 0, result, 0, result.length);
         } else {
-            return null;
+            result = new byte[0];
         }
+
+        return result;
     }
 
-    public void setProtocolVersion(byte[] protocolVersion) {
+    public void setProtocolVersion(final byte[] protocolVersion) {
         if (protocolVersion != null) {
-            this.protocolVersion = protocolVersion;
-        } else {
-            this.protocolVersion = null;
+            this.protocolVersion = new byte[protocolVersion.length];
+            System.arraycopy(protocolVersion, 0, this.protocolVersion, 0,
+                    this.protocolVersion.length);
         }
     }
 
@@ -61,11 +65,15 @@ public class ClientHelloParameters extends AParameters {
      * @return Separate byte
      */
     public byte[] getNoSessionIdValue() {
+        byte[] result;
         if (this.noSessionValue != null) {
-            return this.noSessionValue.clone();
+            result = new byte[this.noSessionValue.length];
+            System.arraycopy(this.noSessionValue, 0, result, 0, result.length);
         } else {
-            return null;
+            result = new byte[0];
         }
+
+        return result;
     }
 
     /**
@@ -73,11 +81,11 @@ public class ClientHelloParameters extends AParameters {
      *
      * @param randomSeparate Separate byte
      */
-    public void setNoSessionIdValue(byte[] randomSeparate) {
+    public void setNoSessionIdValue(final byte[] randomSeparate) {
         if (randomSeparate != null) {
-            this.noSessionValue = randomSeparate.clone();
-        } else {
-            this.noSessionValue = null;
+            this.noSessionValue = new byte[randomSeparate.length];
+            System.arraycopy(randomSeparate, 0, this.noSessionValue, 0,
+                    this.noSessionValue.length);
         }
     }
 
@@ -87,11 +95,15 @@ public class ClientHelloParameters extends AParameters {
      * @return Session ID
      */
     public byte[] getSessionId() {
+        byte[] result;
         if (this.sessionId != null) {
-            return sessionId.clone();
+            result = new byte[this.sessionId.length];
+            System.arraycopy(this.sessionId, 0, result, 0, result.length);
         } else {
-            return null;
+            result = new byte[0];
         }
+
+        return result;
     }
 
     /**
@@ -99,11 +111,11 @@ public class ClientHelloParameters extends AParameters {
      *
      * @param sessionId Session ID
      */
-    public void setSessionId(byte[] sessionId) {
+    public void setSessionId(final byte[] sessionId) {
         if (sessionId != null) {
-            this.sessionId = sessionId.clone();
-        } else {
-            this.sessionId = null;
+            this.sessionId = new byte[sessionId.length];
+            System.arraycopy(sessionId, 0, this.sessionId, 0,
+                    this.sessionId.length);
         }
     }
 
@@ -113,11 +125,15 @@ public class ClientHelloParameters extends AParameters {
      * @return Value of the session ID length field
      */
     public byte[] getSessionIdLen() {
+        byte[] result;
         if (this.sessionIdLen != null) {
-            return sessionIdLen.clone();
+            result = new byte[this.sessionIdLen.length];
+            System.arraycopy(this.sessionIdLen, 0, result, 0, result.length);
         } else {
-            return null;
+            result = new byte[0];
         }
+
+        return result;
     }
 
     /**
@@ -125,11 +141,11 @@ public class ClientHelloParameters extends AParameters {
      *
      * @param sessionIdLen Value of the session ID length field
      */
-    public void setSessionIdLen(byte[] sessionIdLen) {
+    public void setSessionIdLen(final byte[] sessionIdLen) {
         if (sessionIdLen != null) {
-            this.sessionIdLen = sessionIdLen.clone();
-        } else {
-            this.sessionIdLen = null;
+            this.sessionIdLen = new byte[sessionIdLen.length];
+            System.arraycopy(sessionIdLen, 0, this.sessionIdLen, 0,
+                    this.sessionIdLen.length);
         }
     }
 
@@ -139,11 +155,15 @@ public class ClientHelloParameters extends AParameters {
      * @return Value of the cipher suite length field
      */
     public byte[] getCipherLen() {
+        byte[] result;
         if (this.cipherLen != null) {
-            return this.cipherLen.clone();
+            result = new byte[this.cipherLen.length];
+            System.arraycopy(this.cipherLen, 0, result, 0, result.length);
         } else {
-            return null;
+            result = new byte[0];
         }
+
+        return result;
     }
 
     /**
@@ -151,11 +171,11 @@ public class ClientHelloParameters extends AParameters {
      *
      * @param cipherLen Value of the cipher suite length field
      */
-    public void setCipherLen(byte[] cipherLen) {
+    public void setCipherLen(final byte[] cipherLen) {
         if (cipherLen != null) {
-            this.cipherLen = cipherLen.clone();
-        } else {
-            this.cipherLen = null;
+            this.cipherLen = new byte[cipherLen.length];
+            System.arraycopy(cipherLen, 0, this.cipherLen, 0,
+                    this.cipherLen.length);
         }
     }
 
@@ -165,11 +185,15 @@ public class ClientHelloParameters extends AParameters {
      * @return Compression method
      */
     public byte[] getCompMethod() {
+        byte[] result;
         if (this.compMethod != null) {
-            return this.compMethod.clone();
+            result = new byte[this.compMethod.length];
+            System.arraycopy(this.compMethod, 0, result, 0, result.length);
         } else {
-            return null;
+            result = new byte[0];
         }
+
+        return result;
     }
 
     /**
@@ -177,11 +201,11 @@ public class ClientHelloParameters extends AParameters {
      *
      * @param compMethod Compression method
      */
-    public void setCompMethod(byte[] compMethod) {
+    public void setCompMethod(final byte[] compMethod) {
         if (compMethod != null) {
-            this.compMethod = compMethod.clone();
-        } else {
-            this.compMethod = null;
+            this.compMethod = new byte[compMethod.length];
+            System.arraycopy(compMethod, 0, this.compMethod, 0,
+                    this.compMethod.length);
         }
     }
 
@@ -214,7 +238,7 @@ public class ClientHelloParameters extends AParameters {
      * {@inheritDoc}
      */
     @Override
-    public void updateHash(MessageDigest sha1, byte[] input) {
+    public void updateHash(final MessageDigest sha1, final byte[] input) {
         if (input != null) {
             sha1.update(input);
         }

@@ -12,7 +12,7 @@ import org.apache.log4j.Logger;
  * @author Eugen Weiss - eugen.weiss@ruhr-uni-bochum
  * @version 0.1 Jun. 21, 2012
  */
-public class ClientKeyExchangeParams extends AParameters {
+public final class ClientKeyExchangeParams extends AParameters {
 
     /**
      * Log4j logger initialization.
@@ -28,11 +28,23 @@ public class ClientKeyExchangeParams extends AParameters {
     private byte[] payload;
 
     public ECipherSuite[] getCipherSuite() {
-        return this.cipherSuite;
+        ECipherSuite[] result;
+        if (this.cipherSuite != null) {
+            result = new ECipherSuite[this.cipherSuite.length];
+            System.arraycopy(this.cipherSuite, 0, result, 0, result.length);
+        } else {
+            result = new ECipherSuite[0];
+        }
+
+        return result;
     }
 
-    public void setCipherSuite(ECipherSuite[] cipherSuite) {
-        this.cipherSuite = cipherSuite;
+    public void setCipherSuite(final ECipherSuite[] cipherSuite) {
+        if (cipherSuite != null) {
+            this.cipherSuite = new ECipherSuite[cipherSuite.length];
+            System.arraycopy(cipherSuite, 0, this.cipherSuite, 0,
+                    this.cipherSuite.length);
+        }
     }
 
     /**
@@ -41,11 +53,15 @@ public class ClientKeyExchangeParams extends AParameters {
      * @return ChangeCipherSpec payload
      */
     public byte[] getPayload() {
+        byte[] result;
         if (this.payload != null) {
-            return this.payload.clone();
+            result = new byte[this.payload.length];
+            System.arraycopy(this.payload, 0, result, 0, result.length);
         } else {
-            return null;
+            result = new byte[0];
         }
+
+        return result;
     }
 
     /**
@@ -53,11 +69,11 @@ public class ClientKeyExchangeParams extends AParameters {
      *
      * @param payload ChangeCipherSpec payload
      */
-    public void setPayload(byte[] payload) {
+    public void setPayload(final byte[] payload) {
         if (payload != null) {
-            this.payload = payload.clone();
-        } else {
-            this.payload = null;
+            this.payload = new byte[payload.length];
+            System.arraycopy(payload, 0, this.payload, 0,
+                    this.payload.length);
         }
     }
 
@@ -85,7 +101,7 @@ public class ClientKeyExchangeParams extends AParameters {
      * {@inheritDoc}
      */
     @Override
-    public void updateHash(MessageDigest sha1, byte[] input) {
+    public void updateHash(final MessageDigest sha1, final byte[] input) {
         if (input != null) {
             sha1.update(input);
         }

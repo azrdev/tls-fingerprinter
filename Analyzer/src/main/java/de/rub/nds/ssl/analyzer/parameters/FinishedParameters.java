@@ -11,7 +11,7 @@ import org.apache.log4j.Logger;
  * @author Eugen Weiss - eugen.weiss@ruhr-uni-bochum.de
  * @version 0.1 Jun 07, 2012
  */
-public class FinishedParameters extends AParameters {
+public final class FinishedParameters extends AParameters {
 
     /**
      * Log4j logger initialization.
@@ -52,7 +52,7 @@ public class FinishedParameters extends AParameters {
      *
      * @param changePadding True if padding string should be changed.
      */
-    public void setChangePadding(boolean changePadding) {
+    public void setChangePadding(final boolean changePadding) {
         this.changePadding = changePadding;
     }
 
@@ -70,7 +70,7 @@ public class FinishedParameters extends AParameters {
      *
      * @param destroyMAC True if MAC is destroyed.
      */
-    public void setDestroyMAC(boolean destroyMAC) {
+    public void setDestroyMAC(final boolean destroyMAC) {
         this.destroyMAC = destroyMAC;
     }
 
@@ -88,7 +88,7 @@ public class FinishedParameters extends AParameters {
      *
      * @param destroyMAC True if hash is destroyed.
      */
-    public void setDestroyHash(boolean destroyHash) {
+    public void setDestroyHash(final boolean destroyHash) {
         this.destroyHash = destroyHash;
     }
 
@@ -106,7 +106,7 @@ public class FinishedParameters extends AParameters {
      *
      * @param destroyMAC True if Verify Data is destroyed.
      */
-    public void setDestroyVerify(boolean destroyVerify) {
+    public void setDestroyVerify(final boolean destroyVerify) {
         this.destroyVerify = destroyVerify;
     }
 
@@ -124,7 +124,7 @@ public class FinishedParameters extends AParameters {
      *
      * @param changePadLength True if padding length byte is changed
      */
-    public void setChangePadLength(boolean changePadLength) {
+    public void setChangePadLength(final boolean changePadLength) {
         this.changePadLength = changePadLength;
     }
 
@@ -155,7 +155,7 @@ public class FinishedParameters extends AParameters {
      * {@inheritDoc}
      */
     @Override
-    public void updateHash(MessageDigest sha1, byte[] input) {
+    public void updateHash(final MessageDigest sha1, final byte[] input) {
         if (input != null) {
             sha1.update(input);
         }

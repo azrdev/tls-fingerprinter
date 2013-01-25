@@ -11,7 +11,7 @@ import org.apache.log4j.Logger;
  * @author Eugen Weiss - eugen.weiss@ruhr-uni-bochum.de
  * @version 0.1 Jun 01, 2012
  */
-public class HeaderParameters extends AParameters {
+public final class HeaderParameters extends AParameters {
 
     /**
      * Log4j logger initialization.
@@ -36,11 +36,15 @@ public class HeaderParameters extends AParameters {
      * @return Message type
      */
     public byte[] getMsgType() {
-        if (msgType != null) {
-            return msgType.clone();
+        byte[] result;
+        if (this.msgType != null) {
+            result = new byte[this.msgType.length];
+            System.arraycopy(this.msgType, 0, result, 0, result.length);
         } else {
-            return null;
+            result = new byte[0];
         }
+
+        return result;
     }
 
     /**
@@ -48,11 +52,11 @@ public class HeaderParameters extends AParameters {
      *
      * @param msgType Message type
      */
-    public void setMsgType(byte[] msgType) {
+    public void setMsgType(final byte[] msgType) {
         if (msgType != null) {
-            this.msgType = msgType.clone();
-        } else {
-            this.msgType = null;
+            this.msgType = new byte[msgType.length];
+            System.arraycopy(msgType, 0, this.msgType, 0,
+                    this.msgType.length);
         }
     }
 
@@ -62,11 +66,15 @@ public class HeaderParameters extends AParameters {
      * @return Protocol version
      */
     public byte[] getProtocolVersion() {
-        if (protocolVersion != null) {
-            return protocolVersion.clone();
+        byte[] result;
+        if (this.protocolVersion != null) {
+            result = new byte[this.protocolVersion.length];
+            System.arraycopy(this.protocolVersion, 0, result, 0, result.length);
         } else {
-            return null;
+            result = new byte[0];
         }
+
+        return result;
     }
 
     /**
@@ -74,11 +82,11 @@ public class HeaderParameters extends AParameters {
      *
      * @param protocolVersion Protocol version
      */
-    public void setProtocolVersion(byte[] protocolVersion) {
+    public void setProtocolVersion(final byte[] protocolVersion) {
         if (protocolVersion != null) {
-            this.protocolVersion = protocolVersion.clone();
-        } else {
-            this.protocolVersion = null;
+            this.protocolVersion = new byte[protocolVersion.length];
+            System.arraycopy(protocolVersion, 0, this.protocolVersion, 0,
+                    this.protocolVersion.length);
         }
     }
 
@@ -88,11 +96,15 @@ public class HeaderParameters extends AParameters {
      * @return Length of the record
      */
     public byte[] getRecordLength() {
-        if (recordLength != null) {
-            return recordLength.clone();
+        byte[] result;
+        if (this.recordLength != null) {
+            result = new byte[this.recordLength.length];
+            System.arraycopy(this.recordLength, 0, result, 0, result.length);
         } else {
-            return null;
+            result = new byte[0];
         }
+
+        return result;
     }
 
     /**
@@ -100,11 +112,11 @@ public class HeaderParameters extends AParameters {
      *
      * @param recordLength Length of the record
      */
-    public void setRecordLength(byte[] recordLength) {
+    public void setRecordLength(final byte[] recordLength) {
         if (recordLength != null) {
-            this.recordLength = recordLength.clone();
-        } else {
-            this.recordLength = null;
+            this.recordLength = new byte[recordLength.length];
+            System.arraycopy(recordLength, 0, this.recordLength, 0,
+                    this.recordLength.length);
         }
     }
 
@@ -134,7 +146,7 @@ public class HeaderParameters extends AParameters {
      * {@inheritDoc}
      */
     @Override
-    public void updateHash(MessageDigest sha1, byte[] input) {
+    public void updateHash(final MessageDigest sha1, final byte[] input) {
         if (input != null) {
             sha1.update(input);
         }

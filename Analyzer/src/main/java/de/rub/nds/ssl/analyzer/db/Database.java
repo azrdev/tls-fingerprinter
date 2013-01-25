@@ -74,15 +74,13 @@ public final class Database {
      */
     public ResultSet findHashInDB(final String hash) {
         ResultSet result = null;
-        Connection conn = null;
+        PreparedStatement prepared = null;
         try {
-            conn = openConnection();
             /*
              * search for a hash value in the tls_fingerprint_hash table
              */
-            PreparedStatement prepared = conn.prepareStatement(
-                    "select tls_impl, last_state, alert, points"
-                    + " from tls_fingerprint_hash where hash = ?");
+            prepared = prepareStatement("select tls_impl, last_state, alert, "
+                    + "points from tls_fingerprint_hash where hash = ?");
             prepared.setString(1, hash);
             result = prepared.executeQuery();
         } catch (SQLException e) {
@@ -90,7 +88,9 @@ public final class Database {
         } catch (Exception e) {
             logger.error("Unspecified Error.", e);
         } finally {
-            closeConnection(conn);
+            if(prepared != null) {
+                closeStatementAndConnection(prepared);
+            }
         }
         return result;
     }

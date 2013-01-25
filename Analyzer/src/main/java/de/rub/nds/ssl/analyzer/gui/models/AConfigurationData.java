@@ -23,6 +23,8 @@ public class AConfigurationData extends AbstractTableModel {
         Column(final String name, final boolean editable) {
             this.name = name;
             this.editable = editable;
+            columns = null;
+            configuration = null;
         }
 
         /**
