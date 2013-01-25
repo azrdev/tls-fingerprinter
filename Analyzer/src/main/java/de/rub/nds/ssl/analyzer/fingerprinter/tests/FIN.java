@@ -167,7 +167,7 @@ public final class FIN extends AGenericFingerprintTest implements Observer {
      * {@inheritDoc}
      */
     @Override
-    public final synchronized ResultWrapper[] call() throws Exception {
+    public synchronized ResultWrapper[] call() throws Exception {
         Object[][] parameters = new Object[][]{
             {"Wrong padding", true, false, false, false, false},
             {"Destroy MAC", false, true, false, false, false},

@@ -92,7 +92,7 @@ public final class CCS extends AGenericFingerprintTest implements Observer {
      * {@inheritDoc}
      */
     @Override
-    public final synchronized ResultWrapper[] call() throws Exception {
+    public synchronized ResultWrapper[] call() throws Exception {
         Object[][] parameters = new Object[][]{
             {"Wrong payload", new byte[]{(byte) 0xff}},
             {"Invalid payload", new byte[]{0x02, 0x01}}

@@ -4,7 +4,6 @@ import de.rub.nds.ssl.analyzer.AAnalyzerComponent;
 import de.rub.nds.ssl.analyzer.fingerprinter.HandshakeEnumCheck;
 import de.rub.nds.ssl.analyzer.fingerprinter.IFingerprinter;
 import de.rub.nds.ssl.analyzer.fingerprinter.TestHashAnalyzer;
-import de.rub.nds.ssl.analyzer.fingerprinter.tests.AGenericFingerprintTest;
 import de.rub.nds.ssl.analyzer.fingerprinter.tests.CCS;
 import de.rub.nds.ssl.analyzer.fingerprinter.tests.CCSRecordHeader;
 import de.rub.nds.ssl.analyzer.fingerprinter.tests.CH;

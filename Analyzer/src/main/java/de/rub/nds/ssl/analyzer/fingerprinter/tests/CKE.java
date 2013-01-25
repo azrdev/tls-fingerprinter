@@ -118,7 +118,7 @@ public final class CKE extends AGenericFingerprintTest implements Observer {
      * {@inheritDoc}
      */
     @Override
-    public final synchronized ResultWrapper[] call() throws Exception {
+    public synchronized ResultWrapper[] call() throws Exception {
         Object[][] parameters = new Object[][]{
             {"Invalid payload for RSA key exchange", new ECipherSuite[]{
                     ECipherSuite.TLS_RSA_WITH_AES_128_CBC_SHA},

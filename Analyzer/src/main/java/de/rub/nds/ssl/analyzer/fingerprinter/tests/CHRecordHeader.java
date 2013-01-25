@@ -114,7 +114,7 @@ public final class CHRecordHeader extends AGenericFingerprintTest implements Obs
      * {@inheritDoc}
      */
     @Override
-    public final synchronized ResultWrapper[] call() throws Exception {
+    public synchronized ResultWrapper[] call() throws Exception {
         Object[][] parameters = new Object[][]{
             {"Wrong message type", new byte[]{(byte) 0x17}, null, null},
             {"Invalid protocol version 0xff,0xff", null,

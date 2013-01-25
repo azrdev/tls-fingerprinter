@@ -44,7 +44,7 @@ public final class CheckEnumeration extends AGenericFingerprintTest {
      * {@inheritDoc}
      */
     @Override
-    public final synchronized ResultWrapper[] call() throws Exception {
+    public synchronized ResultWrapper[] call() throws Exception {
         // Print Test Banner
         printBanner();
         // execute test(s)

@@ -13,25 +13,26 @@ import java.util.Properties;
  */
 public class CreateJavaDB {
 
-    public static void main(String args[]) {
+    public static void main(String args[]) throws SQLException {
 //        args = new String[]{"YesIWouldLikeToDropAllData!"};
         // foot shot protection :-D
         if ("YesIWouldLikeToDropAllData!".equals(args[0])) {
-            Connection conn = null;
             Properties props = new Properties();
             props.put("user", "tester");
             props.put("password", "ssltest");
+            Connection conn = null;
             try {
                 Class.forName("org.apache.derby.jdbc.EmbeddedDriver");
-            } catch (ClassNotFoundException e) {
-                e.printStackTrace();
-            }
-            try {
                 conn = DriverManager.getConnection(
-                        "jdbc:derby:Fingerprint;create=true",
-                        props);
+                        "jdbc:derby:Fingerprint;create=true", props);
             } catch (SQLException e) {
                 e.printStackTrace();
+            } catch (ClassNotFoundException e) {
+                e.printStackTrace();
+            } finally {
+                if(conn != null) {
+                    conn.close();
+                }
             }
         }
     }

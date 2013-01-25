@@ -12,8 +12,8 @@ import javax.swing.table.AbstractTableModel;
  */
 public class AConfigurationData extends AbstractTableModel {
 
-    private Column[] columns;
-    private Object[][] configuration;
+    private transient Column[] columns;
+    private transient Object[][] configuration;
 
     protected class Column {
 
@@ -24,18 +24,45 @@ public class AConfigurationData extends AbstractTableModel {
             this.name = name;
             this.editable = editable;
         }
+
+        /**
+         * @return the name
+         */
+        public String getName() {
+            return name;
+        }
+
+        /**
+         * @param name the name to set
+         */
+        public void setName(String name) {
+            this.name = name;
+        }
+
+        /**
+         * @return the editable
+         */
+        public boolean isEditable() {
+            return editable;
+        }
+
+        /**
+         * @param editable the editable to set
+         */
+        public void setEditable(boolean editable) {
+            this.editable = editable;
+        }
     }
 
     @SuppressWarnings("empty-statement")
     public AConfigurationData() {
-        
     }
 
     @Override
     public String getColumnName(final int columnIndex) {
         String result = null;
         if (columnIndex < getColumns().length) {
-            result = getColumns()[columnIndex].name;
+            result = getColumns()[columnIndex].getName();
 
         }
 
@@ -64,7 +91,8 @@ public class AConfigurationData extends AbstractTableModel {
     @Override
     public Object getValueAt(final int rowIndex, final int columnIndex) {
         Object result = null;
-        if (rowIndex < getConfiguration().length && columnIndex < getColumns().length) {
+        if (rowIndex < getConfiguration().length
+                && columnIndex < getColumns().length) {
             result = getConfiguration()[rowIndex][columnIndex];
         }
 
@@ -76,7 +104,7 @@ public class AConfigurationData extends AbstractTableModel {
         boolean result = false;
 
         if (columnIndex < getColumns().length) {
-            result = getColumns()[columnIndex].editable;
+            result = getColumns()[columnIndex].isEditable();
         }
 
         return result;
@@ -85,40 +113,52 @@ public class AConfigurationData extends AbstractTableModel {
     @Override
     public void setValueAt(final Object aValue, final int rowIndex,
             final int columnIndex) {
-        if(aValue instanceof Boolean) {
+        if (aValue instanceof Boolean) {
             getConfiguration()[rowIndex][columnIndex] = aValue;
         }
     }
-    
-        /**
+
+    /**
      * Getter for columns.
+     *
      * @return the columns
      */
-    public Column[] getColumns() {
+    protected final Column[] getColumns() {
+        Column[] cols = new Column[columns.length];
+        System.arraycopy(columns, 0, cols, 0, columns.length);
         return columns;
     }
 
     /**
      * Setter for columns.
+     *
      * @param columns the columns to set
      */
-    public void setColumns(final Column[] columns) {
-        this.columns = columns;
+    protected final void setColumns(final Column[] columns) {
+        this.columns = new Column[columns.length];
+        System.arraycopy(columns, 0, this.columns, 0, columns.length);
     }
 
     /**
      * Getter for configuration array.
+     *
      * @return the configuration
      */
-    public Object[][] getConfiguration() {
-        return configuration;
+    public final Object[][] getConfiguration() {
+        Object[][] config = new Object[configuration.length][];
+        System.arraycopy(configuration, 0, config, 0, configuration.length);
+        return config;
     }
 
     /**
      * Setter for configuration.
+     *
      * @param configuration the configuration to set
      */
-    public void setConfiguration(final Object[][] configuration) {
-        this.configuration = configuration;
+    public final void setConfiguration(final Object[][] configuration) {
+        this.configuration = new Object[configuration.length][];
+        System.arraycopy(configuration, 0, this.configuration, 0,
+                configuration.length);
+
     }
 }

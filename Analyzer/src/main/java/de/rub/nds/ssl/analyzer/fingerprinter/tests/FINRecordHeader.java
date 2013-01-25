@@ -2,7 +2,6 @@ package de.rub.nds.ssl.analyzer.fingerprinter.tests;
 
 import de.rub.nds.ssl.analyzer.ResultWrapper;
 import de.rub.nds.ssl.analyzer.parameters.EFingerprintIdentifier;
-import de.rub.nds.ssl.analyzer.parameters.HeaderParameters;
 import de.rub.nds.ssl.stack.protocols.commons.EConnectionEnd;
 import de.rub.nds.ssl.stack.protocols.handshake.Finished;
 import de.rub.nds.ssl.stack.protocols.handshake.datatypes.MasterSecret;
@@ -110,7 +109,7 @@ public final class FINRecordHeader extends AGenericFingerprintTest
      * {@inheritDoc}
      */
     @Override
-    public final synchronized ResultWrapper[] call() throws Exception {
+    public synchronized ResultWrapper[] call() throws Exception {
         Object[][] parameters = new Object[][]{
             {"Wrong message type", new byte[]{(byte) 0xff}, null, null},
             {"Invalid protocol version 0xff,0xff", null,

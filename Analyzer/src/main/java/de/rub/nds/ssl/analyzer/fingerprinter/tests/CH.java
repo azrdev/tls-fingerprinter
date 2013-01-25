@@ -30,7 +30,7 @@ public final class CH extends AGenericFingerprintTest implements Observer {
      * Test headerParameters.
      */
     private ClientHelloParameters chParameters = new ClientHelloParameters();
-    byte[] sessionID = new byte[]{(byte) 0xff, ZF, ZF, ZF, ZF, ZF, ZF, ZF,
+    byte[] sessionID = new byte[]{FF, ZF, ZF, ZF, ZF, ZF, ZF, ZF, ZF, ZF,
         ZF, ZF, ZF, ZF, ZF, ZF, ZF, ZF, ZF, ZF, ZF, ZF, ZF, ZF, ZF, ZF,
         ZF, ZF, ZF, ZF, ZF, ZF, ZF, ZF, ZF, ZF, ZF, ZF, ZF, ZF, ZF, ZF,
         ZF, ZF, ZF, ZF, ZF, ZF, ZF, ZF, ZF, ZF, ZF, ZF, ZF, ZF, ZF, ZF,
@@ -46,7 +46,7 @@ public final class CH extends AGenericFingerprintTest implements Observer {
         ZF, ZF, ZF, ZF, ZF, ZF, ZF, ZF, ZF, ZF, ZF, ZF, ZF, ZF, ZF, ZF,
         ZF, ZF, ZF, ZF, ZF, ZF, ZF, ZF, ZF, ZF, ZF, ZF, ZF, ZF, ZF, ZF,
         ZF, ZF, ZF, ZF, ZF, ZF, ZF, ZF, ZF, ZF, ZF, ZF, ZF, ZF, ZF, ZF,
-        ZF, ZF, ZF, ZF, ZF, ZF, ZF, ZF
+        ZF, ZF, ZF, ZF, ZF, ZF
     };
 
     /**
@@ -165,7 +165,7 @@ public final class CH extends AGenericFingerprintTest implements Observer {
      * {@inheritDoc}
      */
     @Override
-    public final synchronized ResultWrapper[] call() throws Exception {
+    public synchronized ResultWrapper[] call() throws Exception {
         Object[][] parameters = new Object[][]{
             {"Invalid protocol version 0xff,0xff",
                 new byte[]{(byte) 0xff, (byte) 0xff}, null, null, null, null,

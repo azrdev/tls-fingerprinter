@@ -107,7 +107,7 @@ public final class CHHandshakeHeader extends AGenericFingerprintTest
      * {@inheritDoc}
      */
     @Override
-    public final synchronized ResultWrapper[] call() throws Exception {
+    public synchronized ResultWrapper[] call() throws Exception {
         Object[][] parameters = new Object[][]{
             {"Wrong message type", new byte[]{(byte) 0xff}, null},
             {"Invalid length 0x00,0x00,0x00", null,

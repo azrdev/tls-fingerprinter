@@ -70,15 +70,26 @@ public final class FingerprintFuzzer implements IFingerprinter {
 
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void init(final AParameters parameters) {
         this.parameters = parameters;
     }
 
+    /**
+     * Setter for the test case name.
+     * @param testcase Test case name.
+     */
     public void setTestcase(final String testcase) {
         this.testcase = testcase;
     }
 
+    /**
+     * Setter for implementation.
+     * @param impl Implementation
+     */
     public void setImplementation(final ETLSImplementation impl) {
         this.implementation = impl;
     }

@@ -13,7 +13,7 @@ import org.apache.log4j.Logger;
  * @author Eugen Weiss - eugen.weiss@ruhr-uni-bochum.de
  * @version 0.1 May 16, 2012
  */
-public class Database {
+public final class Database {
 
     /**
      * Log4j logger initialization.
@@ -23,20 +23,11 @@ public class Database {
      * Instance of Database.
      */
     private static volatile Database db;
-    /**
-     * Database connection.
-     */
-    private Connection conn;
 
     /**
      * Connect to database.
      */
-    public Database() {
-        try {
-            this.connectDB();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+    private Database() {
     }
 
     /**
@@ -54,16 +45,25 @@ public class Database {
     /**
      * Connect to database.
      *
-     * @throws Exception
+     * @return Connection object to the DB
      */
-    public final void connectDB() throws Exception {
+    private Connection openConnection() {
+        Connection conn = null;
         /*
          * Use the embedded driver to connect. Only one
          * connection can be established at the same time.
          */
-        Class.forName("org.apache.derby.jdbc.EmbeddedDriver");
-        conn = DriverManager.getConnection("jdbc:derby:Fingerprint;"
-                + "create=false;user=tester;password=ssltest");
+        try {
+            Class.forName("org.apache.derby.jdbc.EmbeddedDriver");
+            conn = DriverManager.getConnection("jdbc:derby:Fingerprint;"
+                    + "create=false;user=tester;password=ssltest");
+        } catch (ClassNotFoundException e) {
+            logger.error("DB driver instantiation failed.", e);
+        } catch (SQLException e) {
+            logger.error("Database error.", e);
+        }
+
+        return conn;
     }
 
     /**
@@ -72,9 +72,11 @@ public class Database {
      * @param hash Hash value
      * @return Database result set
      */
-    public final ResultSet findHashInDB(final String hash) {
+    public ResultSet findHashInDB(final String hash) {
         ResultSet result = null;
+        Connection conn = null;
         try {
+            conn = openConnection();
             /*
              * search for a hash value in the tls_fingerprint_hash table
              */
@@ -87,34 +89,49 @@ public class Database {
             logger.error("Database error.", e);
         } catch (Exception e) {
             logger.error("Unspecified Error.", e);
+        } finally {
+            closeConnection(conn);
         }
         return result;
     }
 
     /**
-     * Close the database connection.
-     *
-     * @throws Exception
+     * Prepares a SQL statement for the given String.
+     * @param statement SQL Statement
+     * @return Executable statement
+     * @throws SQLException 
      */
-    public final void closeDB() throws Exception {
-        conn.close();
+    public PreparedStatement prepareStatement(final String statement) throws
+            SQLException {
+        Connection conn = openConnection();
+        return conn.prepareStatement(statement);
     }
 
     /**
-     * Get the database connection.
-     *
-     * @return Database connection.
+     * Closes the passed statement and the connection.
+     * @param prepared Statement to close
      */
-    public final Connection getConnection() {
-        return conn;
+    public void closeStatementAndConnection(final PreparedStatement prepared) {
+        try {
+            prepared.closeOnCompletion();
+            closeConnection(prepared.getConnection());
+        } catch (SQLException e) {
+            logger.error("Database error.", e);
+        }
     }
 
     /**
-     * Set the database connection.
-     *
-     * @param conn Database connection
+     * Closes a given connection.
+     * @param connection  Connection to close
      */
-    public final void setConnection(final Connection conn) {
-        this.conn = conn;
+    private void closeConnection(final Connection connection) {
+        if (connection != null) {
+            try {
+                connection.close();
+            } catch (SQLException ex) {
+                // never mind
+                logger.error("Database could not be closed.", ex);
+            }
+        }
     }
 }
