@@ -1,7 +1,7 @@
 package de.rub.nds.ssl.analyzer.fingerprinter.tests;
 
 import de.rub.nds.ssl.analyzer.ResultWrapper;
-import de.rub.nds.ssl.analyzer.parameters.EFingerprintIdentifier;
+import de.rub.nds.ssl.analyzer.executor.EFingerprintTests;
 import de.rub.nds.ssl.stack.protocols.handshake.ClientKeyExchange;
 import de.rub.nds.ssl.stack.trace.MessageContainer;
 import de.rub.nds.ssl.stack.workflows.TLS10HandshakeWorkflow;
@@ -20,7 +20,8 @@ import java.util.Observer;
  * @author Eugen Weiss - eugen.weiss@ruhr-uni-bochum.de
  * @version 0.1 Jun 04, 2012
  */
-public final class CKERecordHeader extends AGenericFingerprintTest implements Observer {
+public final class CKERecordHeader extends AGenericFingerprintTest implements
+        Observer {
 
     private ResultWrapper manipulateCKERecordHeader(final String desc,
             final byte[] msgType, final byte[] protocolVersion,
@@ -39,7 +40,7 @@ public final class CKERecordHeader extends AGenericFingerprintTest implements Ob
         headerParameters.setMsgType(msgType);
         headerParameters.setProtocolVersion(protocolVersion);
         headerParameters.setRecordLength(recordLength);
-        headerParameters.setIdentifier(EFingerprintIdentifier.CKERecordHeader);
+        headerParameters.setIdentifier(EFingerprintTests.CKE_RH);
         headerParameters.setDescription(desc);
 
         try {

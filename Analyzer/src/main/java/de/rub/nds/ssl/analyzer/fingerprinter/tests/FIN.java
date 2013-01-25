@@ -1,7 +1,7 @@
 package de.rub.nds.ssl.analyzer.fingerprinter.tests;
 
 import de.rub.nds.ssl.analyzer.ResultWrapper;
-import de.rub.nds.ssl.analyzer.parameters.EFingerprintIdentifier;
+import de.rub.nds.ssl.analyzer.executor.EFingerprintTests;
 import de.rub.nds.ssl.analyzer.parameters.FinishedParameters;
 import de.rub.nds.ssl.stack.Utility;
 import de.rub.nds.ssl.stack.protocols.commons.EConnectionEnd;
@@ -53,7 +53,7 @@ public final class FIN extends AGenericFingerprintTest implements Observer {
         finParameters.setDestroyVerify(destroyVerify);
         finParameters.setChangePadLength(changePadLength);
         finParameters.setChangePadding(changePadding);
-        finParameters.setIdentifier(EFingerprintIdentifier.Finished);
+        finParameters.setIdentifier(EFingerprintTests.FIN);
         finParameters.setDescription(desc);
 
         try {

@@ -1,7 +1,6 @@
 package de.rub.nds.ssl.analyzer.attacker.tests;
 
 import de.rub.nds.ssl.analyzer.parameters.BleichenbacherParameters;
-import de.rub.nds.ssl.analyzer.parameters.EFingerprintIdentifier;
 import de.rub.nds.ssl.analyzer.removeMe.SSLServerHandler;
 import de.rub.nds.ssl.analyzer.removeMe.TestConfiguration;
 import de.rub.nds.ssl.stack.Utility;
@@ -164,7 +163,8 @@ public class Bleichenbacher implements Observer {
         params.setChangePadding(changePadding);
         params.setPosition(position);
         params.setAnyPosition(anyPosition);
-        params.setIdentifier(EFingerprintIdentifier.BleichenbacherAttack);
+        // TODO set 
+        //params.setIdentifier(null);
         params.setDescription(desc);
 
         workflow.start();

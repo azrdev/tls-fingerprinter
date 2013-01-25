@@ -28,11 +28,15 @@ public final class ChangeCipherSpecParams extends AParameters {
      * @return ChangeCipherSpec payload
      */
     public byte[] getPayload() {
+        byte[] result;
         if (this.payload != null) {
-            return this.payload.clone();
+            result = new byte[this.payload.length];
+            System.arraycopy(this.payload, 0, result, 0, result.length);
         } else {
-            return null;
+            result = new byte[0];
         }
+
+        return result;
     }
 
     /**
@@ -40,11 +44,11 @@ public final class ChangeCipherSpecParams extends AParameters {
      *
      * @param payload ChangeCipherSpec payload
      */
-    public void setPayload(byte[] payload) {
+    public void setPayload(final byte[] payload) {
         if (payload != null) {
-            this.payload = payload.clone();
-        } else {
-            this.payload = new byte[0];
+            this.payload = new byte[payload.length];
+            System.arraycopy(payload, 0, this.payload, 0,
+                    this.payload.length);
         }
     }
 
@@ -72,7 +76,7 @@ public final class ChangeCipherSpecParams extends AParameters {
      * {@inheritDoc}
      */
     @Override
-    public void updateHash(MessageDigest sha1, byte[] input) {
+    public void updateHash(final MessageDigest sha1, final byte[] input) {
         if (input != null) {
             sha1.update(input);
         }

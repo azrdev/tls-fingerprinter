@@ -1,8 +1,8 @@
 package de.rub.nds.ssl.analyzer.fingerprinter.tests;
 
 import de.rub.nds.ssl.analyzer.ResultWrapper;
+import de.rub.nds.ssl.analyzer.executor.EFingerprintTests;
 import de.rub.nds.ssl.analyzer.parameters.ClientHelloParameters;
-import de.rub.nds.ssl.analyzer.parameters.EFingerprintIdentifier;
 import de.rub.nds.ssl.stack.protocols.commons.ECipherSuite;
 import de.rub.nds.ssl.stack.protocols.handshake.ClientHello;
 import de.rub.nds.ssl.stack.protocols.handshake.datatypes.CipherSuites;
@@ -84,7 +84,7 @@ public final class CH extends AGenericFingerprintTest implements Observer {
         chParameters.setSessionIdLen(sessionIdLength);
         chParameters.setCipherLen(cipherLength);
         chParameters.setCompMethod(compMethod);
-        chParameters.setIdentifier(EFingerprintIdentifier.ClientHello);
+        chParameters.setIdentifier(EFingerprintTests.CH);
         chParameters.setDescription(desc);
 
         try {

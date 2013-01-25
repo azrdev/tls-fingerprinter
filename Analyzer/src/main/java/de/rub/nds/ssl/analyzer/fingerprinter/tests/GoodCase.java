@@ -1,7 +1,7 @@
 package de.rub.nds.ssl.analyzer.fingerprinter.tests;
 
 import de.rub.nds.ssl.analyzer.ResultWrapper;
-import de.rub.nds.ssl.analyzer.parameters.EFingerprintIdentifier;
+import de.rub.nds.ssl.analyzer.executor.EFingerprintTests;
 import de.rub.nds.ssl.stack.protocols.commons.ECipherSuite;
 import de.rub.nds.ssl.stack.protocols.handshake.ClientHello;
 import de.rub.nds.ssl.stack.protocols.handshake.datatypes.CipherSuites;
@@ -38,7 +38,7 @@ public final class GoodCase extends AGenericFingerprintTest implements Observer 
         this.suite = suite;
 
         //set the test headerParameters
-        headerParameters.setIdentifier(EFingerprintIdentifier.GoodCase);
+        headerParameters.setIdentifier(EFingerprintTests.GOOD);
         headerParameters.setDescription(desc);
 
         try {

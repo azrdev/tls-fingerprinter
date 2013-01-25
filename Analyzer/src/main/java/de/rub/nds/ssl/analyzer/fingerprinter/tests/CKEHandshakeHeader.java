@@ -1,7 +1,7 @@
 package de.rub.nds.ssl.analyzer.fingerprinter.tests;
 
 import de.rub.nds.ssl.analyzer.ResultWrapper;
-import de.rub.nds.ssl.analyzer.parameters.EFingerprintIdentifier;
+import de.rub.nds.ssl.analyzer.executor.EFingerprintTests;
 import de.rub.nds.ssl.stack.protocols.handshake.ClientKeyExchange;
 import de.rub.nds.ssl.stack.trace.MessageContainer;
 import de.rub.nds.ssl.stack.workflows.TLS10HandshakeWorkflow;
@@ -32,7 +32,7 @@ public final class CKEHandshakeHeader extends AGenericFingerprintTest implements
         headerParameters.setMsgType(msgType);
         headerParameters.setRecordLength(recordLength);
         headerParameters.
-                setIdentifier(EFingerprintIdentifier.CKEHandshakeHeader);
+                setIdentifier(EFingerprintTests.CKE_HH);
         headerParameters.setDescription(desc);
 
         try {

@@ -1,8 +1,8 @@
 package de.rub.nds.ssl.analyzer.fingerprinter.tests;
 
 import de.rub.nds.ssl.analyzer.ResultWrapper;
+import de.rub.nds.ssl.analyzer.executor.EFingerprintTests;
 import de.rub.nds.ssl.analyzer.parameters.ChangeCipherSpecParams;
-import de.rub.nds.ssl.analyzer.parameters.EFingerprintIdentifier;
 import de.rub.nds.ssl.stack.protocols.msgs.ChangeCipherSpec;
 import de.rub.nds.ssl.stack.trace.MessageContainer;
 import de.rub.nds.ssl.stack.workflows.TLS10HandshakeWorkflow;
@@ -35,7 +35,7 @@ public final class CCS extends AGenericFingerprintTest implements Observer {
 
         //set the test headerParameters
         ccsParameters.setPayload(payload);
-        ccsParameters.setIdentifier(EFingerprintIdentifier.ChangeCipherSpec);
+        ccsParameters.setIdentifier(EFingerprintTests.CCS);
         ccsParameters.setDescription(desc);
 
         try {

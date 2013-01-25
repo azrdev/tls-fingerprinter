@@ -1,7 +1,7 @@
 package de.rub.nds.ssl.analyzer.fingerprinter.tests;
 
 import de.rub.nds.ssl.analyzer.ResultWrapper;
-import de.rub.nds.ssl.analyzer.parameters.EFingerprintIdentifier;
+import de.rub.nds.ssl.analyzer.executor.EFingerprintTests;
 import de.rub.nds.ssl.stack.workflows.TLS10HandshakeWorkflow;
 import java.net.SocketException;
 
@@ -23,7 +23,7 @@ public final class CheckEnumeration extends AGenericFingerprintTest {
         logger.info("Test Server: " + getTargetHost() + ":" + getTargetPort());
 
         //set the test headerParameters
-        headerParameters.setIdentifier(EFingerprintIdentifier.CheckHandEnum);
+        headerParameters.setIdentifier(EFingerprintTests.HANDSHAKE_ENUM);
         headerParameters.setDescription(desc);
 
         try {

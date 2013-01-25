@@ -1,7 +1,7 @@
 package de.rub.nds.ssl.analyzer.fingerprinter.tests;
 
 import de.rub.nds.ssl.analyzer.ResultWrapper;
-import de.rub.nds.ssl.analyzer.parameters.EFingerprintIdentifier;
+import de.rub.nds.ssl.analyzer.executor.EFingerprintTests;
 import de.rub.nds.ssl.stack.protocols.commons.ECipherSuite;
 import de.rub.nds.ssl.stack.protocols.handshake.ClientHello;
 import de.rub.nds.ssl.stack.protocols.handshake.datatypes.CipherSuites;
@@ -43,7 +43,7 @@ public final class CHHandshakeHeader extends AGenericFingerprintTest
         //set the test headerParameters
         headerParameters.setMsgType(msgType);
         headerParameters.setRecordLength(recordLength);
-        headerParameters.setIdentifier(EFingerprintIdentifier.CHHandshakeHeader);
+        headerParameters.setIdentifier(EFingerprintTests.CH_HH);
         headerParameters.setDescription(desc);
 
         try {

@@ -1,8 +1,8 @@
 package de.rub.nds.ssl.analyzer.fingerprinter.tests;
 
 import de.rub.nds.ssl.analyzer.ResultWrapper;
+import de.rub.nds.ssl.analyzer.executor.EFingerprintTests;
 import de.rub.nds.ssl.analyzer.parameters.ClientKeyExchangeParams;
-import de.rub.nds.ssl.analyzer.parameters.EFingerprintIdentifier;
 import de.rub.nds.ssl.stack.protocols.commons.ECipherSuite;
 import de.rub.nds.ssl.stack.protocols.commons.EProtocolVersion;
 import de.rub.nds.ssl.stack.protocols.handshake.ClientHello;
@@ -52,7 +52,7 @@ public final class CKE extends AGenericFingerprintTest implements Observer {
         //set the test headerParameters
         ckeParameters.setCipherSuite(cipherSuite);
         ckeParameters.setPayload(payload);
-        ckeParameters.setIdentifier(EFingerprintIdentifier.ClientKeyExchange);
+        ckeParameters.setIdentifier(EFingerprintTests.CKE);
         ckeParameters.setDescription(desc);
 
         try {

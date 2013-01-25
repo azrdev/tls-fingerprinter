@@ -1,7 +1,7 @@
 package de.rub.nds.ssl.analyzer.fingerprinter.tests;
 
 import de.rub.nds.ssl.analyzer.ResultWrapper;
-import de.rub.nds.ssl.analyzer.parameters.EFingerprintIdentifier;
+import de.rub.nds.ssl.analyzer.executor.EFingerprintTests;
 import de.rub.nds.ssl.stack.protocols.commons.EConnectionEnd;
 import de.rub.nds.ssl.stack.protocols.commons.EContentType;
 import de.rub.nds.ssl.stack.protocols.commons.SecurityParameters;
@@ -44,7 +44,7 @@ public final class FINHandshakeHeader extends AGenericFingerprintTest
         headerParameters.setMsgType(msgType);
         headerParameters.setRecordLength(recordLength);
         headerParameters.
-                setIdentifier(EFingerprintIdentifier.FinHandshakeHeader);
+                setIdentifier(EFingerprintTests.FIN_HH);
         headerParameters.setDescription(desc);
 
         try {

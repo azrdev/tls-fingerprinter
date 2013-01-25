@@ -1,7 +1,7 @@
 package de.rub.nds.ssl.analyzer.fingerprinter.tests;
 
 import de.rub.nds.ssl.analyzer.ResultWrapper;
-import de.rub.nds.ssl.analyzer.parameters.EFingerprintIdentifier;
+import de.rub.nds.ssl.analyzer.executor.EFingerprintTests;
 import de.rub.nds.ssl.stack.protocols.commons.ECipherSuite;
 import de.rub.nds.ssl.stack.protocols.handshake.ClientHello;
 import de.rub.nds.ssl.stack.protocols.handshake.datatypes.CipherSuites;
@@ -41,7 +41,7 @@ public final class CHRecordHeader extends AGenericFingerprintTest implements Obs
         headerParameters.setMsgType(msgType);
         headerParameters.setProtocolVersion(protocolVersion);
         headerParameters.setRecordLength(recordLength);
-        headerParameters.setIdentifier(EFingerprintIdentifier.CHRecordHeader);
+        headerParameters.setIdentifier(EFingerprintTests.CH_RH);
         headerParameters.setDescription(desc);
 
         try {

@@ -1,5 +1,6 @@
 package de.rub.nds.ssl.analyzer.parameters;
 
+import de.rub.nds.ssl.analyzer.executor.EFingerprintTests;
 import java.security.MessageDigest;
 
 /**
@@ -13,7 +14,7 @@ public abstract class AParameters implements Cloneable {
     /**
      * Test class identifier.
      */
-    private EFingerprintIdentifier id;
+    private EFingerprintTests id;
     /**
      * Description of the test case.
      */
@@ -24,8 +25,8 @@ public abstract class AParameters implements Cloneable {
      *
      * @return Test case identifier
      */
-    public final EFingerprintIdentifier getIdentifier() {
-        return this.id;
+    public final EFingerprintTests getIdentifier() {
+        return EFingerprintTests.valueOf(this.id.name());
     }
 
     /**
@@ -33,8 +34,8 @@ public abstract class AParameters implements Cloneable {
      *
      * @param id Test case identifier
      */
-    public final void setIdentifier(final EFingerprintIdentifier id) {
-        this.id = id;
+    public final void setIdentifier(final EFingerprintTests id) {
+        this.id = EFingerprintTests.valueOf(this.id.name());
     }
 
     /**
