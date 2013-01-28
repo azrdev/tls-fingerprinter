@@ -59,7 +59,7 @@ public final class FillBehaviourDB {
 
             // hash
             String fingerprint = parameters.computeHash();
-//            prepared.setString(1, fingerprint);
+            prepared.setString(1, fingerprint);
 
             // state && alert description
             analyzeList = new AnalyzeTraceList();
@@ -71,11 +71,11 @@ public final class FillBehaviourDB {
                 lastTrace = analyzeList.getLastTrace(traceList);
                 lastState = lastTrace.getState().name();
             }
-//            prepared.setString(2, lastState);
-//            prepared.setString(3, alertDesc);
+            prepared.setString(2, lastState);
+            prepared.setString(3, alertDesc);
 
             // implementation
-//            prepared.setString(4, implementation);
+            prepared.setString(4, implementation);
 
             // testcase name
             String tmpDesc = parameters.getDescription();
@@ -83,7 +83,7 @@ public final class FillBehaviourDB {
             if (tmpDesc != null && !tmpDesc.isEmpty()) {
                 desc += " | " + tmpDesc;
             }
-//            prepared.setString(5, desc);
+            prepared.setString(5, desc);
 
             logger.info("####################################################"
                     + "####################");
@@ -95,11 +95,12 @@ public final class FillBehaviourDB {
             logger.info("####################################################"
                     + "####################");
 
-//            prepared.executeUpdate();
+            prepared.executeUpdate();
         } catch (SQLException e) {
             logger.error("Database problems.", e);
-        } finally {
-            db.closeStatementAndConnection(prepared);
-        }
+        } 
+//        finally {
+//            db.closeStatementAndConnection(prepared);
+//        }
     }
 }
