@@ -56,6 +56,8 @@ public final class HeaderParameters extends AParameters {
             System.arraycopy(msgType, 0, this.msgType, 0,
                     this.msgType.length);
         }
+        else
+        	this.msgType = null;
     }
 
     /**
@@ -84,6 +86,8 @@ public final class HeaderParameters extends AParameters {
             System.arraycopy(protocolVersion, 0, this.protocolVersion, 0,
                     this.protocolVersion.length);
         }
+        else
+        	this.protocolVersion = null;
     }
 
     /**
@@ -112,6 +116,8 @@ public final class HeaderParameters extends AParameters {
             System.arraycopy(recordLength, 0, this.recordLength, 0,
                     this.recordLength.length);
         }
+        else
+        	this.recordLength = null;
     }
 
     /**
@@ -145,4 +151,5 @@ public final class HeaderParameters extends AParameters {
             sha1.update(input);
         }
     }
+    
 }

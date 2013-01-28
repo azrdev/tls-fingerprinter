@@ -43,6 +43,8 @@ public final class ClientKeyExchangeParams extends AParameters {
             System.arraycopy(cipherSuite, 0, this.cipherSuite, 0,
                     this.cipherSuite.length);
         }
+        else
+        	this.cipherSuite = null;
     }
 
     /**
@@ -71,6 +73,8 @@ public final class ClientKeyExchangeParams extends AParameters {
             System.arraycopy(payload, 0, this.payload, 0,
                     this.payload.length);
         }
+        else
+        	this.payload = null;
     }
 
     /**

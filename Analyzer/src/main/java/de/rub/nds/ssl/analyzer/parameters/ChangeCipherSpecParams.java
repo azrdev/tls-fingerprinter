@@ -48,6 +48,8 @@ public final class ChangeCipherSpecParams extends AParameters {
             System.arraycopy(payload, 0, this.payload, 0,
                     this.payload.length);
         }
+        else
+        	this.payload = null;
     }
 
     /**

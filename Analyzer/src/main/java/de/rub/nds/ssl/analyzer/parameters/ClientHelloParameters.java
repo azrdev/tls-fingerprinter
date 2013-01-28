@@ -55,6 +55,8 @@ public final class ClientHelloParameters extends AParameters {
             System.arraycopy(protocolVersion, 0, this.protocolVersion, 0,
                     this.protocolVersion.length);
         }
+        else
+        	this.protocolVersion = null;
     }
 
     /**
@@ -83,6 +85,8 @@ public final class ClientHelloParameters extends AParameters {
             System.arraycopy(randomSeparate, 0, this.noSessionValue, 0,
                     this.noSessionValue.length);
         }
+        else
+        	this.noSessionValue = null;
     }
 
     /**
@@ -111,6 +115,8 @@ public final class ClientHelloParameters extends AParameters {
             System.arraycopy(sessionId, 0, this.sessionId, 0,
                     this.sessionId.length);
         }
+        else
+        	this.sessionId = null;
     }
 
     /**
@@ -139,6 +145,8 @@ public final class ClientHelloParameters extends AParameters {
             System.arraycopy(sessionIdLen, 0, this.sessionIdLen, 0,
                     this.sessionIdLen.length);
         }
+        else
+        	this.sessionIdLen = null;
     }
 
     /**
@@ -167,6 +175,8 @@ public final class ClientHelloParameters extends AParameters {
             System.arraycopy(cipherLen, 0, this.cipherLen, 0,
                     this.cipherLen.length);
         }
+        else
+        	this.cipherLen = null;
     }
 
     /**
@@ -195,6 +205,8 @@ public final class ClientHelloParameters extends AParameters {
             System.arraycopy(compMethod, 0, this.compMethod, 0,
                     this.compMethod.length);
         }
+        else
+        	this.compMethod = null;
     }
 
     /**
