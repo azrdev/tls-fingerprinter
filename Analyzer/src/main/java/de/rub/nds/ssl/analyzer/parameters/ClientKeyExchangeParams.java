@@ -28,12 +28,10 @@ public final class ClientKeyExchangeParams extends AParameters {
     private byte[] payload;
 
     public ECipherSuite[] getCipherSuite() {
-        ECipherSuite[] result;
+        ECipherSuite[] result = null;
         if (this.cipherSuite != null) {
             result = new ECipherSuite[this.cipherSuite.length];
             System.arraycopy(this.cipherSuite, 0, result, 0, result.length);
-        } else {
-            result = new ECipherSuite[0];
         }
 
         return result;
@@ -53,12 +51,10 @@ public final class ClientKeyExchangeParams extends AParameters {
      * @return ChangeCipherSpec payload
      */
     public byte[] getPayload() {
-        byte[] result;
+        byte[] result = null;
         if (this.payload != null) {
             result = new byte[this.payload.length];
             System.arraycopy(this.payload, 0, result, 0, result.length);
-        } else {
-            result = new byte[0];
         }
 
         return result;

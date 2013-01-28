@@ -28,12 +28,10 @@ public final class ChangeCipherSpecParams extends AParameters {
      * @return ChangeCipherSpec payload
      */
     public byte[] getPayload() {
-        byte[] result;
+        byte[] result = null;
         if (this.payload != null) {
             result = new byte[this.payload.length];
             System.arraycopy(this.payload, 0, result, 0, result.length);
-        } else {
-            result = new byte[0];
         }
 
         return result;

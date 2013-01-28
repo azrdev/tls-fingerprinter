@@ -36,13 +36,11 @@ public final class HeaderParameters extends AParameters {
      * @return Message type
      */
     public byte[] getMsgType() {
-        byte[] result;
+        byte[] result = null;
         if (this.msgType != null) {
             result = new byte[this.msgType.length];
             System.arraycopy(this.msgType, 0, result, 0, result.length);
-        } else {
-            result = new byte[0];
-        }
+        } 
 
         return result;
     }
@@ -66,12 +64,10 @@ public final class HeaderParameters extends AParameters {
      * @return Protocol version
      */
     public byte[] getProtocolVersion() {
-        byte[] result;
+        byte[] result = null;
         if (this.protocolVersion != null) {
             result = new byte[this.protocolVersion.length];
             System.arraycopy(this.protocolVersion, 0, result, 0, result.length);
-        } else {
-            result = new byte[0];
         }
 
         return result;
@@ -96,13 +92,11 @@ public final class HeaderParameters extends AParameters {
      * @return Length of the record
      */
     public byte[] getRecordLength() {
-        byte[] result;
+        byte[] result = null;
         if (this.recordLength != null) {
             result = new byte[this.recordLength.length];
             System.arraycopy(this.recordLength, 0, result, 0, result.length);
-        } else {
-            result = new byte[0];
-        }
+        } 
 
         return result;
     }
