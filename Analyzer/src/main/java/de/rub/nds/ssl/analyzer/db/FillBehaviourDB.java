@@ -55,7 +55,7 @@ public final class FillBehaviourDB {
         try {
             //prepared insert statement
             prepared = db.prepareStatement("insert into tls_fuzzer_fingerprint "
-                    + "values (default,?,?,?,?,?)");
+                    + "values (default,?,?,?,?,?,?)");
 
             // hash
             String fingerprint = parameters.computeHash();
@@ -84,10 +84,17 @@ public final class FillBehaviourDB {
                 desc += " | " + tmpDesc;
             }
             prepared.setString(5, desc);
+            StringBuilder sb = new StringBuilder("");
+            for (MessageContainer msg: traceList) {
+            	sb.append(msg.getState().name());
+            	sb.append(" | ");
+            }
+            prepared.setString(6, sb.toString());
 
             logger.info("####################################################"
                     + "####################");
             logger.info("Description: " + desc);
+            logger.info("Message Trace: " + sb.toString());
             logger.info("Chosen implementation: " + implementation);
             logger.info("Alert description: " + alertDesc);
             logger.info("Last state: " + lastState);
