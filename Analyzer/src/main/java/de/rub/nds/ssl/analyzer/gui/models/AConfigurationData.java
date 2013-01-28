@@ -23,8 +23,6 @@ public class AConfigurationData extends AbstractTableModel {
         Column(final String name, final boolean editable) {
             this.name = name;
             this.editable = editable;
-            columns = null;
-            configuration = null;
         }
 
         /**
@@ -56,7 +54,6 @@ public class AConfigurationData extends AbstractTableModel {
         }
     }
 
-    @SuppressWarnings("empty-statement")
     public AConfigurationData() {
     }
 
@@ -122,45 +119,42 @@ public class AConfigurationData extends AbstractTableModel {
 
     /**
      * Getter for columns.
+     * Be careful! The data is NOT deep copied!
      *
      * @return the columns
      */
     protected final Column[] getColumns() {
-        Column[] cols = new Column[columns.length];
-        System.arraycopy(columns, 0, cols, 0, columns.length);
-        return columns;
+        return this.columns;
     }
 
     /**
      * Setter for columns.
+     * Be careful! The data is NOT deep copied!
      *
      * @param columns the columns to set
      */
     protected final void setColumns(final Column[] columns) {
-        this.columns = new Column[columns.length];
-        System.arraycopy(columns, 0, this.columns, 0, columns.length);
+        this.columns = columns;
     }
 
     /**
      * Getter for configuration array.
+     * Be careful! The data is NOT deep copied!
      *
      * @return the configuration
      */
     public final Object[][] getConfiguration() {
-        Object[][] config = new Object[configuration.length][];
-        System.arraycopy(configuration, 0, config, 0, configuration.length);
-        return config;
+        return this.configuration;
     }
 
     /**
      * Setter for configuration.
+     * Be careful! The data is NOT deep copied!
      *
      * @param configuration the configuration to set
      */
     public final void setConfiguration(final Object[][] configuration) {
-        this.configuration = new Object[configuration.length][];
-        System.arraycopy(configuration, 0, this.configuration, 0,
-                configuration.length);
-
+        this.configuration = configuration;
     }
+    
 }

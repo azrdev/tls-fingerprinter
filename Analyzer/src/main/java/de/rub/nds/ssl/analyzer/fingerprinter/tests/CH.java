@@ -131,7 +131,7 @@ public final class CH extends AGenericFingerprintTest implements Observer {
                     random.encode(false), cipherSuites.encode(false), compMethod);
             byte[] payload;
             if (chParameters.getSessionId() != null) {
-                byte[] session = chParameters.getSessionId();
+                byte[] session = chParameters.getSessionId();          
                 clientHello.setSessionID(session);
             }
             if (chParameters.getCompMethod() != null) {

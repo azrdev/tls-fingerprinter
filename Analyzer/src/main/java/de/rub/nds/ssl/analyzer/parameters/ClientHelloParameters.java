@@ -40,12 +40,10 @@ public final class ClientHelloParameters extends AParameters {
     private byte[] compMethod = null;
 
     public byte[] getProtocolVersion() {
-        byte[] result;
+        byte[] result = null;
         if (this.protocolVersion != null) {
             result = new byte[this.protocolVersion.length];
             System.arraycopy(this.protocolVersion, 0, result, 0, result.length);
-        } else {
-            result = new byte[0];
         }
 
         return result;
@@ -65,12 +63,10 @@ public final class ClientHelloParameters extends AParameters {
      * @return Separate byte
      */
     public byte[] getNoSessionIdValue() {
-        byte[] result;
+        byte[] result = null;
         if (this.noSessionValue != null) {
             result = new byte[this.noSessionValue.length];
             System.arraycopy(this.noSessionValue, 0, result, 0, result.length);
-        } else {
-            result = new byte[0];
         }
 
         return result;
@@ -95,12 +91,10 @@ public final class ClientHelloParameters extends AParameters {
      * @return Session ID
      */
     public byte[] getSessionId() {
-        byte[] result;
+        byte[] result = null;
         if (this.sessionId != null) {
             result = new byte[this.sessionId.length];
             System.arraycopy(this.sessionId, 0, result, 0, result.length);
-        } else {
-            result = new byte[0];
         }
 
         return result;
@@ -125,12 +119,10 @@ public final class ClientHelloParameters extends AParameters {
      * @return Value of the session ID length field
      */
     public byte[] getSessionIdLen() {
-        byte[] result;
+        byte[] result = null;
         if (this.sessionIdLen != null) {
             result = new byte[this.sessionIdLen.length];
             System.arraycopy(this.sessionIdLen, 0, result, 0, result.length);
-        } else {
-            result = new byte[0];
         }
 
         return result;
@@ -155,12 +147,10 @@ public final class ClientHelloParameters extends AParameters {
      * @return Value of the cipher suite length field
      */
     public byte[] getCipherLen() {
-        byte[] result;
+        byte[] result = null;
         if (this.cipherLen != null) {
             result = new byte[this.cipherLen.length];
             System.arraycopy(this.cipherLen, 0, result, 0, result.length);
-        } else {
-            result = new byte[0];
         }
 
         return result;
@@ -185,12 +175,10 @@ public final class ClientHelloParameters extends AParameters {
      * @return Compression method
      */
     public byte[] getCompMethod() {
-        byte[] result;
+        byte[] result = null;
         if (this.compMethod != null) {
             result = new byte[this.compMethod.length];
             System.arraycopy(this.compMethod, 0, result, 0, result.length);
-        } else {
-            result = new byte[0];
         }
 
         return result;

@@ -13,6 +13,7 @@ import de.rub.nds.ssl.analyzer.executor.EAttacks;
 public class AttackerConfigurationData extends AConfigurationData {
 
     public AttackerConfigurationData() {
+        super();
         EAttacks[] attacks = EAttacks.values();
         Object[][] tmpConfiguration = new Object[attacks.length][];
         for (int i = 0; i < attacks.length; i++) {

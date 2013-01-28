@@ -90,7 +90,7 @@ public abstract class Launcher {
      *
      * @param components Componentns to be executed
      * @param target Targets for the instances
-     * @return Component results.
+     * @return Component results
      * @throws InterruptedException
      * @throws ExecutionException
      */
@@ -124,7 +124,7 @@ public abstract class Launcher {
         for (Future<ResultWrapper[]> future : futures) {
             if (future.isCancelled()) {
                 continue;
-            }
+            }            
             results.add(future.get());
         }
 

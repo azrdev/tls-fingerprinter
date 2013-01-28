@@ -35,7 +35,7 @@ public abstract class AParameters implements Cloneable {
      * @param id Test case identifier
      */
     public final void setIdentifier(final EFingerprintTests id) {
-        this.id = EFingerprintTests.valueOf(this.id.name());
+        this.id = EFingerprintTests.valueOf(id.name());
     }
 
     /**

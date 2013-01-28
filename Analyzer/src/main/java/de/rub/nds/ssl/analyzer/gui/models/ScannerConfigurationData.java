@@ -13,8 +13,9 @@ import de.rub.nds.ssl.analyzer.executor.EFingerprintTests;
 public class ScannerConfigurationData extends AConfigurationData {
 
     public ScannerConfigurationData() {
+        super();
         EFingerprintTests[] tests = EFingerprintTests.values();
-        Object[][] tmpConfiguration = new Object[tests.length][];
+        Object[][] tmpConfiguration = new Object[tests.length][3];
         for (int i = 0; i < tests.length; i++) {
             tmpConfiguration[i] = new Object[]{tests[i].getDescription(), true,
                 tests[i]};
