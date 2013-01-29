@@ -124,15 +124,15 @@ public final class TestHashAnalyzer implements IFingerprinter {
         DecimalFormat twoDForm = new DecimalFormat("###.##");
         for (ETLSImplementation impl : ETLSImplementation.values()) {
             score = counter.getScore(impl);
-            logger.info(impl.name() + ": " + counter.getScore(impl) 
+            logger.info(impl.name() + ":" + counter.getScore(impl) 
                     + " - " + Double.valueOf(
-                    twoDForm.format(((double)score/(double)toalScore)*100))
+                    twoDForm.format(((double)((double)score/(double)toalScore))*100))
                     +"% Probability");
         }
         score= counter.getNoHitCounter();
-        logger.info("No hit" + ": " + score
+        logger.info("No hit" + ":" + score
                     + " - " + Double.valueOf(
-                    twoDForm.format(((double)score/(double)toalScore)*100))
+                    twoDForm.format(((double)((double)score/(double)toalScore))*100))
                     +"% Probability");
     }
 }
