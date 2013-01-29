@@ -1,5 +1,6 @@
 package de.rub.nds.ssl.analyzer.gui;
 
+import de.rub.nds.ssl.analyzer.db.Database;
 import de.rub.nds.ssl.analyzer.executor.EFingerprintTests;
 import de.rub.nds.ssl.analyzer.executor.Launcher;
 import de.rub.nds.ssl.analyzer.fingerprinter.ETLSImplementation;
@@ -44,7 +45,6 @@ public class VisualAnalyzer extends javax.swing.JFrame {
         fuzzerConfigurationData = new DefaultComboBoxModel(ETLSImplementation.
                 values());
         initComponents();
-        PropertyConfigurator.configure("logging.properties");
         logger.addAppender(new JTextAreaLog4JAppender(outputTextArea));
     }
 
@@ -410,7 +410,7 @@ public class VisualAnalyzer extends javax.swing.JFrame {
     /**
      * @param args the command line arguments
      */
-    public static void main(String args[]) {
+    public static void main(final String args[]) {
         /* Set the Nimbus look and feel */
         //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
         /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
@@ -439,10 +439,24 @@ public class VisualAnalyzer extends javax.swing.JFrame {
         }
         //</editor-fold>
 
+        PropertyConfigurator.configure("logging.properties");
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
+            @Override
             public void run() {
                 new VisualAnalyzer().setVisible(true);
+            }
+        });
+
+        Runtime.getRuntime().addShutdownHook(new Thread() {
+            @Override
+            public void run() {
+                try {
+                    // remove any existing locks if necessary
+                    Database.getInstance().shutdownDB();
+                } catch (Exception e) {
+                    // don't bother
+                }
             }
         });
     }
@@ -474,4 +488,15 @@ public class VisualAnalyzer extends javax.swing.JFrame {
     private javax.swing.JScrollPane targetListScrollPane;
     private javax.swing.JTextArea targetListTextArea;
     // End of variables declaration//GEN-END:variables
+
+    private static class RunnableImpl implements Runnable {
+
+        public RunnableImpl() {
+        }
+
+        @Override
+        public void run() {
+            new VisualAnalyzer().setVisible(true);
+        }
+    }
 }

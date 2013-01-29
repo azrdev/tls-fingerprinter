@@ -141,6 +141,10 @@ public abstract class Launcher {
         for (ResultWrapper[] resultWrappers : results) {
             for (ResultWrapper tmpResult : resultWrappers) {
                 try {
+                    logger.info("Analyzing results from " 
+                            + tmpResult.getTestName()
+                            + " with Analyzer "
+                            + tmpResult.getAnalyzer().getCanonicalName());                            ;
                     analyzer = tmpResult.getAnalyzer().newInstance();
                     analyzer.init(tmpResult.getParameters());
                     analyzer.analyze(tmpResult.getTraceList());

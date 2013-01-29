@@ -4,6 +4,7 @@ import de.rub.nds.ssl.analyzer.db.Database;
 import de.rub.nds.ssl.analyzer.parameters.AParameters;
 import de.rub.nds.ssl.stack.trace.MessageContainer;
 import de.rub.nds.ssl.stack.workflows.TLS10HandshakeWorkflow.EStates;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
@@ -64,39 +65,47 @@ public final class TestHashAnalyzer implements IFingerprinter {
         ScoreCounter counter = ScoreCounter.getInstance();
         Database db = Database.getInstance();
         //search for the parameter hash in the database
-        ResultSet result = db.findHashInDB(this.hashValue);
+        PreparedStatement statement = db.prepapreFindHashInDB(this.hashValue);
         try {
-            /*
-             * Iterate through the database results and assign an 
-             * implementation and a score.
-             */
-            while (result.next()) {
-                if (result.getString("LAST_STATE").equalsIgnoreCase("ALERT")) {
-                    if (result.getString("ALERT").equalsIgnoreCase(alertDesc)) {
+            ResultSet result = statement.executeQuery();
+            if (result != null && !result.wasNull()) {
+                /*
+                 * Iterate through the database results and assign an 
+                 * implementation and a score.
+                 */
+                while (result.next()) {
+                    if (result.getString("LAST_STATE").equalsIgnoreCase("ALERT")) {
+                        if (result.getString("ALERT").
+                                equalsIgnoreCase(alertDesc)) {
+                            dbHit = true;
+//                            counter.countResult(ETLSImplementation.valueOf(
+//                                    result.getString("TLS_IMPL")),
+//                                    result.getInt("POINTS"));
+                            logger.info("Found fingerprint hit for "
+                                    + result.getString("TLS_IMPL"));
+                        }
+                    } else if (result.getString("LAST_STATE").equalsIgnoreCase(
+                            lastState)) {
                         dbHit = true;
-                        counter.countResult(ETLSImplementation.valueOf(
-                                result.getString("TLS_IMPL")),
-                                result.getInt("POINTS"));
+//                        counter.countResult(ETLSImplementation.valueOf(
+//                                result.getString("TLS_IMPL")),
+//                                result.getInt("POINTS"));
                         logger.info("Found fingerprint hit for "
                                 + result.getString("TLS_IMPL"));
                     }
-                } else if (result.getString("LAST_STATE").equalsIgnoreCase(
-                        lastState)) {
-                    dbHit = true;
-                    counter.countResult(ETLSImplementation.valueOf(
-                            result.getString("TLS_IMPL")),
-                            result.getInt("POINTS"));
-                    logger.info("Found fingerprint hit for "
-                            + result.getString("TLS_IMPL"));
                 }
-            }
-            //assign 2 points for "no hit" if there is no hit in the database
-            if (!dbHit) {
-                counter.countNoHit(2);
-                logger.info("No fingerprint hit.");
-            }
+                //assign 2 points for "no hit" if there is no hit in the database
+                if (!dbHit) {
+                    counter.countNoHit(2);
+                    logger.info("No fingerprint hit.");
+                }
+            };
         } catch (SQLException e) {
             logger.error("Database error.", e);
+        } finally {
+            if (statement != null) {
+                db.closeStatementAndConnection(statement);
+            }
         }
     }
 }

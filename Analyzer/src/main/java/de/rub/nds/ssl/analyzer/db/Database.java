@@ -43,6 +43,18 @@ public final class Database {
     }
 
     /**
+     * Shutdown the db. This is necessary to remove the DB locks.
+     */
+    public void shutdownDB() {
+        try {
+            DriverManager.getConnection("jdbc:derby:Fingerprint;"
+                    + "create=false;user=tester;password=ssltest;shutdown=true");
+        } catch (SQLException e) {
+            logger.error("Database error.", e);
+        }
+    }
+
+    /**
      * Connect to database.
      *
      * @return Connection object to the DB
@@ -67,39 +79,35 @@ public final class Database {
     }
 
     /**
-     * Find a hash value in the database.
+     * Prepare statement to find a hash value in the database.
      *
      * @param hash Hash value
-     * @return Database result set
+     * @return Prepared statement ready to execute.
      */
-    public ResultSet findHashInDB(final String hash) {
-        ResultSet result = null;
+    public PreparedStatement prepapreFindHashInDB(final String hash) {
         PreparedStatement prepared = null;
         try {
             /*
              * search for a hash value in the tls_fingerprint_hash table
              */
-            prepared = prepareStatement("select tls_impl, last_state, alert, "
-                    + "points from tls_fingerprint_hash where hash = ?");
+            prepared = prepareStatement("select tls_impl, last_state, alert "
+                    //+ ", points from tls_fuzzer_fingerprint where hash = ?"); 
+                    + " from tls_fuzzer_fingerprint where hash = ?");
             prepared.setString(1, hash);
-            result = prepared.executeQuery();
         } catch (SQLException e) {
             logger.error("Database error.", e);
         } catch (Exception e) {
             logger.error("Unspecified Error.", e);
-        } finally {
-            if(prepared != null) {
-                closeStatementAndConnection(prepared);
-            }
         }
-        return result;
+        return prepared;
     }
 
     /**
      * Prepares a SQL statement for the given String.
+     *
      * @param statement SQL Statement
      * @return Executable statement
-     * @throws SQLException 
+     * @throws SQLException
      */
     public PreparedStatement prepareStatement(final String statement) throws
             SQLException {
@@ -109,6 +117,7 @@ public final class Database {
 
     /**
      * Closes the passed statement and the connection.
+     *
      * @param prepared Statement to close
      */
     public void closeStatementAndConnection(final PreparedStatement prepared) {
@@ -122,7 +131,8 @@ public final class Database {
 
     /**
      * Closes a given connection.
-     * @param connection  Connection to close
+     *
+     * @param connection Connection to close
      */
     private void closeConnection(final Connection connection) {
         if (connection != null) {
