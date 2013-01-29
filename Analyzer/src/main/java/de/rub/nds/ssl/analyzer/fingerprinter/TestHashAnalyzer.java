@@ -68,7 +68,14 @@ public final class TestHashAnalyzer implements IFingerprinter {
         PreparedStatement statement = db.prepapreFindHashInDB(this.hashValue);
         try {
             ResultSet result = statement.executeQuery();
+            int score = 2;
             if (result != null && !result.wasNull()) {
+                // determine #results
+                result.last();
+                if (result.getRow() > 1) {
+                    score = 1;
+                }
+                result.beforeFirst();
                 /*
                  * Iterate through the database results and assign an 
                  * implementation and a score.
@@ -78,18 +85,16 @@ public final class TestHashAnalyzer implements IFingerprinter {
                         if (result.getString("ALERT").
                                 equalsIgnoreCase(alertDesc)) {
                             dbHit = true;
-//                            counter.countResult(ETLSImplementation.valueOf(
-//                                    result.getString("TLS_IMPL")),
-//                                    result.getInt("POINTS"));
+                            counter.countResult(ETLSImplementation.valueOf(
+                                    result.getString("TLS_IMPL")),score);
                             logger.info("Found fingerprint hit for "
                                     + result.getString("TLS_IMPL"));
                         }
                     } else if (result.getString("LAST_STATE").equalsIgnoreCase(
                             lastState)) {
                         dbHit = true;
-//                        counter.countResult(ETLSImplementation.valueOf(
-//                                result.getString("TLS_IMPL")),
-//                                result.getInt("POINTS"));
+                        counter.countResult(ETLSImplementation.valueOf(
+                                result.getString("TLS_IMPL")),score);
                         logger.info("Found fingerprint hit for "
                                 + result.getString("TLS_IMPL"));
                     }

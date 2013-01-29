@@ -112,7 +112,8 @@ public final class Database {
     public PreparedStatement prepareStatement(final String statement) throws
             SQLException {
         Connection conn = openConnection();
-        return conn.prepareStatement(statement);
+        return conn.prepareStatement(statement,
+                ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
     }
 
     /**

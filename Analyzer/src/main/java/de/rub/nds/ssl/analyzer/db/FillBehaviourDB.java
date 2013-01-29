@@ -6,6 +6,7 @@ import de.rub.nds.ssl.stack.trace.MessageContainer;
 import de.rub.nds.ssl.stack.workflows.TLS10HandshakeWorkflow.EStates;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 import org.apache.log4j.Logger;
@@ -89,8 +90,9 @@ public final class FillBehaviourDB {
             	sb.append(msg.getState().name());
             	sb.append(" | ");
             }
+            // message trace
             prepared.setString(6, sb.toString());
-
+            
             logger.info("####################################################"
                     + "####################");
             logger.info("Description: " + desc);
