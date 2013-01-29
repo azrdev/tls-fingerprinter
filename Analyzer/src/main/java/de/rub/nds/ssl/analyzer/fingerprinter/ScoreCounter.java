@@ -58,14 +58,13 @@ public final class ScoreCounter {
         this.totalCounter += score;
         //assign the score for a specific implementation
         Integer newValue = counter.get(impl);
-        if (newValue == null) { 
-        	newValue = score;
+        if (newValue == null) {
+            newValue = score;
+        } else {
+            newValue += score;
         }
-        else {
-        newValue += score;
-        	}
         counter.put(impl, newValue);
-        
+
     }
 
     /**
@@ -84,7 +83,14 @@ public final class ScoreCounter {
      * @return Score of the passed implementation
      */
     public int getScore(final ETLSImplementation impl) {
-        return counter.get(impl);
+        int result;
+        try {
+            result = counter.get(impl);
+        } catch (NullPointerException e) {
+            result = 0;
+        }
+
+        return result;
     }
 
     /**

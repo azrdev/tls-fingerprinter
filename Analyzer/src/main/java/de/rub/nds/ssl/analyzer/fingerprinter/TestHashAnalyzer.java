@@ -7,6 +7,7 @@ import de.rub.nds.ssl.stack.workflows.TLS10HandshakeWorkflow.EStates;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.text.DecimalFormat;
 import java.util.List;
 import org.apache.log4j.Logger;
 
@@ -86,7 +87,7 @@ public final class TestHashAnalyzer implements IFingerprinter {
                                 equalsIgnoreCase(alertDesc)) {
                             dbHit = true;
                             counter.countResult(ETLSImplementation.valueOf(
-                                    result.getString("TLS_IMPL")),score);
+                                    result.getString("TLS_IMPL")), score);
                             logger.info("Found fingerprint hit for "
                                     + result.getString("TLS_IMPL"));
                         }
@@ -94,7 +95,7 @@ public final class TestHashAnalyzer implements IFingerprinter {
                             lastState)) {
                         dbHit = true;
                         counter.countResult(ETLSImplementation.valueOf(
-                                result.getString("TLS_IMPL")),score);
+                                result.getString("TLS_IMPL")), score);
                         logger.info("Found fingerprint hit for "
                                 + result.getString("TLS_IMPL"));
                     }
@@ -112,5 +113,26 @@ public final class TestHashAnalyzer implements IFingerprinter {
                 db.closeStatementAndConnection(statement);
             }
         }
+
+        logger.info("########################################################"
+                + "################");
+        logger.info("Final analyzer Results");
+        logger.info("########################################################"
+                + "################");
+        int score;
+        int toalScore = counter.getTotalCounter();
+        DecimalFormat twoDForm = new DecimalFormat("###.##");
+        for (ETLSImplementation impl : ETLSImplementation.values()) {
+            score = counter.getScore(impl);
+            logger.info(impl.name() + ": " + counter.getScore(impl) 
+                    + " - " + Double.valueOf(
+                    twoDForm.format(((double)score/(double)toalScore)*100))
+                    +"% Probability");
+        }
+        score= counter.getNoHitCounter();
+        logger.info("No hit" + ": " + score
+                    + " - " + Double.valueOf(
+                    twoDForm.format(((double)score/(double)toalScore)*100))
+                    +"% Probability");
     }
 }
