@@ -1,7 +1,6 @@
 package de.rub.nds.ssl.analyzer.executor;
 
 import de.rub.nds.ssl.analyzer.AAnalyzerComponent;
-import de.rub.nds.ssl.analyzer.fingerprinter.HandshakeEnumCheck;
 import de.rub.nds.ssl.analyzer.fingerprinter.IFingerprinter;
 import de.rub.nds.ssl.analyzer.fingerprinter.TestHashAnalyzer;
 import de.rub.nds.ssl.analyzer.fingerprinter.tests.CCS;
@@ -53,7 +52,7 @@ public enum EFingerprintTests {
     GOOD("Good Case - Clean Run Test",
     GoodCase.class, TestHashAnalyzer.class),
     HANDSHAKE_ENUM("Handshake Enumeration Test",
-    CheckEnumeration.class, HandshakeEnumCheck.class);
+    CheckEnumeration.class, TestHashAnalyzer.class);
     /**
      * Fingerprint Test description.
      */

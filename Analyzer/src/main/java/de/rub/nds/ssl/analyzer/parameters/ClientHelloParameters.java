@@ -238,9 +238,9 @@ public final class ClientHelloParameters extends AParameters {
      * {@inheritDoc}
      */
     @Override
-    public void updateHash(final MessageDigest sha1, final byte[] input) {
+    public void updateHash(final MessageDigest md, final byte[] input) {
         if (input != null) {
-            sha1.update(input);
+            md.update(input);
         }
     }
 }

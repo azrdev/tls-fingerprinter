@@ -18,7 +18,7 @@ public final class ChangeCipherSpecParams extends AParameters {
      */
     private static Logger logger = Logger.getRootLogger();
     /**
-     * ChangeCipherSpec payload
+     * ChangeCipherSpec payload.
      */
     private byte[] payload;
 
@@ -76,9 +76,9 @@ public final class ChangeCipherSpecParams extends AParameters {
      * {@inheritDoc}
      */
     @Override
-    public void updateHash(final MessageDigest sha1, final byte[] input) {
+    public void updateHash(final MessageDigest md, final byte[] input) {
         if (input != null) {
-            sha1.update(input);
+            md.update(input);
         }
     }
 }

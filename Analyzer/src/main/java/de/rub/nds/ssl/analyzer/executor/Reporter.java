@@ -7,16 +7,28 @@ import java.text.DecimalFormat;
 import org.apache.log4j.Logger;
 
 /**
- * <DESCRIPTION> @author Christopher Meyer - christopher.meyer@rub.de
+ * Reporter summarizes analyzer results and generates a report.
+ *
+ * @author Christopher Meyer - christopher.meyer@rub.de
  * @version 0.1
  *
  * Jan 30, 2013
  */
 public final class Reporter {
 
+    /**
+     * Utility class - private constructor only.
+     */
     private Reporter() {
     }
 
+    /**
+     * Compresses multiple score counter of different AnalyzerResult 
+     * arrays to a single ScoreCounter.
+     *
+     * @param results Multiple AnalyzerResults containing ScoreCounters
+     * @return Combined ScoreCounter
+     */
     private static ScoreCounter compress(final AnalyzerResult[] results) {
         ScoreCounter result = new ScoreCounter();
 
@@ -34,9 +46,13 @@ public final class Reporter {
         return result;
     }
 
+    /**
+     * Generates a summarizing report of all AnalyzerResults.
+     * @param results Multiple AnalyzerResults containing ScoreCounters
+     * @param logger Logger to be used for report output
+     */
     public static void generateReport(final AnalyzerResult[] results,
             final Logger logger) {
-
         logger.info("########################################################"
                 + "################");
         logger.info("Final analyzer Results");
@@ -47,14 +63,14 @@ public final class Reporter {
         int totalScore = scoreCounter.getTotalCounter();
 
         // output results
-        int tmpScore = 0;
+        int tmpScore;
         DecimalFormat twoDForm = new DecimalFormat("###.##");
         for (ETLSImplementation impl : ETLSImplementation.values()) {
             tmpScore = scoreCounter.getScore(impl);
-            logger.info(impl.name() + ": " + tmpScore
+            logger.info(
+                    impl.name() + ": " + tmpScore
                     + " - " + Double.valueOf(twoDForm.format(
-                    (double) tmpScore / (double) totalScore * 100)
-                    ) + "% Probability");
+                    (double) tmpScore / (double) totalScore * 100)) + "% Probability");
         }
 
         tmpScore = scoreCounter.getNoHitCounter();

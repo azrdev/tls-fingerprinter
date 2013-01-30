@@ -158,6 +158,7 @@ public abstract class Launcher {
             }
         }
         
+        // TODO mke me nice
         Reporter.generateReport(analyzerResults.toArray(new AnalyzerResult[analyzerResults.size()]), logger);
     }
 

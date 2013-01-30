@@ -51,7 +51,6 @@ public final class FillBehaviourDB {
         String lastState;
         String alertDesc;
         MessageContainer lastTrace;
-        TraceListAnalyzerUtility analyzeList;
 
         try {
             //prepared insert statement
