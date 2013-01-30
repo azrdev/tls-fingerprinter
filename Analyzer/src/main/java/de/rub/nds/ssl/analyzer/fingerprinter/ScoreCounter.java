@@ -67,6 +67,7 @@ public final class ScoreCounter {
             final String identifier) {
         if (!alreadyScored.contains(identifier)) {
             this.totalCounter += score;
+            alreadyScored.add(identifier);
         }
         //assign the score for a specific implementation
         Integer newValue = counter.get(impl);
