@@ -1,6 +1,6 @@
 package de.rub.nds.ssl.analyzer.fingerprinter.tests;
 
-import de.rub.nds.ssl.analyzer.ResultWrapper;
+import de.rub.nds.ssl.analyzer.TestResult;
 import de.rub.nds.ssl.analyzer.executor.EFingerprintTests;
 import de.rub.nds.ssl.analyzer.parameters.FinishedParameters;
 import de.rub.nds.ssl.stack.Utility;
@@ -32,7 +32,7 @@ public final class FIN extends AGenericFingerprintTest implements Observer {
      */
     private FinishedParameters finParameters = new FinishedParameters();
 
-    private ResultWrapper manipulateFinishedRecordHeader(final String desc,
+    private TestResult manipulateFinishedRecordHeader(final String desc,
             final boolean changePadding, final boolean destroyMAC,
             final boolean destroyHash, final boolean destroyVerify,
             final boolean changePadLength)
@@ -66,7 +66,7 @@ public final class FIN extends AGenericFingerprintTest implements Observer {
             workflow.closeSocket();
         }
 
-        return new ResultWrapper(finParameters, workflow.getTraceList(),
+        return new TestResult(finParameters, workflow.getTraceList(),
                 getAnalyzer());
     }
 
@@ -167,7 +167,7 @@ public final class FIN extends AGenericFingerprintTest implements Observer {
      * {@inheritDoc}
      */
     @Override
-    public synchronized ResultWrapper[] call() throws Exception {
+    public synchronized TestResult[] call() throws Exception {
         Object[][] parameters = new Object[][]{
             {"Wrong padding", true, false, false, false, false},
             {"Destroy MAC", false, true, false, false, false},
@@ -179,7 +179,7 @@ public final class FIN extends AGenericFingerprintTest implements Observer {
         // Print Test Banner
         printBanner();
         // execute test(s)
-        ResultWrapper[] result = new ResultWrapper[parameters.length];
+        TestResult[] result = new TestResult[parameters.length];
         for (int i = 0; i < parameters.length; i++) {
             result[i] = manipulateFinishedRecordHeader((String) parameters[i][0],
                     (Boolean) parameters[i][1], (Boolean) parameters[i][2],

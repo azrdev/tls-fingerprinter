@@ -1,5 +1,6 @@
 package de.rub.nds.ssl.analyzer.fingerprinter;
 
+import de.rub.nds.ssl.analyzer.AnalyzerResult;
 import de.rub.nds.ssl.analyzer.db.FillBehaviourDB;
 import de.rub.nds.ssl.analyzer.parameters.AParameters;
 import de.rub.nds.ssl.stack.trace.MessageContainer;
@@ -59,7 +60,7 @@ public final class FingerprintFuzzer implements IFingerprinter {
      * {@inheritDoc}
      */
     @Override
-    public void analyze(final List<MessageContainer> traceList) {
+    public AnalyzerResult analyze(final List<MessageContainer> traceList) {
         FillBehaviourDB behaviour = new FillBehaviourDB();
         try {
             behaviour.insertFingerprint(parameters, traceList, this.testcase,
@@ -68,6 +69,7 @@ public final class FingerprintFuzzer implements IFingerprinter {
             logger.error("Unspecified Error.", e);
         }
 
+        return null;
     }
 
     /**

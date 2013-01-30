@@ -1,6 +1,6 @@
 package de.rub.nds.ssl.analyzer.fingerprinter.tests;
 
-import de.rub.nds.ssl.analyzer.ResultWrapper;
+import de.rub.nds.ssl.analyzer.TestResult;
 import de.rub.nds.ssl.analyzer.executor.EFingerprintTests;
 import de.rub.nds.ssl.stack.protocols.commons.ECipherSuite;
 import de.rub.nds.ssl.stack.protocols.handshake.ClientHello;
@@ -28,7 +28,7 @@ public final class GoodCase extends AGenericFingerprintTest implements Observer 
      */
     private ECipherSuite[] suite;
 
-    private ResultWrapper executeHandshake(final String desc,
+    private TestResult executeHandshake(final String desc,
             final ECipherSuite[] suite) throws SocketException {
         logger.info("++++Start Test No." + counter + "(" + desc + ")++++");
         workflow = new TLS10HandshakeWorkflow();
@@ -51,7 +51,7 @@ public final class GoodCase extends AGenericFingerprintTest implements Observer 
             workflow.closeSocket();
         }
 
-        return new ResultWrapper(headerParameters, workflow.getTraceList(),
+        return new TestResult(headerParameters, workflow.getTraceList(),
                 getAnalyzer());
     }
 
@@ -89,7 +89,7 @@ public final class GoodCase extends AGenericFingerprintTest implements Observer 
      * {@inheritDoc}
      */
     @Override
-    public synchronized ResultWrapper[] call() throws Exception {
+    public synchronized TestResult[] call() throws Exception {
         Object[][] parameters = new Object[][]{{"Good case",
                 new ECipherSuite[]{ECipherSuite.TLS_RSA_WITH_AES_128_CBC_SHA}}
         };
@@ -97,7 +97,7 @@ public final class GoodCase extends AGenericFingerprintTest implements Observer 
         // Print Test Banner
         printBanner();
         // execute test(s)
-        ResultWrapper[] result = new ResultWrapper[parameters.length];
+        TestResult[] result = new TestResult[parameters.length];
         for (int i = 0; i < parameters.length; i++) {
             result[i] = executeHandshake((String) parameters[i][0],
                     (ECipherSuite[]) parameters[i][1]);

@@ -1,6 +1,6 @@
 package de.rub.nds.ssl.analyzer.db;
 
-import de.rub.nds.ssl.analyzer.fingerprinter.AnalyzeTraceList;
+import de.rub.nds.ssl.analyzer.fingerprinter.TraceListAnalyzerUtility;
 import de.rub.nds.ssl.analyzer.parameters.AParameters;
 import de.rub.nds.ssl.stack.trace.MessageContainer;
 import de.rub.nds.ssl.stack.workflows.TLS10HandshakeWorkflow.EStates;
@@ -51,7 +51,7 @@ public final class FillBehaviourDB {
         String lastState;
         String alertDesc;
         MessageContainer lastTrace;
-        AnalyzeTraceList analyzeList;
+        TraceListAnalyzerUtility analyzeList;
 
         try {
             //prepared insert statement
@@ -62,14 +62,13 @@ public final class FillBehaviourDB {
             String fingerprint = parameters.computeHash();
             prepared.setString(1, fingerprint);
 
-            // state && alert description
-            analyzeList = new AnalyzeTraceList();
             //assign the alert description and last state
-            alertDesc = analyzeList.getAlertFromTraceList(traceList);
+            alertDesc = TraceListAnalyzerUtility.
+                    getAlertFromTraceList(traceList);
             if (alertDesc != null) {
                 lastState = EStates.ALERT.name();
             } else {
-                lastTrace = analyzeList.getLastTrace(traceList);
+                lastTrace = TraceListAnalyzerUtility.getLastTrace(traceList);
                 lastState = lastTrace.getState().name();
             }
             prepared.setString(2, lastState);
@@ -86,13 +85,13 @@ public final class FillBehaviourDB {
             }
             prepared.setString(5, desc);
             StringBuilder sb = new StringBuilder("");
-            for (MessageContainer msg: traceList) {
-            	sb.append(msg.getState().name());
-            	sb.append(" | ");
+            for (MessageContainer msg : traceList) {
+                sb.append(msg.getState().name());
+                sb.append(" | ");
             }
             // message trace
             prepared.setString(6, sb.toString());
-            
+
             logger.info("####################################################"
                     + "####################");
             logger.info("Description: " + desc);
@@ -107,7 +106,7 @@ public final class FillBehaviourDB {
             prepared.executeUpdate();
         } catch (SQLException e) {
             logger.error("Database problems.", e);
-        } 
+        }
 //        finally {
 //            db.closeStatementAndConnection(prepared);
 //        }

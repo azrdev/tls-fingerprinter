@@ -1,6 +1,9 @@
 package de.rub.nds.ssl.analyzer.fingerprinter;
 
+import java.util.ArrayList;
 import java.util.EnumMap;
+import java.util.HashMap;
+import java.util.List;
 
 /**
  * Counts the points of the fingerprint analyzers.
@@ -10,10 +13,7 @@ import java.util.EnumMap;
  */
 public final class ScoreCounter {
 
-    /**
-     * Score counter instance.
-     */
-    private static volatile ScoreCounter instance;
+    private List<String> alreadyScored = new ArrayList<String>(50);
     /**
      * Total score.
      */
@@ -28,23 +28,11 @@ public final class ScoreCounter {
     private EnumMap<ETLSImplementation, Integer> counter;
 
     /**
-     * Empty constructor.
+     * Public constructor.
      */
-    private ScoreCounter() {
+    public ScoreCounter() {
         counter = new EnumMap<ETLSImplementation, Integer>(
                 ETLSImplementation.class);
-    }
-
-    /**
-     * Get an instance of ScoreCounter.
-     *
-     * @return Instance of ScoreCounter
-     */
-    public static ScoreCounter getInstance() {
-        if (instance == null) {
-            instance = new ScoreCounter();
-        }
-        return instance;
     }
 
     /**
@@ -56,6 +44,30 @@ public final class ScoreCounter {
     public void countResult(final ETLSImplementation impl, final int score) {
         //always add the score to compute the total reachable points
         this.totalCounter += score;
+        //assign the score for a specific implementation
+        Integer newValue = counter.get(impl);
+        if (newValue == null) {
+            newValue = score;
+        } else {
+            newValue += score;
+        }
+        counter.put(impl, newValue);
+    }
+
+    /**
+     * Count the score for different implementations. This counter only
+     * increments the total counter if the identifier was not encountered
+     * anytime before.
+     *
+     * @param impl TLS implementation
+     * @param score Score
+     * @param identifier Identifier of this score call
+     */
+    public void countResult(final ETLSImplementation impl, final int score,
+            final String identifier) {
+        if (!alreadyScored.contains(identifier)) {
+            this.totalCounter += score;
+        }
         //assign the score for a specific implementation
         Integer newValue = counter.get(impl);
         if (newValue == null) {

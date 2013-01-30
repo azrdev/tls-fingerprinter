@@ -1,6 +1,6 @@
 package de.rub.nds.ssl.analyzer.fingerprinter.tests;
 
-import de.rub.nds.ssl.analyzer.ResultWrapper;
+import de.rub.nds.ssl.analyzer.TestResult;
 import de.rub.nds.ssl.analyzer.executor.EFingerprintTests;
 import de.rub.nds.ssl.analyzer.parameters.ChangeCipherSpecParams;
 import de.rub.nds.ssl.stack.protocols.msgs.ChangeCipherSpec;
@@ -20,7 +20,7 @@ public final class CCS extends AGenericFingerprintTest implements Observer {
      */
     private ChangeCipherSpecParams ccsParameters = new ChangeCipherSpecParams();
 
-    private ResultWrapper fingerprintChangeCipherSpec(final String desc,
+    private TestResult fingerprintChangeCipherSpec(final String desc,
             final byte[] payload) throws SocketException, MalformedURLException {
         logger.info("++++Start Test No." + counter + "(" + desc + ")++++");
         workflow = new TLS10HandshakeWorkflow();
@@ -48,7 +48,7 @@ public final class CCS extends AGenericFingerprintTest implements Observer {
             workflow.closeSocket();
         }
 
-        return new ResultWrapper(ccsParameters, workflow.getTraceList(),
+        return new TestResult(ccsParameters, workflow.getTraceList(),
                 getAnalyzer());
     }
 
@@ -92,7 +92,7 @@ public final class CCS extends AGenericFingerprintTest implements Observer {
      * {@inheritDoc}
      */
     @Override
-    public synchronized ResultWrapper[] call() throws Exception {
+    public synchronized TestResult[] call() throws Exception {
         Object[][] parameters = new Object[][]{
             {"Wrong payload", new byte[]{(byte) 0xff}},
             {"Invalid payload", new byte[]{0x02, 0x01}}
@@ -101,7 +101,7 @@ public final class CCS extends AGenericFingerprintTest implements Observer {
         // Print Test Banner
         printBanner();
         // execute test(s)
-        ResultWrapper[] result = new ResultWrapper[parameters.length];
+        TestResult[] result = new TestResult[parameters.length];
         for (int i = 0; i < parameters.length; i++) {
             result[i] = fingerprintChangeCipherSpec((String) parameters[i][0],
                     (byte[]) parameters[i][1]);

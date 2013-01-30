@@ -14,7 +14,7 @@ import java.util.List;
  *
  * Jan 18, 2013
  */
-public class ResultWrapper {
+public class TestResult {
 
     /**
      * Handshake/Message parameters.
@@ -40,7 +40,7 @@ public class ResultWrapper {
      * @param traceList Trace list of the handshake
      * @param analyzer Configured analyzer
      */
-    public ResultWrapper(final AParameters parameters,
+    public TestResult(final AParameters parameters,
             final List<MessageContainer> traceList,
             final Class<IFingerprinter> analyzer) {
         // deep copy

@@ -1,6 +1,6 @@
 package de.rub.nds.ssl.analyzer.fingerprinter.tests;
 
-import de.rub.nds.ssl.analyzer.ResultWrapper;
+import de.rub.nds.ssl.analyzer.TestResult;
 import de.rub.nds.ssl.analyzer.executor.EFingerprintTests;
 import de.rub.nds.ssl.analyzer.parameters.ClientKeyExchangeParams;
 import de.rub.nds.ssl.stack.protocols.commons.ECipherSuite;
@@ -35,7 +35,7 @@ public final class CKE extends AGenericFingerprintTest implements Observer {
      * @return
      * @throws SocketException
      */
-    public ResultWrapper fingerprintClientKeyExchange(final String desc,
+    public TestResult fingerprintClientKeyExchange(final String desc,
             final ECipherSuite[] cipherSuite, final byte[] payload)
             throws SocketException {
         logger.info("++++Start Test No." + counter + "(" + desc + ")++++");
@@ -65,7 +65,7 @@ public final class CKE extends AGenericFingerprintTest implements Observer {
             workflow.closeSocket();
         }
 
-        return new ResultWrapper(ckeParameters, workflow.getTraceList(),
+        return new TestResult(ckeParameters, workflow.getTraceList(),
                 getAnalyzer());
     }
 
@@ -118,7 +118,7 @@ public final class CKE extends AGenericFingerprintTest implements Observer {
      * {@inheritDoc}
      */
     @Override
-    public synchronized ResultWrapper[] call() throws Exception {
+    public synchronized TestResult[] call() throws Exception {
         Object[][] parameters = new Object[][]{
             {"Invalid payload for RSA key exchange", new ECipherSuite[]{
                     ECipherSuite.TLS_RSA_WITH_AES_128_CBC_SHA},
@@ -128,7 +128,7 @@ public final class CKE extends AGenericFingerprintTest implements Observer {
         // Print Test Banner
         printBanner();
         // execute test(s)
-        ResultWrapper[] result = new ResultWrapper[parameters.length];
+        TestResult[] result = new TestResult[parameters.length];
         for (int i = 0; i < parameters.length; i++) {
             result[i] = fingerprintClientKeyExchange((String) parameters[i][0],
                     (ECipherSuite[]) parameters[i][1], (byte[]) parameters[i][2]);

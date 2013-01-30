@@ -1,7 +1,8 @@
 package de.rub.nds.ssl.analyzer.executor;
 
 import de.rub.nds.ssl.analyzer.AAnalyzerComponent;
-import de.rub.nds.ssl.analyzer.ResultWrapper;
+import de.rub.nds.ssl.analyzer.AnalyzerResult;
+import de.rub.nds.ssl.analyzer.TestResult;
 import de.rub.nds.ssl.analyzer.fingerprinter.ETLSImplementation;
 import de.rub.nds.ssl.analyzer.fingerprinter.FingerprintFuzzer;
 import de.rub.nds.ssl.analyzer.fingerprinter.IFingerprinter;
@@ -55,7 +56,7 @@ public abstract class Launcher {
         System.arraycopy(targetList, 0, targets, 0, targetList.length);
 
         // invoke components
-        List<ResultWrapper[]> results;
+        List<TestResult[]> results;
         for (String tmpTarget : targets) {
             results = invokeExecutor(components, tmpTarget);
             invokeAnalyzer(results);
@@ -78,7 +79,7 @@ public abstract class Launcher {
         System.arraycopy(targetList, 0, targets, 0, targetList.length);
 
         // invoke components
-        List<ResultWrapper[]> results;
+        List<TestResult[]> results;
         for (String tmpTarget : targets) {
             results = invokeExecutor(EFingerprintTests.values(), tmpTarget);
             invokeFuzzer(results, implementation);
@@ -94,7 +95,7 @@ public abstract class Launcher {
      * @throws InterruptedException
      * @throws ExecutionException
      */
-    private static List<ResultWrapper[]> invokeExecutor(
+    private static List<TestResult[]> invokeExecutor(
             final EFingerprintTests[] components, final String target)
             throws InterruptedException, ExecutionException {
         // fetch instances of components
@@ -117,11 +118,11 @@ public abstract class Launcher {
             }
         }
 
-        List<Future<ResultWrapper[]>> futures = executor.invokeAll(instances);
+        List<Future<TestResult[]>> futures = executor.invokeAll(instances);
         // wait for results (estimated 5 test per instance)
-        List<ResultWrapper[]> results =
-                new ArrayList<ResultWrapper[]>(instances.size() * 5);
-        for (Future<ResultWrapper[]> future : futures) {
+        List<TestResult[]> results =
+                new ArrayList<TestResult[]>(instances.size() * 5);
+        for (Future<TestResult[]> future : futures) {
             if (future.isCancelled()) {
                 continue;
             }            
@@ -136,10 +137,11 @@ public abstract class Launcher {
      *
      * @param results Results to be analyzed
      */
-    private static void invokeAnalyzer(final List<ResultWrapper[]> results) {
+    private static void invokeAnalyzer(final List<TestResult[]> results) {
+        List<AnalyzerResult> analyzerResults = new ArrayList<AnalyzerResult>();
         IFingerprinter analyzer;
-        for (ResultWrapper[] resultWrappers : results) {
-            for (ResultWrapper tmpResult : resultWrappers) {
+        for (TestResult[] resultWrappers : results) {
+            for (TestResult tmpResult : resultWrappers) {
                 try {
                     logger.info("Analyzing results from " 
                             + tmpResult.getTestName()
@@ -147,7 +149,7 @@ public abstract class Launcher {
                             + tmpResult.getAnalyzer().getCanonicalName());                            ;
                     analyzer = tmpResult.getAnalyzer().newInstance();
                     analyzer.init(tmpResult.getParameters());
-                    analyzer.analyze(tmpResult.getTraceList());
+                    analyzerResults.add(analyzer.analyze(tmpResult.getTraceList()));
                 } catch (IllegalAccessException e) {
                     logger.error("Illegal Access.", e);
                 } catch (InstantiationException e) {
@@ -155,13 +157,15 @@ public abstract class Launcher {
                 }
             }
         }
+        
+        Reporter.generateReport(analyzerResults.toArray(new AnalyzerResult[analyzerResults.size()]), logger);
     }
 
-    private static void invokeFuzzer(final List<ResultWrapper[]> results,
+    private static void invokeFuzzer(final List<TestResult[]> results,
             final ETLSImplementation implementation) {
         FingerprintFuzzer analyzer = new FingerprintFuzzer();
-        for (ResultWrapper[] resultWrappers : results) {
-            for (ResultWrapper tmpResult : resultWrappers) {
+        for (TestResult[] resultWrappers : results) {
+            for (TestResult tmpResult : resultWrappers) {
                 analyzer.init(tmpResult.getParameters());
                 analyzer.setImplementation(implementation);
                 analyzer.setTestcase(tmpResult.getTestName());

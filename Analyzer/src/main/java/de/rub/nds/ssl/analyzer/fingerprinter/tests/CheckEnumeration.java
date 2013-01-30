@@ -1,6 +1,6 @@
 package de.rub.nds.ssl.analyzer.fingerprinter.tests;
 
-import de.rub.nds.ssl.analyzer.ResultWrapper;
+import de.rub.nds.ssl.analyzer.TestResult;
 import de.rub.nds.ssl.analyzer.executor.EFingerprintTests;
 import de.rub.nds.ssl.stack.workflows.TLS10HandshakeWorkflow;
 import java.net.SocketException;
@@ -13,7 +13,7 @@ import java.net.SocketException;
  */
 public final class CheckEnumeration extends AGenericFingerprintTest {
 
-    private ResultWrapper executeHandshake() throws SocketException {
+    private TestResult executeHandshake() throws SocketException {
         String desc = "Check Handshake Enum";
 
         logger.info("++++Start Test No." + counter + "(" + desc + ")++++");
@@ -36,7 +36,7 @@ public final class CheckEnumeration extends AGenericFingerprintTest {
             workflow.closeSocket();
         }
 
-        return new ResultWrapper(headerParameters, workflow.getTraceList(),
+        return new TestResult(headerParameters, workflow.getTraceList(),
                 getAnalyzer());
     }
 
@@ -44,12 +44,12 @@ public final class CheckEnumeration extends AGenericFingerprintTest {
      * {@inheritDoc}
      */
     @Override
-    public synchronized ResultWrapper[] call() throws Exception {
+    public synchronized TestResult[] call() throws Exception {
         // Print Test Banner
         printBanner();
         // execute test(s)
-        ResultWrapper result = executeHandshake();
+        TestResult result = executeHandshake();
         result.setTestName(this.getClass().getCanonicalName());
-        return new ResultWrapper[]{result};
+        return new TestResult[]{result};
     }
 }

@@ -1,5 +1,6 @@
 package de.rub.nds.ssl.analyzer.fingerprinter;
 
+import de.rub.nds.ssl.analyzer.AnalyzerResult;
 import de.rub.nds.ssl.analyzer.parameters.AParameters;
 import de.rub.nds.ssl.stack.trace.MessageContainer;
 import java.util.List;
@@ -14,9 +15,10 @@ public interface IFingerprinter {
     /**
      * Match a fingerprint using the test trace.
      *
-     * @param traceList MessageContainer list of a testrun
+     * @param traceList MessageContainer list of a test run
+     * @return Result of the analyzer
      */
-    void analyze(final List<MessageContainer> traceList);
+    AnalyzerResult analyze(final List<MessageContainer> traceList);
 
     /**
      * (Re-)Initialize analyzer.

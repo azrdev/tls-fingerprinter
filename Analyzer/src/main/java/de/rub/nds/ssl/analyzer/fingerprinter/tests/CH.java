@@ -1,6 +1,6 @@
 package de.rub.nds.ssl.analyzer.fingerprinter.tests;
 
-import de.rub.nds.ssl.analyzer.ResultWrapper;
+import de.rub.nds.ssl.analyzer.TestResult;
 import de.rub.nds.ssl.analyzer.executor.EFingerprintTests;
 import de.rub.nds.ssl.analyzer.parameters.ClientHelloParameters;
 import de.rub.nds.ssl.stack.protocols.commons.ECipherSuite;
@@ -62,7 +62,7 @@ public final class CH extends AGenericFingerprintTest implements Observer {
      * @return Test results
      * @throws SocketException
      */
-    public ResultWrapper fingerprintClientHello(final String desc,
+    public TestResult fingerprintClientHello(final String desc,
             final byte[] protocolVersion, final byte[] noSessionValue,
             final byte[] session, final byte[] sessionIdLength,
             final byte[] cipherLength, final byte[] compMethod) throws
@@ -97,7 +97,7 @@ public final class CH extends AGenericFingerprintTest implements Observer {
             workflow.closeSocket();
         }
 
-        return new ResultWrapper(chParameters, workflow.getTraceList(),
+        return new TestResult(chParameters, workflow.getTraceList(),
                 getAnalyzer());
     }
 
@@ -165,7 +165,7 @@ public final class CH extends AGenericFingerprintTest implements Observer {
      * {@inheritDoc}
      */
     @Override
-    public synchronized ResultWrapper[] call() throws Exception {
+    public synchronized TestResult[] call() throws Exception {
         Object[][] parameters = new Object[][]{
             {"Invalid protocol version 0xff,0xff",
                 new byte[]{(byte) 0xff, (byte) 0xff}, null, null, null, null,
@@ -194,7 +194,7 @@ public final class CH extends AGenericFingerprintTest implements Observer {
         // Print Test Banner
         printBanner();
         // execute test(s)
-        ResultWrapper[] result = new ResultWrapper[parameters.length];
+        TestResult[] result = new TestResult[parameters.length];
         for (int i = 0; i < parameters.length; i++) {
             result[i] = fingerprintClientHello((String) parameters[i][0],
                     (byte[]) parameters[i][1], (byte[]) parameters[i][2],

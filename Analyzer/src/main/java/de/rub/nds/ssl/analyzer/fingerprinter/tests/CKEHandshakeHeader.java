@@ -1,6 +1,6 @@
 package de.rub.nds.ssl.analyzer.fingerprinter.tests;
 
-import de.rub.nds.ssl.analyzer.ResultWrapper;
+import de.rub.nds.ssl.analyzer.TestResult;
 import de.rub.nds.ssl.analyzer.executor.EFingerprintTests;
 import de.rub.nds.ssl.stack.protocols.handshake.ClientKeyExchange;
 import de.rub.nds.ssl.stack.trace.MessageContainer;
@@ -15,7 +15,7 @@ import java.util.Observer;
 public final class CKEHandshakeHeader extends AGenericFingerprintTest implements
         Observer {
 
-    private ResultWrapper manipulateCKEHandshakeHeader(final String desc,
+    private TestResult manipulateCKEHandshakeHeader(final String desc,
             final byte[] msgType, final byte[] recordLength) throws
             SocketException {
         logger.info("++++Start Test No." + counter + "(" + desc + ")++++");
@@ -45,7 +45,7 @@ public final class CKEHandshakeHeader extends AGenericFingerprintTest implements
             workflow.closeSocket();
         }
 
-        return new ResultWrapper(headerParameters, workflow.getTraceList(),
+        return new TestResult(headerParameters, workflow.getTraceList(),
                 getAnalyzer());
     }
 
@@ -90,7 +90,7 @@ public final class CKEHandshakeHeader extends AGenericFingerprintTest implements
      * {@inheritDoc}
      */
     @Override
-    public synchronized ResultWrapper[] call() throws Exception {
+    public synchronized TestResult[] call() throws Exception {
         Object[][] parameters = new Object[][]{
             {"Wrong message type", new byte[]{(byte) 0xff}, null},
             {"Invalid length 0x00,0x00,0x00", null,
@@ -101,7 +101,7 @@ public final class CKEHandshakeHeader extends AGenericFingerprintTest implements
         // Print Test Banner
         printBanner();
         // execute test(s)
-        ResultWrapper[] result = new ResultWrapper[parameters.length];
+        TestResult[] result = new TestResult[parameters.length];
         for (int i = 0; i < parameters.length; i++) {
             result[i] = manipulateCKEHandshakeHeader((String) parameters[i][0],
                     (byte[]) parameters[i][1], (byte[]) parameters[i][2]);

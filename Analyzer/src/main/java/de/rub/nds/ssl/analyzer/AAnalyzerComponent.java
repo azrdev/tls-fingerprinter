@@ -14,7 +14,7 @@ import org.apache.log4j.Logger;
  *
  * Jan 16, 2013
  */
-public abstract class AAnalyzerComponent implements Callable<ResultWrapper[]> {
+public abstract class AAnalyzerComponent implements Callable<TestResult[]> {
 
     /**
      * Log4j logger initialization.

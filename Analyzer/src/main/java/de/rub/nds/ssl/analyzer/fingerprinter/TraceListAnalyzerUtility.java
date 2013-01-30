@@ -11,7 +11,7 @@ import java.util.List;
  * @author Eugen Weiss - eugen.weiss@ruhr-uni-bochum.de
  * @version 0.1 Aug 02, 2012
  */
-public class AnalyzeTraceList {
+public final class TraceListAnalyzerUtility {
 
     /**
      * Get the alert message from the trace list and extract the alert
@@ -20,7 +20,7 @@ public class AnalyzeTraceList {
      * @param traceList Trace list of a handshake
      * @return Alert description
      */
-    public final String getAlertFromTraceList(
+    public static String getAlertFromTraceList(
             final List<MessageContainer> traceList) {
         String alertDesc = null;
         for (int i = 0; i < traceList.size(); i++) {
@@ -39,7 +39,8 @@ public class AnalyzeTraceList {
      * @param trace Trace
      * @return Alert description
      */
-    public final String getAlertDescFromTrace(final MessageContainer trace) {
+    public static String getAlertDescFromTrace(
+            final MessageContainer trace) {
         Alert alert = (Alert) trace.getCurrentRecord();
         return alert.getAlertDescription().name();
     }
@@ -50,8 +51,14 @@ public class AnalyzeTraceList {
      * @param traceList Trace list of a handshake
      * @return Last trace
      */
-    public final MessageContainer getLastTrace(
+    public static MessageContainer getLastTrace(
             final List<MessageContainer> traceList) {
         return traceList.get(traceList.size() - 1);
+    }
+
+    /**
+     * Private constructor.
+     */
+    private TraceListAnalyzerUtility() {
     }
 }
