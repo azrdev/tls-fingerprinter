@@ -60,8 +60,9 @@ public final class Reporter {
                 + "################");
         // sum up the results
         ScoreCounter scoreCounter = compress(results);
-        int totalScore = scoreCounter.getTotalCounter();
-
+//        int totalScore = scoreCounter.getTotalCounter();
+        int totalScore = results.length;
+        
         // output results
         int tmpScore;
         DecimalFormat twoDForm = new DecimalFormat("###.##");
