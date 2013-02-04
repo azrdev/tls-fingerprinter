@@ -38,7 +38,11 @@ public final class ClientHelloParameters extends AParameters {
      * Compression method.
      */
     private byte[] compMethod = null;
-
+    /**
+     * 
+     */
+    private byte[] extensions = null;
+    
     public byte[] getProtocolVersion() {
         byte[] result = null;
         if (this.protocolVersion != null) {
@@ -208,6 +212,36 @@ public final class ClientHelloParameters extends AParameters {
         else
         	this.compMethod = null;
     }
+    
+    /**
+     * Get the extensions.
+     *
+     * @return Encoded extensions
+     */
+    public byte[] getExtensions() {
+        byte[] result = null;
+        if (this.extensions != null) {
+            result = new byte[this.extensions.length];
+            System.arraycopy(this.extensions, 0, result, 0, result.length);
+        }
+
+        return result;
+    }
+
+    /**
+     * Set the extensions.
+     *
+     * @param extensions Encoded extensions
+     */
+    public void setExtensions(final byte[] extensions) {
+        if (extensions != null) {
+            this.extensions = new byte[extensions.length];
+            System.arraycopy(extensions, 0, this.extensions, 0,
+                    this.extensions.length);
+        }
+        else
+        	this.extensions = null;
+    }
 
     /**
      * {@inheritDoc}
@@ -228,6 +262,7 @@ public final class ClientHelloParameters extends AParameters {
         updateHash(sha1, getSessionIdLen());
         updateHash(sha1, getCipherLen());
         updateHash(sha1, getCompMethod());
+        updateHash(sha1, getExtensions());
         byte[] hash = sha1.digest();
         String hashValue = Utility.bytesToHex(hash);
         hashValue = hashValue.replace(" ", "");

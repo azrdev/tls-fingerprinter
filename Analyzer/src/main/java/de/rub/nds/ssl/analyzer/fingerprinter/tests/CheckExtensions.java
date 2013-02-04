@@ -2,13 +2,14 @@ package de.rub.nds.ssl.analyzer.fingerprinter.tests;
 
 import de.rub.nds.ssl.analyzer.TestResult;
 import de.rub.nds.ssl.analyzer.executor.EFingerprintTests;
+import de.rub.nds.ssl.analyzer.parameters.ClientHelloParameters;
 import de.rub.nds.ssl.stack.protocols.commons.ECipherSuite;
 import de.rub.nds.ssl.stack.protocols.handshake.ClientHello;
 import de.rub.nds.ssl.stack.protocols.handshake.datatypes.CipherSuites;
+import de.rub.nds.ssl.stack.protocols.handshake.datatypes.Extensions;
 import de.rub.nds.ssl.stack.protocols.handshake.datatypes.RandomValue;
 import de.rub.nds.ssl.stack.trace.MessageContainer;
 import de.rub.nds.ssl.stack.workflows.TLS10HandshakeWorkflow;
-import de.rub.nds.ssl.stack.workflows.TLS10HandshakeWorkflow.EStates;
 import de.rub.nds.ssl.stack.workflows.commons.MessageBuilder;
 import de.rub.nds.ssl.stack.workflows.commons.ObservableBridge;
 import java.net.SocketException;
@@ -16,18 +17,19 @@ import java.util.Observable;
 import java.util.Observer;
 
 /**
- * Fingerprint the Client Hello handshake header. 
- * Perform Tests by manipulating the message type, protocol version and length 
- * bytes in the header.
+ * This check determines the supported extensions of the counterpart.
  *
- * @author Eugen Weiss - eugen.weiss@ruhr-uni-bochum.de
- * @version 0.1 May 31, 2012
+ * @author Christopher Meyer - christopher.meyer@rub.de
+ * @version 0.1
+ *
+ * Feb 4, 2013
  */
-public final class CHHandshakeHeader extends AGenericFingerprintTest 
-    implements Observer {
-
-    private TestResult manipulateCHHandshakeHeader(final String desc,
-            final byte[] msgType, final byte[] recordLength) throws
+public class CheckExtensions extends AGenericFingerprintTest implements Observer {
+    
+    private ClientHelloParameters chParameters = new ClientHelloParameters();
+    
+    private TestResult manipulateCHExtensionsList(final String desc,
+            final byte[] extensions) throws
             SocketException {
         logger.info("++++Start Test No." + counter + "(" + desc + ")++++");
         workflow = new TLS10HandshakeWorkflow();
@@ -36,25 +38,25 @@ public final class CHHandshakeHeader extends AGenericFingerprintTest
         logger.info("Test Server: " + getTargetHost() + ":" + getTargetPort());
 
         //add the observer
-        workflow.addObserver(this, EStates.CLIENT_HELLO);
-        logger.info(EStates.CLIENT_HELLO.name() + " state is observed");
+        workflow.addObserver(this, TLS10HandshakeWorkflow.EStates.CLIENT_HELLO);
+        logger.info(TLS10HandshakeWorkflow.EStates.CLIENT_HELLO.name() 
+                + " state is observed");
 
-        //set the test headerParameters
-        headerParameters.setMsgType(msgType);
-        headerParameters.setRecordLength(recordLength);
-        headerParameters.setIdentifier(EFingerprintTests.CH_HH);
-        headerParameters.setDescription(desc);
-
+        //set the test clientParameters
+        chParameters.setIdentifier(EFingerprintTests.CH_HH);
+        chParameters.setDescription(desc);
+        chParameters.setExtensions(extensions);
+        
         try {
             workflow.start();
-
+            
             this.counter++;
             logger.info("++++Test finished.++++");
         } finally {
             // close the Socket after the test run
             workflow.closeSocket();
         }
-
+        
         return new TestResult(headerParameters, workflow.getTraceList(),
                 getAnalyzer());
     }
@@ -69,14 +71,14 @@ public final class CHHandshakeHeader extends AGenericFingerprintTest
     public void update(final Observable o, final Object arg) {
         MessageBuilder msgBuilder = new MessageBuilder();
         MessageContainer trace = null;
-        EStates states = null;
+        TLS10HandshakeWorkflow.EStates states = null;
         ObservableBridge obs;
         if (o instanceof ObservableBridge) {
             obs = (ObservableBridge) o;
-            states = (EStates) obs.getState();
+            states = (TLS10HandshakeWorkflow.EStates) obs.getState();
             trace = (MessageContainer) arg;
         }
-        if (states == EStates.CLIENT_HELLO) {
+        if (states == TLS10HandshakeWorkflow.EStates.CLIENT_HELLO) {
             ECipherSuite[] suites = new ECipherSuite[]{
                 ECipherSuite.TLS_RSA_WITH_AES_128_CBC_SHA};
             CipherSuites cipherSuites = new CipherSuites();
@@ -87,16 +89,10 @@ public final class CHHandshakeHeader extends AGenericFingerprintTest
                     createClientHello(this.protocolVersion.
                     getId(),
                     random.encode(false), cipherSuites.encode(false), compMethod);
+            Extensions extensions = new Extensions(chParameters.getExtensions());
+            clientHello.setExtensions(extensions);
             byte[] payload = clientHello.encode(true);
-            if (headerParameters.getMsgType() != null) {
-                byte[] msgType = headerParameters.getMsgType();
-                System.arraycopy(msgType, 0, payload, 5, msgType.length);
-            }
-            if (headerParameters.getRecordLength() != null) {
-                byte[] recordLength = headerParameters.getRecordLength();
-                System.arraycopy(recordLength, 0, payload, 6,
-                        recordLength.length);
-            }
+            
             trace.setCurrentRecordBytes(payload);
             trace.setCurrentRecord(clientHello);
         }
@@ -108,22 +104,19 @@ public final class CHHandshakeHeader extends AGenericFingerprintTest
     @Override
     public synchronized TestResult[] call() throws Exception {
         Object[][] parameters = new Object[][]{
-            {"Wrong message type", new byte[]{(byte) 0xff}, null},
-            {"Invalid length 0x00,0x00,0x00", null,
-                new byte[]{(byte) 0x00, (byte) 0x00, (byte) 0x00}},
-            {"Invalid length 0xff,0xff,0xff", null,
-                new byte[]{(byte) 0xff, (byte) 0xff, (byte) 0xff}}};
+            {"Add all extensions", new Extensions().encode(false)}
+        };
 
         // Print Test Banner
         printBanner();
         // execute test(s)
         TestResult[] result = new TestResult[parameters.length];
         for (int i = 0; i < parameters.length; i++) {
-            result[i] = manipulateCHHandshakeHeader((String) parameters[i][0],
-                    (byte[]) parameters[i][1], (byte[]) parameters[i][2]);
+            result[i] = manipulateCHExtensionsList((String) parameters[i][0],
+                    (byte[]) parameters[i][1]);
             result[i].setTestName(this.getClass().getCanonicalName());
         }
-
+        
         return result;
     }
 }

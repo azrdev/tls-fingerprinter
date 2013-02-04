@@ -12,6 +12,7 @@ import de.rub.nds.ssl.analyzer.fingerprinter.tests.CKE;
 import de.rub.nds.ssl.analyzer.fingerprinter.tests.CKEHandshakeHeader;
 import de.rub.nds.ssl.analyzer.fingerprinter.tests.CKERecordHeader;
 import de.rub.nds.ssl.analyzer.fingerprinter.tests.CheckEnumeration;
+import de.rub.nds.ssl.analyzer.fingerprinter.tests.CheckExtensions;
 import de.rub.nds.ssl.analyzer.fingerprinter.tests.FIN;
 import de.rub.nds.ssl.analyzer.fingerprinter.tests.FINHandshakeHeader;
 import de.rub.nds.ssl.analyzer.fingerprinter.tests.FINRecordHeader;
@@ -52,7 +53,9 @@ public enum EFingerprintTests {
     GOOD("Good Case - Clean Run Test",
     GoodCase.class, TestHashAnalyzer.class),
     HANDSHAKE_ENUM("Handshake Enumeration Test",
-    CheckEnumeration.class, TestHashAnalyzer.class);
+    CheckEnumeration.class, TestHashAnalyzer.class),
+    EXTENSIONS("Supported extensions test",
+    CheckExtensions.class, TestHashAnalyzer.class);
     /**
      * Fingerprint Test description.
      */
