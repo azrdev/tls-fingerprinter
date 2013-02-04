@@ -53,9 +53,9 @@ public enum EFingerprintTests {
     GOOD("Good Case - Clean Run Test",
     GoodCase.class, TestHashAnalyzer.class),
     HANDSHAKE_ENUM("Handshake Enumeration Test",
-    CheckEnumeration.class, TestHashAnalyzer.class),
-    EXTENSIONS("Supported extensions test",
-    CheckExtensions.class, TestHashAnalyzer.class);
+    CheckEnumeration.class, TestHashAnalyzer.class);
+//    EXTENSIONS("Supported extensions test",
+//    CheckExtensions.class, TestHashAnalyzer.class)
     /**
      * Fingerprint Test description.
      */
