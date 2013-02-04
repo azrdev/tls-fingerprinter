@@ -4,6 +4,7 @@ import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import javax.crypto.Mac;
 import javax.crypto.SecretKey;
+import org.apache.log4j.Logger;
 
 /**
  * MAC computation of the record payloads.
@@ -14,6 +15,10 @@ import javax.crypto.SecretKey;
  */
 public class MACComputation {
 
+    /**
+     * Log4j logger initialization.
+     */
+    private static Logger logger = Logger.getRootLogger();
     /**
      * Message authentication code.
      */
@@ -38,9 +43,10 @@ public class MACComputation {
             mac = Mac.getInstance("Hmac" + macName);
             mac.init(key);
         } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
+            logger.error("HMAC not available.", e);
+        
         } catch (InvalidKeyException e) {
-            e.printStackTrace();
+            logger.error("Invalid key.", e);
         }
     }
 

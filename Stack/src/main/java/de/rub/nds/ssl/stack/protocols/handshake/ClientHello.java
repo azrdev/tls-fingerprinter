@@ -1,9 +1,11 @@
 package de.rub.nds.ssl.stack.protocols.handshake;
 
+import de.rub.nds.ssl.stack.Utility;
 import de.rub.nds.ssl.stack.protocols.commons.ECipherSuite;
 import de.rub.nds.ssl.stack.protocols.commons.EProtocolVersion;
 import de.rub.nds.ssl.stack.protocols.handshake.datatypes.CipherSuites;
 import de.rub.nds.ssl.stack.protocols.handshake.datatypes.CompressionMethod;
+import de.rub.nds.ssl.stack.protocols.handshake.datatypes.Extensions;
 import de.rub.nds.ssl.stack.protocols.handshake.datatypes.RandomValue;
 import de.rub.nds.ssl.stack.protocols.handshake.datatypes.SessionId;
 
@@ -31,16 +33,16 @@ public final class ClientHello extends AHandshakeRecord {
     private CipherSuites cipherSuites = new CipherSuites();
     private SessionId sessionID = new SessionId();
     private CompressionMethod compressionMethod = new CompressionMethod();
-    private ExtensionList extensionList = null;
-    
+    private Extensions extensions = null;
+
     public String toString() {
-    	return "SSL Client Hello:\n" + 
-    			" EProtocolVersion = " + msgProtocolVersion + "\n" +
-    			" RandomValue = " + random + "\n" +
-    			" CipherSuites = " + cipherSuites + "\n" +
-    			" SessionId = " + sessionID + "\n" +
-    			" CompressionMethod = " + compressionMethod + "\n" +
-    			" ExtensionList = " + extensionList;
+        return "SSL Client Hello:\n"
+                + " EProtocolVersion = " + msgProtocolVersion + "\n"
+                + " RandomValue = " + random + "\n"
+                + " CipherSuites = " + cipherSuites + "\n"
+                + " SessionId = " + sessionID + "\n"
+                + " CompressionMethod = " + compressionMethod + "\n"
+                + " ExtensionList = " + extensions;
     }
 
     /**
@@ -148,9 +150,14 @@ public final class ClientHello extends AHandshakeRecord {
         // deep copy
         return new SessionId(sessionID.encode(false));
     }
-    
-    public ExtensionList getExtensionList() {
-    	return extensionList;
+
+    /**
+     * Get the extensions of this message.
+     *
+     * @return The extensions of this message
+     */
+    public Extensions getExtensions() {
+        return new Extensions(extensions.encode(false));
     }
 
     /**
@@ -179,6 +186,20 @@ public final class ClientHello extends AHandshakeRecord {
 
         // deep copy
         this.sessionID = new SessionId(sessionID.encode(false));
+    }
+
+    /**
+     * Set the extensions of this message.
+     *
+     * @param extensions The extensions to be used for this message
+     */
+    public void setExtensions(final Extensions extensions) {
+        if (extensions == null) {
+            throw new IllegalArgumentException("Extensions must not be null!");
+        }
+
+        // deep copy
+        this.extensions = new Extensions(extensions.encode(false));
     }
 
     /**
@@ -251,13 +272,18 @@ public final class ClientHello extends AHandshakeRecord {
         byte[] encSessionID = sessionID.encode(false);
         byte[] encCipherSuites = cipherSuites.encode(false);
         byte[] encCompressionMethod = compressionMethod.encode(false);
-
+        byte[] encExtensions = new byte[0];
+        if(extensions != null) {
+            encExtensions = extensions.encode(false);
+        }
+        
         // putting the pieces together
         byte[] clientHelloMsg = new byte[EProtocolVersion.LENGTH_ENCODED
                 + RandomValue.LENGTH_ENCODED
                 + encSessionID.length
                 + encCipherSuites.length
-                + encCompressionMethod.length];
+                + encCompressionMethod.length
+                + encExtensions.length];
 
         /*
          * Prepre ClientHello message
@@ -287,7 +313,13 @@ public final class ClientHello extends AHandshakeRecord {
         // 5. add compression method
         System.arraycopy(encCompressionMethod, 0, clientHelloMsg, pointer,
                 encCompressionMethod.length);
-
+        pointer += encCompressionMethod.length;
+        
+        // 6. add extensions (if any)
+        System.arraycopy(encExtensions, 0, clientHelloMsg, pointer,
+                encExtensions.length);
+        pointer += encExtensions.length;
+        
         super.setPayload(clientHelloMsg);
         return chained ? super.encode(true) : clientHelloMsg;
     }
@@ -295,6 +327,7 @@ public final class ClientHello extends AHandshakeRecord {
     /**
      * {@inheritDoc}
      */
+    @Override
     public void decode(final byte[] message, final boolean chained) {
         byte[] tmpBytes;
         byte[] payloadCopy;
@@ -364,23 +397,17 @@ public final class ClientHello extends AHandshakeRecord {
         System.arraycopy(payloadCopy, pointer, tmpBytes, 0, tmpBytes.length);
         setCompressionMethod(tmpBytes);
         pointer += tmpBytes.length;
-        
-        // Now check for extions
-        try {
-        	if (payloadCopy.length > pointer) {
-        		// OK, extensions present
-        		byte[] extension_part = new byte[payloadCopy.length - pointer];
-        		System.arraycopy(payloadCopy, pointer, extension_part, 0, extension_part.length);
-        		// System.err.println("Found an extension list of size " + extension_part.length);
-        		ExtensionList el = new ExtensionList();
-        		el.decode(extension_part, false);
-        		this.extensionList = el;
-        	} else {
-        		extensionList = null;
-        	}
-        } catch (Exception e) {
-        	// That is OK, parsing doesn't need to succeed here.
-        	e.printStackTrace();
+
+        // 6. check for extions
+        if (payloadCopy.length > pointer) {
+            // OK, extensions present
+            byte[] extension_part = new byte[payloadCopy.length - pointer];
+            System.arraycopy(payloadCopy, pointer, extension_part, 0,
+                    extension_part.length);
+            Extensions extensions = new Extensions(message);
+            setExtensions(extensions);
+        } else {
+            extensions = null;
         }
     }
 

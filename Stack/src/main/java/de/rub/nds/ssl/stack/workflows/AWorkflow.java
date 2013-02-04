@@ -1,9 +1,9 @@
 package de.rub.nds.ssl.stack.workflows;
 
-import de.rub.nds.ssl.stack.workflows.commons.WorkflowState;
-import de.rub.nds.ssl.stack.workflows.commons.ObservableBridge;
 import de.rub.nds.ssl.stack.protocols.ARecordFrame;
 import de.rub.nds.ssl.stack.trace.MessageContainer;
+import de.rub.nds.ssl.stack.workflows.commons.ObservableBridge;
+import de.rub.nds.ssl.stack.workflows.commons.WorkflowState;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -36,12 +36,14 @@ public abstract class AWorkflow implements Observer {
     /**
      * MessageContainer trace of this workflow.
      */
-    private ArrayList<MessageContainer> traceList = new ArrayList<MessageContainer>();
+    private ArrayList<MessageContainer> traceList =
+            new ArrayList<MessageContainer>(6);
     /**
      * Synchronized trace message trace.
      */
-    List<MessageContainer> syncTraceList = Collections.synchronizedList(traceList);
-    
+    private List<MessageContainer> syncTraceList = Collections.synchronizedList(
+            traceList);
+
     /**
      * Public constructor for a workflow. Assigns an observable bridge to each
      * state for observation reasons.
@@ -68,7 +70,8 @@ public abstract class AWorkflow implements Observer {
      * @param observer Observer to be registered
      * @param state State for which to register
      */
-    public void addObserver(final Observer observer, final WorkflowState state) {
+    public final void addObserver(final Observer observer,
+            final WorkflowState state) {
         states[state.getID()].addObserver(observer);
     }
 
@@ -78,7 +81,7 @@ public abstract class AWorkflow implements Observer {
      * @param observer Observer to be unregistered
      * @param state State for which to unregister
      */
-    public void deleteObserver(final Observer observer,
+    public final void deleteObserver(final Observer observer,
             final WorkflowState state) {
         states[state.getID()].deleteObserver(observer);
     }
@@ -88,7 +91,7 @@ public abstract class AWorkflow implements Observer {
      *
      * @param state State for which to unregister
      */
-    public void deleteObservers(final WorkflowState state) {
+    public final void deleteObservers(final WorkflowState state) {
         states[state.getID()].deleteObservers();
     }
 
@@ -98,7 +101,7 @@ public abstract class AWorkflow implements Observer {
      * @param state State for which to count
      * @return Number of observers for this specific state
      */
-    public int countObservers(final WorkflowState state) {
+    public final int countObservers(final WorkflowState state) {
         return states[state.getID()].countObservers();
     }
 
@@ -108,7 +111,7 @@ public abstract class AWorkflow implements Observer {
      * @param state State to test for changes
      * @return True if the changed flag if set for this state.
      */
-    public boolean hasChanged(final WorkflowState state) {
+    public final boolean hasChanged(final WorkflowState state) {
         return states[state.getID()].hasChanged();
     }
 
@@ -118,7 +121,7 @@ public abstract class AWorkflow implements Observer {
      * @param trace MessageContainer trace
      * @param state State for which this notification is valid
      */
-    public void notifyObservers(final MessageContainer trace,
+    public final void notifyObservers(final MessageContainer trace,
             final WorkflowState state) {
         states[state.getID()].notifyObservers(trace);
     }
@@ -129,7 +132,7 @@ public abstract class AWorkflow implements Observer {
      *
      * @param trace MessageContainer trace
      */
-    public void notifyCurrentObservers(final MessageContainer trace) {
+    public final void notifyCurrentObservers(final MessageContainer trace) {
         states[currentState].notifyObservers(trace);
     }
 
@@ -139,7 +142,7 @@ public abstract class AWorkflow implements Observer {
      *
      * @param trace Holds the tracing data
      */
-    public void nextStateAndNotify(final MessageContainer trace) {
+    public final void nextStateAndNotify(final MessageContainer trace) {
         nextState();
         notifyCurrentObservers(trace);
     }
@@ -151,7 +154,7 @@ public abstract class AWorkflow implements Observer {
      *
      * @return New current state
      */
-    public WorkflowState nextState() {
+    public final WorkflowState nextState() {
         this.currentState++;
 
         // sanity check
@@ -172,7 +175,7 @@ public abstract class AWorkflow implements Observer {
      *
      * @param trace Holds the tracing data
      */
-    public void previousStateAndNotify(final MessageContainer trace) {
+    public final void previousStateAndNotify(final MessageContainer trace) {
         previousState();
         notifyCurrentObservers(trace);
     }
@@ -184,7 +187,7 @@ public abstract class AWorkflow implements Observer {
      *
      * @return New current state
      */
-    public WorkflowState previousState() {
+    public final WorkflowState previousState() {
         this.currentState--;
 
         // sanity check
@@ -204,7 +207,7 @@ public abstract class AWorkflow implements Observer {
      * @param trace Holds the tracing data
      * @param state The new state
      */
-    public void switchToState(final MessageContainer trace,
+    public final void switchToState(final MessageContainer trace,
             final WorkflowState state) {
         setCurrentState(state.getID());
         notifyCurrentObservers(trace);
@@ -215,7 +218,7 @@ public abstract class AWorkflow implements Observer {
      *
      * @return Current handshake state
      */
-    public int getCurrentState() {
+    public final int getCurrentState() {
         return this.currentState;
     }
 
@@ -224,7 +227,7 @@ public abstract class AWorkflow implements Observer {
      *
      * @param state Current handshake state
      */
-    public void setCurrentState(int state) {
+    public final void setCurrentState(int state) {
         this.currentState = state;
         ObservableBridge newState = this.states[this.currentState];
         newState.setChangedFlag();
@@ -233,7 +236,7 @@ public abstract class AWorkflow implements Observer {
     /**
      * Resets the internal state machine to its initial state.
      */
-    protected void resetState() {
+    protected final void resetState() {
         this.currentState = 0;
     }
 
@@ -242,7 +245,7 @@ public abstract class AWorkflow implements Observer {
      *
      * @return Workflow thread.
      */
-    public void wakeUp() {
+    public final void wakeUp() {
         this.mainThread.interrupt();
     }
 
@@ -251,7 +254,7 @@ public abstract class AWorkflow implements Observer {
      *
      * @param thread Main Thread
      */
-    public void setMainThread(Thread thread) {
+    public final void setMainThread(Thread thread) {
         this.mainThread = thread;
     }
 
@@ -260,7 +263,7 @@ public abstract class AWorkflow implements Observer {
      *
      * @return Main thread
      */
-    public Thread getMainThread() {
+    public final Thread getMainThread() {
         return this.mainThread;
     }
 
@@ -269,7 +272,7 @@ public abstract class AWorkflow implements Observer {
      *
      * @param thread Response Thread
      */
-    public void setResponseThread(Thread thread) {
+    public final void setResponseThread(Thread thread) {
         this.respFetchThread = thread;
     }
 
@@ -278,18 +281,17 @@ public abstract class AWorkflow implements Observer {
      *
      * @return Response thread
      */
-    public Thread getResponseThread() {
+    public final Thread getResponseThread() {
         return this.respFetchThread;
     }
-    
+
     /**
-     * Sets the current record of a trace and saves the previous one if 
-     * present.
+     * Sets the current record of a trace and saves the previous one if present.
      *
      * @param trace MessageContainer to be modified
      * @param record New record to be set
      */
-    public void setRecordTrace(final MessageContainer trace,
+    public final void setRecordTrace(final MessageContainer trace,
             final ARecordFrame record) {
         // save the old state
         ARecordFrame oldRecord = trace.getOldRecord();
@@ -304,7 +306,8 @@ public abstract class AWorkflow implements Observer {
      *
      * @param trace MessageContainer object to be added
      */
-    public synchronized void addToTraceList(final MessageContainer trace) {
+    public final synchronized void addToTraceList(
+            final MessageContainer trace) {
         syncTraceList.add(trace);
     }
 
@@ -313,7 +316,7 @@ public abstract class AWorkflow implements Observer {
      *
      * @return MessageContainer syncTraceList
      */
-    public ArrayList<MessageContainer> getTraceList() {
+    public final ArrayList<MessageContainer> getTraceList() {
         return (ArrayList<MessageContainer>) traceList.clone();
     }
 }

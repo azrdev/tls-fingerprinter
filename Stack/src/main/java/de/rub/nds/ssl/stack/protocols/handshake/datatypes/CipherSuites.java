@@ -1,9 +1,8 @@
 package de.rub.nds.ssl.stack.protocols.handshake.datatypes;
 
-import java.util.Arrays;
-
 import de.rub.nds.ssl.stack.protocols.commons.APubliclySerializable;
 import de.rub.nds.ssl.stack.protocols.commons.ECipherSuite;
+import java.util.Arrays;
 
 /**
  * Cipher suites part - as defined in RFC-2246.
@@ -27,9 +26,13 @@ public final class CipherSuites extends APubliclySerializable {
      * List of all cipher suites of this object.
      */
     private ECipherSuite[] suites;
-    
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public String toString() {
-    	return Arrays.toString(suites);
+        return Arrays.toString(suites);
     }
 
     /**

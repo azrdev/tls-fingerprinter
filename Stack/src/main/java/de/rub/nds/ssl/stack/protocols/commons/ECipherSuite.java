@@ -371,7 +371,7 @@ public enum ECipherSuite {
      *
      * @param idBytes Id of this cipher suite
      */
-    ECipherSuite(final byte[] idBytes) {
+    private ECipherSuite(final byte[] idBytes) {
         id = idBytes;
     }
 

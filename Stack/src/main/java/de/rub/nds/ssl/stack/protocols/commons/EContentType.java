@@ -53,7 +53,7 @@ public enum EContentType {
      *
      * @param idBytes Id of this version
      */
-    EContentType(final byte idBytes) {
+    private EContentType(final byte idBytes) {
         id = idBytes;
     }
 

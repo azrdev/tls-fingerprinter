@@ -62,7 +62,7 @@ public enum EProtocolVersion {
      *
      * @param idBytes Id of this version
      */
-    EProtocolVersion(final byte[] idBytes) {
+    private EProtocolVersion(final byte[] idBytes) {
         id = idBytes;
     }
 
