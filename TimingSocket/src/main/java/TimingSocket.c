@@ -13,13 +13,15 @@
 
 #define _debug
 
-static char first_byte = 0x0;
 static int sock = -1;
 static int start_measurement = 0;
 static int ready_measurement = 0;
 static unsigned long long start = 0;
 static unsigned long long end = 0;
 static unsigned long long ticks_measured = 0;
+
+static char buffer[1024*1024];
+static char* ptr = buffer;
 
 pthread_mutex_t lock;
 
@@ -141,64 +143,68 @@ JNIEXPORT jint JNICALL Java_de_rub_nds_research_timingsocket_TimingSocketImpl_c_
 
         jint len_read = -1;
 	struct timeval tv;
-	int i;
 
         jbyte *c_array = (*env)->GetByteArrayElements(env, ar, 0);
 
 	tv.tv_sec  = 0;
-	tv.tv_usec = 100000; // Timeout is 100 milliseconds
+	tv.tv_usec = 200000; // Timeout is 200 milliseconds
         setsockopt(sock, SOL_SOCKET, SO_RCVTIMEO,(struct timeval *)&tv,sizeof(struct timeval));
 
 #ifdef _debug
-        printf("Called c_read(ar, offset=%d, length=%d)\n", offset, length);
+        printf("Called c_read(ar, offset=%d, length=%d)", offset, length);
         fflush(stdout);
 #endif
 
-        /**
-         * We set a short timeout for the socket and then execute read() in a
-         * loop. Because of this, we unlock the mutex periodically and give
-         * the write method the opportunity to send data and perform the 
-         * measurement.
-         * If the timing measurement is ready, just return EOF, which finishes
-         * the measurement (kinda rude, I know).
+        /*
+         * This read() method is not a typical read method because it first
+         * sends a request and then waits for the response.
+         *
+         * First, lock the buffer with the request.
          */
-	for(i = 0; i < 20 && len_read == -1 ; i++) { // Overall time out is 100 milliseconds * 50 = 5 seconds
-        	pthread_mutex_lock(&lock);
+       	pthread_mutex_lock(&lock);
 #ifdef _debug
-        	printf("read() locked. ");
-	        fflush(stdout);
-#endif
-
-        if(ready_measurement != 0) {
-                /*
-                 * Timing measurement is finished. Just return EOF, because
-                 * we are done.
-                 */
-                return -1;
-        }
-        
-        	if(start_measurement == 2) {
-			c_array[0] = first_byte;
-			len_read = 0;
-			if(length > 1) {
-                		len_read += read(sock, c_array + offset + 1, length - 1);
-			}
-        	} else {
-                	len_read = read(sock, c_array + offset, length);
-        	}
-
-        	pthread_mutex_unlock(&lock);
-#ifdef _debug
-                // printf("ERRNO %i --> (%s))\n", errno, strerror(errno));
-        	printf("Now unlocked. Errno %d --> %s\n", errno, strerror(errno));
-	        fflush(stdout);
-#endif
-	}
-
-#ifdef _debug
-        printf("finished c_read --> %d)\n", len_read);
+       	printf(" --> read() locked. ");
         fflush(stdout);
 #endif
+
+        /*
+         * If the pointer ptr does not point to the beginning of buffer, there
+         * is a request to be send.
+         */
+        if(ptr != buffer) {
+                write(sock, buffer, ptr - buffer);
+                start = get_ticks();
+                /*
+                 * "Deleting" buffer by setting the pointer ptr to the beginning
+                 * of the  buffer.
+                 */
+                ptr = buffer;
+        }
+
+        len_read = read(sock, c_array + offset, 1);
+        end = get_ticks();
+
+       	pthread_mutex_unlock(&lock);
+
+#ifdef _debug
+       	printf(" --> unlocked.\n");
+        fflush(stdout);
+#endif
+
+        calc_ticks();
+
+        /*
+         * If an error occurs (-1), or if EOF occurs (0), return.
+         */
+        if(len_read <= 0) {
+#ifdef _debug
+                printf("ERRNO %i --> (%s))\n", errno, strerror(errno));
+	        fflush(stdout);
+#endif
+                return len_read;
+        } else {
+       		len_read += read(sock, c_array + offset + 1, length - 1);
+        }
 
         if(len_read < 0) {
                 printf("ERROR len_read --> %d, (%s))\n", len_read, strerror(errno));
@@ -212,7 +218,6 @@ JNIEXPORT jint JNICALL Java_de_rub_nds_research_timingsocket_TimingSocketImpl_c_
         setsockopt(sock, SOL_SOCKET, SO_RCVTIMEO,(struct timeval *)&tv,sizeof(struct timeval));
 
         return len_read;
-
 }
 
 
@@ -222,6 +227,24 @@ JNIEXPORT jint JNICALL Java_de_rub_nds_research_timingsocket_TimingSocketImpl_c_
         jsize len = (*env)->GetArrayLength(env, ar);
         ssize_t len_sent = -1;
 
+        /*
+         * Prevent buffer overrun.
+         */
+        if(len > (sizeof(buffer) - (ptr - buffer))) {
+                printf("ERROR writing data with length len=%d)\n", len);
+                fflush(stdout);
+                return -1;
+        }
+
+        /*
+         * The write() method does nothing but writing the request into a
+         * buffer. The read() method will then write the request to the actual
+         * network socket and wait for the response.
+         *
+         * We still need to put a mutex on the buffer in order to prevent
+         * dirty reads and writes.
+         */
+
       	pthread_mutex_lock(&lock);
 
 #ifdef _debug
@@ -229,20 +252,8 @@ JNIEXPORT jint JNICALL Java_de_rub_nds_research_timingsocket_TimingSocketImpl_c_
         fflush(stdout);
 #endif
 
-	if(start_measurement == 1) {
-        	len_sent = write(sock, c_array, len);
-        	start = get_ticks();
-		start_measurement = 2;
-#ifdef _debug
-	        puts("Starting measurement");
-       		fflush(stdout);
-#endif
-		read(sock, &first_byte, 1);
-        	end = get_ticks();
-		calc_ticks();
-	} else {
-        	len_sent = write(sock, c_array, len);
-	}
+        memcpy(ptr, c_array, len);
+        ptr += len;
 
       	pthread_mutex_unlock(&lock);
 
@@ -283,7 +294,7 @@ JNIEXPORT jint JNICALL Java_de_rub_nds_research_timingsocket_TimingSocketImpl_c_
         printf("ERROR do not call this!");
         fflush(stdout);
 #endif
-        return NULL;
+        return -1;
 }
 
 JNIEXPORT jint JNICALL Java_de_rub_nds_research_timingsocket_TimingSocketImpl_c_1available(JNIEnv *env, jobject obj)
