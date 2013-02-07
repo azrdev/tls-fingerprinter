@@ -18,7 +18,7 @@ import org.testng.annotations.Test;
 
 /**
  *
- * @author Juraj Somorovsky - juraj.somorovsky@rub.de
+ * @author Juraj Somorovsky - juraj.somorovsky@rub.de 
  */
 public class BleichenbacherAttackPlaintextTest {
 
