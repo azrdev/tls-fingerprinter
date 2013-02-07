@@ -82,21 +82,16 @@ public class Bleichenbacher {
         i++;
 
         while (!solutionFound) {
-            System.out.println("Step 2: Searching for PKCS conforming messages.");
             logger.info("Step 2: Searching for PKCS conforming messages.");
             stepTwo(i);
 
-            System.out.println("Step 3: Narrowing the set of soultions.");
             logger.info("Step 3: Narrowing the set of soultions.");
             stepThree(i);
-            
-            System.out.println("Step 4: Computing the solution.");
+
             logger.info("Step 4: Computing the solution.");
             solutionFound = stepFour(i);
             i++;
 
-            System.out.println("// Total # of queries so far: "
-                    + oracle.getNumberOfQueries());
             logger.info("// Total # of queries so far: "
                     + oracle.getNumberOfQueries());
         }
@@ -125,7 +120,6 @@ public class Bleichenbacher {
             new Interval(BigInteger.valueOf(2).multiply(bigB),
             (BigInteger.valueOf(3).multiply(bigB)).subtract(BigInteger.ONE))};
 
-System.out.println(" Found s0 : " + si);
         logger.info(" Found s0 : " + si);
     }
 
@@ -147,7 +141,6 @@ System.out.println(" Found s0 : " + si);
             }
         }
 
-System.out.println(" Found s" + i + ": " + si);
         logger.info(" Found s" + i + ": " + si);
     }
 
@@ -182,8 +175,6 @@ System.out.println(" Found s" + i + ": " + si);
         byte[] send;
         boolean pkcsConform;
 
-System.out.println("Step 2b: Searching with more than"
-                + " one interval left");
         logger.info("Step 2b: Searching with more than"
                 + " one interval left");
 
@@ -201,7 +192,6 @@ System.out.println("Step 2b: Searching with more than"
         boolean pkcsConform;
         BigInteger n = publicKey.getModulus();
 
-System.out.println("Step 2c: Searching with one interval left");
         logger.info("Step 2c: Searching with one interval left");
 
         // initial ri computation - ri = 2(b*(si-1)-2*B)/n
@@ -294,7 +284,7 @@ System.out.println("Step 2c: Searching with one interval left");
                 r = r.add(BigInteger.ONE);
             }
         }
-System.out.println(" # of intervals for M" + i + ": " + ms.size());
+
         logger.info(" # of intervals for M" + i + ": " + ms.size());
         m = ms.toArray(new Interval[ms.size()]);
     }
@@ -307,7 +297,6 @@ System.out.println(" # of intervals for M" + i + ": " + ms.size());
             solution = solution.multiply(m[0].upper).mod(publicKey.getModulus());
 
             //if(solution.compareTo(new BigInteger(1, decryptedMsg)) == 0) {
-System.out.println("====> Solution found!\n" + Utility.bytesToHex(solution.toByteArray()));
             logger.info("====> Solution found!\n" + Utility.bytesToHex(solution.toByteArray()));
             //    System.out.println("original decrypted message: \n" + Utility.bytesToHex(decryptedMsg));
             //}

@@ -24,6 +24,7 @@ import javax.crypto.Cipher;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
 import org.apache.log4j.Logger;
+import org.apache.log4j.PropertyConfigurator;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 
 /**
@@ -37,7 +38,6 @@ public class TimingOracle extends ATimingOracle {
      */
     private static Logger logger = Logger.getRootLogger();
     
-    private int counter = 0;
     /**
      * Plain PKCS message
      */
@@ -174,10 +174,6 @@ public class TimingOracle extends ATimingOracle {
     private boolean cheat(final byte[] msg) {
         boolean result = false;
         try {
-            counter++;
-            if (counter % 100 == 0) {
-                System.out.println("--> " + counter);
-            }
             byte[] plainMessage = cipher.doFinal(msg);;
 
             StdPlainOracle plainOracle = new StdPlainOracle(publicKey,
@@ -204,6 +200,8 @@ numberOfQueries++;
     }
 
     public static void main(String[] args) {
+        PropertyConfigurator.configure("logging.properties");
+        
         try {
             String keyName = "2048_rsa";
             String keyPassword = "password";
