@@ -45,12 +45,12 @@ public abstract class ATimingOracle extends ASSLServerOracle {
      * Tries to train an Oracle with two different requests (e.g. valid and
      * invalid PKCS1 ciphertext) and their response times
      *
-     * @param firstRequest
-     * @param secondRequest
+     * @param validCiphertext 
+     * @param invalidCiphertext
      * @throws OracleException if training gets impossible
      */
-    public abstract void trainOracle(final byte[] firstRequest,
-            final byte[] secondRequest) throws OracleException;
+    public abstract void trainOracle(final byte[] validCiphertext,
+            final byte[] invalidCiphertext) throws OracleException;
 
     /**
      * Update observed object.
