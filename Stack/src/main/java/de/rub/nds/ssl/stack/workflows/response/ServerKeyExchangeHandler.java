@@ -13,7 +13,7 @@ import de.rub.nds.ssl.stack.protocols.handshake.datatypes.ServerDHParams;
  * @author Eugen Weiss - eugen.weiss@ruhr-uni-bochum.de
  * @version 0.1 May 02, 2012
  */
-public class ServerKeyExchangeHandler implements IHandshakeStates {
+public final class ServerKeyExchangeHandler implements IHandshakeStates {
 
     /**
      * Server key exchange.
@@ -21,7 +21,7 @@ public class ServerKeyExchangeHandler implements IHandshakeStates {
     private ServerKeyExchange serverKeyExchange;
 
     /**
-     * Empty constructor
+     * Empty constructor.
      */
     public ServerKeyExchangeHandler() {
     }
@@ -32,7 +32,7 @@ public class ServerKeyExchangeHandler implements IHandshakeStates {
      * @param handRecord Handshake record
      */
     @Override
-    public void handleResponse(AHandshakeRecord handRecord) {
+    public void handleResponse(final AHandshakeRecord handRecord) {
         serverKeyExchange = (ServerKeyExchange) handRecord;
         KeyExchangeParams keyExParams = KeyExchangeParams.getInstance();
         if (keyExParams.getKeyExchangeAlgorithm()

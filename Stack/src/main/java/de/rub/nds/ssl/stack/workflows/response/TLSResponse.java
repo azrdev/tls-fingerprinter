@@ -22,7 +22,7 @@ import org.apache.log4j.Logger;
  * @author Eugen Weiss - eugen.weiss@ruhr-uni-bochum.de
  * @version 0.1 Apr 15, 2012
  */
-public class TLSResponse extends ARecordFrame implements Observer {
+public final class TLSResponse extends ARecordFrame implements Observer {
 // TODO: Ugly and confusing class! Needs to be corrected!
 
     /**
@@ -37,7 +37,10 @@ public class TLSResponse extends ARecordFrame implements Observer {
      * Response bytes.
      */
     private byte[] response;
-    static Logger logger = Logger.getRootLogger();
+    /**
+     * Log4j logger.
+     */
+    private static Logger logger = Logger.getRootLogger();
 
     /**
      * Initialize a TLS response.
@@ -46,7 +49,7 @@ public class TLSResponse extends ARecordFrame implements Observer {
      * @param workflow Workflow
      */
     public TLSResponse(final byte[] response,
-            TLS10HandshakeWorkflow workflow) {
+            final TLS10HandshakeWorkflow workflow) {
         super(response);
         this.workflow = workflow;
         this.response = new byte[response.length];
@@ -57,8 +60,6 @@ public class TLSResponse extends ARecordFrame implements Observer {
      * Extracts the TLS record messages for the response bytes.
      *
      * @param trace MessageContainer object to save the status
-     * @param param Security parameters as defined in Chapter 6.1 of RFC 2246
-     * @return ResponseHandler
      */
     public final void handleResponse(final MessageContainer trace) {
         MessageObservable msgObserve = MessageObservable.getInstance();
@@ -70,8 +71,10 @@ public class TLSResponse extends ARecordFrame implements Observer {
                 trace.setCurrentRecord(ccs);
                 trace.setPreviousState(EStates.getStateById(workflow.
                         getCurrentState()));
-                workflow.switchToState(trace, EStates.SERVER_CHANGE_CIPHER_SPEC);
-                trace.setState(EStates.getStateById(workflow.getCurrentState()));
+                workflow.switchToState(trace,
+                        EStates.SERVER_CHANGE_CIPHER_SPEC);
+                trace.setState(EStates.getStateById(
+                        workflow.getCurrentState()));
                 workflow.addToTraceList(trace);
                 break;
             case ALERT:
@@ -81,13 +84,15 @@ public class TLSResponse extends ARecordFrame implements Observer {
                 logger.debug("Alert message: " + alert.getAlertDescription().
                         name());
                 trace.setCurrentRecord(alert);
-                trace.setPreviousState(EStates.getStateById(workflow.getCurrentState()));
+                trace.setPreviousState(EStates.getStateById(workflow.
+                        getCurrentState()));
                 if (EAlertLevel.FATAL.equals(alert.getAlertLevel())) {
                     workflow.switchToState(trace, EStates.ALERT);
                 } else {
                     workflow.nextStateAndNotify(trace);
                 }
-                trace.setState(EStates.getStateById(workflow.getCurrentState()));
+                trace.setState(EStates.getStateById(
+                        workflow.getCurrentState()));
                 workflow.addToTraceList(trace);
                 break;
             case HANDSHAKE:
@@ -97,7 +102,8 @@ public class TLSResponse extends ARecordFrame implements Observer {
                      * handhsake enumeration it is safe to distinguish this way
                      */
                     logger.debug("Finished message received");
-                    TLSCiphertext ciphertext = new TLSCiphertext(response, true);
+                    TLSCiphertext ciphertext = new TLSCiphertext(response,
+                            true);
                     trace.setCurrentRecord(ciphertext);
                     trace.setPreviousState(EStates.getStateById(workflow.
                             getCurrentState()));
@@ -119,32 +125,37 @@ public class TLSResponse extends ARecordFrame implements Observer {
     }
 
     /**
-     * Set the trace for the handshake message
+     * Set the trace for the handshake message.
      *
      * @param trace MessageContainer
      */
-    private void setTrace(MessageContainer trace) {
+    private void setTrace(final MessageContainer trace) {
         this.trace = trace;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    public void update(Observable o, Object arg) {
-        MessageContainer trace = new MessageContainer();
-        trace.setTimestamp(this.trace.getTimestamp());
+    public void update(final Observable o, final Object arg) {
+        MessageContainer newTrace = new MessageContainer();
+        newTrace.setTimestamp(this.trace.getTimestamp());
         AHandshakeRecord handRecord = null;
         if (o instanceof MessageObservable) {
             handRecord = (AHandshakeRecord) arg;
-            new HandshakeResponse(handRecord, trace, workflow);
-            setTrace(trace);
+            HandshakeResponse.invokeMessageHandlers(handRecord, newTrace, 
+                    workflow);
+            setTrace(newTrace);
         }
         if (handRecord != null) {
-            int recordSize = handRecord.getPayload().length + AHandshakeRecord.LENGTH_MINIMUM_ENCODED
+            int recordSize = handRecord.getPayload().length 
+                    + AHandshakeRecord.LENGTH_MINIMUM_ENCODED
                     + ARecordFrame.LENGTH_MINIMUM_ENCODED;
             if (recordSize < this.response.length) {
-                trace.setContinued(true);
+                newTrace.setContinued(true);
             }
         }
-        trace.setState(EStates.getStateById(workflow.getCurrentState()));
-        workflow.addToTraceList(trace);
+        newTrace.setState(EStates.getStateById(workflow.getCurrentState()));
+        workflow.addToTraceList(newTrace);
     }
 }

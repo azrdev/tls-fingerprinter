@@ -27,7 +27,7 @@ public class ServerHelloHandler implements IHandshakeStates {
      */
     private static final int IV_LENGTH_AES = 16;
     /**
-     * Length of initialization vector
+     * Length of initialization vector.
      */
     private static final int IV_LENGTH = 8;
     /**
@@ -53,7 +53,7 @@ public class ServerHelloHandler implements IHandshakeStates {
     /**
      * Initialize the log4j logger.
      */
-    static Logger logger = Logger.getRootLogger();
+    private static Logger logger = Logger.getRootLogger();
 
     /**
      * Empty constructor
@@ -79,10 +79,9 @@ public class ServerHelloHandler implements IHandshakeStates {
      */
     public final void setServerRandom() {
         SecurityParameters param = SecurityParameters.getInstance();
-        byte[] serverRandom = null;
         byte[] serverTime = serverHello.getRandom().getUnixTimestamp();
         byte[] serverValue = serverHello.getRandom().getValue();
-        serverRandom = new byte[serverTime.length + serverValue.length];
+        byte[] serverRandom = new byte[serverTime.length + serverValue.length];
         int pointer = 0;
         //copy the client random to the array
         System.arraycopy(serverTime, 0, serverRandom,
@@ -103,7 +102,7 @@ public class ServerHelloHandler implements IHandshakeStates {
         SecurityParameters param = SecurityParameters.getInstance();
         String suiteString = cipher.toString();
         String[] suiteParams = suiteString.split("_");
-        List<String> suiteList = new ArrayList<String>();
+        List<String> suiteList = new ArrayList<String>(5);
         for (String i : suiteParams) {
             suiteList.add(i);
         }
@@ -128,7 +127,7 @@ public class ServerHelloHandler implements IHandshakeStates {
      *
      * @param suiteList List of cipher cuite parameters
      */
-    private final void setKeyExchangeAlgorithm(final List<String> suiteList) {
+    private void setKeyExchangeAlgorithm(final List<String> suiteList) {
         KeyExchangeParams keyParams = KeyExchangeParams.getInstance();
         if (suiteList.get(0).equals("RSA")) {
             keyParams.setKeyExchangeAlgorithm(
@@ -150,7 +149,7 @@ public class ServerHelloHandler implements IHandshakeStates {
      *
      * @param suiteList List of cipher cuite parameters
      */
-    private final void setExportable(final List<String> suiteList) {
+    private void setExportable(final List<String> suiteList) {
         SecurityParameters param = SecurityParameters.getInstance();
         if (suiteList.get(0).equals("EXPORT")) {
             param.setExportable(true);
@@ -162,11 +161,11 @@ public class ServerHelloHandler implements IHandshakeStates {
     }
 
     /**
-     * Set the bulk cipher
+     * Set the bulk cipher.
      *
      * @param suiteList List of cipher cuite parameters
      */
-    private final void setBulkCipher(final List<String> suiteList) {
+    private void setBulkCipher(final List<String> suiteList) {
         SecurityParameters param = SecurityParameters.getInstance();
         EBulkCipherAlgorithm algorithm = EBulkCipherAlgorithm.NULL;
         if (suiteList.get(0).equals("RC4")) {
@@ -239,11 +238,11 @@ public class ServerHelloHandler implements IHandshakeStates {
     }
 
     /**
-     * Set the MAC Algorithm
+     * Set the MAC Algorithm.
      *
      * @param suiteList List of cipher suite parameters
      */
-    private final void setMACAlgorithm(final List<String> suiteList) {
+    private void setMACAlgorithm(final List<String> suiteList) {
         SecurityParameters param = SecurityParameters.getInstance();
         if (suiteList.get(0).equals("SHA")) {
             param.setMacAlgorithm(EMACAlgorithm.valueOf("SHA1"));

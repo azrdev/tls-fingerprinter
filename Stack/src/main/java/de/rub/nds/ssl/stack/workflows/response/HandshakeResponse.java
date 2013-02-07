@@ -1,6 +1,10 @@
 package de.rub.nds.ssl.stack.workflows.response;
 
-import de.rub.nds.ssl.stack.protocols.handshake.*;
+import de.rub.nds.ssl.stack.protocols.handshake.AHandshakeRecord;
+import de.rub.nds.ssl.stack.protocols.handshake.Certificate;
+import de.rub.nds.ssl.stack.protocols.handshake.ServerHello;
+import de.rub.nds.ssl.stack.protocols.handshake.ServerHelloDone;
+import de.rub.nds.ssl.stack.protocols.handshake.ServerKeyExchange;
 import de.rub.nds.ssl.stack.trace.MessageContainer;
 import de.rub.nds.ssl.stack.workflows.TLS10HandshakeWorkflow;
 import de.rub.nds.ssl.stack.workflows.TLS10HandshakeWorkflow.EStates;
@@ -13,49 +17,50 @@ import org.apache.log4j.Logger;
  * @author Eugen Weiss - eugen.weiss@ruhr-uni-bochum.de
  * @version 0.1 Apr 15, 2012
  */
-public class HandshakeResponse {
+public final class HandshakeResponse {
 
     /**
-     * Server hello state.
+     * Log4J logger.
      */
-    IHandshakeStates serverHello;
-    /**
-     * Certificate state.
-     */
-    IHandshakeStates certificate;
-    /**
-     * ServerKeyExchange state.
-     */
-    IHandshakeStates serverKeyExchange;
-    static Logger logger = Logger.getLogger(HandshakeResponse.class.getName());
+    private static Logger logger = Logger.getRootLogger();
 
     /**
-     * Constructor to invoke message handlers
+     * Private constructor - Utility class only.
+     */
+    private HandshakeResponse() {
+    }
+
+    /**
+     * Invoke message handlers.
      *
      * @param handRecord Handshake record
      * @param trace Holds the trace object
      * @param workflow Handshake workflow
      */
-    public HandshakeResponse(AHandshakeRecord handRecord,
-            MessageContainer trace, TLS10HandshakeWorkflow workflow) {
+    public static void invokeMessageHandlers(
+            final AHandshakeRecord handRecord,
+            final MessageContainer trace,
+            final TLS10HandshakeWorkflow workflow) {
+        IHandshakeStates state;
+
         if (handRecord instanceof ServerHello) {
             logger.debug("Server Hello message received");
-            serverHello = new ServerHelloHandler();
-            serverHello.handleResponse(handRecord);
+            state = new ServerHelloHandler();
+            state.handleResponse(handRecord);
             workflow.switchToState(trace, EStates.SERVER_HELLO);
             trace.setCurrentRecord((ServerHello) handRecord);
         }
         if (handRecord instanceof Certificate) {
             logger.debug("Cerificate message received");
-            certificate = new CertificateHandler();
-            certificate.handleResponse(handRecord);
+            state = new CertificateHandler();
+            state.handleResponse(handRecord);
             workflow.switchToState(trace, EStates.SERVER_CERTIFICATE);
             trace.setCurrentRecord((Certificate) handRecord);
         }
         if (handRecord instanceof ServerKeyExchange) {
             logger.debug("Server Key Exchange message received");
-            serverKeyExchange = new ServerKeyExchangeHandler();
-            serverKeyExchange.handleResponse(handRecord);
+            state = new ServerKeyExchangeHandler();
+            state.handleResponse(handRecord);
             workflow.switchToState(trace, EStates.SERVER_KEY_EXCHANGE);
             trace.setCurrentRecord((ServerKeyExchange) handRecord);
         }
