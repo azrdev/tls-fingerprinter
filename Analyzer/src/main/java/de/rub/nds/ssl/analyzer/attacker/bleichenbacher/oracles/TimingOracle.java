@@ -63,23 +63,26 @@ public class TimingOracle extends ATimingOracle {
             delay = getTimeDelay(getWorkflow().getTraceList());
             System.out.println("delay 2: " + delay);
         }
-        
+
 
         throw new UnsupportedOperationException("Not supported yet.");
     }
-    
-    private boolean cheat(final byte[] msg) {
+
+    private boolean cheat(final byte[] msg, final String keyName,
+            final String keyPassword, final String keyStorePath,
+            final String keyStorePassword) {
         boolean result = false;
         try {
             KeyStore ks = KeyStore.getInstance("JKS");
-            ks.load(new FileInputStream("server.jks"), "password".toCharArray());
-            PublicKey publicKey = ks.getCertificate("2048_rsa").getPublicKey();
-            PrivateKey privateKey = (PrivateKey) ks.getKey("2048_rsa", "password".toCharArray());
-            
+            ks.load(new FileInputStream(keyStorePath), keyStorePassword.toCharArray());
+            PublicKey publicKey = ks.getCertificate(keyName).getPublicKey();
+            PrivateKey privateKey = (PrivateKey) ks.getKey(keyName, keyPassword.
+                    toCharArray());
+
             Cipher cipher = Cipher.getInstance("RSA/None/NoPadding");
             cipher.init(Cipher.DECRYPT_MODE, privateKey);
             byte[] plainMessage = cipher.doFinal(msg);
-            
+
             StdPlainOracle plainOracle = new StdPlainOracle(publicKey,
                     OracleType.JSSE, blockSize);
             result = plainOracle.checkDecryptedBytes(msg);
@@ -111,7 +114,7 @@ public class TimingOracle extends ATimingOracle {
             Logger.getLogger(TimingOracle.class.getName()).
                     log(Level.SEVERE, null, ex);
         }
-        
+
         return result;
     }
 
@@ -119,12 +122,12 @@ public class TimingOracle extends ATimingOracle {
     public boolean checkPKCSConformity(byte[] msg) throws OracleException {
 
 //        exectuteWorkflow(msg);
-        
+
 //        long delay = getTimeDelay(getWorkflow().getTraceList());
-        return cheat(msg);
+        return cheat(msg, "2048_rsa", "password", "server.jks", "password");
 
         // analyze delay
 
-  //      throw new UnsupportedOperationException("Not supported yet.");
+        //      throw new UnsupportedOperationException("Not supported yet.");
     }
 }
