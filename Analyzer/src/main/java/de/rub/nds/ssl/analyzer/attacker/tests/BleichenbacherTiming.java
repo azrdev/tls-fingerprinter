@@ -118,7 +118,7 @@ public class BleichenbacherTiming implements Observer {
     /**
      * Number of repetitions.
      */
-    private static final int NUMBER_OF_REPETIIONS = 1000;
+    private static final int NUMBER_OF_REPETIIONS = 2;
     /**
      * Detailed Info print out.
      */
@@ -318,7 +318,7 @@ public class BleichenbacherTiming implements Observer {
      * @param desc Test description
      * @param tamperMAC Destroy Finished MAC of RecordFrame
      */
-    @Test(enabled = false, dataProvider = "bleichenbacher")
+    @Test(enabled = true, dataProvider = "bleichenbacher")
     public final void testBleichenbacherPossible(final byte[] mode,
             final byte[] separate, final EProtocolVersion version,
             final boolean changePadding, final MessageUtils.POSITIONS position,

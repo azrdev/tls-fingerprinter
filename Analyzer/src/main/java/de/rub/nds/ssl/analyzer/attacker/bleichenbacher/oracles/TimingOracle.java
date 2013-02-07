@@ -6,7 +6,6 @@ package de.rub.nds.ssl.analyzer.attacker.bleichenbacher.oracles;
 
 import de.rub.nds.ssl.analyzer.attacker.bleichenbacher.OracleException;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.SocketException;
 import java.security.InvalidKeyException;
@@ -132,12 +131,14 @@ public class TimingOracle extends ATimingOracle {
         try {
             KeyStore ks = KeyStore.getInstance("JKS");
             ks.load(new FileInputStream(keyStorePath), keyStorePassword.toCharArray());
-            PrivateKey privateKey = (PrivateKey) ks.getKey(keyName, keyPassword.
-                    toCharArray());
-
+            PublicKey publicKey = ks.getCertificate(keyName).getPublicKey();
+            
             Cipher cipher = Cipher.getInstance("RSA/None/NoPadding");
-            cipher.init(Cipher.ENCRYPT_MODE, privateKey);
+            cipher.init(Cipher.ENCRYPT_MODE, publicKey);
             result = cipher.doFinal(msg);
+            
+            
+            System.out.println("2tes byte " + msg[1]);
         } catch (IllegalBlockSizeException ex) {
             Logger.getLogger(TimingOracle.class.getName()).
                     log(Level.SEVERE, null, ex);
@@ -148,9 +149,6 @@ public class TimingOracle extends ATimingOracle {
             Logger.getLogger(TimingOracle.class.getName()).
                     log(Level.SEVERE, null, ex);
         } catch (NoSuchPaddingException ex) {
-            Logger.getLogger(TimingOracle.class.getName()).
-                    log(Level.SEVERE, null, ex);
-        } catch (UnrecoverableKeyException ex) {
             Logger.getLogger(TimingOracle.class.getName()).
                     log(Level.SEVERE, null, ex);
         } catch (KeyStoreException ex) {
@@ -187,7 +185,11 @@ public class TimingOracle extends ATimingOracle {
 
             StdPlainOracle plainOracle = new StdPlainOracle(publicKey,
                     OracleType.JSSE, blockSize);
-            result = plainOracle.checkDecryptedBytes(msg);
+            result = plainOracle.checkDecryptedBytes(plainMessage);
+            
+            System.out.println("2tes byte " + plainMessage[1]);
+            
+            
         } catch (IllegalBlockSizeException ex) {
             Logger.getLogger(TimingOracle.class.getName()).
                     log(Level.SEVERE, null, ex);
@@ -233,4 +235,16 @@ public class TimingOracle extends ATimingOracle {
 
         //      throw new UnsupportedOperationException("Not supported yet.");
     }
+    
+    public static void main(String[] args) {
+        try {
+            TimingOracle to = new TimingOracle("127.0.0.1", 8080);
+            System.out.println("--> " + to.checkPKCSConformity(null));
+        } catch (SocketException ex) {
+            Logger.getLogger(TimingOracle.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (OracleException ex) {
+            Logger.getLogger(TimingOracle.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+    
 }
