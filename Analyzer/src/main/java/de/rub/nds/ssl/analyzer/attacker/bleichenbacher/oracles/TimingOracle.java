@@ -6,6 +6,8 @@ package de.rub.nds.ssl.analyzer.attacker.bleichenbacher.oracles;
 
 import de.rub.nds.ssl.analyzer.attacker.bleichenbacher.OracleException;
 import java.net.SocketException;
+import java.security.KeyStore;
+import java.security.KeyStoreException;
 
 /**
  *
@@ -46,6 +48,13 @@ public class TimingOracle extends ATimingOracle {
         
 
         throw new UnsupportedOperationException("Not supported yet.");
+    }
+    
+    private boolean cheat(byte[] msg) throws KeyStoreException {
+        
+        KeyStore ks = KeyStore.getInstance("JKS");
+        
+        return false;
     }
 
     @Override
