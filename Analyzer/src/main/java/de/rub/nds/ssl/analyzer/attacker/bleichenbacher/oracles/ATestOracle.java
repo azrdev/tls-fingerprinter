@@ -134,16 +134,16 @@ public abstract class ATestOracle extends AOracle {
                     + "keys < 1024 bits.");
         }
         // check first 8 bytes
-        if(! checkSecond(msg)) {
+        if(! checkSecond(msg)) {            
             return false;
         }
         // check the following bytes (excluding the last PMS and 80 padding bytes)
         int last = msg.length - 49 - 80;
         for (int i=9; i< last; i++) {
             if (msg[i] == 0x00) {
-                return true;
+                return false;
             }
         }
-        return false;
+        return true;
     }
 }

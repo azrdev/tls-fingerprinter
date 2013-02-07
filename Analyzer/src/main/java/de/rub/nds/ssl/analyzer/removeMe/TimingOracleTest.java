@@ -175,9 +175,9 @@ public class TimingOracleTest {
             throws OracleException, SocketException {
         logger.info("++++Start Test++++");
 
-        TimingOracle to = new TimingOracle(HOST, PORT);
-        to.trainOracle(encryptedPKCSCorrect, encryptedPKCSWrong);
-        
+//        TimingOracle to = new TimingOracle(HOST, PORT);
+//        to.trainOracle(encryptedPKCSCorrect, encryptedPKCSWrong);
+//        
         logger.info("------------------------------");
     }
 

