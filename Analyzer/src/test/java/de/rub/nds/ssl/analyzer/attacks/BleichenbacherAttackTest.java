@@ -4,7 +4,7 @@ import de.rub.nds.ssl.analyzer.attacker.Bleichenbacher;
 import de.rub.nds.ssl.analyzer.attacker.bleichenbacher.OracleException;
 import de.rub.nds.ssl.analyzer.attacker.bleichenbacher.oracles.AOracle;
 import de.rub.nds.ssl.analyzer.attacker.bleichenbacher.oracles.JSSE16Oracle;
-import de.rub.nds.ssl.analyzer.common.SSLServer;
+import de.rub.nds.ssl.analyzer.removeMe.SSLServer;
 import java.net.SocketException;
 import javax.net.ssl.SSLException;
 import org.apache.log4j.Logger;

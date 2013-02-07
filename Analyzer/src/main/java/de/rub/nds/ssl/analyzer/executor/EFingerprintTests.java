@@ -3,6 +3,7 @@ package de.rub.nds.ssl.analyzer.executor;
 import de.rub.nds.ssl.analyzer.AAnalyzerComponent;
 import de.rub.nds.ssl.analyzer.fingerprinter.IFingerprinter;
 import de.rub.nds.ssl.analyzer.fingerprinter.TestHashAnalyzer;
+import de.rub.nds.ssl.analyzer.fingerprinter.tests.BleichenbacherPossible;
 import de.rub.nds.ssl.analyzer.fingerprinter.tests.CCS;
 import de.rub.nds.ssl.analyzer.fingerprinter.tests.CCSRecordHeader;
 import de.rub.nds.ssl.analyzer.fingerprinter.tests.CH;
@@ -53,7 +54,9 @@ public enum EFingerprintTests {
     GOOD("Good Case - Clean Run Test",
     GoodCase.class, TestHashAnalyzer.class),
     HANDSHAKE_ENUM("Handshake Enumeration Test",
-    CheckEnumeration.class, TestHashAnalyzer.class);
+    CheckEnumeration.class, TestHashAnalyzer.class),
+    BLEICHENBACHER_POSSIBLE("Bleichenbacher Vulnerability Test",
+    BleichenbacherPossible.class, TestHashAnalyzer.class);
 //    EXTENSIONS("Supported extensions test",
 //    CheckExtensions.class, TestHashAnalyzer.class)
     /**

@@ -91,7 +91,6 @@ public final class Database {
              * search for a hash value in the tls_fingerprint_hash table
              */
             prepared = prepareStatement("select tls_impl, last_state, alert "
-                    //+ ", points from tls_fuzzer_fingerprint where hash = ?"); 
                     + " from tls_fuzzer_fingerprint where hash = ?");
             prepared.setString(1, hash);
         } catch (SQLException e) {
@@ -123,8 +122,7 @@ public final class Database {
      */
     public void closeStatementAndConnection(final PreparedStatement prepared) {
         try {
-            // prepared.closeOnCompletion();
-            prepared.close();
+            prepared.closeOnCompletion();
             closeConnection(prepared.getConnection());
         } catch (SQLException e) {
             logger.error("Database error.", e);
