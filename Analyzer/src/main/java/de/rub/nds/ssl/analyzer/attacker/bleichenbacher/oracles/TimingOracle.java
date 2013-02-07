@@ -5,9 +5,26 @@
 package de.rub.nds.ssl.analyzer.attacker.bleichenbacher.oracles;
 
 import de.rub.nds.ssl.analyzer.attacker.bleichenbacher.OracleException;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.net.SocketException;
+import java.security.InvalidKeyException;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.PrivateKey;
+import java.security.PublicKey;
+import java.security.Security;
+import java.security.UnrecoverableKeyException;
+import java.security.cert.CertificateException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.crypto.BadPaddingException;
+import javax.crypto.Cipher;
+import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.NoSuchPaddingException;
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
 
 /**
  *
@@ -26,6 +43,7 @@ public class TimingOracle extends ATimingOracle {
     public TimingOracle(final String serverAddress, final int serverPort)
             throws SocketException {
         super(serverAddress, serverPort);
+        Security.addProvider(new BouncyCastleProvider());
     }
 
     @Override
@@ -50,21 +68,63 @@ public class TimingOracle extends ATimingOracle {
         throw new UnsupportedOperationException("Not supported yet.");
     }
     
-    private boolean cheat(byte[] msg) throws KeyStoreException {
+    private boolean cheat(final byte[] msg) {
+        boolean result = false;
+        try {
+            KeyStore ks = KeyStore.getInstance("JKS");
+            ks.load(new FileInputStream("server.jks"), "password".toCharArray());
+            PublicKey publicKey = ks.getCertificate("2048_rsa").getPublicKey();
+            PrivateKey privateKey = (PrivateKey) ks.getKey("2048_rsa", "password".toCharArray());
+            
+            Cipher cipher = Cipher.getInstance("RSA/None/NoPadding");
+            cipher.init(Cipher.DECRYPT_MODE, privateKey);
+            byte[] plainMessage = cipher.doFinal(msg);
+            
+            StdPlainOracle plainOracle = new StdPlainOracle(publicKey,
+                    OracleType.JSSE, blockSize);
+            result = plainOracle.checkDecryptedBytes(msg);
+        } catch (IllegalBlockSizeException ex) {
+            Logger.getLogger(TimingOracle.class.getName()).
+                    log(Level.SEVERE, null, ex);
+        } catch (BadPaddingException ex) {
+            Logger.getLogger(TimingOracle.class.getName()).
+                    log(Level.SEVERE, null, ex);
+        } catch (InvalidKeyException ex) {
+            Logger.getLogger(TimingOracle.class.getName()).
+                    log(Level.SEVERE, null, ex);
+        } catch (NoSuchPaddingException ex) {
+            Logger.getLogger(TimingOracle.class.getName()).
+                    log(Level.SEVERE, null, ex);
+        } catch (UnrecoverableKeyException ex) {
+            Logger.getLogger(TimingOracle.class.getName()).
+                    log(Level.SEVERE, null, ex);
+        } catch (KeyStoreException ex) {
+            Logger.getLogger(TimingOracle.class.getName()).
+                    log(Level.SEVERE, null, ex);
+        } catch (IOException ex) {
+            Logger.getLogger(TimingOracle.class.getName()).
+                    log(Level.SEVERE, null, ex);
+        } catch (NoSuchAlgorithmException ex) {
+            Logger.getLogger(TimingOracle.class.getName()).
+                    log(Level.SEVERE, null, ex);
+        } catch (CertificateException ex) {
+            Logger.getLogger(TimingOracle.class.getName()).
+                    log(Level.SEVERE, null, ex);
+        }
         
-        KeyStore ks = KeyStore.getInstance("JKS");
-        
-        return false;
+        return result;
     }
 
     @Override
     public boolean checkPKCSConformity(byte[] msg) throws OracleException {
 
-        exectuteWorkflow(msg);
-        long delay = getTimeDelay(getWorkflow().getTraceList());
+//        exectuteWorkflow(msg);
+        
+//        long delay = getTimeDelay(getWorkflow().getTraceList());
+        return cheat(msg);
 
         // analyze delay
 
-        throw new UnsupportedOperationException("Not supported yet.");
+  //      throw new UnsupportedOperationException("Not supported yet.");
     }
 }
