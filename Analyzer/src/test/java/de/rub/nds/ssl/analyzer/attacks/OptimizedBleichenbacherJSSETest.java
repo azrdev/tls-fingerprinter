@@ -32,7 +32,7 @@ import org.testng.annotations.Test;
  *
  * Feb 8, 2013
  */
-public class OptimizedBleichenbacherJSSE {
+public class OptimizedBleichenbacherJSSETest {
 
     /**
      * Plain PKCS message
