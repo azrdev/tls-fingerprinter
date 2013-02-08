@@ -133,7 +133,7 @@ public class OptimizedBleichenbacherJSSETest {
     @Test(enabled = true)
     public void optimizedBleichenbacher() throws SocketException,
             OracleException {
-        JSSE16Oracle jsseOracle = new JSSE16Oracle("134.147.198.93", 51522);
+        JSSE16Oracle jsseOracle = new JSSE16Oracle("134.147.198.93", 51635);
 //        StdPlainOracle plainOracle = new StdPlainOracle(publicKey,
 //                AOracle.OracleType.FFT, 256);
         byte[] encPMS = encryptHelper(plainPKCS, publicKey);
