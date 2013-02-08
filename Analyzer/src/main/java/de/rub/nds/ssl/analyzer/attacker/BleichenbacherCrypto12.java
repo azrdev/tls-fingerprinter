@@ -283,7 +283,7 @@ public class BleichenbacherCrypto12 extends Bleichenbacher  {
 
             m = new Interval[]{new Interval(new_m[0], new_m[1])};
         }
-        System.out.println("Used queries: " + oracle.getNumberOfQueries());
+//        System.out.println("Used queries: " + oracle.getNumberOfQueries());
     }
 
     @Override

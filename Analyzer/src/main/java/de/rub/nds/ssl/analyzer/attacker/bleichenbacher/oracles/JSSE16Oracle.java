@@ -34,6 +34,7 @@ public class JSSE16Oracle extends ASSLServerOracle {
     public JSSE16Oracle(final String serverAddress, final int serverPort)
             throws SocketException {
         super(serverAddress, serverPort);
+        oracleType = OracleType.FFT;
     }
 
     @Override
