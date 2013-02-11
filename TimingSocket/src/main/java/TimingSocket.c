@@ -178,6 +178,7 @@ JNIEXPORT jint JNICALL Java_de_rub_nds_research_timingsocket_TimingSocketImpl_c_
 #endif
                     write(sock, buffer, ptr - buffer);
                     start = get_ticks();
+
                     /*
                     * "Deleting" buffer by setting the pointer ptr to the beginning
                     * of the  buffer.
@@ -185,22 +186,27 @@ JNIEXPORT jint JNICALL Java_de_rub_nds_research_timingsocket_TimingSocketImpl_c_
                     ptr = buffer;
             } else {
 #ifdef _debug
-            puts("\tnothing to write.");
-            fflush(stdout);
+                    puts("\tnothing to write.");
+                    fflush(stdout);
 #endif
             }
-
             len_read = read(sock, c_array + offset, 1);
             end = get_ticks();
 
+
             pthread_mutex_unlock(&lock);
 #ifdef _debug
-            printf("\t --> unlocked.\n");
-            fflush(stdout);
-            puts("\tread_off() sleeping.\n");
+            puts("\t --> unlocked.");
             fflush(stdout);
 #endif
-            usleep(1000000);
+
+            if(len_read == -1) {
+#ifdef _debug
+                puts("\tread_off() sleeping.");
+                fflush(stdout);
+#endif
+                usleep(100000);
+            }
         }
 
         calc_ticks();
@@ -208,7 +214,7 @@ JNIEXPORT jint JNICALL Java_de_rub_nds_research_timingsocket_TimingSocketImpl_c_
         /*
          * If an error occurs (-1), or if EOF occurs (0), return.
          */
-        if(len_read == 0) {
+        /*if(len_read == 0) {
             // EOF
 #ifdef _debug
                 printf("len_read = 0; ERRNO %i --> (%s))\n", errno, strerror(errno));
@@ -225,7 +231,9 @@ JNIEXPORT jint JNICALL Java_de_rub_nds_research_timingsocket_TimingSocketImpl_c_
                 return len_read;
         } else {
        		len_read += read(sock, c_array + offset + 1, length - 1);
-        }
+        }*/
+
+        len_read += read(sock, c_array + offset + 1, length - 1);
 
         if(len_read < 0) {
                 printf("ERROR len_read --> %d, (%s))\n", len_read, strerror(errno));
