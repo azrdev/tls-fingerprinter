@@ -37,7 +37,7 @@ void calc_ticks() {
 JNIEXPORT jint JNICALL Java_de_rub_nds_research_timingsocket_TimingSocketImpl_c_1create(JNIEnv * env, jobject obj, jboolean stream)
 {
 #ifdef _debug
-        puts("Called c_create()\n");
+        puts("Called c_create()");
         fflush(stdout);
 #endif
         ready_measurement = 0;
@@ -103,7 +103,7 @@ err:
 JNIEXPORT jint JNICALL Java_de_rub_nds_research_timingsocket_TimingSocketImpl_c_1setOption(JNIEnv *env, jobject obj, jint opt_name, jint opt_value)
 {
 #ifdef _debug
-        puts("Called c_setOption()\n");
+        puts("Called c_setOption()");
         fflush(stdout);
 #endif
         int c_true = (0 == 0);
@@ -151,52 +151,73 @@ JNIEXPORT jint JNICALL Java_de_rub_nds_research_timingsocket_TimingSocketImpl_c_
         setsockopt(sock, SOL_SOCKET, SO_RCVTIMEO,(struct timeval *)&tv,sizeof(struct timeval));
 
 #ifdef _debug
-        printf("Called c_read(ar, offset=%d, length=%d)", offset, length);
+        printf("Called c_read(ar, offset=%d, length=%d)\n", offset, length);
         fflush(stdout);
 #endif
-
-        /*
-         * This read() method is not a typical read method because it first
-         * sends a request and then waits for the response.
-         *
-         * First, lock the buffer with the request.
-         */
-       	pthread_mutex_lock(&lock);
+        while(len_read < 0) {
+            /*
+            * This read() method is not a typical read method because it first
+            * sends a request and then waits for the response.
+            *
+            * First, lock the buffer with the request.
+            */
+            pthread_mutex_lock(&lock);
 #ifdef _debug
-       	printf(" --> read() locked. ");
-        fflush(stdout);
+            printf("\t --> read_off() locked. \n");
+            fflush(stdout);
 #endif
 
-        /*
-         * If the pointer ptr does not point to the beginning of buffer, there
-         * is a request to be send.
-         */
-        if(ptr != buffer) {
-                write(sock, buffer, ptr - buffer);
-                start = get_ticks();
-                /*
-                 * "Deleting" buffer by setting the pointer ptr to the beginning
-                 * of the  buffer.
-                 */
-                ptr = buffer;
+            /*
+            * If the pointer ptr does not point to the beginning of buffer, there
+            * is a request to be send.
+            */
+            if(ptr != buffer) {
+#ifdef _debug
+                    printf("writing %d bytes\n", (int)(ptr-buffer));
+                    fflush(stdout);
+#endif
+                    write(sock, buffer, ptr - buffer);
+                    start = get_ticks();
+                    /*
+                    * "Deleting" buffer by setting the pointer ptr to the beginning
+                    * of the  buffer.
+                    */
+                    ptr = buffer;
+            } else {
+#ifdef _debug
+            puts("\tnothing to write.");
+            fflush(stdout);
+#endif
+            }
+
+            len_read = read(sock, c_array + offset, 1);
+            end = get_ticks();
+
+            pthread_mutex_unlock(&lock);
+#ifdef _debug
+            printf("\t --> unlocked.\n");
+            fflush(stdout);
+            puts("\tread_off() sleeping.\n");
+            fflush(stdout);
+#endif
+            usleep(1000000);
         }
-
-        len_read = read(sock, c_array + offset, 1);
-        end = get_ticks();
-
-       	pthread_mutex_unlock(&lock);
-
-#ifdef _debug
-       	printf(" --> unlocked.\n");
-        fflush(stdout);
-#endif
 
         calc_ticks();
 
         /*
          * If an error occurs (-1), or if EOF occurs (0), return.
          */
-        if(len_read <= 0) {
+        if(len_read == 0) {
+            // EOF
+#ifdef _debug
+                printf("len_read = 0; ERRNO %i --> (%s))\n", errno, strerror(errno));
+	        fflush(stdout);
+#endif
+            
+            return -1;
+        } else if(len_read < 0) {
+            // An error happened
 #ifdef _debug
                 printf("ERRNO %i --> (%s))\n", errno, strerror(errno));
 	        fflush(stdout);
@@ -254,6 +275,7 @@ JNIEXPORT jint JNICALL Java_de_rub_nds_research_timingsocket_TimingSocketImpl_c_
 
         memcpy(ptr, c_array, len);
         ptr += len;
+        len_sent = len;
 
       	pthread_mutex_unlock(&lock);
 
