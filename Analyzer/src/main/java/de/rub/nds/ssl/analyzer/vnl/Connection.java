@@ -1,4 +1,4 @@
-package de.rub.nds.ssl.analyzer.capture;
+package de.rub.nds.ssl.analyzer.vnl;
 
 import de.rub.nds.ssl.stack.protocols.ARecordFrame;
 import de.rub.nds.ssl.stack.protocols.handshake.ClientHello;

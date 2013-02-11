@@ -1,4 +1,4 @@
-package de.rub.nds.ssl.analyzer.capture;
+package de.rub.nds.ssl.analyzer.vnl;
 
 public class ConnectionDifference {
 	private String name;

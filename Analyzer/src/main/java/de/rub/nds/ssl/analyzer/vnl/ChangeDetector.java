@@ -1,4 +1,4 @@
-package de.rub.nds.ssl.analyzer.capture;
+package de.rub.nds.ssl.analyzer.vnl;
 
 import java.util.ArrayList;
 import java.util.HashMap;
