@@ -122,7 +122,8 @@ public final class Database {
      */
     public void closeStatementAndConnection(final PreparedStatement prepared) {
         try {
-            prepared.closeOnCompletion();
+            // prepared.closeOnCompletion();
+            prepared.close();
             closeConnection(prepared.getConnection());
         } catch (SQLException e) {
             logger.error("Database error.", e);

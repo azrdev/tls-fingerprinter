@@ -86,10 +86,10 @@ public abstract class ASSLServerOracle extends AOracle implements Observer {
 
     void exectuteWorkflow(final byte[] msg) throws OracleException {
         try {
-            // setWorkflow(new TLS10HandshakeWorkflow(
-            //         ESupportedSockets.StandardSocket));
             setWorkflow(new TLS10HandshakeWorkflow(
-                     ESupportedSockets.TimingSocket));
+                     ESupportedSockets.StandardSocket));
+            // setWorkflow(new TLS10HandshakeWorkflow(
+            //         ESupportedSockets.TimingSocket));
             getWorkflow().addObserver(this,
                     TLS10HandshakeWorkflow.EStates.CLIENT_HELLO);
             getWorkflow().addObserver(this,

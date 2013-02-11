@@ -249,7 +249,7 @@ public class TimingOracle extends ATimingOracle {
     }
 
     public static void main(String[] args) {
-        PropertyConfigurator.configure("logging.properties");
+        PropertyConfigurator.configure("logging.properties"); 
 
         try {
             String keyName = "2048_rsa";
