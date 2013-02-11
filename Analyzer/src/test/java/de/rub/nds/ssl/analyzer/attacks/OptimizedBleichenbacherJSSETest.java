@@ -140,7 +140,9 @@ public class OptimizedBleichenbacherJSSETest {
 
         logger.info("++++Start Test (JSSE Real)++++");
 
-        BleichenbacherCrypto12 attacker = new BleichenbacherCrypto12(encPMS,
+//        BleichenbacherCrypto12 attacker = new BleichenbacherCrypto12(encPMS,
+//                jsseOracle, true);
+        Bleichenbacher attacker = new Bleichenbacher(encPMS,
                 jsseOracle, true);
         attacker.attack();
         logger.info("------------------------------");
