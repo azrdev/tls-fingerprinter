@@ -21,11 +21,6 @@
     </properties>
     <dependencies>
         <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>Stack</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
             <groupId>com.nativelibs4java</groupId>
             <artifactId>bridj</artifactId>
             <version>${version.bridj}</version>
