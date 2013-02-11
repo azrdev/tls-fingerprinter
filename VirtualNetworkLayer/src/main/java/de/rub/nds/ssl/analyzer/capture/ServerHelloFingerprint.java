@@ -1,13 +1,12 @@
 package de.rub.nds.ssl.analyzer.capture;
 
+import de.rub.nds.ssl.stack.protocols.commons.ECipherSuite;
+import de.rub.nds.ssl.stack.protocols.commons.EProtocolVersion;
+import de.rub.nds.ssl.stack.protocols.handshake.ServerHello;
+import de.rub.nds.ssl.stack.protocols.handshake.datatypes.Extensions;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
-
-import de.rub.nds.ssl.stack.protocols.commons.ECipherSuite;
-import de.rub.nds.ssl.stack.protocols.commons.EProtocolVersion;
-import de.rub.nds.ssl.stack.protocols.handshake.ExtensionList;
-import de.rub.nds.ssl.stack.protocols.handshake.ServerHello;
 
 public class ServerHelloFingerprint {
 	
@@ -15,14 +14,14 @@ public class ServerHelloFingerprint {
     private ECipherSuite cipherSuite;
     private int sessionIDlen;
     private byte[] compressionMethod;
-    private ExtensionList extensionList;
+    private Extensions extensionList;
 	
 	public ServerHelloFingerprint(ServerHello sh) {
 		this.msgProtocolVersion = sh.getMessageProtocolVersion();
 		this.cipherSuite = sh.getCipherSuite();
 		this.sessionIDlen = sh.getSessionID().getId().length;
 		this.compressionMethod = sh.getCompressionMethod();
-		this.extensionList = sh.getExtensionList();
+		this.extensionList = sh.getExtensions();
 		
 	}
 	

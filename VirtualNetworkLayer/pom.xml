@@ -3,11 +3,13 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
+  
     <parent>
         <artifactId>ssl-umbrella</artifactId>
         <groupId>de.rub.nds</groupId>
         <version>1.0-SNAPSHOT</version>
     </parent>
+  
     <artifactId>VirtualNetworkLayer</artifactId>
     <groupId>de.rub.nds</groupId>
     <version>1.0-SNAPSHOT</version>
@@ -18,6 +20,11 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
     <dependencies>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>Stack</artifactId>
+            <version>${project.version}</version>
+        </dependency>
         <dependency>
             <groupId>com.nativelibs4java</groupId>
             <artifactId>bridj</artifactId>
@@ -115,12 +122,13 @@
                                     <format>xml</format>
                                 </formats>
                             </configuration>
-                        </plugin><plugin>
+                        </plugin>
+                        <plugin>
                             <groupId>org.codehaus.mojo</groupId>
                             <artifactId>javancss-maven-plugin</artifactId>
                             <version>2.0</version>
                         </plugin>
-<!--                        <plugin>
+                        <!--                        <plugin>
                             <groupId>lint4j</groupId>
                             <artifactId>jutils-lint4j-plugin</artifactId>
                         </plugin>

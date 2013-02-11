@@ -1,14 +1,8 @@
 package de.rub.nds.ssl.analyzer.capture;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import de.rub.nds.ssl.stack.protocols.ARecordFrame;
 import de.rub.nds.ssl.stack.protocols.handshake.ClientHello;
-import de.rub.nds.ssl.stack.protocols.handshake.Extension;
-import de.rub.nds.ssl.stack.protocols.handshake.ExtensionList;
 import de.rub.nds.ssl.stack.protocols.handshake.ServerHello;
-import de.rub.nds.ssl.stack.protocols.handshake.ServerNameExtension;
 import de.rub.nds.ssl.stack.protocols.handshake.datatypes.EKeyExchangeAlgorithm;
 import de.rub.nds.ssl.stack.protocols.msgs.ChangeCipherSpec;
 import de.rub.nds.ssl.stack.trace.MessageContainer;
@@ -19,6 +13,8 @@ import de.rub.nds.virtualnetworklayer.packet.Packet.Direction;
 import de.rub.nds.virtualnetworklayer.packet.PcapPacket;
 import de.rub.nds.virtualnetworklayer.packet.header.Header;
 import de.rub.nds.virtualnetworklayer.packet.header.application.TlsHeader;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Connection {
 	private PcapTrace trace;
