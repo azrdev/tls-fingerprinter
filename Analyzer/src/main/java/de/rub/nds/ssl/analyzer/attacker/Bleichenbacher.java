@@ -78,7 +78,7 @@ public class Bleichenbacher {
             stepOne();
         }
         stepOneB();
-        
+
         i++;
 
         while (!solutionFound) {
@@ -174,7 +174,6 @@ public class Bleichenbacher {
     private void stepTwoB() throws OracleException {
         byte[] send;
         boolean pkcsConform;
-
         logger.info("Step 2b: Searching with more than"
                 + " one interval left");
 
@@ -297,7 +296,8 @@ public class Bleichenbacher {
             solution = solution.multiply(m[0].upper).mod(publicKey.getModulus());
 
             //if(solution.compareTo(new BigInteger(1, decryptedMsg)) == 0) {
-            logger.info("====> Solution found!\n" + Utility.bytesToHex(solution.toByteArray()));
+            logger.info("====> Solution found!\n" + Utility.bytesToHex(solution.
+                    toByteArray()));
             //    System.out.println("original decrypted message: \n" + Utility.bytesToHex(decryptedMsg));
             //}
 
@@ -361,6 +361,11 @@ public class Bleichenbacher {
         byte[] msg;
         BigInteger tmp;
 
+        if (oracle.getNumberOfQueries() % 100 == 0) {
+            logger.debug("# of queries so far: " + oracle.
+                    getNumberOfQueries());
+        }
+        
         // if we use a real oracle (not a plaintext oracle), the si value has
         // to be encrypted first.
         if (!oracle.isPlaintextOracle()) {

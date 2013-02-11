@@ -58,7 +58,7 @@ public class SSLServer extends Thread {
         TrustManager[] trustManagers = trustManagerFactory.getTrustManagers();
         sslContext = SSLContext.getInstance(protocol);
         sslContext.init(keyManagers, trustManagers, null);
-
+        
         this.listenPort = port;
         this.printInfo = printStateInfo;
         if (printInfo) {
