@@ -4,6 +4,7 @@ import de.rub.nds.ssl.stack.protocols.ARecordFrame;
 import de.rub.nds.ssl.stack.protocols.alert.Alert;
 import de.rub.nds.ssl.stack.protocols.alert.datatypes.EAlertLevel;
 import de.rub.nds.ssl.stack.protocols.commons.EContentType;
+import de.rub.nds.ssl.stack.protocols.commons.KeyExchangeParams;
 import de.rub.nds.ssl.stack.protocols.handshake.AHandshakeRecord;
 import de.rub.nds.ssl.stack.protocols.handshake.HandshakeEnumeration;
 import de.rub.nds.ssl.stack.protocols.handshake.MessageObservable;
@@ -115,7 +116,9 @@ public final class TLSResponse extends ARecordFrame implements Observer {
                     setTrace(trace);
                     msgObserve.addObserver(this);
                     // TODO: WTF is this???
-                    new HandshakeEnumeration(response, true, null);
+                    new HandshakeEnumeration(response, true,
+                            KeyExchangeParams.getInstance().
+                            getKeyExchangeAlgorithm());
                     msgObserve.deleteObservers();
                 }
                 break;
@@ -143,12 +146,12 @@ public final class TLSResponse extends ARecordFrame implements Observer {
         AHandshakeRecord handRecord = null;
         if (o instanceof MessageObservable) {
             handRecord = (AHandshakeRecord) arg;
-            HandshakeResponse.invokeMessageHandlers(handRecord, newTrace, 
+            HandshakeResponse.invokeMessageHandlers(handRecord, newTrace,
                     workflow);
             setTrace(newTrace);
         }
         if (handRecord != null) {
-            int recordSize = handRecord.getPayload().length 
+            int recordSize = handRecord.getPayload().length
                     + AHandshakeRecord.LENGTH_MINIMUM_ENCODED
                     + ARecordFrame.LENGTH_MINIMUM_ENCODED;
             if (recordSize < this.response.length) {
