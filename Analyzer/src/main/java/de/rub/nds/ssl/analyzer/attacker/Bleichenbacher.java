@@ -34,7 +34,7 @@ public class Bleichenbacher {
     /**
      * Initialize the log4j logger.
      */
-    static Logger logger = Logger.getRootLogger();
+    static Logger logger = Logger.getLogger(Bleichenbacher.class);
 
     public Bleichenbacher(final byte[] msg,
             final AOracle pkcsOracle, final boolean msgPKCScofnorm) {

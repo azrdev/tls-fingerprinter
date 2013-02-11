@@ -140,10 +140,10 @@ public class OptimizedBleichenbacherJSSETest {
 
         logger.info("++++Start Test (JSSE Real)++++");
 
-//        BleichenbacherCrypto12 attacker = new BleichenbacherCrypto12(encPMS,
-//                jsseOracle, true);
-        Bleichenbacher attacker = new Bleichenbacher(encPMS,
+        BleichenbacherCrypto12 attacker = new BleichenbacherCrypto12(encPMS,
                 jsseOracle, true);
+//        Bleichenbacher attacker = new Bleichenbacher(encPMS,
+//                jsseOracle, true);
         attacker.attack();
         logger.info("------------------------------");
     }
@@ -160,7 +160,7 @@ public class OptimizedBleichenbacherJSSETest {
         Security.addProvider(new BouncyCastleProvider());
 
         try {
-            String keyName = "2048_rsa";
+            String keyName = "4096_rsa";
             String keyPassword = "password";
             KeyStore ks = loadKeyStore("server.jks", "password");
             publicKey = ks.getCertificate(keyName).getPublicKey();

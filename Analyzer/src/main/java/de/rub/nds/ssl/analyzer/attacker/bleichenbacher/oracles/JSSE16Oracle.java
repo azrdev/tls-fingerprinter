@@ -29,16 +29,26 @@ import java.util.Observable;
  *
  * May 18, 2012
  */
-public class JSSE16Oracle extends ASSLServerOracle {
+public final class JSSE16Oracle extends ASSLServerOracle {
 
+    /**
+     * Initialize the JSSE oracle.
+     * Known to be functional at least until JDK 1.6.35
+     * @param serverAddress Address of the target server
+     * @param serverPort
+     * @throws SocketException 
+     */
     public JSSE16Oracle(final String serverAddress, final int serverPort)
             throws SocketException {
         super(serverAddress, serverPort);
         oracleType = OracleType.FFT;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    public boolean checkPKCSConformity(final byte[] msg) throws 
+    public boolean checkPKCSConformity(final byte[] msg) throws
             OracleException {
         exectuteWorkflow(msg);
 
