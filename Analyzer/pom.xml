@@ -151,9 +151,7 @@
         <dependency>
             <artifactId>de.fau</artifactId>
             <groupId>TimerReporter</groupId>
-            <scope>system</scope>
             <version>1.0.0</version>
-            <systemPath>${basedir}/../sharedLibs/ReportingTool.jar</systemPath>
         </dependency>
     </dependencies>
     

@@ -7,6 +7,7 @@ package de.rub.nds.ssl.analyzer.attacker.bleichenbacher.oracles;
 import de.fau.pi1.timerReporter.dataset.Dataset;
 import de.fau.pi1.timerReporter.evaluation.StatisticEvaluation;
 import de.fau.pi1.timerReporter.plots.PlotPool;
+import de.fau.pi1.timerReporter.reader.Reader;
 import de.fau.pi1.timerReporter.reader.ReaderCsv;
 import de.rub.nds.ssl.analyzer.attacker.Bleichenbacher;
 import de.rub.nds.ssl.analyzer.attacker.bleichenbacher.OracleException;
@@ -216,7 +217,7 @@ public class TimingOracle extends ATimingOracle {
         Dataset dataset = new Dataset(reader);
         dataset.setName("New Measurement");
         String report = de.fau.pi1.timerReporter.main.Main.getReport();
-
+        
         // create plot pool to multi threaded the plots
         PlotPool plotPool = new PlotPool(report, dataset);
 
