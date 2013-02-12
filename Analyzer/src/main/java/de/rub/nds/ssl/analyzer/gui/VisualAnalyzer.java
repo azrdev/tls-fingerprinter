@@ -11,6 +11,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
@@ -438,8 +439,9 @@ public class VisualAnalyzer extends javax.swing.JFrame {
                     log(java.util.logging.Level.SEVERE, null, ex);
         }
         //</editor-fold>
-
-        PropertyConfigurator.configure("logging.properties");
+        ClassLoader classLoader = VisualAnalyzer.class.getClassLoader();
+        URL resource = classLoader.getResource("logging.properties");
+        PropertyConfigurator.configure(resource);
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
             @Override

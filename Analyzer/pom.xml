@@ -114,6 +114,7 @@
                 </configuration>
             </plugin>           
             
+            <!-- all the following stuff is necessary for packing an executable jar -->
             <plugin>
                 <artifactId>maven-jar-plugin</artifactId>
                 <configuration>
@@ -150,17 +151,15 @@
                 </executions>
             </plugin>
         </plugins>
-        
-        
         <resources>
             <resource>
                 <directory>${project.basedir}</directory>
                 <includes>
-                    <include>**/*.properties</include>
-                    <include>**/*.jks</include>
+                    <include>**/*</include>
                 </includes>
             </resource>
         </resources>
+        
     </build>
         
     <dependencies>
