@@ -134,7 +134,7 @@ public class BleichenbacherJSSETest {
         return result;
     }
 
-    @Test(enabled = true, priority = 1)
+    @Test(enabled = false, priority = 1)
     public void standardBleichenbacher() throws SocketException,
             OracleException {
         logger.info("++++Start Test (JSSE Real - original BB)++++");
@@ -146,7 +146,7 @@ public class BleichenbacherJSSETest {
         logger.info("------------------------------");
     }
 
-    @Test(enabled = true, priority = 2)
+    @Test(enabled = false, priority = 2)
     public void optimizedBleichenbacher() throws SocketException,
             OracleException {
         logger.info("++++Start Test (JSSE Real - optimized BB)++++");
