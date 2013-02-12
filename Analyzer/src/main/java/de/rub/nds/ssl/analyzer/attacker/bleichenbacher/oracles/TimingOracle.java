@@ -150,16 +150,18 @@ public class TimingOracle extends ATimingOracle {
             fw = new FileWriter("training_data.csv");
             long delay;
             // train the oracle using the executeWorkflow functionality
-            for (int i = 0; i < 1; i++) {
-                System.out.println("VAAAAAAAAAAAAAAAAAAAAAAAAAAAAAALID");
+            for (int i = 0; i < 10000; i += 2) {
                 exectuteWorkflow(validRequest);
                 delay = getTimeDelay(getWorkflow().getTraceList());
-                fw.write(i + ";" + delay);
+                fw.write(i + ";valid;" + delay + "\n");
 
-                System.out.println("IIIIIIIIIIIIIIIIIIIIIIIIIIIINVALID");
                 exectuteWorkflow(invalidRequest);
                 delay = getTimeDelay(getWorkflow().getTraceList());
-                fw.write(";" + delay + "\n");
+                fw.write(i + 1 + ";invalid;" + delay + "\n");
+                
+                fw.flush();
+                
+                System.out.println("doing " + i);
             }
         } catch (IOException ex) {
             java.util.logging.Logger.getLogger(TimingOracle.class.getName()).log(Level.SEVERE, null, ex);
@@ -237,8 +239,8 @@ public class TimingOracle extends ATimingOracle {
 
     public void setUp() {
         try {
-            System.setProperty("javax.net.debug", "ssl");
-            sslServer = new SSLServer(PATH_TO_JKS, JKS_PASSWORD,
+            // System.setProperty("javax.net.debug", "ssl");
+            sslServer = new SSLServer("2048.jks", JKS_PASSWORD,
                     protocolShortName, PORT, PRINT_INFO);
             sslServerThread = new Thread(sslServer);
             sslServerThread.start();
@@ -254,7 +256,7 @@ public class TimingOracle extends ATimingOracle {
         try {
             String keyName = "2048_rsa";
             String keyPassword = "password";
-            KeyStore ks = loadKeyStore("server.jks", "password");
+            KeyStore ks = loadKeyStore("2048.jks", "password");
             PublicKey publicKey = ks.getCertificate(keyName).getPublicKey();
             PrivateKey privateKey = (PrivateKey) ks.getKey(keyName, keyPassword.toCharArray());
 
