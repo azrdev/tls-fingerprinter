@@ -11,7 +11,7 @@
 #include <pthread.h>
 
 
-#define _debug
+//#define _debug
 
 static int sock = -1;
 static int start_measurement = 0;
@@ -30,8 +30,10 @@ void calc_ticks() {
         ticks_measured = end - start;
         ready_measurement = 1;
 
+#ifdef _debug
         printf("%llu;XXXXXX\n", ticks_measured);
         fflush(stdout);
+#endif
 }
 
 JNIEXPORT jint JNICALL Java_de_rub_nds_research_timingsocket_TimingSocketImpl_c_1create(JNIEnv * env, jobject obj, jboolean stream)
