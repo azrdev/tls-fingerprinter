@@ -30,22 +30,11 @@ public class SSLServer extends Thread {
     private boolean printInfo;
     private static final int TIMEOUT = 500;
 
-    public SSLServer(final String path, final String password,
+    public SSLServer(final KeyStore keyStore, final String password,
             final String protocol, final int port, final boolean printStateInfo)
             throws KeyStoreException, IOException, NoSuchAlgorithmException,
             CertificateException, UnrecoverableKeyException,
             KeyManagementException {
-        KeyStore keyStore = KeyStore.getInstance("JKS");
-        FileInputStream fis = null;
-        try {
-            fis = new FileInputStream(path);
-            keyStore.load(fis, password.toCharArray());
-        } finally {
-            if (fis != null) {
-                fis.close();
-            }
-        }
-
         KeyManagerFactory keyManagerFactory = KeyManagerFactory.getInstance(
                 "SunX509");
         keyManagerFactory.init(keyStore, password.toCharArray());

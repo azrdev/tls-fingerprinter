@@ -1,6 +1,5 @@
 package de.rub.nds.ssl.analyzer.attacker.tests;
 
-import de.rub.nds.ssl.analyzer.removeMe.SSLServerHandler;
 import de.rub.nds.ssl.analyzer.parameters.FinishedParameters;
 import de.rub.nds.ssl.stack.Utility;
 import de.rub.nds.ssl.stack.protocols.commons.*;
@@ -65,7 +64,7 @@ public class Vaudenay implements Observer {
     /**
      * Handler to start/stop a test server.
      */
-    private SSLServerHandler serverHandler = new SSLServerHandler();
+//    private SSLServerHandler serverHandler = new SSLServerHandler();
     /**
      * Initialize the log4j logger.
      */
@@ -251,7 +250,7 @@ public class Vaudenay implements Observer {
     @BeforeMethod
     public void setUp() {
 //        System.setProperty("javax.net.debug", "all");
-        serverHandler.startTestServer();
+        //serverHandler.startTestServer();
     }
 
     /**
@@ -260,6 +259,6 @@ public class Vaudenay implements Observer {
     @AfterMethod
     public void tearDown() {
         workflow.closeSocket();
-        serverHandler.shutdownTestServer();
+        //serverHandler.shutdownTestServer();
     }
 }

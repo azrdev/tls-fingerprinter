@@ -216,10 +216,10 @@ public class BleichenbacherAttackTest {
     public void setUp() {
         try {
 //            System.setProperty("javax.net.debug", "ssl");
-            sslServer = new SSLServer(PATH_TO_JKS, JKS_PASSWORD,
-                    protocolShortName, PORT, PRINT_INFO);
-            sslServerThread = new Thread(sslServer);
-            sslServerThread.start();
+//            sslServer = new SSLServer(PATH_TO_JKS, JKS_PASSWORD,
+//                    protocolShortName, PORT, PRINT_INFO);
+//            sslServerThread = new Thread(sslServer);
+//            sslServerThread.start();
             Thread.currentThread().sleep(2000);
         } catch (Exception e) {
             e.printStackTrace();

@@ -1,4 +1,4 @@
-package de.rub.nds.ssl.analyzer.attacker.tests;
+package de.rub.nds.ssl.analyzer.removeMe;
 
 import de.rub.nds.ssl.analyzer.removeMe.SSLServer;
 import de.rub.nds.ssl.stack.protocols.ARecordFrame;
@@ -514,10 +514,10 @@ public class BleichenbacherTiming implements Observer {
                 System.setProperty("javax.net.debug", "ssl");
             }
             logger.info("Starting SSL Server");
-            sslServer = new SSLServer(PATH_TO_JKS, JKS_PASSWORD,
-                    protocolShortName, PORT, PRINT_INFO);
-            sslServerThread = new Thread(sslServer);
-            sslServerThread.start();
+//            sslServer = new SSLServer(PATH_TO_JKS, JKS_PASSWORD,
+//                    protocolShortName, PORT, PRINT_INFO);
+//            sslServerThread = new Thread(sslServer);
+//            sslServerThread.start();
             sleep(2000);
         } catch (Exception e) {
             e.printStackTrace();

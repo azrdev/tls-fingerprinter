@@ -20,7 +20,9 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.SocketException;
+import java.net.URL;
 import java.security.*;
 import java.security.cert.CertificateException;
 import java.util.ArrayList;
@@ -284,11 +286,11 @@ public class TimingOracle extends ATimingOracle {
         Folder.deleteTmp();
     }
 
-    private static KeyStore loadKeyStore(final String keyStorePath,
+    private static KeyStore loadKeyStore(final InputStream keyStoreStream,
             final String keyStorePassword) throws KeyStoreException, IOException,
             NoSuchAlgorithmException, CertificateException {
         KeyStore ks = KeyStore.getInstance("JKS");
-        ks.load(new FileInputStream(keyStorePath), keyStorePassword.toCharArray());
+        ks.load(keyStoreStream, keyStorePassword.toCharArray());
 
         return ks;
     }
@@ -385,8 +387,11 @@ public class TimingOracle extends ATimingOracle {
 
     public void setUp() {
         try {
+            ClassLoader classLoader = TimingOracle.class.getClassLoader();
+            InputStream stream = classLoader.getResourceAsStream("2048.jks");
+            KeyStore ks = loadKeyStore(stream, "password");
             // System.setProperty("javax.net.debug", "ssl");
-            sslServer = new SSLServer("2048.jks", JKS_PASSWORD,
+            sslServer = new SSLServer(ks, JKS_PASSWORD,
                     protocolShortName, PORT, PRINT_INFO);
             sslServerThread = new Thread(sslServer);
             sslServerThread.start();
@@ -397,12 +402,16 @@ public class TimingOracle extends ATimingOracle {
     }
 
     public static void main(String[] args) {
-        PropertyConfigurator.configure("logging.properties");
-
+        ClassLoader classLoader = TimingOracle.class.getClassLoader();
+        URL resource = classLoader.getResource("logging.properties");
+        PropertyConfigurator.configure(resource);
+        
         try {
             String keyName = "2048_rsa";
             String keyPassword = "password";
-            KeyStore ks = loadKeyStore("2048.jks", "password");
+            InputStream stream = classLoader.getResourceAsStream("2048.jks");
+
+            KeyStore ks = loadKeyStore(stream, "password");
             PublicKey publicKey = ks.getCertificate(keyName).getPublicKey();
             PrivateKey privateKey = (PrivateKey) ks.getKey(keyName, keyPassword.toCharArray());
 
