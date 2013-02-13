@@ -7,17 +7,15 @@ package de.rub.nds.ssl.analyzer.attacker.bleichenbacher.oracles;
 import de.fau.pi1.timerReporter.dataset.Dataset;
 import de.fau.pi1.timerReporter.evaluation.StatisticEvaluation;
 import de.fau.pi1.timerReporter.plots.PlotPool;
-import de.fau.pi1.timerReporter.reader.Reader;
 import de.fau.pi1.timerReporter.reader.ReaderCsv;
-import de.rub.nds.ssl.analyzer.attacker.Bleichenbacher;
-import de.rub.nds.ssl.analyzer.attacker.bleichenbacher.OracleException;
-import de.rub.nds.ssl.analyzer.removeMe.SSLServer;
 import de.fau.pi1.timerReporter.tools.Conf;
 import de.fau.pi1.timerReporter.tools.FileId;
 import de.fau.pi1.timerReporter.tools.Folder;
 import de.fau.pi1.timerReporter.writer.WritePDF;
+import de.rub.nds.ssl.analyzer.attacker.Bleichenbacher;
+import de.rub.nds.ssl.analyzer.attacker.bleichenbacher.OracleException;
+import de.rub.nds.ssl.analyzer.removeMe.SSLServer;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
@@ -34,7 +32,6 @@ import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
 import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
-import org.apache.log4j.lf5.LogLevel;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 
 /**
@@ -140,6 +137,8 @@ public class TimingOracle extends ATimingOracle {
             boxHighPercentile = 15,
             amountOfMeasurements = 20;
     private long validKeyHigh;
+    
+    private int counter = 0;
 
     /**
      * Constructor
@@ -328,9 +327,35 @@ public class TimingOracle extends ATimingOracle {
 
         return result;
     }
-
+    
     @Override
     public boolean checkPKCSConformity(byte[] encPMS) throws OracleException {
+        FileWriter fw = null;
+        try {
+            boolean ret = cheat(encPMS);
+            fw = new FileWriter("log_file.txt", true);
+            fw.append(counter++ + ";" + ret+ "\n");
+            fw.close();
+            
+            return ret;
+        } catch (IOException ex) {
+            java.util.logging.Logger.getLogger(TimingOracle.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (IllegalBlockSizeException ex) {
+            java.util.logging.Logger.getLogger(TimingOracle.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (BadPaddingException ex) {
+            java.util.logging.Logger.getLogger(TimingOracle.class.getName()).log(Level.SEVERE, null, ex);
+        } finally {
+            try {
+                fw.close();
+            } catch (IOException ex) {
+                java.util.logging.Logger.getLogger(TimingOracle.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+        return false;
+    }
+    
+
+    public boolean checkPKCSConformity_bak(byte[] encPMS) throws OracleException {
         boolean ret = false;
         try {
             boolean groundTruth = cheat(encPMS);
@@ -427,8 +452,8 @@ public class TimingOracle extends ATimingOracle {
             byte[] encPMS = encryptHelper(plainPKCS, publicKey);
             byte[] encPMSWrong = encryptHelper(plainPKCS_wrong, publicKey);
 
-            to.trainOracle(encPMS, encPMSWrong);
-            System.exit(0);
+            // to.trainOracle(encPMS, encPMSWrong);
+            // System.exit(0);
 
             Bleichenbacher attacker = new Bleichenbacher(encPMS,
                     to, true);
