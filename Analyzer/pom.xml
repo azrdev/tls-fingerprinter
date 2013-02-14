@@ -183,9 +183,9 @@
             <version>1.2.1</version>
         </dependency>
         <dependency>
-            <artifactId>de.fau</artifactId>
-            <groupId>TimerReporter</groupId>
-            <version>1.0.0</version>
+            <groupId>de.fau.pi1</groupId>
+            <artifactId>TimerReporter</artifactId>
+            <version>1.1.2</version>
         </dependency>
         <dependency>
             <groupId>org.bouncycastle</groupId>
