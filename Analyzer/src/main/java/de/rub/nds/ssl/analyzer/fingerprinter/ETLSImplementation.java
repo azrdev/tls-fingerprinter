@@ -41,9 +41,9 @@ public enum ETLSImplementation {
      */
     JDK_7_07,
     /**
-     * GnuTLS Version x.xx
+     * GnuTLS Version 3.1.8
      */
-    GNUTLS,
+    GNUTLS_3_1_8,
     /**
      * Microsoft SChannel as shipped with IIS 6.0
      */

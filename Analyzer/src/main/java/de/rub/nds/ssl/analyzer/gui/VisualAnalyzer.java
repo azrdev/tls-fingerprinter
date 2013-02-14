@@ -439,9 +439,7 @@ public class VisualAnalyzer extends javax.swing.JFrame {
                     log(java.util.logging.Level.SEVERE, null, ex);
         }
         //</editor-fold>
-        ClassLoader classLoader = VisualAnalyzer.class.getClassLoader();
-        URL resource = classLoader.getResource("logging.properties");
-        PropertyConfigurator.configure(resource);
+        PropertyConfigurator.configure("logging.properties");
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
             @Override
