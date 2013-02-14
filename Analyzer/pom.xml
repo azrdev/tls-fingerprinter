@@ -155,11 +155,10 @@
             <resource>
                 <directory>${project.basedir}</directory>
                 <includes>
-                    <include>**/*</include>
+                    <include>*</include>
                 </includes>
             </resource>
         </resources>
-        
     </build>
         
     <dependencies>
