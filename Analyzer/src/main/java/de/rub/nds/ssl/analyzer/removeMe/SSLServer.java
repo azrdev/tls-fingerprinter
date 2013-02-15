@@ -47,7 +47,7 @@ public class SSLServer extends Thread {
         TrustManager[] trustManagers = trustManagerFactory.getTrustManagers();
         sslContext = SSLContext.getInstance(protocol);
         sslContext.init(keyManagers, trustManagers, null);
-        
+                
         this.listenPort = port;
         this.printInfo = printStateInfo;
         if (printInfo) {
@@ -108,7 +108,7 @@ public class SSLServer extends Thread {
         SSLServerSocketFactory serverSocketFactory = sslContext.
                 getServerSocketFactory();
         serverSocket = serverSocketFactory.createServerSocket(listenPort);
-
+        
         serverSocket.setSoTimeout(TIMEOUT);
         serverSocket.setReuseAddress(true);
         if (printInfo) {

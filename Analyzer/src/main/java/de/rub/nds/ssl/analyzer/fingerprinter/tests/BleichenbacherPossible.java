@@ -4,15 +4,20 @@ import de.rub.nds.ssl.analyzer.TestResult;
 import de.rub.nds.ssl.analyzer.executor.EFingerprintTests;
 import de.rub.nds.ssl.analyzer.parameters.BleichenbacherParameters;
 import de.rub.nds.ssl.stack.Utility;
+import de.rub.nds.ssl.stack.protocols.commons.ECipherSuite;
 import de.rub.nds.ssl.stack.protocols.commons.EProtocolVersion;
 import de.rub.nds.ssl.stack.protocols.commons.KeyExchangeParams;
+import de.rub.nds.ssl.stack.protocols.handshake.ClientHello;
 import de.rub.nds.ssl.stack.protocols.handshake.ClientKeyExchange;
+import de.rub.nds.ssl.stack.protocols.handshake.datatypes.CipherSuites;
 import de.rub.nds.ssl.stack.protocols.handshake.datatypes.EncPreMasterSecret;
 import de.rub.nds.ssl.stack.protocols.handshake.datatypes.PreMasterSecret;
+import de.rub.nds.ssl.stack.protocols.handshake.datatypes.RandomValue;
 import de.rub.nds.ssl.stack.protocols.msgs.datatypes.RsaUtil;
 import de.rub.nds.ssl.stack.trace.MessageContainer;
 import de.rub.nds.ssl.stack.workflows.TLS10HandshakeWorkflow;
 import de.rub.nds.ssl.stack.workflows.TLS10HandshakeWorkflow.EStates;
+import de.rub.nds.ssl.stack.workflows.commons.MessageBuilder;
 import de.rub.nds.ssl.stack.workflows.commons.MessageUtils;
 import de.rub.nds.ssl.stack.workflows.commons.ObservableBridge;
 import java.io.IOException;
@@ -108,19 +113,19 @@ public final class BleichenbacherPossible extends AGenericFingerprintTest
         }
         if (states != null) {
             switch (states) {
-//                case CLIENT_HELLO:
-//                    MessageBuilder builder = new MessageBuilder();
-//                    CipherSuites suites = new CipherSuites();
-//                    RandomValue random = new RandomValue();
-//                    suites.setSuites(new ECipherSuite[]{
-//                                ECipherSuite.TLS_RSA_WITH_AES_128_CBC_SHA});
-//                    ClientHello clientHello =
-//                            builder.createClientHello(EProtocolVersion.TLS_1_0.
-//                            getId(),
-//                            random.encode(false),
-//                            suites.encode(false), new byte[]{0x00});
-//                    trace.setCurrentRecord(clientHello);
-//                    break;
+                case CLIENT_HELLO:
+                    MessageBuilder builder = new MessageBuilder();
+                    CipherSuites suites = new CipherSuites();
+                    RandomValue random = new RandomValue();
+                    suites.setSuites(new ECipherSuite[]{
+                                ECipherSuite.TLS_RSA_WITH_AES_128_CBC_SHA});
+                    ClientHello clientHello = builder.
+                            createClientHello(protocolVersion.
+                            getId(),
+                            random.encode(false),
+                            suites.encode(false), new byte[]{0x00});
+                    trace.setCurrentRecord(clientHello);
+                    break;
                 case CLIENT_KEY_EXCHANGE:
                     KeyExchangeParams keyParams =
                             KeyExchangeParams.getInstance();

@@ -1,6 +1,7 @@
 package de.rub.nds.ssl.analyzer.attacker.bleichenbacher.oracles;
 
 import de.rub.nds.ssl.analyzer.attacker.bleichenbacher.OracleException;
+import de.rub.nds.ssl.stack.Utility;
 import de.rub.nds.ssl.stack.protocols.commons.ECipherSuite;
 import de.rub.nds.ssl.stack.protocols.commons.EProtocolVersion;
 import de.rub.nds.ssl.stack.protocols.commons.KeyExchangeParams;
@@ -28,7 +29,11 @@ import java.util.Observable;
  * September 14, 2012
  */
 public abstract class ATimingOracle extends ASSLServerOracle {
-
+    /**
+     * PreMasterSecret decrypted and decoded.
+     */
+    private PreMasterSecret plainPMS;
+    
     /**
      * Constructor
      *
@@ -90,16 +95,14 @@ public abstract class ATimingOracle extends ASSLServerOracle {
                     ClientKeyExchange cke = new ClientKeyExchange(
                             PROTOCOL_VERSION,
                             keyParams.getKeyExchangeAlgorithm());
-                    PreMasterSecret pms = new PreMasterSecret(PROTOCOL_VERSION);
-                    getWorkflow().setPreMasterSecret(pms);
-                    pms.setProtocolVersion(PROTOCOL_VERSION);
+                    getWorkflow().setPreMasterSecret(getPlainPMS());
 
                     //encrypt the PreMasterSecret
-                    EncPreMasterSecret encPMS =
-                            new EncPreMasterSecret(pk);
-                    encPMS.setEncryptedPreMasterSecret(getEncPMStoCheck());
+                    EncPreMasterSecret encPMS = new EncPreMasterSecret(pk);
+                    encPMS.setEncryptedPreMasterSecret(getEncPMS());
                     cke.setExchangeKeys(encPMS);
-
+                    
+                    trace.setOldRecord(trace.getCurrentRecord());
                     trace.setCurrentRecord(cke);
                     break;
                 default:
@@ -141,5 +144,21 @@ public abstract class ATimingOracle extends ASSLServerOracle {
             }
         }
         return overall;
+    }
+
+    /**
+     * Get the PreMasterSecret.
+     * @return Set PreMasterSecret.
+     */
+    public PreMasterSecret getPlainPMS() {
+        return new PreMasterSecret(plainPMS.encode(false));
+    }
+
+    /**
+     * Set the PreMasterSecret.
+     * @param plainPMS PMS to set.
+     */
+    public void setPlainPMS(final PreMasterSecret plainPMS) {
+        this.plainPMS = new PreMasterSecret(plainPMS.encode(false));
     }
 }

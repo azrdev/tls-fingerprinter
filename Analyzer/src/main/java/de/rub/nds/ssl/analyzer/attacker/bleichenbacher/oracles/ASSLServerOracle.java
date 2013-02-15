@@ -84,21 +84,20 @@ public abstract class ASSLServerOracle extends AOracle implements Observer {
         return peerCerts[0].getPublicKey();
     }
 
-    void exectuteWorkflow(final byte[] msg) throws OracleException {
+    void exectuteWorkflow(final byte[] msg, final ESupportedSockets socketType)
+            throws OracleException {
         try {
-            // setWorkflow(new TLS10HandshakeWorkflow(
-            //         ESupportedSockets.StandardSocket));
-            setWorkflow(new TLS10HandshakeWorkflow(
-                     ESupportedSockets.TimingSocket));
+            setWorkflow(new TLS10HandshakeWorkflow(socketType));
             getWorkflow().addObserver(this,
                     TLS10HandshakeWorkflow.EStates.CLIENT_HELLO);
             getWorkflow().addObserver(this,
                     TLS10HandshakeWorkflow.EStates.CLIENT_KEY_EXCHANGE);
-            getWorkflow().addObserver(this, TLS10HandshakeWorkflow.EStates.ALERT);
-            
+            getWorkflow().
+                    addObserver(this, TLS10HandshakeWorkflow.EStates.ALERT);
+
             getWorkflow().connectToTestServer(this.getHost(), this.getPort());
             numberOfQueries++;
-            
+
             setEncPMStoCheck(msg);
             getWorkflow().start();
             getWorkflow().closeSocket();
@@ -227,7 +226,7 @@ public abstract class ASSLServerOracle extends AOracle implements Observer {
     /**
      * @return the encPMStoCheck
      */
-    public byte[] getEncPMStoCheck() {
+    public byte[] getEncPMS() {
         return encPMStoCheck;
     }
 
@@ -236,7 +235,7 @@ public abstract class ASSLServerOracle extends AOracle implements Observer {
      */
     public void setEncPMStoCheck(final byte[] msg) {
         this.encPMStoCheck = new byte[msg.length];
-        System.arraycopy(msg, 0, getEncPMStoCheck(), 0, msg.length);
+        System.arraycopy(msg, 0, getEncPMS(), 0, msg.length);
     }
 
     /**

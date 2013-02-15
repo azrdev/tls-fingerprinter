@@ -9,6 +9,7 @@ import de.rub.nds.ssl.stack.protocols.handshake.datatypes.EncPreMasterSecret;
 import de.rub.nds.ssl.stack.protocols.handshake.datatypes.PreMasterSecret;
 import de.rub.nds.ssl.stack.trace.MessageContainer;
 import de.rub.nds.ssl.stack.workflows.TLS10HandshakeWorkflow;
+import de.rub.nds.ssl.stack.workflows.commons.ESupportedSockets;
 import de.rub.nds.ssl.stack.workflows.commons.ObservableBridge;
 import java.net.SocketException;
 import java.security.PublicKey;
@@ -50,7 +51,7 @@ public final class JSSE16Oracle extends ASSLServerOracle {
     @Override
     public boolean checkPKCSConformity(final byte[] msg) throws
             OracleException {
-        exectuteWorkflow(msg);
+        exectuteWorkflow(msg, ESupportedSockets.StandardSocket);
 
         return oracleResult();
     }
@@ -88,7 +89,7 @@ public final class JSSE16Oracle extends ASSLServerOracle {
                     //encrypt the PreMasterSecret
                     EncPreMasterSecret encPMS =
                             new EncPreMasterSecret(pk);
-                    encPMS.setEncryptedPreMasterSecret(getEncPMStoCheck());
+                    encPMS.setEncryptedPreMasterSecret(getEncPMS());
                     cke.setExchangeKeys(encPMS);
 
                     trace.setCurrentRecord(cke);

@@ -53,7 +53,12 @@ public final class TraceListAnalyzerUtility {
      */
     public static MessageContainer getLastTrace(
             final List<MessageContainer> traceList) {
-        return traceList.get(traceList.size() - 1);
+        MessageContainer result = null;
+        if(traceList.size() >= 1)  {
+            result = traceList.get(traceList.size() - 1);
+        }
+        
+        return result;
     }
 
     /**

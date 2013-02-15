@@ -23,7 +23,7 @@ public final class Database {
      * Instance of Database.
      */
     private static volatile Database db;
-
+    
     /**
      * Connect to database.
      */
@@ -46,12 +46,12 @@ public final class Database {
      * Shutdown the db. This is necessary to remove the DB locks.
      */
     public void shutdownDB() {
-        try {
-            DriverManager.getConnection("jdbc:derby:Fingerprint;"
-                    + "create=false;user=tester;password=ssltest;shutdown=true");
-        } catch (SQLException e) {
-            logger.error("Database error.", e);
-        }
+//        try {
+//            DriverManager.getConnection("jdbc:derby:Fingerprint;"
+//                    + "create=false;user=tester;password=ssltest;shutdown=true");
+//        } catch (SQLException e) {
+//            logger.error("Database error.", e);
+//        }
     }
 
     /**
@@ -123,8 +123,10 @@ public final class Database {
     public void closeStatementAndConnection(final PreparedStatement prepared) {
         try {
             // prepared.closeOnCompletion();
+            Connection connection = prepared.getConnection();
             prepared.close();
-            closeConnection(prepared.getConnection());
+            if(connection != null && !connection.isClosed())
+                closeConnection(connection);
         } catch (SQLException e) {
             logger.error("Database error.", e);
         }

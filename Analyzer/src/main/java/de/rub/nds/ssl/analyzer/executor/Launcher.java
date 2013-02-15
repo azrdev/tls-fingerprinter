@@ -6,12 +6,18 @@ import de.rub.nds.ssl.analyzer.TestResult;
 import de.rub.nds.ssl.analyzer.fingerprinter.ETLSImplementation;
 import de.rub.nds.ssl.analyzer.fingerprinter.FingerprintFuzzer;
 import de.rub.nds.ssl.analyzer.fingerprinter.IFingerprinter;
+import java.io.IOException;
+import java.net.ConnectException;
+import java.net.URL;
+import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLSocket;
 import org.apache.log4j.Logger;
 
 /**
@@ -58,8 +64,13 @@ public abstract class Launcher {
         // invoke components
         List<TestResult[]> results;
         for (String tmpTarget : targets) {
-            results = invokeExecutor(components, tmpTarget);
-            invokeAnalyzer(results);
+            if (checkConnection(tmpTarget)) {
+                results = invokeExecutor(components, tmpTarget);
+                invokeAnalyzer(results);
+            } else {
+                logger.info("No connection to target: "
+                        + tmpTarget + " possible.");
+            }
         }
     }
 
@@ -81,9 +92,44 @@ public abstract class Launcher {
         // invoke components
         List<TestResult[]> results;
         for (String tmpTarget : targets) {
-            results = invokeExecutor(EFingerprintTests.values(), tmpTarget);
-            invokeFuzzer(results, implementation);
+            if (checkConnection(tmpTarget)) {
+                results = invokeExecutor(EFingerprintTests.values(), tmpTarget);
+                invokeFuzzer(results, implementation);
+            } else {
+                logger.info("No connection to target: "
+                        + tmpTarget + " possible.");
+            }
         }
+    }
+
+    /**
+     * Checks if the target si reachable.
+     *
+     * @param target Target to check
+     * @return True if the target is reachable
+     */
+    private static boolean checkConnection(final String target) {
+        boolean result = false;
+
+        URL url;
+        HttpsURLConnection connection = null;
+        try {
+            url = new URL(target);
+            connection = (HttpsURLConnection) url.openConnection();
+            connection.connect();
+            result = true;
+        } catch (ConnectException e) {
+            result = false;
+        } catch (IOException e) {
+            // multiple scenarios lead to this eception - to be safe set true
+            result = true;
+        } finally {
+            if (connection != null) {
+                connection.disconnect();
+            }
+        }
+
+        return result;
     }
 
     /**
@@ -125,7 +171,7 @@ public abstract class Launcher {
         for (Future<TestResult[]> future : futures) {
             if (future.isCancelled()) {
                 continue;
-            }            
+            }
             results.add(future.get());
         }
 
@@ -143,13 +189,14 @@ public abstract class Launcher {
         for (TestResult[] resultWrappers : results) {
             for (TestResult tmpResult : resultWrappers) {
                 try {
-                    logger.info("Analyzing results from " 
+                    logger.info("Analyzing results from "
                             + tmpResult.getTestName()
                             + " with Analyzer "
-                            + tmpResult.getAnalyzer().getCanonicalName());                            ;
+                            + tmpResult.getAnalyzer().getCanonicalName());;
                     analyzer = tmpResult.getAnalyzer().newInstance();
                     analyzer.init(tmpResult.getParameters());
-                    analyzerResults.add(analyzer.analyze(tmpResult.getTraceList()));
+                    analyzerResults.add(analyzer.analyze(tmpResult.
+                            getTraceList()));
                 } catch (IllegalAccessException e) {
                     logger.error("Illegal Access.", e);
                 } catch (InstantiationException e) {
@@ -157,9 +204,10 @@ public abstract class Launcher {
                 }
             }
         }
-        
+
         // TODO mke me nice
-        Reporter.generateReport(analyzerResults.toArray(new AnalyzerResult[analyzerResults.size()]), logger);
+        Reporter.generateReport(analyzerResults.
+                toArray(new AnalyzerResult[analyzerResults.size()]), logger);
     }
 
     private static void invokeFuzzer(final List<TestResult[]> results,
