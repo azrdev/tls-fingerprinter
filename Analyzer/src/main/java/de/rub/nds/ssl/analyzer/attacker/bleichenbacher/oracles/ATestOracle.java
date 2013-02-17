@@ -118,11 +118,13 @@ public abstract class ATestOracle extends AOracle {
     /**
      * JSSE bug Plaintext oracle, for testing purposes:
      * 
-     * Example for 256 byte long RSA key:
+     * Example for 256/512 byte long RSA key:
      * The oracle returns true if:
      * <ul>
-     *   <li>first 8 bytes are not 0x00</li>
-     *   <li>the following 117 bytes contain at least one 0x00 byte</li>
+     *   <li>first two bytes are equal to 0x00 0x02</li>
+     *   <li>the following 8 bytes do not contain 0x00</li>
+     *   <li>the following (l-48-80) bytes contain at least one 0x00 byte,
+     *   where l is the message/key length</li>
      * </ul>
      * 
      * @param msg
@@ -138,12 +140,15 @@ public abstract class ATestOracle extends AOracle {
             return false;
         }
         // check the following bytes (excluding the last PMS and 80 padding bytes)
-        int last = msg.length - 49 - 80;
+        int last = msg.length - 1 - 48 - 80;
         for (int i=9; i< last; i++) {
             if (msg[i] == 0x00) {
-                return false;
+                // if message contains 0x00 in one of the following bytes, our
+                // oracle returns an Internal error
+                return true;
             }
         }
-        return true;
+        // otherwise, no Internal error is returned
+        return false;
     }
 }
