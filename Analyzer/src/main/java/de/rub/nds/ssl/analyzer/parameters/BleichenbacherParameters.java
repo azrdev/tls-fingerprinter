@@ -42,6 +42,10 @@ public class BleichenbacherParameters extends AParameters {
      * Arbitrary position in padding.
      */
     private int anyPosition;
+    /**
+     * Custom message used independently of the above parameters
+     */
+    private byte[] customMessage;
 
     /**
      * Get the position where padding is changed.
@@ -150,6 +154,24 @@ public class BleichenbacherParameters extends AParameters {
     public void setPosition(MessageUtils.POSITIONS position) {
         this.position = position;
     }
+    
+    /**
+     * Set the custom message to be encrypted as PKCS1 ciphertext
+     * 
+     * @return 
+     */
+    public byte[] getCustomMessage() {
+        return customMessage;
+    }
+
+    /**
+     * Get the custom message to be encrypted as PKCS1 ciphertext
+     * 
+     * @param customMessage 
+     */
+    public void setCustomMessage(byte[] customMessage) {
+        this.customMessage = customMessage;
+    }
 
     /**
      * {@inheritDoc}
@@ -169,6 +191,7 @@ public class BleichenbacherParameters extends AParameters {
         updateHash(sha1, getProtocolVersion());
         updateHash(sha1, String.valueOf(getPosition()).getBytes());
         updateHash(sha1, String.valueOf(isChangePadding()).getBytes());
+        updateHash(sha1, getCustomMessage());
         byte[] hash = sha1.digest();
         String hashValue = Utility.bytesToHex(hash);
         hashValue = hashValue.replace(" ", "");
