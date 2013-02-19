@@ -1,6 +1,8 @@
 package de.rub.nds.ssl.analyzer.fingerprinter.tests;
 
 import de.rub.nds.ssl.analyzer.TestResult;
+import de.rub.nds.ssl.analyzer.attacker.bleichenbacher.oracles.AOracle;
+import de.rub.nds.ssl.analyzer.attacker.bleichenbacher.oracles.ASSLServerOracle;
 import de.rub.nds.ssl.analyzer.executor.EFingerprintTests;
 import de.rub.nds.ssl.analyzer.parameters.BleichenbacherParameters;
 import de.rub.nds.ssl.stack.Utility;
@@ -238,7 +240,7 @@ public final class BleichenbacherPossible extends AGenericFingerprintTest
                 protocolVersion.getId(), true,
                 null, 5}
         };
-
+ASSLServerOracle.fetchServerPublicKey(getTargetHost(), getTargetPort());
         // Print Test Banner
         printBanner();
         // execute test(s)
