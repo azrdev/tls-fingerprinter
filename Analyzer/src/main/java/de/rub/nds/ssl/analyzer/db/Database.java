@@ -46,12 +46,12 @@ public final class Database {
      * Shutdown the db. This is necessary to remove the DB locks.
      */
     public void shutdownDB() {
-//        try {
-//            DriverManager.getConnection("jdbc:derby:Fingerprint;"
-//                    + "create=false;user=tester;password=ssltest;shutdown=true");
-//        } catch (SQLException e) {
-//            logger.error("Database error.", e);
-//        }
+        try {
+            DriverManager.getConnection("jdbc:derby:Fingerprint;"
+                    + "create=false;user=tester;password=ssltest;shutdown=true");
+        } catch (SQLException e) {
+            // silently ignore the hassle
+        }
     }
 
     /**
