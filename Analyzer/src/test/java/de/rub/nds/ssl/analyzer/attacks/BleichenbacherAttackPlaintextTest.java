@@ -70,7 +70,7 @@ public class BleichenbacherAttackPlaintextTest {
             throws Exception {
         Security.addProvider(new BouncyCastleProvider());
         KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("RSA");
-        keyPairGenerator.initialize(2048);
+        keyPairGenerator.initialize(1024);
 
         logger.warn("starting attacks");
 
@@ -100,30 +100,32 @@ public class BleichenbacherAttackPlaintextTest {
                     ATestOracle.OracleType.JSSE, cipher.getBlockSize());
 
             BleichenbacherCrypto12 attacker1 = new BleichenbacherCrypto12(message,
-                    oracle, true);
+                    oracle, true, 5000);
             attacker1.attack();
             queriesBardou.add(oracle.getNumberOfQueries());
+            System.out.println("Queries " + i + " : " + oracle.getNumberOfQueries());
 
-            oracle = new StdPlainOracle(keyPair.getPublic(),
-                    ATestOracle.OracleType.JSSE, cipher.getBlockSize());
-
-            Bleichenbacher attacker2 = new Bleichenbacher(message,
-                    oracle, true);
-            attacker2.attack();
-            queriesBleichenbacher.add(oracle.getNumberOfQueries());
+//            oracle = new StdPlainOracle(keyPair.getPublic(),
+//                    ATestOracle.OracleType.JSSE, cipher.getBlockSize());
+//
+//            Bleichenbacher attacker2 = new Bleichenbacher(message,
+//                    oracle, true);
+//            attacker2.attack();
+//            queriesBleichenbacher.add(oracle.getNumberOfQueries());
         }
         Collections.sort(queriesBardou);
-        Collections.sort(queriesBleichenbacher);
+//        Collections.sort(queriesBleichenbacher);
 
         System.out.println("---------------------");
+        long queries;
 
-        logger.warn("Bleichenbacher");
-        long queries = sumList(queriesBleichenbacher);
-        logger.warn("Queries total: " + queries);
-        logger.warn("Mean: " + (queries / iterations));
-        logger.warn("Median: " + queriesBleichenbacher.get(iterations / 2));
-        logger.warn("Min: " + queriesBleichenbacher.get(0));
-        logger.warn("Max:       " + queriesBleichenbacher.get(iterations - 1));
+//        logger.warn("Bleichenbacher");
+//        queries = sumList(queriesBleichenbacher);
+//        logger.warn("Queries total: " + queries);
+//        logger.warn("Mean: " + (queries / iterations));
+//        logger.warn("Median: " + queriesBleichenbacher.get(iterations / 2));
+//        logger.warn("Min: " + queriesBleichenbacher.get(0));
+//        logger.warn("Max:       " + queriesBleichenbacher.get(iterations - 1));
 
         logger.warn("Bardou");
         queries = sumList(queriesBardou);
