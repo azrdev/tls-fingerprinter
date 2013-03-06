@@ -62,6 +62,12 @@ public abstract class ATestOracle extends AOracle {
                         conform = true;
                     }
                     break;
+
+                case XMLENC:
+                    if (checkXMLENC(msg)) {
+                        conform = true;
+                    }
+                    break;
             }
         }
         return conform;
@@ -127,18 +133,18 @@ public abstract class ATestOracle extends AOracle {
      * @return
      */
     private boolean checkJSSE(byte[] msg) {
-        
+
         // check first 8 bytes
         if (!checkSecond(msg)) {
             return false;
         }
         // check if the second last byte is equal to 0x00
-        if(msg[msg.length-2] == 0x00) {
-            if(!containsByte((byte)0x00, msg, 10, msg.length-2)) {
+        if (msg[msg.length - 2] == 0x00) {
+            if (!containsByte((byte) 0x00, msg, 10, msg.length - 2)) {
                 return true;
             }
         }
-        
+
         if (msg.length > 128) {
             // check the following bytes (excluding the last PMS and 80 padding bytes)
             int last = msg.length - 1 - 48 - 80;
@@ -153,16 +159,36 @@ public abstract class ATestOracle extends AOracle {
         // otherwise, no Internal error is returned
         return false;
     }
-    
+
     /**
-     * checks if the message contains byte b in the area between 
-     * <from,to>
+     * Presents an XML Encryption oracle. This oracle checks, if the wrapped
+     * key has a correct size. It must be either 16, 24, or 32 bytes long.
      * 
+     * @param msg
+     * @return 
+     */
+    private boolean checkXMLENC(byte[] msg) {
+
+        // check first 8 bytes
+        if (!checkSecond(msg)) {
+            return false;
+        }
+
+        if(hasCorrectKeySize(16, msg) || hasCorrectKeySize(24, msg) || 
+                hasCorrectKeySize(32, msg)) {
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * checks if the message contains byte b in the area between <from,to>
+     *
      * @param b
      * @param msg
      * @param from
      * @param to
-     * @return 
+     * @return
      */
     private boolean containsByte(byte b, byte[] msg, int from, int to) {
         for (int i = from; i < to; i++) {
@@ -173,4 +199,21 @@ public abstract class ATestOracle extends AOracle {
         return false;
     }
 
+    /**
+     * Checks, if 0x00 is defined on a good position and if before this 0x00
+     * byte is no other 0x00
+     *
+     * @param keySize the length of the key included in the PKCS1 message
+     * @param msg message
+     * @return
+     */
+    private boolean hasCorrectKeySize(int keySize, byte[] msg) {
+        // check if the second last byte is equal to 0x00
+        if (msg[msg.length - keySize] == 0x00) {
+            if (!containsByte((byte) 0x00, msg, 10, msg.length - keySize)) {
+                return true;
+            }
+        }
+        return false;
+    }
 }

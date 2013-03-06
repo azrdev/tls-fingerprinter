@@ -46,10 +46,12 @@ public abstract class AOracle {
      *
      * FFF checks 0x00 0x02 on the beginning, the first 8 bytes cannot include
      * 0x00 and the 0x00 byte has to be set on a correct position
+     * 
+     * XMLENC checks if the key has a correct length (16, 24, or 32 bytes)
      */
     public enum OracleType {
 
-        TTT, TFT, FTT, FFT, FFF, JSSE
+        TTT, TFT, FTT, FFT, FFF, JSSE, XMLENC
     }
 
     /**
