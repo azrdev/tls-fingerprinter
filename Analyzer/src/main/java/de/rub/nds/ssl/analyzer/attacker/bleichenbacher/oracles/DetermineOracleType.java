@@ -160,6 +160,27 @@ public class DetermineOracleType extends ASSLServerOracle {
         plainPKCS_wrong[posOfTerminatingNullByte - 10] = 0x0;
         return plainPKCS_wrong;
     }
+    
+    public byte[] getPMS_NullByteInPMS() {
+        byte[] plainPKCS_wrong = new byte[validPKCS.length];
+        System.arraycopy(validPKCS, 0, plainPKCS_wrong, 0, validPKCS.length);
+        plainPKCS_wrong[plainPKCS_wrong.length - 2] = 0x0;
+        return plainPKCS_wrong;
+    }
+    
+    public byte[] getPMS_NullByteAtPos2() {
+        byte[] plainPKCS_wrong = new byte[validPKCS.length];
+        System.arraycopy(validPKCS, 0, plainPKCS_wrong, 0, validPKCS.length);
+        plainPKCS_wrong[2] = 0x0;
+        return plainPKCS_wrong;
+    }
+    
+    public byte[] getPMS_NullByteAtPos9() {
+        byte[] plainPKCS_wrong = new byte[validPKCS.length];
+        System.arraycopy(validPKCS, 0, plainPKCS_wrong, 0, validPKCS.length);
+        plainPKCS_wrong[9] = 0x0;
+        return plainPKCS_wrong;
+    }
 
     @Override
     public boolean checkPKCSConformity(byte[] msg) throws OracleException {
@@ -268,6 +289,16 @@ public class DetermineOracleType extends ASSLServerOracle {
             
             System.out.println("#################### Sending a PMS with no NULL byte before PMS");
             result = cipher.doFinal(getPMS_NoNullByte());
+            exectuteWorkflow(result);
+            Thread.sleep(2000);
+            
+            System.out.println("#################### Sending a PMS with a NULL byte at position 3");
+            result = cipher.doFinal(getPMS_NullByteAtPos2());
+            exectuteWorkflow(result);
+            Thread.sleep(2000);
+            
+            System.out.println("#################### Sending a PMS with a NULL byte at position 9");
+            result = cipher.doFinal(getPMS_NullByteAtPos9());
             exectuteWorkflow(result);
             Thread.sleep(2000);
             
