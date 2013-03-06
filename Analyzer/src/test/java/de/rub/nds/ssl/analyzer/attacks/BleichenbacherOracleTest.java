@@ -32,7 +32,7 @@ public class BleichenbacherOracleTest {
     static Logger logger = Logger.getRootLogger();
 
     @Test(enabled = true)
-    public final void testBleichenbacherAttackPerformanceTrimmers()
+    public final void testJSSEOracle()
             throws Exception {
 
         KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("RSA");
@@ -56,6 +56,41 @@ public class BleichenbacherOracleTest {
         
         // insert an extra 0x00 byte in the middle
         msg[20] = 0x00;
+        Assert.assertFalse(oracle.checkPKCSConformity(msg));
+    }
+    
+    @Test(enabled = true)
+    public final void testXMLENCOracle() throws Exception {
+
+        KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("RSA");
+        keyPairGenerator.initialize(1024);
+        KeyPair keyPair = keyPairGenerator.genKeyPair();
+        AOracle oracle = new StdPlainOracle(keyPair.getPublic(),
+                        ATestOracle.OracleType.JSSE, 128);
+        
+        byte[] msg = new byte[127];
+        for(int i=0; i<msg.length; i++) {
+            msg[i] = 0x01;
+        }
+        // start with 0x02, no 0x00 byte given
+        msg[0] = 0x02;
+        
+        Assert.assertFalse(oracle.checkPKCSConformity(msg));
+        
+        // set the 16th byte from behind to 0x00
+        msg[msg.length-16] = 0x00;        
+        Assert.assertTrue(oracle.checkPKCSConformity(msg));
+        
+        // set the 24th byte from behind to 0x00
+        msg[msg.length-24] = 0x00;        
+        Assert.assertTrue(oracle.checkPKCSConformity(msg));
+        
+        // set the 32th byte from behind to 0x00
+        msg[msg.length-32] = 0x00;        
+        Assert.assertTrue(oracle.checkPKCSConformity(msg));
+        
+        // insert an extra 0x00 byte in the middle
+        msg[50] = 0x00;
         Assert.assertFalse(oracle.checkPKCSConformity(msg));
     }
 

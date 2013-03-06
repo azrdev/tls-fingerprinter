@@ -17,6 +17,7 @@ import de.rub.nds.ssl.stack.protocols.handshake.datatypes.PreMasterSecret;
 import de.rub.nds.ssl.stack.protocols.handshake.datatypes.RandomValue;
 import de.rub.nds.ssl.stack.trace.MessageContainer;
 import de.rub.nds.ssl.stack.workflows.TLS10HandshakeWorkflow;
+import de.rub.nds.ssl.stack.workflows.commons.ESupportedSockets;
 import de.rub.nds.ssl.stack.workflows.commons.MessageBuilder;
 import de.rub.nds.ssl.stack.workflows.commons.ObservableBridge;
 import java.io.InputStream;
@@ -232,7 +233,7 @@ public class DetermineOracleType extends ASSLServerOracle {
                     //encrypt the PreMasterSecret
                     EncPreMasterSecret encPMS =
                             new EncPreMasterSecret(pk);
-                    encPMS.setEncryptedPreMasterSecret(getEncPMStoCheck());
+                    encPMS.setEncryptedPreMasterSecret(getEncPMS());
                     cke.setExchangeKeys(encPMS);
 
                     trace.setCurrentRecord(cke);
@@ -247,6 +248,7 @@ public class DetermineOracleType extends ASSLServerOracle {
     private void go() {
         
         try {
+            ESupportedSockets socket = ESupportedSockets.TimingSocket;
             String keyName = "2048_rsa";
             ClassLoader classLoader = DetermineOracleType.class.getClassLoader();
             InputStream stream = classLoader.getResourceAsStream("2048.jks");
@@ -269,37 +271,37 @@ public class DetermineOracleType extends ASSLServerOracle {
 
             System.out.println("#################### Sending a PERFECT PMS");
             byte[] result = cipher.doFinal(validPKCS);
-            exectuteWorkflow(result);
+            executeWorkflow(result, socket);
             Thread.sleep(2000);
             
             System.out.println("#################### Sending a PMS with wrong FIRST byte");
             result = cipher.doFinal(getPMS_WrongFirstByte());
-            exectuteWorkflow(result);
+            executeWorkflow(result, socket);
             Thread.sleep(2000);
             
             System.out.println("#################### Sending a PMS with wrong SECOND byte");
             result = cipher.doFinal(getPMS_WrongFirstByte());
-            exectuteWorkflow(result);
+            executeWorkflow(result, socket);
             Thread.sleep(2000);
             
             System.out.println("#################### Sending a PMS with NULL byte in Padding");
             result = cipher.doFinal(getPMS_NullByteInPadding());
-            exectuteWorkflow(result);
+            executeWorkflow(result, socket);
             Thread.sleep(2000);
             
             System.out.println("#################### Sending a PMS with no NULL byte before PMS");
             result = cipher.doFinal(getPMS_NoNullByte());
-            exectuteWorkflow(result);
+            executeWorkflow(result, socket);
             Thread.sleep(2000);
             
             System.out.println("#################### Sending a PMS with a NULL byte at position 3");
             result = cipher.doFinal(getPMS_NullByteAtPos2());
-            exectuteWorkflow(result);
+            executeWorkflow(result, socket);
             Thread.sleep(2000);
             
             System.out.println("#################### Sending a PMS with a NULL byte at position 9");
             result = cipher.doFinal(getPMS_NullByteAtPos9());
-            exectuteWorkflow(result);
+            executeWorkflow(result, socket);
             Thread.sleep(2000);
             
             sslServer.shutdown();

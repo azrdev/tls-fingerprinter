@@ -218,10 +218,10 @@ public class TimingOracle extends ATimingOracle {
 
         for (int i = 0; i < amountOfMeasurements; i++) {
             try {
-                exectuteWorkflow(testPMS, ESupportedSockets.TimingSocket);
+                executeWorkflow(testPMS, ESupportedSockets.TimingSocket);
                 measurementsTest[i] = getTimeDelay(getWorkflow().getTraceList());
 
-                exectuteWorkflow(encPMSWrong, ESupportedSockets.TimingSocket);
+                executeWorkflow(encPMSWrong, ESupportedSockets.TimingSocket);
                 measurementsInvalid[i] = getTimeDelay(getWorkflow().
                         getTraceList());
             } catch (OracleException ex) {
@@ -257,8 +257,8 @@ public class TimingOracle extends ATimingOracle {
         // warmup
         System.out.print("warmup... ");
         for (int i = 0; i < warmupAmount / 2; i++) {
-            exectuteWorkflow(invalidRequest, ESupportedSockets.TimingSocket);
-            exectuteWorkflow(validRequest, ESupportedSockets.TimingSocket);
+            executeWorkflow(invalidRequest, ESupportedSockets.TimingSocket);
+            executeWorkflow(validRequest, ESupportedSockets.TimingSocket);
         }
         System.out.println("done!");
 
@@ -267,11 +267,11 @@ public class TimingOracle extends ATimingOracle {
 //            long delay;
 //            // train the oracle using the executeWorkflow functionality
 //            for (int i = 0; i < trainingAmount; i++) {
-//                exectuteWorkflow(validRequest);
+//                executeWorkflow(validRequest);
 //                delay = getTimeDelay(getWorkflow().getTraceList());
 //                validTimings.add(delay);
 //
-//                exectuteWorkflow(invalidRequest);
+//                executeWorkflow(invalidRequest);
 //                delay = getTimeDelay(getWorkflow().getTraceList());
 //                invalidTimings.add(delay);
 //

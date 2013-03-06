@@ -84,7 +84,7 @@ public abstract class ASSLServerOracle extends AOracle implements Observer {
         return peerCerts[0].getPublicKey();
     }
 
-    void exectuteWorkflow(final byte[] msg, final ESupportedSockets socketType)
+    void executeWorkflow(final byte[] msg, final ESupportedSockets socketType)
             throws OracleException {
         try {
             setWorkflow(new TLS10HandshakeWorkflow(socketType));

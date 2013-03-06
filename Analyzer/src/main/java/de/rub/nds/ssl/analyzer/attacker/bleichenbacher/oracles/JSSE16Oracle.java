@@ -51,7 +51,7 @@ public final class JSSE16Oracle extends ASSLServerOracle {
     @Override
     public boolean checkPKCSConformity(final byte[] msg) throws
             OracleException {
-        exectuteWorkflow(msg, ESupportedSockets.StandardSocket);
+        executeWorkflow(msg, ESupportedSockets.StandardSocket);
 
         return oracleResult();
     }
