@@ -68,16 +68,14 @@ public final class Reporter {
         DecimalFormat twoDForm = new DecimalFormat("###.##");
         for (ETLSImplementation impl : ETLSImplementation.values()) {
             tmpScore = scoreCounter.getScore(impl);
-            logger.info(
-                    impl.name() + ": " + tmpScore
-                    + " - " + Double.valueOf(twoDForm.format(
-                    (double) tmpScore / (double) totalScore * 100)) + "% Probability");
+            logger.info(impl.name() + ": " + tmpScore + " - " + Double.valueOf(
+                twoDForm.format((double) tmpScore / (double) totalScore * 100))
+                    + "% Probability");
         }
 
         tmpScore = scoreCounter.getNoHitCounter();
-        logger.info("No hit" + ": " + tmpScore
-                + " - " + Double.valueOf(twoDForm.format(
-                (double) tmpScore / (double) totalScore * 100))
+        logger.info("No hit" + ": " + tmpScore + " - " + Double.valueOf(
+                twoDForm.format((double) tmpScore / (double) totalScore * 100))
                 + "% Probability");
     }
 }

@@ -4,31 +4,20 @@
  */
 package de.rub.nds.ssl.analyzer.attacker.bleichenbacher.oracles;
 
-import de.fau.pi1.timerReporter.dataset.Dataset;
-import de.fau.pi1.timerReporter.evaluation.StatisticEvaluation;
-import de.fau.pi1.timerReporter.plots.PlotPool;
-import de.fau.pi1.timerReporter.reader.ReaderCsv;
-import de.fau.pi1.timerReporter.tools.Conf;
-import de.fau.pi1.timerReporter.tools.FileId;
-import de.fau.pi1.timerReporter.tools.Folder;
-import de.fau.pi1.timerReporter.writer.WritePDF;
 import de.rub.nds.ssl.analyzer.attacker.Bleichenbacher;
 import de.rub.nds.ssl.analyzer.attacker.bleichenbacher.OracleException;
 import de.rub.nds.ssl.analyzer.removeMe.SSLServer;
-import de.rub.nds.ssl.stack.Utility;
 import de.rub.nds.ssl.stack.protocols.handshake.datatypes.PreMasterSecret;
 import de.rub.nds.ssl.stack.workflows.commons.ESupportedSockets;
-import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.SocketException;
-import java.net.URL;
 import java.security.*;
 import java.security.cert.CertificateException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Enumeration;
 import java.util.logging.Level;
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
@@ -130,7 +119,7 @@ public class TimingOracle extends ATimingOracle {
     /**
      * Detailed Info print out.
      */
-    private static final boolean PRINT_INFO = false;
+    private static final boolean PRINT_INFO = true;
     /**
      * Protocol short name.
      */
@@ -404,7 +393,7 @@ public class TimingOracle extends ATimingOracle {
             NoSuchAlgorithmException, CertificateException {
         KeyStore ks = KeyStore.getInstance("JKS");
         ks.load(keyStoreStream, keyStorePassword.toCharArray());
-
+        
         return ks;
     }
 
@@ -513,16 +502,16 @@ public class TimingOracle extends ATimingOracle {
 
     public void setUp() {
         try {
-            ClassLoader classLoader = TimingOracle.class.getClassLoader();
-            InputStream stream = classLoader.getResourceAsStream("2048.jks");
-            KeyStore ks = loadKeyStore(stream, "password");
-            // System.setProperty("javax.net.debug", "ssl");
+            KeyStore ks = loadKeyStore(new FileInputStream("2048.jks"),
+                    "password");
+            System.setProperty("javax.net.debug", "ssl");
+            
             sslServer = new SSLServer(ks, JKS_PASSWORD,
                     protocolShortName, PORT, PRINT_INFO);
             sslServerThread = new Thread(sslServer);
             sslServerThread.start();
             Thread.currentThread().sleep(2000);
-        } catch (Exception e) {
+        } catch (Exception e) {                        
             e.printStackTrace();
         }
     }
@@ -540,7 +529,7 @@ public class TimingOracle extends ATimingOracle {
             PrivateKey privateKey = (PrivateKey) ks.getKey(keyName, keyPassword.
                     toCharArray());
 
-            TimingOracle to = new TimingOracle("127.0.0.1",PORT,
+            TimingOracle to = new TimingOracle(HOST ,PORT,
                     privateKey, OracleType.TTT);
             // TODO: Start SSL-Server for testing purposes
             to.setUp();
