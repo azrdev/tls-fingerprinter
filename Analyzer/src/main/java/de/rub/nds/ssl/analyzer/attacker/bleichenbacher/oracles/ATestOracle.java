@@ -83,7 +83,7 @@ public abstract class ATestOracle extends AOracle {
      * @param msg
      * @return
      */
-    private boolean checkFirst(byte[] msg) {
+    private boolean checkFirst(final byte[] msg) {
         boolean result = false;
         for (int i = 9; i < blockSize - 1; i++) {
             if (msg[i] == 0x00) {
@@ -101,7 +101,7 @@ public abstract class ATestOracle extends AOracle {
      * @param msg
      * @return
      */
-    private boolean checkSecond(byte[] msg) {
+    private boolean checkSecond(final byte[] msg) {
         boolean result = true;
         for (int i = 1; i < 9; i++) {
             if (msg[i] == 0x00) {
@@ -119,9 +119,9 @@ public abstract class ATestOracle extends AOracle {
      * @param msg
      * @return
      */
-    private boolean checkThird(byte[] msg) {
+    private boolean checkThird(final byte[] msg) {
         boolean result = false;
-        if (msg[blockSize - 1 - 16] == 0x00) {
+        if (msg[blockSize - 1 - 48] == 0x00) {
             result = true;
         }
         return result;
@@ -138,7 +138,7 @@ public abstract class ATestOracle extends AOracle {
      * @param msg
      * @return
      */
-    private boolean checkJSSE(byte[] msg) {
+    private boolean checkJSSE(final byte[] msg) {
         // check first 8 bytes
         if (!checkSecond(msg)) {
             return false;
@@ -172,7 +172,7 @@ public abstract class ATestOracle extends AOracle {
      * @param msg
      * @return
      */
-    private boolean checkXMLENC(byte[] msg) {
+    private boolean checkXMLENC(final byte[] msg) {
 
         // check first 8 bytes
         if (!checkSecond(msg)) {
@@ -195,7 +195,8 @@ public abstract class ATestOracle extends AOracle {
      * @param to
      * @return
      */
-    private boolean containsByte(byte b, byte[] msg, int from, int to) {
+    private boolean containsByte(final byte b, final byte[] msg, 
+            final int from, final int to) {
         boolean result = false;
         for (int i = from; i < to; i++) {
             if (msg[i] == b) {
@@ -214,7 +215,7 @@ public abstract class ATestOracle extends AOracle {
      * @param msg message
      * @return
      */
-    private boolean hasCorrectKeySize(int keySize, byte[] msg) {
+    private boolean hasCorrectKeySize(final int keySize, final byte[] msg) {
         boolean result = false;
         // check if the second last byte is equal to 0x00
         if (msg[msg.length - keySize] == 0x00) {
