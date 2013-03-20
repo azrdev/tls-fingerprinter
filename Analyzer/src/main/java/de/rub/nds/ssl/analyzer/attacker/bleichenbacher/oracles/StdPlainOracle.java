@@ -14,7 +14,7 @@ import java.security.interfaces.RSAPublicKey;
 public class StdPlainOracle extends ATestOracle {
 
     public StdPlainOracle(final PublicKey pubKey,
-            ATestOracle.OracleType oracleType, int blockSize) {
+            final ATestOracle.OracleType oracleType, final int blockSize) {
         this.publicKey = (RSAPublicKey) pubKey;
         this.oracleType = oracleType;
         this.isPlaintextOracle = true;
@@ -22,7 +22,7 @@ public class StdPlainOracle extends ATestOracle {
     }
 
     @Override
-    public boolean checkPKCSConformity(byte[] msg) {
+    public boolean checkPKCSConformity(final byte[] msg) {
         numberOfQueries++;
         return checkDecryptedBytes(msg);
     }

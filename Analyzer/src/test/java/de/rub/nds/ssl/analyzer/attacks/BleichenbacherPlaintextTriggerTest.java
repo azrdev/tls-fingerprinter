@@ -106,7 +106,7 @@ public class BleichenbacherPlaintextTriggerTest {
         }
     }
     
-    @Test(enabled = false, dataProvider= "pkcsTestVectors")
+    @Test(enabled = true, dataProvider= "pkcsTestVectors")
     public final void testBleichenbacherAttack(final String testName, final Byte[] pkcs)
             throws Exception {
         logger.info("++++Start Test No. " + testCounter + " (" + testName + ")++++");
@@ -115,10 +115,11 @@ public class BleichenbacherPlaintextTriggerTest {
         AOracle oracle = new StdPlainOracle(keyPair.getPublic(), 
                 ATestOracle.OracleType.FFF, BLOCKSIZE);
         byte[] plainPKCS = new byte[pkcs.length];
+        // Byte to byte converison!
         for(int i=0; i < plainPKCS.length; i++) {
-            plainPKCS[i] = pkcs[i];
+            plainPKCS[i] = pkcs[i].byteValue();
         }
-        
+
         Bleichenbacher attacker = new Bleichenbacher(plainPKCS, oracle, true);
         attacker.attack();
 

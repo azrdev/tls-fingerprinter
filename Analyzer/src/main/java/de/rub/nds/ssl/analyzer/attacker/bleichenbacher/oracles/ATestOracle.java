@@ -16,57 +16,60 @@ public abstract class ATestOracle extends AOracle {
      * @param msg
      * @return
      */
-    boolean checkDecryptedBytes(byte[] msg) {
+    boolean checkDecryptedBytes(final byte[] msg) {
 
         boolean conform = false;
+        byte[] tmpMsg = msg;
 
-        if (msg[0] == 0x00) {
-            byte[] tmp = new byte[msg.length - 1];
-            System.arraycopy(msg, 1, tmp, 0, tmp.length);
-            msg = tmp;
+        if (tmpMsg[0] == 0x00) {
+            byte[] tmp = new byte[tmpMsg.length - 1];
+            System.arraycopy(tmpMsg, 1, tmp, 0, tmp.length);
+            tmpMsg = tmp;
         }
 
-        if (msg[0] == 0x02 && msg.length == (blockSize - 1)) {
-
+        if (tmpMsg[0] == 0x02 && tmpMsg.length == (blockSize - 1)) {
             switch (oracleType) {
                 case TTT:
                     conform = true;
                     break;
 
                 case FTT:
-                    if (checkFirst(msg)) {
+                    if (checkFirst(tmpMsg)) {
                         conform = true;
                     }
                     break;
 
                 case TFT:
-                    if (checkSecond(msg)) {
+                    if (checkSecond(tmpMsg)) {
                         conform = true;
                     }
                     break;
 
                 case FFT:
-                    if (checkFirst(msg) && checkSecond(msg)) {
+                    if (checkFirst(tmpMsg) && checkSecond(tmpMsg)) {
                         conform = true;
                     }
                     break;
 
                 case FFF:
-                    if (checkFirst(msg) && checkSecond(msg) && checkThird(msg)) {
+                    if (checkFirst(tmpMsg) && checkSecond(tmpMsg)
+                            && checkThird(tmpMsg)) {
                         conform = true;
                     }
                     break;
 
                 case JSSE:
-                    if (checkJSSE(msg)) {
+                    if (checkJSSE(tmpMsg)) {
                         conform = true;
                     }
                     break;
 
                 case XMLENC:
-                    if (checkXMLENC(msg)) {
+                    if (checkXMLENC(tmpMsg)) {
                         conform = true;
                     }
+                    break;
+                default:
                     break;
             }
         }
@@ -81,12 +84,14 @@ public abstract class ATestOracle extends AOracle {
      * @return
      */
     private boolean checkFirst(byte[] msg) {
+        boolean result = false;
         for (int i = 9; i < blockSize - 1; i++) {
             if (msg[i] == 0x00) {
-                return true;
+                result = true;
             }
         }
-        return false;
+
+        return result;
     }
 
     /**
@@ -97,12 +102,13 @@ public abstract class ATestOracle extends AOracle {
      * @return
      */
     private boolean checkSecond(byte[] msg) {
+        boolean result = true;
         for (int i = 1; i < 9; i++) {
             if (msg[i] == 0x00) {
-                return false;
+                result = false;
             }
         }
-        return true;
+        return result;
     }
 
     /**
@@ -114,11 +120,11 @@ public abstract class ATestOracle extends AOracle {
      * @return
      */
     private boolean checkThird(byte[] msg) {
+        boolean result = false;
         if (msg[blockSize - 1 - 16] == 0x00) {
-            return true;
-        } else {
-            return false;
+            result = true;
         }
+        return result;
     }
 
     /**
@@ -133,7 +139,6 @@ public abstract class ATestOracle extends AOracle {
      * @return
      */
     private boolean checkJSSE(byte[] msg) {
-
         // check first 8 bytes
         if (!checkSecond(msg)) {
             return false;
@@ -161,11 +166,11 @@ public abstract class ATestOracle extends AOracle {
     }
 
     /**
-     * Presents an XML Encryption oracle. This oracle checks, if the wrapped
-     * key has a correct size. It must be either 16, 24, or 32 bytes long.
-     * 
+     * Presents an XML Encryption oracle. This oracle checks, if the wrapped key
+     * has a correct size. It must be either 16, 24, or 32 bytes long.
+     *
      * @param msg
-     * @return 
+     * @return
      */
     private boolean checkXMLENC(byte[] msg) {
 
@@ -174,8 +179,8 @@ public abstract class ATestOracle extends AOracle {
             return false;
         }
 
-        if(hasCorrectKeySize(16, msg) || hasCorrectKeySize(24, msg) || 
-                hasCorrectKeySize(32, msg)) {
+        if (hasCorrectKeySize(16, msg) || hasCorrectKeySize(24, msg)
+                || hasCorrectKeySize(32, msg)) {
             return true;
         }
         return false;
@@ -191,12 +196,14 @@ public abstract class ATestOracle extends AOracle {
      * @return
      */
     private boolean containsByte(byte b, byte[] msg, int from, int to) {
+        boolean result = false;
         for (int i = from; i < to; i++) {
             if (msg[i] == b) {
-                return true;
+                result = true;
+                break;
             }
         }
-        return false;
+        return result;
     }
 
     /**
@@ -208,12 +215,13 @@ public abstract class ATestOracle extends AOracle {
      * @return
      */
     private boolean hasCorrectKeySize(int keySize, byte[] msg) {
+        boolean result = false;
         // check if the second last byte is equal to 0x00
         if (msg[msg.length - keySize] == 0x00) {
             if (!containsByte((byte) 0x00, msg, 10, msg.length - keySize)) {
-                return true;
+                result = true;
             }
         }
-        return false;
+        return result;
     }
 }
