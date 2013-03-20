@@ -59,7 +59,7 @@ public class BleichenbacherOracleTest {
         Assert.assertFalse(oracle.checkPKCSConformity(msg));
     }
     
-    @Test(enabled = true)
+    @Test(enabled = false)
     public final void testXMLENCOracle() throws Exception {
 
         KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("RSA");

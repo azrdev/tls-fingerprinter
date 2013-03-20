@@ -113,8 +113,7 @@ public abstract class ATestOracle extends AOracle {
 
     /**
      * Returns true if and only if the message contains the 0x00 byte on the
-     * correct position in the plaintext (e.g. the 16th byte from behind in case
-     * of AES128)
+     * correct position in the plaintext.
      *
      * @param msg
      * @return
