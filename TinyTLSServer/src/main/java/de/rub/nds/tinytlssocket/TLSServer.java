@@ -38,28 +38,29 @@ import org.apache.log4j.Priority;
 public final class TLSServer extends Thread {
 
     private final byte[] MESSAGE = "Welcome to the TinyTLSServer".getBytes();
+    private static final int TIMEOUT = 500;
+    private Logger logger;
     private int listenPort;
     private SSLContext sslContext;
     private boolean shutdown;
-    private static final int TIMEOUT = 500;
-    private Logger logger;
+    private boolean debugMode;
 
     public TLSServer(final String keyStorePath, final String password,
-            final String protocol, final int port)
+            final String protocol, final int port, final boolean debug)
             throws KeyStoreException, IOException, NoSuchAlgorithmException,
             CertificateException, UnrecoverableKeyException,
             KeyManagementException {
 
         KeyStore keyStore = loadKeyStore(keyStorePath);
-        init(keyStore, password, protocol, port);
+        init(keyStore, password, protocol, port, debug);
     }
 
     public TLSServer(final KeyStore keyStore, final String password,
-            final String protocol, final int port) throws KeyStoreException,
-            IOException, NoSuchAlgorithmException,
+            final String protocol, final int port, final boolean debug)
+            throws KeyStoreException, IOException, NoSuchAlgorithmException,
             CertificateException, UnrecoverableKeyException,
             KeyManagementException {
-        init(keyStore, password, protocol, port);
+        init(keyStore, password, protocol, port, debug);
     }
 
     private KeyStore loadKeyStore(final String keyStorePath) throws
@@ -71,7 +72,7 @@ public final class TLSServer extends Thread {
         return ks;
     }
 
-    private Logger setupLogger() {
+    private Logger setupLogger(final boolean debug) {
         Logger result = Logger.getRootLogger();
 
         // make sure everything sent to System.err is logged
@@ -85,19 +86,22 @@ public final class TLSServer extends Thread {
                 true));
 
         // activate handshake debug logging
-        System.setProperty("javax.net.debug", "ssl,handshake");
+        if (debug) {
+            System.setProperty("javax.net.debug", "ssl,handshake");
+        }
 
         return result;
     }
 
     private void init(final KeyStore keyStore, final String password,
-            final String protocol, final int port) throws KeyStoreException,
-            IOException, NoSuchAlgorithmException,
+            final String protocol, final int port, final boolean debug)
+            throws KeyStoreException, IOException, NoSuchAlgorithmException,
             CertificateException, UnrecoverableKeyException,
             KeyManagementException {
-        this.logger = setupLogger();
+        this.logger = setupLogger(debug);
         this.sslContext = setupContext(keyStore, password, protocol);
         this.listenPort = port;
+        this.debugMode = debug;
 
         logger.info("|| SSL Server successfully initialized!");
     }

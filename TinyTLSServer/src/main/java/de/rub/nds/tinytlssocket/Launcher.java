@@ -17,13 +17,15 @@ public class Launcher {
      */
     public static void main(String[] args) throws Exception {
         final TLSServer serverThread;
-        if (args.length != 4) {
+        if (args.length != 5) {
             System.out.println("Invalid number of arguments!\n"
                     + "Usage: java -jar TinyTLSServer.jar "
-                    + " Key store path, Password, Protocol version, Port");
+                    + " Key store path, Password, Protocol version, Port, "
+                    + " Debug mode enabled");
         } else {
             int port = Integer.parseInt(args[3]);
-            serverThread = new TLSServer(args[0], args[1], args[2], port);
+            boolean debug = Boolean.getBoolean(args[4]);
+            serverThread = new TLSServer(args[0], args[1], args[2], port, debug);
             serverThread.start();
 
             Runtime.getRuntime().addShutdownHook(new Thread() {
