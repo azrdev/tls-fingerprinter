@@ -11,10 +11,9 @@
     <modules>
         <module>Stack</module>
         <module>TimingSocket</module>
-        <module>VirtualNetworkLayer</module>
         <module>Analyzer</module>
-    <module>TinyTLSSocket</module>
-  </modules>
+        <module>TinyTLSServer</module>
+    </modules>
     
     <build>
         <pluginManagement>
