@@ -204,13 +204,14 @@ public final class PreMasterSecret extends APubliclySerializable
 
         // deep copy
         System.arraycopy(message, 0, secret, 0, secret.length);
-        
+
         // check size
         if (secret.length < LENGTH_MINIMUM_ENCODED) {
             throw new IllegalArgumentException("PreMasterSecret too short.");
         } else if (secret.length > LENGTH_MINIMUM_ENCODED) {
-        	System.err.println(Arrays.toString(secret));
-            throw new IllegalArgumentException("PreMasterSecret too long: " + secret.length + " > " + LENGTH_MINIMUM_ENCODED);
+            System.err.println(Arrays.toString(secret));
+            throw new IllegalArgumentException("PreMasterSecret too long: " 
+                    + secret.length + " > " + LENGTH_MINIMUM_ENCODED);
         }
 
         pointer = 0;

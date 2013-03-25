@@ -20,7 +20,6 @@ import de.rub.nds.ssl.stack.workflows.response.fecther.AResponseFetcher;
 import de.rub.nds.ssl.stack.workflows.response.fecther.StandardFetcher;
 import de.rub.nds.ssl.stack.workflows.response.fecther.TimingFetcher;
 import de.rub.nds.ssl.stack.workflows.response.fecther.VNLFetcher;
-import de.rub.nds.virtualnetworklayer.socket.VNLSocket;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -105,10 +104,6 @@ public final class TLS10HandshakeWorkflow extends AWorkflow {
                 so = new TimingSocket();
                 fetcher = new TimingFetcher(so, this);
                 break;
-            case VNLSocket:
-                so = new VNLSocket();
-                fetcher = new VNLFetcher((VNLSocket) so, this);
-                break;
         }
     }
 
@@ -178,9 +173,8 @@ public final class TLS10HandshakeWorkflow extends AWorkflow {
              * create ClientKeyExchange
              */
             MessageContainer trace1 = new MessageContainer();
-            trace1.
-                    setPreviousState(EStates.
-                    getStateById(this.getCurrentState()));
+            trace1.setPreviousState(EStates.getStateById(
+                    this.getCurrentState()));
             record = msgBuilder.createClientKeyExchange(protocolVersion, this);
             setRecordTrace(trace1, record);
             // change status and notify observers
@@ -205,9 +199,8 @@ public final class TLS10HandshakeWorkflow extends AWorkflow {
              * create ChangeCipherSepc
              */
             MessageContainer trace2 = new MessageContainer();
-            trace2.
-                    setPreviousState(EStates.
-                    getStateById(this.getCurrentState()));
+            trace2.setPreviousState(EStates.getStateById(
+                    this.getCurrentState()));
             record = new ChangeCipherSpec(protocolVersion);
             setRecordTrace(trace2, record);
             //change status and notify observers
@@ -231,11 +224,10 @@ public final class TLS10HandshakeWorkflow extends AWorkflow {
 
             /*
              * create Finished
-             */
+             */;            
             MessageContainer trace3 = new MessageContainer();
-            trace3.
-                    setPreviousState(EStates.
-                    getStateById(this.getCurrentState()));
+            trace3.setPreviousState(EStates.getStateById(
+                    this.getCurrentState()));
             // create the master secret
             MasterSecret masterSec = msgBuilder.createMasterSecret(this);
             // hash handshake messages
@@ -414,7 +406,7 @@ public final class TLS10HandshakeWorkflow extends AWorkflow {
      * @return True if time measurement is enabled.
      */
     public boolean isTimingEnabled() {
-        return (this.so instanceof VNLSocket || this.so instanceof TimingSocket);
+        return (this.so instanceof TimingSocket);
     }
 
     /**
@@ -488,18 +480,4 @@ public final class TLS10HandshakeWorkflow extends AWorkflow {
         Thread.currentThread().interrupt();
     }
 
-    /**
-     * Getter for VNL Socket access.
-     *
-     * @return Returns the VNLSocket if VNL is active.
-     * @throws IllegalStateException If VNL has not been enabled when
-     * constructor was called.
-     */
-    public VNLSocket getVNLSocket() throws IllegalStateException {
-        if (!(so instanceof VNLSocket)) {
-            throw new IllegalStateException("Virtual Network Layer not active.");
-        }
-
-        return (VNLSocket) so;
-    }
 }

@@ -198,7 +198,8 @@ public class MessageBuilder {
      * @param workflow Handshake workflow
      * @return Computed MasterSecret
      */
-    public MasterSecret createMasterSecret(TLS10HandshakeWorkflow workflow) {
+    public MasterSecret createMasterSecret(final TLS10HandshakeWorkflow 
+            workflow) {
         KeyExchangeParams keyParams = KeyExchangeParams.getInstance();
         PreMasterSecret pms = workflow.getPreMasterSecret();
         //set pre_master_secret

@@ -13,7 +13,8 @@
         <module>TimingSocket</module>
         <module>VirtualNetworkLayer</module>
         <module>Analyzer</module>
-    </modules>
+    <module>TinyTLSSocket</module>
+  </modules>
     
     <build>
         <pluginManagement>
