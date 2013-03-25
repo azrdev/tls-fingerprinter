@@ -1,7 +1,6 @@
 package de.rub.nds.ssl.analyzer.fingerprinter.tests;
 
 import de.rub.nds.ssl.analyzer.TestResult;
-import de.rub.nds.ssl.analyzer.attacker.bleichenbacher.oracles.AOracle;
 import de.rub.nds.ssl.analyzer.attacker.bleichenbacher.oracles.ASSLServerOracle;
 import de.rub.nds.ssl.analyzer.executor.EFingerprintTests;
 import de.rub.nds.ssl.analyzer.parameters.BleichenbacherParameters;
@@ -29,7 +28,6 @@ import java.security.interfaces.RSAPublicKey;
 import java.util.Arrays;
 import java.util.Observable;
 import java.util.Observer;
-import org.omg.CORBA.OBJECT_NOT_EXIST;
 
 /**
  * Test for BleichenbacherPossible attack.
