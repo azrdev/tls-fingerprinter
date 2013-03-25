@@ -19,7 +19,6 @@ import de.rub.nds.ssl.stack.workflows.response.TLSResponse;
 import de.rub.nds.ssl.stack.workflows.response.fecther.AResponseFetcher;
 import de.rub.nds.ssl.stack.workflows.response.fecther.StandardFetcher;
 import de.rub.nds.ssl.stack.workflows.response.fecther.TimingFetcher;
-import de.rub.nds.ssl.stack.workflows.response.fecther.VNLFetcher;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;

@@ -2,7 +2,6 @@ package de.rub.nds.ssl.stack.trace;
 
 import de.rub.nds.ssl.stack.protocols.ARecordFrame;
 import de.rub.nds.ssl.stack.workflows.TLS10HandshakeWorkflow.EStates;
-import de.rub.nds.virtualnetworklayer.packet.PcapPacket;
 
 /**
  * MessageContainer information about the SSL handshake processing.
@@ -38,10 +37,6 @@ public final class MessageContainer {
      */
     private long timestamp;
     /**
-     * Associated Pcap packet.
-     */
-    private PcapPacket pcapPacket;
-    /**
      * Previous state.
      */
     private EStates previousState;
@@ -51,18 +46,6 @@ public final class MessageContainer {
      */
     public MessageContainer() {
         this.timestamp = System.nanoTime();
-    }
-
-    /**
-     * Public constructor of a MessageContainer object.
-     *
-     * @param record Record frame
-     * @param packet PcapPacket which included the frame
-     */
-    public MessageContainer(final ARecordFrame record, final PcapPacket packet) {
-        this.setCurrentRecord(record);
-        this.setTimestamp(packet.getTimeStamp());
-        this.setPcapPacket(packet);
     }
 
     /**
@@ -236,24 +219,6 @@ public final class MessageContainer {
      */
     public void setContinued(final boolean isContinued) {
         this.isContinued = isContinued;
-    }
-
-    /**
-     * Get the associated Pcap packet, if available.
-     *
-     * @return Pcap packet
-     */
-    public PcapPacket getPcapPacket() {
-        return pcapPacket;
-    }
-
-    /**
-     * Set the associated Pcap packet.
-     *
-     * @param packet Pcap packet
-     */
-    public void setPcapPacket(final PcapPacket packet) {
-        this.pcapPacket = packet;
     }
 
     /**
