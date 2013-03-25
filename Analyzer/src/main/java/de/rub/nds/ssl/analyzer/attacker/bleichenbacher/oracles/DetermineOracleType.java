@@ -5,7 +5,6 @@
 package de.rub.nds.ssl.analyzer.attacker.bleichenbacher.oracles;
 
 import de.rub.nds.ssl.analyzer.attacker.bleichenbacher.OracleException;
-import de.rub.nds.ssl.analyzer.removeMe.SSLServer;
 import de.rub.nds.ssl.stack.protocols.commons.ECipherSuite;
 import de.rub.nds.ssl.stack.protocols.commons.EProtocolVersion;
 import de.rub.nds.ssl.stack.protocols.commons.KeyExchangeParams;
@@ -20,6 +19,7 @@ import de.rub.nds.ssl.stack.workflows.TLS10HandshakeWorkflow;
 import de.rub.nds.ssl.stack.workflows.commons.ESupportedSockets;
 import de.rub.nds.ssl.stack.workflows.commons.MessageBuilder;
 import de.rub.nds.ssl.stack.workflows.commons.ObservableBridge;
+import de.rub.nds.tinytlssocket.TLSServer;
 import java.io.InputStream;
 import java.net.SocketException;
 import java.security.KeyStore;
@@ -41,7 +41,7 @@ public class DetermineOracleType extends ASSLServerOracle {
      */
     private static Logger logger = Logger.getRootLogger();
     private Cipher cipher;
-    private SSLServer sslServer;
+    private TLSServer sslServer;
     /**
      * Test Server Thread.
      */
@@ -263,8 +263,7 @@ public class DetermineOracleType extends ASSLServerOracle {
             cipher.init(Cipher.ENCRYPT_MODE, pubKey);
 
             System.setProperty("javax.net.debug", "ssl");
-            sslServer = new SSLServer(ks, JKS_PASSWORD,
-                    protocolShortName, port, PRINT_INFO);
+            sslServer = new TLSServer(ks, JKS_PASSWORD, protocolShortName, port);
             sslServerThread = new Thread(sslServer);
             sslServerThread.start();
             Thread.sleep(2000);

@@ -6,7 +6,7 @@ package de.rub.nds.ssl.analyzer.attacker.bleichenbacher.oracles;
 
 import de.rub.nds.ssl.analyzer.attacker.Bleichenbacher;
 import de.rub.nds.ssl.analyzer.attacker.bleichenbacher.OracleException;
-import de.rub.nds.ssl.analyzer.removeMe.SSLServer;
+import de.rub.nds.tinytlssocket.TLSServer;
 import de.rub.nds.ssl.stack.protocols.handshake.datatypes.PreMasterSecret;
 import de.rub.nds.ssl.stack.workflows.commons.ESupportedSockets;
 import java.io.FileInputStream;
@@ -95,7 +95,7 @@ public class TimingOracle extends ATimingOracle {
         (byte) 0x2b, (byte) 0x16, (byte) 0x6f, (byte) 0x2c, (byte) 0x38,
         (byte) 0x40};
     private Cipher cipher;
-    private SSLServer sslServer;
+    private TLSServer sslServer;
     /**
      * Server key store.
      */
@@ -393,7 +393,7 @@ public class TimingOracle extends ATimingOracle {
             NoSuchAlgorithmException, CertificateException {
         KeyStore ks = KeyStore.getInstance("JKS");
         ks.load(keyStoreStream, keyStorePassword.toCharArray());
-        
+
         return ks;
     }
 
@@ -494,7 +494,7 @@ public class TimingOracle extends ATimingOracle {
                     log(Level.SEVERE, null, ex);
         }
 
-        System.out.println(counterOracle++ + ": Ground truth: " 
+        System.out.println(counterOracle++ + ": Ground truth: "
                 + groundTruth + ", timingoracle: " + ret);
 
         return ret;
@@ -505,13 +505,13 @@ public class TimingOracle extends ATimingOracle {
             KeyStore ks = loadKeyStore(new FileInputStream("2048.jks"),
                     "password");
             System.setProperty("javax.net.debug", "ssl");
-            
-            sslServer = new SSLServer(ks, JKS_PASSWORD,
-                    protocolShortName, PORT, PRINT_INFO);
+
+            sslServer = new TLSServer(ks, JKS_PASSWORD,
+                    protocolShortName, PORT);
             sslServerThread = new Thread(sslServer);
             sslServerThread.start();
             Thread.currentThread().sleep(2000);
-        } catch (Exception e) {                        
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
@@ -529,22 +529,22 @@ public class TimingOracle extends ATimingOracle {
             PrivateKey privateKey = (PrivateKey) ks.getKey(keyName, keyPassword.
                     toCharArray());
 
-            TimingOracle to = new TimingOracle(HOST ,PORT,
+            TimingOracle to = new TimingOracle(HOST, PORT,
                     privateKey, OracleType.TTT);
             // TODO: Start SSL-Server for testing purposes
             to.setUp();
 
             // a PMS is exactly 48 bytes long!
-            byte[] rawPMS = new byte[48];            
+            byte[] rawPMS = new byte[48];
             System.arraycopy(plainPKCS, plainPKCS.length - 48, rawPMS, 0,
                     rawPMS.length);
             // it is necessary to set the plain PMS for a complete handshake
-            to.setPlainPMS(new PreMasterSecret(rawPMS));    
+            to.setPlainPMS(new PreMasterSecret(rawPMS));
 
             byte[] plainPKCS_wrong = new byte[plainPKCS.length];
             System.arraycopy(plainPKCS, 0, plainPKCS_wrong, 0, plainPKCS.length);
             plainPKCS_wrong[0] = 23;
-            
+
             to.encPMS = encryptHelper(plainPKCS, publicKey);
             to.encPMSWrong = encryptHelper(plainPKCS_wrong, publicKey);
 
