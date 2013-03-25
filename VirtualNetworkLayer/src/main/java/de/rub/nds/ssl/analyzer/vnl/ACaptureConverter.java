@@ -7,7 +7,6 @@ import de.rub.nds.ssl.stack.protocols.handshake.HandshakeEnumeration;
 import de.rub.nds.ssl.stack.protocols.handshake.datatypes.EKeyExchangeAlgorithm;
 import de.rub.nds.ssl.stack.protocols.msgs.ChangeCipherSpec;
 import de.rub.nds.ssl.stack.protocols.msgs.TLSPlaintext;
-import de.rub.nds.ssl.stack.trace.MessageContainer;
 import de.rub.nds.virtualnetworklayer.connection.pcap.PcapTrace;
 import de.rub.nds.virtualnetworklayer.packet.PcapPacket;
 import java.util.ArrayList;
