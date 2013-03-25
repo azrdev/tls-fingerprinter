@@ -49,9 +49,9 @@ public class DetermineOracleType extends ASSLServerOracle {
     private String host;
     private int port;
     /**
-     * Detailed Info print out.
+     * Enable debug mode.
      */
-    private static final boolean PRINT_INFO = false;
+    private static final boolean DEBUG = true;
     /**
      * Server key store.
      */
@@ -263,7 +263,7 @@ public class DetermineOracleType extends ASSLServerOracle {
             cipher.init(Cipher.ENCRYPT_MODE, pubKey);
 
             System.setProperty("javax.net.debug", "ssl");
-            sslServer = new TLSServer(ks, JKS_PASSWORD, protocolShortName, port);
+            sslServer = new TLSServer(ks, JKS_PASSWORD, protocolShortName, port, DEBUG);
             sslServerThread = new Thread(sslServer);
             sslServerThread.start();
             Thread.sleep(2000);

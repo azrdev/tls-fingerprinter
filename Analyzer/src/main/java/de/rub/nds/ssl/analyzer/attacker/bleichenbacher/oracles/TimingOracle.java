@@ -117,9 +117,9 @@ public class TimingOracle extends ATimingOracle {
      */
     private static final int PORT = 10443;
     /**
-     * Detailed Info print out.
+     * Enable debug mode.
      */
-    private static final boolean PRINT_INFO = true;
+    private static final boolean DEBUG = true;
     /**
      * Protocol short name.
      */
@@ -507,7 +507,7 @@ public class TimingOracle extends ATimingOracle {
             System.setProperty("javax.net.debug", "ssl");
 
             sslServer = new TLSServer(ks, JKS_PASSWORD,
-                    protocolShortName, PORT);
+                    protocolShortName, PORT, DEBUG);
             sslServerThread = new Thread(sslServer);
             sslServerThread.start();
             Thread.currentThread().sleep(2000);
