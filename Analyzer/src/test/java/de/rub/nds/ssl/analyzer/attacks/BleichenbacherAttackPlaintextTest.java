@@ -136,6 +136,11 @@ public class BleichenbacherAttackPlaintextTest {
         logger.warn("Max:       " + queriesBardou.get(iterations - 1));
     }
 
+    /**
+     * Test performance of the trimmers method in the Bardou's attack by
+     * setting different types of trimmers.
+     * @throws Exception 
+     */
     @Test(enabled = false)
     public final void testBleichenbacherAttackPerformanceTrimmers()
             throws Exception {
@@ -182,6 +187,58 @@ public class BleichenbacherAttackPlaintextTest {
                     + trimmNummbers[j] + ": " + queriesBleichenbacher[j]);
         }
         logger.info("------------------------------");
+    }
+    
+    @Test(enabled = true)
+    public final void testBleichenbacherAttackPerformanceXMLEnc()
+            throws Exception {
+        Security.addProvider(new BouncyCastleProvider());
+        KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("RSA");
+        keyPairGenerator.initialize(1024);
+
+        logger.warn("starting attacks");
+
+        int iterations = 100;
+        LinkedList<Long> queriesBardou = new LinkedList<Long>();
+
+        for (int i = 0; i < iterations; i++) {
+            logger.warn("iter " + i);
+            KeyPair keyPair = keyPairGenerator.genKeyPair();
+
+            SecureRandom sr = new SecureRandom();
+            byte[] plainBytes = new byte[16];
+            sr.nextBytes(plainBytes);
+            byte[] cipherBytes;
+
+            Cipher cipher = Cipher.getInstance("RSA/None/PKCS1Padding");
+            cipher.init(Cipher.ENCRYPT_MODE, keyPair.getPublic());
+            cipherBytes = cipher.doFinal(plainBytes);
+
+            cipher = Cipher.getInstance("RSA/None/NoPadding");
+            cipher.init(Cipher.DECRYPT_MODE, keyPair.getPrivate());
+            byte[] message = cipher.doFinal(cipherBytes);
+
+            AOracle oracle = new StdPlainOracle(keyPair.getPublic(),
+                    ATestOracle.OracleType.XMLENC, cipher.getBlockSize());
+
+            BleichenbacherCrypto12 attacker1 = new BleichenbacherCrypto12(message,
+                    oracle, true, 5000);
+            attacker1.attack();
+            queriesBardou.add(oracle.getNumberOfQueries());
+            System.out.println("Queries " + i + " : " + oracle.getNumberOfQueries());
+        }
+        Collections.sort(queriesBardou);
+
+        System.out.println("---------------------");
+        long queries;
+
+        logger.warn("Bardou");
+        queries = sumList(queriesBardou);
+        logger.warn("Queries total: " + queries);
+        logger.warn("Mean: " + (queries / iterations));
+        logger.warn("Median: " + queriesBardou.get(iterations / 2));
+        logger.warn("Min: " + queriesBardou.get(0));
+        logger.warn("Max:       " + queriesBardou.get(iterations - 1));
     }
 
     private static long sumList(LinkedList<Long> list) {

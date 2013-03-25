@@ -66,7 +66,7 @@ public class BleichenbacherOracleTest {
         keyPairGenerator.initialize(1024);
         KeyPair keyPair = keyPairGenerator.genKeyPair();
         AOracle oracle = new StdPlainOracle(keyPair.getPublic(),
-                        ATestOracle.OracleType.JSSE, 128);
+                        ATestOracle.OracleType.XMLENC, 128);
         
         byte[] msg = new byte[127];
         for(int i=0; i<msg.length; i++) {
@@ -77,17 +77,20 @@ public class BleichenbacherOracleTest {
         
         Assert.assertFalse(oracle.checkPKCSConformity(msg));
         
-        // set the 16th byte from behind to 0x00
-        msg[msg.length-16] = 0x00;        
+        // set the 17th byte from behind to 0x00
+        msg[msg.length-17] = 0x00; 
         Assert.assertTrue(oracle.checkPKCSConformity(msg));
         
-        // set the 24th byte from behind to 0x00
-        msg[msg.length-24] = 0x00;        
+        // set the 25th byte from behind to 0x00
+        msg[msg.length-25] = 0x00;        
         Assert.assertTrue(oracle.checkPKCSConformity(msg));
         
-        // set the 32th byte from behind to 0x00
-        msg[msg.length-32] = 0x00;        
+        // set the 33th byte from behind to 0x00
+        msg[msg.length-33] = 0x00;        
         Assert.assertTrue(oracle.checkPKCSConformity(msg));
+        
+        msg[34] = 0x00;
+        Assert.assertFalse(oracle.checkPKCSConformity(msg));
         
         // insert an extra 0x00 byte in the middle
         msg[50] = 0x00;

@@ -16,6 +16,7 @@ import java.security.PublicKey;
 import java.security.Security;
 import java.security.UnrecoverableKeyException;
 import java.security.cert.CertificateException;
+import java.util.Arrays;
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
 import javax.crypto.IllegalBlockSizeException;
@@ -158,8 +159,103 @@ public class BleichenbacherJSSETest {
         logger.info("------------------------------");
     }
 
+    @Test(enabled = true, priority = 2)
+    public void sslTriggerOracleTest() throws SocketException,
+            OracleException {
+        logger.info("++++ SSL Trigger Oracle Test ++++");
+        JSSE16Oracle jsseOracle = new JSSE16Oracle("localhost", 10443);
+
+        byte[][] test;
+
+        //test invalid PKCS1 messages
+        test = getInvalidPKCS1messages();
+        for (int i = 0; i < test.length; i++) {
+            byte[] enc = encryptHelper(test[i], publicKey);
+            jsseOracle.checkPKCSConformity(enc);
+        }
+
+        test = getInvalidPMSlength();
+        for (int i = 0; i < test.length; i++) {
+            byte[] enc = encryptHelper(test[i], publicKey);
+            jsseOracle.checkPKCSConformity(enc);
+            if(i==10) {
+                return;
+            }
+        }
+        
+        test = getInvalidPMSlength2();
+        for (int i = 0; i < test.length; i++) {
+            byte[] enc = encryptHelper(test[i], publicKey);
+            jsseOracle.checkPKCSConformity(enc);
+        }
+        
+        // valid
+        byte[] enc = encryptHelper(plainPKCS, publicKey);
+        jsseOracle.checkPKCSConformity(enc);
+
+        logger.info("------------------------------");
+    }
+
     /**
-     * Initialize logging properties
+     *
+     * @return invalid PKCS1 messages
+     */
+    private byte[][] getInvalidPKCS1messages() {
+        byte[][] invalidPKCS1messages = new byte[10][plainPKCS.length];
+        for (int i = 0; i < 9; i++) {
+            invalidPKCS1messages[i] = Arrays.copyOf(plainPKCS, plainPKCS.length);
+        }
+        // set the second byte to 0x01 (should be 0x02)
+        invalidPKCS1messages[0][1] = 0x01;
+        // set the second byte to 0x00 (should be 0x02)
+        invalidPKCS1messages[1][1] = 0x00;
+
+        for (int i = 2; i < 10; i++) {
+            invalidPKCS1messages[i][i] = 0x00;
+        }
+        return invalidPKCS1messages;
+    }
+
+    /**
+     *
+     * @return invalid pms length messages (0x00 at a wrong position)
+     */
+    private byte[][] getInvalidPMSlength() {
+        // invalid 0x00 positions computed as:
+        //   pkcs - 10 (10 leading bytes) - 49 (48-byte PMS + 0x0 byte)
+        int x = plainPKCS.length - 59;
+        byte[][] invalidPMSlengthMessages = new byte[x][plainPKCS.length];
+        for (int i = 0; i < x; i++) {
+            invalidPMSlengthMessages[i] = 
+                    Arrays.copyOf(plainPKCS, plainPKCS.length);
+            invalidPMSlengthMessages[i][10 + i] = 0x00;
+        }
+        return invalidPMSlengthMessages;
+    }
+    
+    /**
+     *
+     * @return invalid pms length messages (0x00 at a wrong position in the 
+     * pms area)
+     */
+    private byte[][] getInvalidPMSlength2() {
+        // 49 invalid messages
+        byte[] current = Arrays.copyOf(plainPKCS, plainPKCS.length);
+        for(int i=0; i<49; i++ ) {
+            current[plainPKCS.length-i-1] = 0x01;
+        }
+        byte[][] invalidPMSlengthMessages = new byte[49][plainPKCS.length];
+        invalidPMSlengthMessages[0] = Arrays.copyOf(current, current.length);
+        for (int i = 1; i < 49; i++) {
+            invalidPMSlengthMessages[i] = 
+                    Arrays.copyOf(plainPKCS, plainPKCS.length);
+            invalidPMSlengthMessages[i][plainPKCS.length-i] = 0x00;
+        }
+        return invalidPMSlengthMessages;
+    }
+
+    /**
+     * Initialize logging properties and the 2048 bit long key
      */
     @BeforeClass
     public void setUpClass() {
