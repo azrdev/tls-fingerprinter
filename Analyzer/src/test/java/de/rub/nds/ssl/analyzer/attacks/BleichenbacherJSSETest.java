@@ -166,32 +166,49 @@ public class BleichenbacherJSSETest {
         JSSE16Oracle jsseOracle = new JSSE16Oracle("localhost", 10443);
 
         byte[][] test;
+        byte[] enc;
+        
+        int counter = 0;
 
         //test invalid PKCS1 messages
         test = getInvalidPKCS1messages();
         for (int i = 0; i < test.length; i++) {
-            byte[] enc = encryptHelper(test[i], publicKey);
+            enc = encryptHelper(test[i], publicKey);
             jsseOracle.checkPKCSConformity(enc);
+            counter ++;
         }
 
         test = getInvalidPMSlength();
         for (int i = 0; i < test.length; i++) {
-            byte[] enc = encryptHelper(test[i], publicKey);
+            enc = encryptHelper(test[i], publicKey);
             jsseOracle.checkPKCSConformity(enc);
-            if(i==10) {
-                return;
-            }
+            counter ++;
         }
         
         test = getInvalidPMSlength2();
         for (int i = 0; i < test.length; i++) {
-            byte[] enc = encryptHelper(test[i], publicKey);
+            enc = encryptHelper(test[i], publicKey);
             jsseOracle.checkPKCSConformity(enc);
+            counter ++;
+        }
+        
+        // invalid ssl version number (explicitly taken 128, 129 and 255 to 
+        // produce a "byte converstion overflow")
+        int[] x = {0, 1, 2, 3, 4, 128, 129, 255};        
+        for (int i=0; i<x.length; i++) {
+            plainPKCS[plainPKCS.length-48] = (byte)x[i];
+            enc = encryptHelper(plainPKCS, publicKey);
+            jsseOracle.checkPKCSConformity(enc);
+            counter++;
         }
         
         // valid
-        byte[] enc = encryptHelper(plainPKCS, publicKey);
+        enc = encryptHelper(plainPKCS, publicKey);
         jsseOracle.checkPKCSConformity(enc);
+        counter ++;
+        
+        
+        System.out.println("counter: " + counter);
 
         logger.info("------------------------------");
     }
@@ -245,10 +262,10 @@ public class BleichenbacherJSSETest {
             current[plainPKCS.length-i-1] = 0x01;
         }
         byte[][] invalidPMSlengthMessages = new byte[49][plainPKCS.length];
-        invalidPMSlengthMessages[0] = Arrays.copyOf(current, current.length);
+        invalidPMSlengthMessages[0] = current.clone();
         for (int i = 1; i < 49; i++) {
             invalidPMSlengthMessages[i] = 
-                    Arrays.copyOf(plainPKCS, plainPKCS.length);
+                    Arrays.copyOf(current, plainPKCS.length);
             invalidPMSlengthMessages[i][plainPKCS.length-i] = 0x00;
         }
         return invalidPMSlengthMessages;
