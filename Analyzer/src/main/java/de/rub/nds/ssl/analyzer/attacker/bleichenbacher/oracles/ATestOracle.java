@@ -220,8 +220,8 @@ public abstract class ATestOracle extends AOracle {
         if (msg[msg.length - keySize] == 0x00) {
             /* 
              * Starts from 10 because the first 8 bytes are checked by 
-             * checkSecond and the first 2 bytes are the version number 
-             * (implicit check in checkDecryptedBytes)
+             * checkSecond and the first 2 bytes are the PKCS type
+             * (covered by implicit check of checkDecryptedBytes)
              */
             if (!containsByte((byte) 0x00, msg, 10, msg.length - keySize)) {
                 result = true;
