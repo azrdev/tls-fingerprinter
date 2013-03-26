@@ -69,6 +69,12 @@ public abstract class ATestOracle extends AOracle {
                         conform = true;
                     }
                     break;
+                case GNU_TLS:
+                    // actually the same as the FFF oracle
+                    if (checkFirst(tmpMsg) && checkSecond(tmpMsg)
+                            && checkThird(tmpMsg)) {
+                        conform = true;
+                    }
                 default:
                     break;
             }
@@ -120,7 +126,7 @@ public abstract class ATestOracle extends AOracle {
      */
     private boolean checkThird(final byte[] msg) {
         boolean result = false;
-        if (msg[blockSize - 1 - 48] == 0x00) {
+        if (hasCorrectKeySize(48, msg)) {
             result = true;
         }
         return result;
@@ -194,7 +200,7 @@ public abstract class ATestOracle extends AOracle {
      * @param to
      * @return
      */
-    private boolean containsByte(final byte b, final byte[] msg, 
+    private boolean containsByte(final byte b, final byte[] msg,
             final int from, final int to) {
         boolean result = false;
         for (int i = from; i < to; i++) {

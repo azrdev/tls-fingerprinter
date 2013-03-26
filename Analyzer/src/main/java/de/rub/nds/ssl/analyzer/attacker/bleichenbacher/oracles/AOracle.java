@@ -51,7 +51,7 @@ public abstract class AOracle {
      */
     public enum OracleType {
 
-        TTT, TFT, FTT, FFT, FFF, JSSE, XMLENC
+        TTT, TFT, FTT, FFT, FFF, JSSE, XMLENC, GNU_TLS
     }
 
     /**
