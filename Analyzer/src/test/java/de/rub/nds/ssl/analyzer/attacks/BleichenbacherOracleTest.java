@@ -31,7 +31,7 @@ public class BleichenbacherOracleTest {
      */
     static Logger logger = Logger.getRootLogger();
 
-    @Test(enabled = true)
+    @Test(enabled = false)
     public final void testJSSEOracle()
             throws Exception {
 
@@ -59,7 +59,7 @@ public class BleichenbacherOracleTest {
         Assert.assertFalse(oracle.checkPKCSConformity(msg));
     }
     
-    @Test(enabled = false)
+    @Test(enabled = true)
     public final void testXMLENCOracle() throws Exception {
 
         KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("RSA");
@@ -93,6 +93,34 @@ public class BleichenbacherOracleTest {
         Assert.assertFalse(oracle.checkPKCSConformity(msg));
         
         // insert an extra 0x00 byte in the middle
+        msg[50] = 0x00;
+        Assert.assertFalse(oracle.checkPKCSConformity(msg));
+    }
+    
+    @Test(enabled = true)
+    public final void testGnuTLSOracle() throws Exception {
+
+        KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("RSA");
+        keyPairGenerator.initialize(1024);
+        KeyPair keyPair = keyPairGenerator.genKeyPair();
+        AOracle oracle = new StdPlainOracle(keyPair.getPublic(),
+                        ATestOracle.OracleType.GNU_TLS, 128);
+        
+        byte[] msg = new byte[127];
+        for(int i=0; i<msg.length; i++) {
+            msg[i] = 0x01;
+        }
+        // start with 0x02, no 0x00 byte given
+        msg[0] = 0x02;
+        
+        Assert.assertFalse(oracle.checkPKCSConformity(msg));
+        
+        // set the 49th byte from behind to 0x00
+        msg[msg.length-49] = 0x00; 
+        Assert.assertTrue(oracle.checkPKCSConformity(msg));
+        
+        // set the 50th byte from behind to 0x00 (it should fail since the 
+        // PMS would be 49 bytes long
         msg[50] = 0x00;
         Assert.assertFalse(oracle.checkPKCSConformity(msg));
     }

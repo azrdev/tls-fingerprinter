@@ -223,13 +223,13 @@ public abstract class ATestOracle extends AOracle {
     private boolean hasCorrectKeySize(final int keySize, final byte[] msg) {
         boolean result = false;
         // check if the second last byte is equal to 0x00
-        if (msg[msg.length - keySize] == 0x00) {
+        if (msg[msg.length - keySize - 1] == 0x00) {
             /* 
              * Starts from 10 because the first 8 bytes are checked by 
              * checkSecond and the first 2 bytes are the PKCS type
              * (covered by implicit check of checkDecryptedBytes)
              */
-            if (!containsByte((byte) 0x00, msg, 10, msg.length - keySize)) {
+            if (!containsByte((byte) 0x00, msg, 10, msg.length - keySize - 1)) {
                 result = true;
             }
         }
