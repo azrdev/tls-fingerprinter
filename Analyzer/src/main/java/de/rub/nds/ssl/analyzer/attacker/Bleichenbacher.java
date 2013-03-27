@@ -4,9 +4,14 @@ import de.rub.nds.ssl.analyzer.attacker.bleichenbacher.Interval;
 import de.rub.nds.ssl.analyzer.attacker.bleichenbacher.OracleException;
 import de.rub.nds.ssl.analyzer.attacker.bleichenbacher.oracles.AOracle;
 import de.rub.nds.ssl.stack.Utility;
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
 import java.math.BigInteger;
 import java.security.interfaces.RSAPublicKey;
 import java.util.ArrayList;
+import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
 /**
@@ -31,6 +36,11 @@ public class Bleichenbacher {
     protected final int blockSize;
     protected final BigInteger bigB;
     protected final boolean msgIsPKCS;
+    /** allows to write all the requests and the corresponding si values
+     * to the FILE_NAME file */
+    protected final boolean WRITE_TO_FILE = false;
+    protected final String FILE_NAME = "ValidQueries.csv";
+    protected BufferedWriter bw;
     /**
      * Initialize the log4j logger.
      */
@@ -59,6 +69,14 @@ public class Bleichenbacher {
         logger.info("Blocksize: " + blockSize + " bytes");
         //decryptedMsg = oracle.decrypt(encryptedMsg);
         //System.out.println("our goal: " + new BigInteger(decryptedMsg));
+
+        if (WRITE_TO_FILE) {
+            try {
+                bw = new BufferedWriter(new FileWriter(FILE_NAME));
+            } catch (IOException ioe) {
+                throw new RuntimeException(ioe);
+            }
+        }
     }
 
     public void attack() throws OracleException {
@@ -111,6 +129,7 @@ public class Bleichenbacher {
 
             // check PKCS#1 conformity
             pkcsConform = oracle.checkPKCSConformity(send);
+            writeToFile(si, send, pkcsConform);
         } while (!pkcsConform);
 
         c0 = new BigInteger(1, send);
@@ -168,6 +187,7 @@ public class Bleichenbacher {
 
             // check PKCS#1 conformity
             pkcsConform = oracle.checkPKCSConformity(send);
+            writeToFile(si, send, pkcsConform);
         } while (!pkcsConform);
     }
 
@@ -183,6 +203,7 @@ public class Bleichenbacher {
 
             // check PKCS#1 conformity
             pkcsConform = oracle.checkPKCSConformity(send);
+            writeToFile(si, send, pkcsConform);
         } while (!pkcsConform);
     }
 
@@ -227,6 +248,7 @@ public class Bleichenbacher {
 
             // check PKCS#1 conformity
             pkcsConform = oracle.checkPKCSConformity(send);
+            writeToFile(si, send, pkcsConform);
         } while (!pkcsConform);
     }
 
@@ -300,6 +322,13 @@ public class Bleichenbacher {
                     toByteArray()));
             //    System.out.println("original decrypted message: \n" + Utility.bytesToHex(decryptedMsg));
             //}
+            if (WRITE_TO_FILE) {
+                try {
+                    bw.close();
+                } catch (IOException ioe) {
+                    logger.warn("unable to close the file " + FILE_NAME, ioe);
+                }
+            }
 
             result = true;
         }
@@ -365,7 +394,7 @@ public class Bleichenbacher {
             logger.debug("# of queries so far: " + oracle.
                     getNumberOfQueries());
         }
-        
+
         // if we use a real oracle (not a plaintext oracle), the si value has
         // to be encrypted first.
         if (!oracle.isPlaintextOracle()) {
@@ -384,5 +413,23 @@ public class Bleichenbacher {
         msg = Utility.correctSize(tmp.toByteArray(), blockSize, true);
 
         return msg;
+    }
+
+    protected void writeToFile(final BigInteger si, final byte[] send, final boolean pkcsConform) {
+        if (WRITE_TO_FILE) {
+            try {
+                if (pkcsConform) {
+                    bw.append("valid; ");
+                } else {
+                    bw.append("invalid; ");
+                }
+                bw.append(Utility.bytesToHex(si.toByteArray()));
+                bw.append("; ");
+                bw.append(Utility.bytesToHex(send));
+                bw.append(";\r\n");
+            } catch (IOException ioe) {
+                logger.warn("unable to write to the file " + FILE_NAME, ioe);
+            }
+        }
     }
 }
