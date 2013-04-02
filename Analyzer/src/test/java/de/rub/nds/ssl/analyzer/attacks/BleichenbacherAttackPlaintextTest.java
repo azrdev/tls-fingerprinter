@@ -251,8 +251,8 @@ public class BleichenbacherAttackPlaintextTest {
         }
         logger.info("------------------------------");
     }
-    
-    @Test(enabled = true)
+   
+    @Test(enabled = false)
     public final void testBleichenbacherAttackPerformanceXMLEnc()
             throws Exception {
         Security.addProvider(new BouncyCastleProvider());
@@ -304,7 +304,7 @@ public class BleichenbacherAttackPlaintextTest {
         logger.warn("Max:       " + queriesBardou.get(iterations - 1));
     }
     
-    @Test(enabled = true)
+    @Test(enabled = false)
     public final void testBleichenbacherAttackStaticKey()
             throws Exception {
 
