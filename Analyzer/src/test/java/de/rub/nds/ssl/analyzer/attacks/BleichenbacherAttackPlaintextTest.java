@@ -127,7 +127,12 @@ public class BleichenbacherAttackPlaintextTest {
         attacker.attack();
     }
 
-    @Test(enabled = true)
+    /**
+     * TODO
+     * Test runs too long.
+     * @throws Exception 
+     */
+    @Test(enabled = false)
     public final void testBleichenbacherAttackPerformance()
             throws Exception {
         Security.addProvider(new BouncyCastleProvider());
