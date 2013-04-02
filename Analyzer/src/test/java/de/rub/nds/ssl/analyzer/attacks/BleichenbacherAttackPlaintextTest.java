@@ -2,7 +2,6 @@ package de.rub.nds.ssl.analyzer.attacks;
 
 import de.rub.nds.ssl.analyzer.attacker.Bleichenbacher;
 import de.rub.nds.ssl.analyzer.attacker.BleichenbacherCrypto12;
-import de.rub.nds.ssl.analyzer.attacker.bleichenbacher.OracleException;
 import de.rub.nds.ssl.analyzer.attacker.bleichenbacher.oracles.AOracle;
 import de.rub.nds.ssl.analyzer.attacker.bleichenbacher.oracles.ATestOracle;
 import de.rub.nds.ssl.analyzer.attacker.bleichenbacher.oracles.StdPlainOracle;
@@ -211,7 +210,7 @@ public class BleichenbacherAttackPlaintextTest {
      *
      * @throws Exception
      */
-    @Test(enabled = true)
+    @Test(enabled = false)
     public final void testBleichenbacherAttackPerformanceTrimmers()
             throws Exception {
 
@@ -259,7 +258,7 @@ public class BleichenbacherAttackPlaintextTest {
         }
     }
 
-    @Test(enabled = true)
+    @Test(enabled = false)
     public final void testBleichenbacherAttackPerformanceXMLEnc()
             throws Exception {
         Security.addProvider(new BouncyCastleProvider());
