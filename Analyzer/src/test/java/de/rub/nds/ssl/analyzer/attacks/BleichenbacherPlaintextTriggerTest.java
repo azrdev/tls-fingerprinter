@@ -5,12 +5,15 @@ import de.rub.nds.ssl.analyzer.attacker.bleichenbacher.oracles.AOracle;
 import de.rub.nds.ssl.analyzer.attacker.bleichenbacher.oracles.ATestOracle;
 import de.rub.nds.ssl.analyzer.attacker.bleichenbacher.oracles.StdPlainOracle;
 import de.rub.nds.ssl.stack.Utility;
+import java.lang.reflect.Method;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.NoSuchAlgorithmException;
 import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
+import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
@@ -109,7 +112,6 @@ public class BleichenbacherPlaintextTriggerTest {
     @Test(enabled = true, dataProvider= "pkcsTestVectors")
     public final void testBleichenbacherAttack(final String testName, final Byte[] pkcs)
             throws Exception {
-        logger.info("++++Start Test No. " + testCounter + " (" + testName + ")++++");
         testCounter++;
         
         AOracle oracle = new StdPlainOracle(keyPair.getPublic(), 
@@ -122,10 +124,21 @@ public class BleichenbacherPlaintextTriggerTest {
 
         Bleichenbacher attacker = new Bleichenbacher(plainPKCS, oracle, true);
         attacker.attack();
-
-        logger.info("------------------------------");
     }
 
+    @BeforeMethod
+    protected void printMethodBanner(Method method) throws Exception {
+        String testName = method.getName();
+        logger.info("++++Start Test (" + testName + ")++++");
+    }
+
+    @AfterMethod
+    protected void printEndOfMethodBanner(Method method) throws Exception {
+        String testName = method.getName();
+        logger.info("++++End of Test (" + testName + ")++++");
+        logger.info("------------------------------");
+    }
+    
     /**
      * Initialize logging properties
      */

@@ -9,6 +9,7 @@ import de.rub.nds.ssl.analyzer.attacker.bleichenbacher.oracles.StdPlainOracle;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.Method;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.KeyStore;
@@ -23,7 +24,9 @@ import javax.crypto.Cipher;
 import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
+import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 /**
@@ -94,7 +97,7 @@ public class BleichenbacherAttackPlaintextTest {
         (byte) 0x2b, (byte) 0x16, (byte) 0x6f, (byte) 0x2c, (byte) 0x38,
         (byte) 0x40};
 
-    @Test(enabled = false)
+    @Test(enabled = true)
     public final void testBleichenbacherAttack()
             throws Exception {
 
@@ -119,16 +122,12 @@ public class BleichenbacherAttackPlaintextTest {
         AOracle oracle = new StdPlainOracle(keyPair.getPublic(),
                 ATestOracle.OracleType.JSSE, cipher.getBlockSize());
 
-        logger.info("++++Start Test No. 1 (Bleichenbacher Plaintext)++++");
-
         Bleichenbacher attacker = new Bleichenbacher(message,
                 oracle, true);
         attacker.attack();
-
-        logger.info("------------------------------");
     }
 
-    @Test(enabled = false)
+    @Test(enabled = true)
     public final void testBleichenbacherAttackPerformance()
             throws Exception {
         Security.addProvider(new BouncyCastleProvider());
@@ -162,11 +161,13 @@ public class BleichenbacherAttackPlaintextTest {
             AOracle oracle = new StdPlainOracle(keyPair.getPublic(),
                     ATestOracle.OracleType.JSSE, cipher.getBlockSize());
 
-            BleichenbacherCrypto12 attacker1 = new BleichenbacherCrypto12(message,
+            BleichenbacherCrypto12 attacker1 = new BleichenbacherCrypto12(
+                    message,
                     oracle, true, 5000);
             attacker1.attack();
             queriesBardou.add(oracle.getNumberOfQueries());
-            System.out.println("Queries " + i + " : " + oracle.getNumberOfQueries());
+            System.out.println("Queries " + i + " : " + oracle.
+                    getNumberOfQueries());
 
 //            oracle = new StdPlainOracle(keyPair.getPublic(),
 //                    ATestOracle.OracleType.JSSE, cipher.getBlockSize());
@@ -179,7 +180,7 @@ public class BleichenbacherAttackPlaintextTest {
         Collections.sort(queriesBardou);
 //        Collections.sort(queriesBleichenbacher);
 
-        System.out.println("---------------------");
+        logger.info("---------------------");
         long queries;
 
 //        logger.warn("Bleichenbacher");
@@ -200,11 +201,12 @@ public class BleichenbacherAttackPlaintextTest {
     }
 
     /**
-     * Test performance of the trimmers method in the Bardou's attack by
-     * setting different types of trimmers.
-     * @throws Exception 
+     * Test performance of the trimmers method in the Bardou's attack by setting
+     * different types of trimmers.
+     *
+     * @throws Exception
      */
-    @Test(enabled = false)
+    @Test(enabled = true)
     public final void testBleichenbacherAttackPerformanceTrimmers()
             throws Exception {
 
@@ -238,7 +240,8 @@ public class BleichenbacherAttackPlaintextTest {
                 AOracle oracle = new StdPlainOracle(keyPair.getPublic(),
                         ATestOracle.OracleType.JSSE, cipher.getBlockSize());
 
-                BleichenbacherCrypto12 attacker1 = new BleichenbacherCrypto12(message,
+                BleichenbacherCrypto12 attacker1 = new BleichenbacherCrypto12(
+                        message,
                         oracle, true, trimmNummbers[j]);
                 attacker1.attack();
                 queriesBleichenbacher[j] += oracle.getNumberOfQueries();
@@ -249,10 +252,9 @@ public class BleichenbacherAttackPlaintextTest {
             logger.info("Bleichenbacher -- Queries total for trimm nummber "
                     + trimmNummbers[j] + ": " + queriesBleichenbacher[j]);
         }
-        logger.info("------------------------------");
     }
-   
-    @Test(enabled = false)
+
+    @Test(enabled = true)
     public final void testBleichenbacherAttackPerformanceXMLEnc()
             throws Exception {
         Security.addProvider(new BouncyCastleProvider());
@@ -284,15 +286,17 @@ public class BleichenbacherAttackPlaintextTest {
             AOracle oracle = new StdPlainOracle(keyPair.getPublic(),
                     ATestOracle.OracleType.XMLENC, cipher.getBlockSize());
 
-            BleichenbacherCrypto12 attacker1 = new BleichenbacherCrypto12(message,
+            BleichenbacherCrypto12 attacker1 = new BleichenbacherCrypto12(
+                    message,
                     oracle, true, 5000);
             attacker1.attack();
             queriesBardou.add(oracle.getNumberOfQueries());
-            System.out.println("Queries " + i + " : " + oracle.getNumberOfQueries());
+            System.out.println("Queries " + i + " : " + oracle.
+                    getNumberOfQueries());
         }
         Collections.sort(queriesBardou);
 
-        System.out.println("---------------------");
+        logger.info("---------------------");
         long queries;
 
         logger.warn("Bardou");
@@ -303,27 +307,22 @@ public class BleichenbacherAttackPlaintextTest {
         logger.warn("Min: " + queriesBardou.get(0));
         logger.warn("Max:       " + queriesBardou.get(iterations - 1));
     }
-    
-    @Test(enabled = false)
+
+    @Test(enabled = true)
     public final void testBleichenbacherAttackStaticKey()
             throws Exception {
-
         Security.addProvider(new BouncyCastleProvider());
         KeyStore ks = loadKeyStore(new FileInputStream("2048.jks"),
-                    "password");
-        
+                "password");
+
         byte[] plainBytes = plainPKCS;
-        
+
         AOracle oracle = new StdPlainOracle(ks.getCertificate("2048_rsa").
                 getPublicKey(), ATestOracle.OracleType.TTT, 256);
-
-        logger.info("++++Start Test No. 1 (Bleichenbacher Plaintext)++++");
 
         Bleichenbacher attacker = new Bleichenbacher(plainBytes,
                 oracle, true);
         attacker.attack();
-
-        logger.info("------------------------------");
     }
 
     private static long sumList(LinkedList<Long> list) {
@@ -333,7 +332,7 @@ public class BleichenbacherAttackPlaintextTest {
         }
         return ret;
     }
-    
+
     private static KeyStore loadKeyStore(final InputStream keyStoreStream,
             final String keyStorePassword) throws KeyStoreException, IOException,
             NoSuchAlgorithmException, CertificateException {
@@ -341,6 +340,19 @@ public class BleichenbacherAttackPlaintextTest {
         ks.load(keyStoreStream, keyStorePassword.toCharArray());
 
         return ks;
+    }
+
+    @BeforeMethod
+    protected void printMethodBanner(Method method) throws Exception {
+        String testName = method.getName();
+        logger.info("++++Start Test (" + testName + ")++++");
+    }
+
+    @AfterMethod
+    protected void printEndOfMethodBanner(Method method) throws Exception {
+        String testName = method.getName();
+        logger.info("++++End of Test (" + testName + ")++++");
+        logger.info("------------------------------");
     }
 
     /**

