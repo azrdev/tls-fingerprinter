@@ -153,8 +153,9 @@ public class BleichenbacherJSSETest1024 {
 
     @Test(enabled = true, priority = 2)
     public void sslTriggerOracleTest() throws SocketException,
-            OracleException {
-        JSSE16Oracle jsseOracle = new JSSE16Oracle("134.147.198.93", 55443);
+            OracleException,
+            InterruptedException {
+        JSSE16Oracle jsseOracle = new JSSE16Oracle("127.0.0.1", 8080);
 
         byte[][] test;
         byte[] enc;
@@ -192,6 +193,8 @@ public class BleichenbacherJSSETest1024 {
             jsseOracle.checkPKCSConformity(enc);
             counter++;
         }
+        
+        Thread.sleep(5000);
 
         // valid
         enc = encryptHelper(plainPKCS, publicKey);
