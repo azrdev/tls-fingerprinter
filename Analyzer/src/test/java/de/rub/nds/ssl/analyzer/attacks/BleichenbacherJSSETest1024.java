@@ -5,6 +5,7 @@ import de.rub.nds.ssl.analyzer.attacker.BleichenbacherCrypto12;
 import de.rub.nds.ssl.analyzer.attacker.bleichenbacher.OracleException;
 import de.rub.nds.ssl.analyzer.attacker.bleichenbacher.oracles.AOracle;
 import de.rub.nds.ssl.analyzer.attacker.bleichenbacher.oracles.JSSE16Oracle;
+import de.rub.nds.ssl.analyzer.attacker.bleichenbacher.oracles.StdPlainOracle;
 import de.rub.nds.ssl.analyzer.attacker.bleichenbacher.oracles.TimingOracle;
 import de.rub.nds.ssl.stack.protocols.commons.EProtocolVersion;
 import de.rub.nds.ssl.stack.protocols.handshake.datatypes.PreMasterSecret;
@@ -140,7 +141,25 @@ public class BleichenbacherJSSETest1024 {
                 jsseOracle, true);
         attacker.attack();
     }
-
+    
+    @Test(enabled = true, priority = 2)
+    public void sslTriggerPlaintextTest() throws SocketException,
+            OracleException,
+            InterruptedException,
+            NoSuchAlgorithmException,
+            InvalidKeyException,
+            NoSuchPaddingException,
+            IOException,
+            GeneralSecurityException {
+        byte[] plainPKCScopy = new byte[48];
+        System.arraycopy(plainPKCS, 80, plainPKCScopy, 0, plainPKCScopy.length);
+        StdPlainOracle plainOracle = new StdPlainOracle(publicKey,
+                AOracle.OracleType.FFT, 128);
+        Bleichenbacher bleichenbacher = new Bleichenbacher(plainPKCScopy, 
+                plainOracle, true);
+        bleichenbacher.attack();
+    }
+    
     @Test(enabled = true, priority = 2)
     public void sslTriggerOracleTest() throws SocketException,
             OracleException,
