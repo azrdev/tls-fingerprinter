@@ -5,6 +5,7 @@ import de.rub.nds.ssl.analyzer.attacker.BleichenbacherCrypto12;
 import de.rub.nds.ssl.analyzer.attacker.bleichenbacher.oracles.AOracle;
 import de.rub.nds.ssl.analyzer.attacker.bleichenbacher.oracles.ATestOracle;
 import de.rub.nds.ssl.analyzer.attacker.bleichenbacher.oracles.StdPlainOracle;
+import de.rub.nds.ssl.stack.Utility;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -19,6 +20,7 @@ import java.security.Security;
 import java.security.cert.CertificateException;
 import java.util.Collections;
 import java.util.LinkedList;
+import java.util.Random;
 import javax.crypto.Cipher;
 import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
@@ -127,9 +129,9 @@ public class BleichenbacherAttackPlaintextTest {
     }
 
     /**
-     * TODO
-     * Test runs too long.
-     * @throws Exception 
+     * TODO Test runs too long.
+     *
+     * @throws Exception
      */
     @Test(enabled = false)
     public final void testBleichenbacherAttackPerformance()
@@ -327,6 +329,68 @@ public class BleichenbacherAttackPlaintextTest {
         Bleichenbacher attacker = new Bleichenbacher(plainBytes,
                 oracle, true);
         attacker.attack();
+    }
+
+    @Test(enabled = true)
+    public final void testFindGoodKey()
+            throws Exception {
+        Security.addProvider(new BouncyCastleProvider());
+        KeyStore ks = loadKeyStore(new FileInputStream("1024.jks"),
+                "password");
+
+        Random random = new SecureRandom();
+
+        while (true) {
+            byte[] plainBytes = new byte[127];
+            random.nextBytes(plainBytes);
+            for (int i = 0; i < plainBytes.length; i++) {
+                plainBytes[i] |= 1;
+            }
+            plainBytes[0] = 2;
+            plainBytes[plainBytes.length - 49] = 0;
+
+            AOracle oracle = new StdPlainOracle(ks.getCertificate("1024_rsa").
+                    getPublicKey(), ATestOracle.OracleType.FFT, 128);
+
+            BleichenbacherCrypto12 attacker = new BleichenbacherCrypto12(
+                    plainBytes, oracle, true);
+            attacker.attack();
+
+            long x = oracle.getNumberOfQueries();
+            System.out.println("number of queries: " + x);
+            if (x < 15000) {
+                System.out.println("plain bytes: ");
+                System.out.println(Utility.bytesToHex(plainBytes));
+
+                Cipher cipher = Cipher.getInstance("RSA/None/NoPadding");
+                cipher.init(Cipher.ENCRYPT_MODE, ks.getCertificate("1024_rsa").
+                        getPublicKey());
+                byte[] cipherBytes = cipher.doFinal(plainBytes);
+
+                System.out.println("cipher bytes: ");
+                System.out.println(Utility.bytesToHex(cipherBytes));
+                
+                System.out.println("byte[] cipherPKCS = new byte[]{");
+                for(int j=0; j<cipherBytes.length; j++) {
+                    System.out.print("(byte) " + cipherBytes[j] );
+                    if(j != cipherBytes.length-1) {
+                        System.out.print(", ");
+                    }
+                }
+                System.out.println("}");
+                
+                System.out.println("byte[] plainPKCS = new byte[]{");
+                for(int j=0; j<plainBytes.length; j++) {
+                    System.out.print("(byte) " + plainBytes[j] );
+                    if(j != plainBytes.length-1) {
+                        System.out.print(", ");
+                    }
+                }
+                System.out.println("}");
+
+                return;
+            }
+        }
     }
 
     private static long sumList(LinkedList<Long> list) {
