@@ -150,10 +150,10 @@ public class BleichenbacherPossibleTest {
      * @return invalid PKCS1 messages
      */
     private TestVector[] getInvalidPKCS1messages() {
-        TestVector[] vectors = new TestVector[8];
+        TestVector[] vectors = new TestVector[9];
 
-        byte[][] invalidPKCS1messages = new byte[8][plainPKCS.length];
-        for (int i = 0; i < 8; i++) {
+        byte[][] invalidPKCS1messages = new byte[9][plainPKCS.length];
+        for (int i = 0; i < invalidPKCS1messages.length; i++) {
             invalidPKCS1messages[i] = Arrays.copyOf(plainPKCS, plainPKCS.length);
             vectors[i] = new TestVector();
         }
@@ -197,6 +197,12 @@ public class BleichenbacherPossibleTest {
         vectors[7].description = "\n\t++++Start Test:  invalid version "
                 + "number++++";
 
+        invalidPKCS1messages[8][plainPKCS.length - 49] = 0x01;
+        invalidPKCS1messages[8][2] = 0x00;
+        vectors[8].message = invalidPKCS1messages[8];
+        vectors[8].description = "\n\t++++Start Test:  0x00 on the third "
+                + "position, no 0x00 in the middle++++";
+        
         return vectors;
     }
 
