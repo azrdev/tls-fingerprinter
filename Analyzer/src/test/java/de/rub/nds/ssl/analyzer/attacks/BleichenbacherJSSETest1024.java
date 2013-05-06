@@ -6,11 +6,13 @@ import de.rub.nds.ssl.analyzer.attacker.bleichenbacher.OracleException;
 import de.rub.nds.ssl.analyzer.attacker.bleichenbacher.oracles.AOracle;
 import de.rub.nds.ssl.analyzer.attacker.bleichenbacher.oracles.JSSE16Oracle;
 import de.rub.nds.ssl.analyzer.attacker.bleichenbacher.oracles.TimingOracle;
+import de.rub.nds.ssl.stack.protocols.commons.EProtocolVersion;
 import de.rub.nds.ssl.stack.protocols.handshake.datatypes.PreMasterSecret;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.lang.reflect.Method;
 import java.net.SocketException;
+import java.security.GeneralSecurityException;
 import java.security.InvalidKeyException;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
@@ -46,40 +48,39 @@ public class BleichenbacherJSSETest1024 {
     /**
      * Plain PKCS message
      */
-    private static final byte[] plainPKCS = new byte[] {
-        (byte) 0x00, (byte) 0x02, 
-        (byte) 0x01, (byte) 0x01, (byte) 0xc0, (byte) 0xff, (byte) 0xee, 
-        (byte) 0xba, (byte) 0xbe, (byte) 0xc0, (byte) 0xff, (byte) 0xee, 
-        (byte) 0xba, (byte) 0xbe, (byte) 0xc0, (byte) 0xff, (byte) 0xee, 
-        (byte) 0xba, (byte) 0xbe, (byte) 0xc0, (byte) 0xff, (byte) 0xee, 
-        (byte) 0xba, (byte) 0xbe, (byte) 0xc0, (byte) 0xff, (byte) 0xee, 
-        (byte) 0xba, (byte) 0xbe, (byte) 0xc0, (byte) 0xff, (byte) 0xee, 
-        (byte) 0xba, (byte) 0xbe, (byte) 0xc0, (byte) 0xff, (byte) 0xee, 
-        (byte) 0xba, (byte) 0xbe, (byte) 0xc0, (byte) 0xff, (byte) 0xee, 
-        (byte) 0xba, (byte) 0xbe, (byte) 0xc0, (byte) 0xff, (byte) 0xee, 
-        (byte) 0xba, (byte) 0xbe, (byte) 0xc0, (byte) 0xff, (byte) 0xee, 
-        (byte) 0xba, (byte) 0xbe, (byte) 0xc0, (byte) 0xff, (byte) 0xee, 
-        (byte) 0xba, (byte) 0xbe, (byte) 0xc0, (byte) 0xff, (byte) 0xee, 
-        (byte) 0xba, (byte) 0xbe, (byte) 0xc0, (byte) 0xff, (byte) 0xee, 
-        (byte) 0xba, (byte) 0xbe, (byte) 0xc0, (byte) 0xff, (byte) 0xee, 
-        (byte) 0xba, (byte) 0xbe, (byte) 0xc0, (byte) 0xff, (byte) 0xee, 
+    private static final byte[] plainPKCS = new byte[]{
+        (byte) 0x00, (byte) 0x02,
+        (byte) 0x01, (byte) 0x01, (byte) 0xc0, (byte) 0xff, (byte) 0xee,
+        (byte) 0xba, (byte) 0xbe, (byte) 0xc0, (byte) 0xff, (byte) 0xee,
+        (byte) 0xba, (byte) 0xbe, (byte) 0xc0, (byte) 0xff, (byte) 0xee,
+        (byte) 0xba, (byte) 0xbe, (byte) 0xc0, (byte) 0xff, (byte) 0xee,
+        (byte) 0xba, (byte) 0xbe, (byte) 0xc0, (byte) 0xff, (byte) 0xee,
+        (byte) 0xba, (byte) 0xbe, (byte) 0xc0, (byte) 0xff, (byte) 0xee,
+        (byte) 0xba, (byte) 0xbe, (byte) 0xc0, (byte) 0xff, (byte) 0xee,
+        (byte) 0xba, (byte) 0xbe, (byte) 0xc0, (byte) 0xff, (byte) 0xee,
+        (byte) 0xba, (byte) 0xbe, (byte) 0xc0, (byte) 0xff, (byte) 0xee,
+        (byte) 0xba, (byte) 0xbe, (byte) 0xc0, (byte) 0xff, (byte) 0xee,
+        (byte) 0xba, (byte) 0xbe, (byte) 0xc0, (byte) 0xff, (byte) 0xee,
+        (byte) 0xba, (byte) 0xbe, (byte) 0xc0, (byte) 0xff, (byte) 0xee,
+        (byte) 0xba, (byte) 0xbe, (byte) 0xc0, (byte) 0xff, (byte) 0xee,
+        (byte) 0xba, (byte) 0xbe, (byte) 0xc0, (byte) 0xff, (byte) 0xee,
+        (byte) 0xba, (byte) 0xbe, (byte) 0xc0, (byte) 0xff, (byte) 0xee,
         (byte) 0xba, (byte) 0xbe,
-        (byte) 0x00, 
-        (byte) 0x03, (byte) 0x01, 
-        (byte) 0x01, (byte) 0x02, (byte) 0x03, (byte) 0x04, (byte) 0x05, 
-        (byte) 0x06, (byte) 0x07, (byte) 0x08, (byte) 0x09, (byte) 0x0a, 
-        (byte) 0x0b, (byte) 0x0c, (byte) 0x0d, (byte) 0x0e, (byte) 0x0f, 
-        (byte) 0x10, (byte) 0x11, (byte) 0x12, (byte) 0x13, (byte) 0x14, 
-        (byte) 0x15, (byte) 0x16, (byte) 0x17, (byte) 0x18, (byte) 0x19, 
-        (byte) 0x1a, (byte) 0x1b, (byte) 0x1c, (byte) 0x1d, (byte) 0x1e, 
-        (byte) 0x1f, (byte) 0x20, (byte) 0x21, (byte) 0x22, (byte) 0x23, 
-        (byte) 0x24, (byte) 0x25, (byte) 0x26, (byte) 0x27, (byte) 0x28, 
-        (byte) 0x29, (byte) 0x2a, (byte) 0x2b, (byte) 0x2c, (byte) 0x2d, 
+        (byte) 0x00,
+        (byte) 0x03, (byte) 0x01,
+        (byte) 0x01, (byte) 0x02, (byte) 0x03, (byte) 0x04, (byte) 0x05,
+        (byte) 0x06, (byte) 0x07, (byte) 0x08, (byte) 0x09, (byte) 0x0a,
+        (byte) 0x0b, (byte) 0x0c, (byte) 0x0d, (byte) 0x0e, (byte) 0x0f,
+        (byte) 0x10, (byte) 0x11, (byte) 0x12, (byte) 0x13, (byte) 0x14,
+        (byte) 0x15, (byte) 0x16, (byte) 0x17, (byte) 0x18, (byte) 0x19,
+        (byte) 0x1a, (byte) 0x1b, (byte) 0x1c, (byte) 0x1d, (byte) 0x1e,
+        (byte) 0x1f, (byte) 0x20, (byte) 0x21, (byte) 0x22, (byte) 0x23,
+        (byte) 0x24, (byte) 0x25, (byte) 0x26, (byte) 0x27, (byte) 0x28,
+        (byte) 0x29, (byte) 0x2a, (byte) 0x2b, (byte) 0x2c, (byte) 0x2d,
         (byte) 0x2e
     };
     private PrivateKey privateKey;
     private PublicKey publicKey;
-    
     /**
      * Log4j logger initialization.
      */
@@ -145,12 +146,15 @@ public class BleichenbacherJSSETest1024 {
             OracleException,
             InterruptedException,
             NoSuchAlgorithmException,
-            InvalidKeyException, 
+            InvalidKeyException,
             NoSuchPaddingException,
-            IOException {
+            IOException,
+            GeneralSecurityException {
         //JSSE16Oracle jsseOracle = new JSSE16Oracle("127.0.0.1", 10443);
-        TimingOracle jsseOracle = new TimingOracle("127.0.0.1", 10443, privateKey, AOracle.OracleType.TTT);
-        jsseOracle.setPlainPMS(new PreMasterSecret(plainPKCS));
+        byte[] pms = new byte[48];
+        System.arraycopy(plainPKCS, 80, pms, 0, pms.length);
+        TimingOracle jsseOracle = new TimingOracle("127.0.0.1", 10443,
+                privateKey, AOracle.OracleType.TTT, pms);
         byte[][] test;
         byte[] enc;
 
@@ -187,12 +191,12 @@ public class BleichenbacherJSSETest1024 {
             jsseOracle.checkPKCSConformity(enc);
             counter++;
         }
-        
+
         Thread.sleep(5000);
 
         // valid
         enc = encryptHelper(plainPKCS, publicKey);
-        
+
         jsseOracle.checkPKCSConformity(enc);
         counter++;
 
@@ -256,7 +260,6 @@ public class BleichenbacherJSSETest1024 {
 //        }
 //        return invalidPMSlengthMessages;
 //    }
-
     @BeforeMethod
     protected void printMethodBanner(Method method) throws Exception {
         String testName = method.getName();
