@@ -3,7 +3,10 @@ package de.rub.nds.ssl.analyzer.attacks;
 import de.rub.nds.ssl.analyzer.attacker.Bleichenbacher;
 import de.rub.nds.ssl.analyzer.attacker.BleichenbacherCrypto12;
 import de.rub.nds.ssl.analyzer.attacker.bleichenbacher.OracleException;
+import de.rub.nds.ssl.analyzer.attacker.bleichenbacher.oracles.AOracle;
 import de.rub.nds.ssl.analyzer.attacker.bleichenbacher.oracles.JSSE16Oracle;
+import de.rub.nds.ssl.analyzer.attacker.bleichenbacher.oracles.TimingOracle;
+import de.rub.nds.ssl.stack.protocols.handshake.datatypes.PreMasterSecret;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.lang.reflect.Method;
@@ -140,9 +143,14 @@ public class BleichenbacherJSSETest1024 {
     @Test(enabled = true, priority = 2)
     public void sslTriggerOracleTest() throws SocketException,
             OracleException,
-            InterruptedException {
-        JSSE16Oracle jsseOracle = new JSSE16Oracle("127.0.0.1", 10443);
-
+            InterruptedException,
+            NoSuchAlgorithmException,
+            InvalidKeyException, 
+            NoSuchPaddingException,
+            IOException {
+        //JSSE16Oracle jsseOracle = new JSSE16Oracle("127.0.0.1", 10443);
+        TimingOracle jsseOracle = new TimingOracle("127.0.0.1", 10443, privateKey, AOracle.OracleType.TTT);
+        jsseOracle.setPlainPMS(new PreMasterSecret(plainPKCS));
         byte[][] test;
         byte[] enc;
 
@@ -172,14 +180,13 @@ public class BleichenbacherJSSETest1024 {
 
         // invalid ssl version number (explicitly taken 128, 129 and 255 to 
         // produce a "byte converstion overflow")
-// TODO das hier fragged unwiederbringlich das PlainPKCS
-//        int[] x = {0, 1, 2, 3, 4, 128, 129, 255};
-//        for (int i = 0; i < x.length; i++) {
-//            plainPKCS[plainPKCS.length - 48] = (byte) x[i];
-//            enc = encryptHelper(plainPKCS, publicKey);
-//            jsseOracle.checkPKCSConformity(enc);
-//            counter++;
-//        }
+        int[] x = {0, 1, 2, 3, 4, 128, 129, 255};
+        for (int i = 0; i < x.length; i++) {
+            plainPKCS[plainPKCS.length - 48] = (byte) x[i];
+            enc = encryptHelper(plainPKCS, publicKey);
+            jsseOracle.checkPKCSConformity(enc);
+            counter++;
+        }
         
         Thread.sleep(5000);
 
