@@ -79,6 +79,10 @@ public abstract class ATestOracle extends AOracle {
                     break;
             }
         }
+        if (conform) {
+            logger.info("-------- Valid message by query number "
+                    + numberOfQueries + "--------");
+        }
         return conform;
     }
 
