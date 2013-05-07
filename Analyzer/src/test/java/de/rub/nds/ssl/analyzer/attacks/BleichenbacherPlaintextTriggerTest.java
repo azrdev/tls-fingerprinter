@@ -109,7 +109,7 @@ public class BleichenbacherPlaintextTriggerTest {
         }
     }
     
-    @Test(enabled = true, dataProvider= "pkcsTestVectors")
+    @Test(enabled = false, dataProvider= "pkcsTestVectors")
     public final void testBleichenbacherAttack(final String testName, final Byte[] pkcs)
             throws Exception {
         testCounter++;
