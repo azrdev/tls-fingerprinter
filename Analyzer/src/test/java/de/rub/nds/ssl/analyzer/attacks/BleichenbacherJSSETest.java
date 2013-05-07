@@ -161,7 +161,6 @@ public class BleichenbacherJSSETest {
     @Test(enabled = true, priority = 2)
     public void sslTriggerOracleTest() throws SocketException,
             OracleException {
-//        JSSE16Oracle jsseOracle = new JSSE16Oracle("localhost", 55443);
         JSSE16Oracle jsseOracle = new JSSE16Oracle("134.147.198.93", 55443);
 
         byte[][] test;

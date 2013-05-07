@@ -11,7 +11,7 @@
 #include <pthread.h>
 
 
-//#define _debug
+// #define _debug
 
 static int sock = -1;
 static int start_measurement = 0;
@@ -123,15 +123,18 @@ JNIEXPORT jint JNICALL Java_de_rub_nds_research_timingsocket_TimingSocketImpl_c_
                 ret = setsockopt(sock, SOL_SOCKET, SO_LINGER, &so_linger, sizeof so_linger);
         } else if(opt_name == 0x1006) {
 #ifdef _debug
-                printf("setting SO_RCVTIMEO to tv_sec=%d\n", opt_value);
+                // printf("setting SO_RCVTIMEO to tv_sec=%d\n", opt_value);
+                printf("NOT settting SO_RCVTIMEO to tv_sec=%d\n", opt_value);
                 fflush(stdout);
 #endif
-                struct timeval tv;
+                /*struct timeval tv;
 
                 bzero(&tv, sizeof tv);
                 tv.tv_sec = opt_value;
 
                 ret = setsockopt(sock, SOL_SOCKET, SO_RCVTIMEO,(struct timeval *)&tv,sizeof(struct timeval));
+                */ 
+		ret = 0;
         } else {
                 printf("c_setOption(): Wrong optID: %x\n", opt_name);
                 ret = -1;
@@ -143,21 +146,26 @@ JNIEXPORT jint JNICALL Java_de_rub_nds_research_timingsocket_TimingSocketImpl_c_
 
 JNIEXPORT jint JNICALL Java_de_rub_nds_research_timingsocket_TimingSocketImpl_c_1read_1off(JNIEnv *env, jobject obj, jbyteArray ar, jint offset, jint length) { 
 
+	extern int errno;
         jint len_read = -1;
 	struct timeval tv;
 
         jbyte *c_array = (*env)->GetByteArrayElements(env, ar, 0);
 
-	tv.tv_sec  = 0;
-	tv.tv_usec = 200000; // Timeout is 200 milliseconds
-        setsockopt(sock, SOL_SOCKET, SO_RCVTIMEO,(struct timeval *)&tv,sizeof(struct timeval));
-
 #ifdef _debug
         printf("Called c_read(ar, offset=%d, length=%d)\n", offset, length);
         fflush(stdout);
 #endif
+	int counter = 0;
         while(len_read < 0) {
             /*
+             * This evil hack terminates the loop after n rounds so that
+             * the Java land has a chance to call close().
+             */
+	    if(counter++ > 15) {
+                return -2;
+            }
+           /*
             * This read() method is not a typical read method because it first
             * sends a request and then waits for the response.
             *
@@ -168,6 +176,10 @@ JNIEXPORT jint JNICALL Java_de_rub_nds_research_timingsocket_TimingSocketImpl_c_
             printf("\t --> read_off() locked. \n");
             fflush(stdout);
 #endif
+	    tv.tv_sec  = 0;
+	    tv.tv_usec = 200000; // Timeout is 200 milliseconds
+            setsockopt(sock, SOL_SOCKET, SO_RCVTIMEO,(struct timeval *)&tv,sizeof(struct timeval));
+
 
             /*
             * If the pointer ptr does not point to the beginning of buffer, there
@@ -195,19 +207,41 @@ JNIEXPORT jint JNICALL Java_de_rub_nds_research_timingsocket_TimingSocketImpl_c_
             len_read = read(sock, c_array + offset, 1);
             end = get_ticks();
 
-
             pthread_mutex_unlock(&lock);
+
 #ifdef _debug
             puts("\t --> unlocked.");
             fflush(stdout);
 #endif
 
-            if(len_read == -1) {
+            if(len_read == 0) {
+                    /*
+                     * The C-lib indicates that the socket is EOF.
+                     * Return -1 because that's the Java value for EOF.
+                     */
+                    printf("'''''''''''''''' ERRNO %d, (%s))\n", errno, strerror(errno));
+                    fflush(stdout);
+                    return -1;
+            } else if(len_read < 0) {
+                    if(errno == 11) {
+                            /*
+                             * A socket timeout occured. Just sleep for some time and
+                             * try again.
+                             */
 #ifdef _debug
-                puts("\tread_off() sleeping.");
-                fflush(stdout);
+                            puts("\tread_off() sleeping.");
+                            fflush(stdout);
 #endif
-                usleep(100000);
+                            usleep(100000);
+                    } else {
+                            /*
+                             * An error occured that is NOT a socket timeout.
+                             * Don't know what happend, just indicate error.
+                             */
+                            printf("'''''''''''''''' ERRNO %d, (%s))\n", errno, strerror(errno));
+                            fflush(stdout);
+                            return -2;
+                    }
             }
         }
 
@@ -311,13 +345,18 @@ JNIEXPORT jint JNICALL Java_de_rub_nds_research_timingsocket_TimingSocketImpl_c_
 
 JNIEXPORT jint JNICALL Java_de_rub_nds_research_timingsocket_TimingSocketImpl_c_1close(JNIEnv *env, jobject obj)
 {
+	int ret;
+
+        pthread_mutex_lock(&lock);
+	ret = close(sock);
+        pthread_mutex_unlock(&lock);
+	pthread_mutex_destroy(&lock);
+
 #ifdef _debug
         puts("Called c_close()\n");
         fflush(stdout);
 #endif
-	pthread_mutex_destroy(&lock);
-
-        return close(sock);
+        return ret;
 }
 
 JNIEXPORT jint JNICALL Java_de_rub_nds_research_timingsocket_TimingSocketImpl_c_1read_1no_1param(JNIEnv * env, jobject obj)

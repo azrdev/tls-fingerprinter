@@ -9,6 +9,7 @@ import de.rub.nds.ssl.stack.protocols.handshake.datatypes.PreMasterSecret;
 import de.rub.nds.ssl.stack.workflows.commons.ESupportedSockets;
 import de.rub.nds.tinytlssocket.TLSServer;
 import java.io.FileInputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.SocketException;
@@ -125,22 +126,22 @@ public class TimingOracle extends ATimingOracle {
     /**
      * Amount of training measurementsTest
      */
-    private static final int trainingAmount = 200;
+    private static final int trainingAmount = 1000;
     /**
      * Amount of measurementsTest per Oracle query
      */
-    private static final int measurementAmount = 50;
-    private static final int measurementFactorForValidation = 3;
+    private static final int measurementAmount = 200;
+    private static final int measurementFactorForValidation = 1;
     /**
      * Amount of warmup measurementsTest
      */
-    private static final int warmupAmount = 10;
+    private static final int warmupAmount = 50;
     /**
      * Timing difference between invalid and valid timings
      */
-    private static final long validInvalidBoundary = -20000;
-    private int boxLowPercentile = 20,
-            boxHighPercentile = 20;
+    private static final long validInvalidBoundary = -10000000;
+    private int boxLowPercentile = 5,
+            boxHighPercentile = 5;
     private int counterOracle = 0;
     private int counterRequest = 0;
     ArrayList<Long> validTimings = new ArrayList<Long>(trainingAmount);
@@ -215,7 +216,6 @@ public class TimingOracle extends ATimingOracle {
             try {
                 executeWorkflow(testPMS, ESupportedSockets.TimingSocket);
                 measurementsTest[i] = getTimeDelay(getWorkflow().getTraceList());
-System.out.println("====> encPMS" + encPMSWrong[0]);
                 executeWorkflow(encPMSWrong, ESupportedSockets.TimingSocket);
                 measurementsInvalid[i] = getTimeDelay(getWorkflow().
                         getTraceList());
@@ -224,6 +224,22 @@ System.out.println("====> encPMS" + encPMSWrong[0]);
                         log(Level.SEVERE, null, ex);
             }
         }
+        try {
+            FileWriter fwInvalid = new FileWriter("invalid.csv", true);
+            for(long time : measurementsInvalid) {
+                fwInvalid.write(time + "\n");
+            }
+            fwInvalid.close();
+            
+            FileWriter fwTest = new FileWriter("test.csv", true);
+            for(long time : measurementsTest) {
+                fwTest.write(time + "\n");
+            }
+            fwTest.close();
+        } catch (IOException ex) {
+            java.util.logging.Logger.getLogger(TimingOracle.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
 
         Arrays.sort(measurementsTest);
         Arrays.sort(measurementsInvalid);
@@ -244,6 +260,17 @@ System.out.println("====> encPMS" + encPMSWrong[0]);
 
         return result;
     }
+    
+    public void warmUp(byte[] validRequest, byte[] invalidRequest) throws OracleException{
+        System.out.print("warmup... ");
+        for (int i = 0; i < warmupAmount / 2; i++) {
+            executeWorkflow(invalidRequest, ESupportedSockets.TimingSocket);
+
+            executeWorkflow(validRequest, ESupportedSockets.TimingSocket);
+            System.out.println(i + "th round");
+        }
+        System.out.println("done!");
+    }
 
     @Override
     public void trainOracle(byte[] validRequest, byte[] invalidRequest)
@@ -253,32 +280,38 @@ System.out.println("====> encPMS" + encPMSWrong[0]);
         System.out.print("warmup... ");
         for (int i = 0; i < warmupAmount / 2; i++) {
             executeWorkflow(invalidRequest, ESupportedSockets.TimingSocket);
+
             executeWorkflow(validRequest, ESupportedSockets.TimingSocket);
+            System.out.println(i + "th round");
         }
         System.out.println("done!");
 
+        long delay;
+        // train the oracle using the executeWorkflow functionality
+        for (int i = 0; i < trainingAmount; i++) {
+            executeWorkflow(validRequest, ESupportedSockets.TimingSocket);
+            delay = getTimeDelay(getWorkflow().getTraceList());
+            validTimings.add(delay);
 
-//        try {
-//            long delay;
-//            // train the oracle using the executeWorkflow functionality
-//            for (int i = 0; i < trainingAmount; i++) {
-//                executeWorkflow(validRequest);
-//                delay = getTimeDelay(getWorkflow().getTraceList());
-//                validTimings.add(delay);
-//
-//                executeWorkflow(invalidRequest);
-//                delay = getTimeDelay(getWorkflow().getTraceList());
-//                invalidTimings.add(delay);
-//
-//                System.out.print("\r left requests for training " + (trainingAmount - i));
-//            }
-//            System.out.println("\n");
-//            FileWriter fw = new FileWriter("training_data.csv");
-//            for(int i = 0; i < trainingAmount; i++) {
-//                fw.write(i + ";invalid;" + invalidTimings.get(i) + "\n");
-//                fw.write((i + trainingAmount) + ";valid;" + validTimings.get(i) + "\n");
-//            }
-//            fw.close();
+            executeWorkflow(invalidRequest, ESupportedSockets.TimingSocket);
+            delay = getTimeDelay(getWorkflow().getTraceList());
+            invalidTimings.add(delay);
+
+            System.out.print("\r left requests for training " + (trainingAmount - i));
+        }
+        System.out.println("\n");
+        FileWriter fw = null;
+        try {
+            fw = new FileWriter("training_data.csv");
+
+            for (int i = 0; i < trainingAmount; i++) {
+                fw.write(i + ";invalid;" + invalidTimings.get(i) + "\n");
+                fw.write((i + trainingAmount) + ";valid;" + validTimings.get(i) + "\n");
+            }
+            fw.close();
+        } catch (IOException ex) {
+            java.util.logging.Logger.getLogger(TimingOracle.class.getName()).log(Level.SEVERE, null, ex);
+        }
 //            
 //            long[] temp = new long[trainingAmount];
 //            for(int i = 0; i < trainingAmount; i++) {
@@ -295,80 +328,6 @@ System.out.println("====> encPMS" + encPMSWrong[0]);
 //        } catch (IOException ex) {
 //            java.util.logging.Logger.getLogger(TimingOracle.class.getName()).log(Level.SEVERE, null, ex);
 //        }
-
-//        Conf.put("inputFile", "training_data.csv");
-//        Conf.put("gnuplot", "/usr/bin/gnuplot");
-//        Conf.put("makeindexPath", "/usr/bin/makeindex");
-//        Conf.put("pdflatex", "/usr/bin/pdflatex");
-//        ReaderCsv reader = new ReaderCsv();
-//        Dataset dataset = new Dataset(reader);
-//        dataset.setName("New Measurement");
-//        String report = de.fau.pi1.timerReporter.main.Main.getReport();
-//        
-//        // create plot pool to multi threaded the plots
-//        PlotPool plotPool = new PlotPool(report, dataset);
-//
-//        // plot the data set with the lower bound of 0.0 and the upper bound of 1.0
-//        // plotPool.plot("Unfiltered Measurements", 0.0, 1.0);
-//
-//        // plot the data set with the user input lower bound and upper bound
-//        // plotPool.plot("Filtered Measurments: User Input", new Double(0.2), new Double(0.3));
-//
-//        // build the evaluation phase
-//        StatisticEvaluation statisticEvaluation = new StatisticEvaluation(dataset, plotPool);
-//
-//        /*
-//         * this part shows how an optimal box is set by a user
-//         */
-//        /*double[] userInputOptimalBox = new double[2];
-//         userInputOptimalBox[0] = new Double(0.19);
-//         userInputOptimalBox[1] = new Double(0.21);
-//         statisticEvaluation.setOptimalBox(userInputOptimalBox);*/
-//
-//        // Manually set the minimum amount of measurementsTest
-//        // statisticEvaluation.onlyValidationPhase(1000);
-//
-//        // Automatically determine minimum amount of measurementsTest
-//        statisticEvaluation.calibrationPhase();
-//
-//        // print the box test results into a csv file
-//        statisticEvaluation.printBoxTestResults(new File(report + Folder.getFileSep() + FileId.getId() + "-" + "BoxTestResult.csv"));
-//
-//        /*
-//         * this part shows the getter of the evaluation results
-//         * 
-//         for (BoxTestResults result : statisticEvaluation.getBoxTestResults()) {
-//         System.out.println(result.getInputFile() + " [" + result.getSecretA().getName() + "<" + result.getSecretB().getName() + "]: " + result.getOptimalBox()[0] + "-" + result.getOptimalBox()[1]);
-//
-//         // iterate above all tested smallest sizes
-//         for(int i = 0; i < result.getSmallestSize().size(); ++i) {
-//         System.out.println("Minimum amouont of measurementsTest: " + result.getSmallestSize().get(i) + "\nConfidence Interval: " + result.getConfidenceInterval().get(i));
-//         System.out.println("Subset A overlaps: " + Folder.convertArrayListToString(result.getSubsetOverlapA().get(i)));
-//         System.out.println("Subset B overlaps: " + Folder.convertArrayListToString(result.getSubsetOverlapB().get(i)));
-//         System.out.println("Subset A and B significant different: " + Folder.convertArrayListToString(result.getSignificantDifferent().get(i)));
-//
-//         }
-//         }
-//         */
-//
-//        // store the time lines
-//        ArrayList<String> timelineNames = statisticEvaluation.storeTimelines(report + Folder.getFileSep() + "images" + Folder.getFileSep());
-//
-//        // close the thread pool
-//        plotPool.close();
-//
-//        // write results in html and pdf
-//        // new WriteHTML(dataset, report, plotPool).write();
-//
-//        try {
-//            new WritePDF(dataset, report, plotPool, timelineNames).write();
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//            System.out.println("Error while writing the pdf.");
-//        }
-//
-//        // delete the folder tmp
-//        Folder.deleteTmp();
     }
 
     private void plausibilityCheck() {
@@ -445,9 +404,22 @@ System.out.println("====> encPMS" + encPMSWrong[0]);
     public boolean checkPKCSConformity(byte[] encPMS) throws OracleException {
         boolean ret = false;
         boolean groundTruth = false;
+        
+        counterOracle += 1;
 
         try {
             groundTruth = cheat(encPMS);
+            
+            if(counterOracle < 1890) {
+                if(counterOracle % 100 == 0) {
+                    System.out.print("\r" + counterOracle);
+                }
+                if(groundTruth == true) {
+                    System.out.println( counterOracle + "TRUE!!!");
+                }
+                return groundTruth;
+            }
+            
             boolean test = isValidPMS(encPMS);
 
             if (groundTruth == false) {
@@ -468,7 +440,8 @@ System.out.println("====> encPMS" + encPMSWrong[0]);
                     java.util.logging.Logger.getLogger(TimingOracle.class.
                             getName()).log(Level.SEVERE,
                             "ERROR: invalid key was predicted to be valid. Stopping.");
-                    System.exit(1);
+                    // System.exit(1);
+                    ret = test;
                 }
 
             } else {
@@ -500,7 +473,7 @@ System.out.println("====> encPMS" + encPMSWrong[0]);
                     log(Level.SEVERE, null, ex);
         }
 
-        System.out.println(counterOracle++ + ": Ground truth: "
+        System.out.println(counterOracle + ": Ground truth: "
                 + groundTruth + ", timingoracle: " + ret);
 
         return ret;
@@ -521,7 +494,6 @@ System.out.println("====> encPMS" + encPMSWrong[0]);
             e.printStackTrace();
         }
     }
-
 //    public static void main(String[] args) {
 //        PropertyConfigurator.configure("logging.properties");
 //

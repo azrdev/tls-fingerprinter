@@ -31,6 +31,8 @@ import java.util.Observable;
  * May 18, 2012
  */
 public final class JSSE16Oracle extends ASSLServerOracle {
+    
+    private int counter = 0;
 
     /**
      * Initialize the JSSE oracle.
@@ -51,6 +53,7 @@ public final class JSSE16Oracle extends ASSLServerOracle {
     @Override
     public boolean checkPKCSConformity(final byte[] msg) throws
             OracleException {
+        System.out.println(counter++ + ": YYYY");
         executeWorkflow(msg, ESupportedSockets.StandardSocket);
 
         return oracleResult();

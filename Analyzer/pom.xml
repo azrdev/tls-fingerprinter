@@ -137,11 +137,6 @@
             <version>1.2.1</version>
         </dependency>
         <dependency>
-            <groupId>de.fau.pi1</groupId>
-            <artifactId>TimerReporter</artifactId>
-            <version>1.1.2</version>
-        </dependency>
-        <dependency>
             <groupId>org.bouncycastle</groupId>
             <artifactId>bcprov-jdk16</artifactId>
             <version>1.46</version>

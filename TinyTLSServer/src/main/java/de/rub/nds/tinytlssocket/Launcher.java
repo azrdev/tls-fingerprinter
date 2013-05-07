@@ -25,6 +25,9 @@ public class Launcher {
         } else {
             int port = Integer.parseInt(args[3]);
             boolean debug = Boolean.parseBoolean(args[4]);
+            if(debug) {
+                System.out.println("Debuggin enabled!");
+            }
             serverThread = new TLSServer(args[0], args[1], args[2], port, debug);
             serverThread.start();
 
