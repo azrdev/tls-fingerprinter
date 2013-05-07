@@ -1,7 +1,9 @@
 package de.rub.nds.ssl.analyzer.attacker.bleichenbacher.oracles;
 
 import de.rub.nds.ssl.analyzer.attacker.bleichenbacher.OracleException;
+import de.rub.nds.ssl.stack.Utility;
 import de.rub.nds.ssl.stack.protocols.commons.EProtocolVersion;
+import de.rub.nds.ssl.stack.protocols.handshake.datatypes.PreMasterSecret;
 import de.rub.nds.ssl.stack.workflows.TLS10HandshakeWorkflow;
 import de.rub.nds.ssl.stack.workflows.commons.ESupportedSockets;
 import java.io.IOException;
@@ -106,7 +108,7 @@ public abstract class ASSLServerOracle extends AOracle implements Observer {
                     LogLevel.DEBUG);
         }
     }
-
+    
     int computeBlockSize() {
         byte[] tmp = ((RSAPublicKey) getPublicKey()).getModulus().toByteArray();
         int result = tmp.length;

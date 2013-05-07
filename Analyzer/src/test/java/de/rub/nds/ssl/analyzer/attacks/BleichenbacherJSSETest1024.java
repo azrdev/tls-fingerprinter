@@ -48,29 +48,63 @@ public class BleichenbacherJSSETest1024 {
     /**
      * Plain PKCS message
      */
-    byte[] plainPKCS = new byte[]{(byte) 0,
-        (byte) 2, (byte) 49, (byte) -97, (byte) 123, (byte) 127, (byte) 103, 
-        (byte) -83, (byte) 103, (byte) 9, (byte) 25, (byte) -17, (byte) -17, 
-        (byte) -21, (byte) 117, (byte) -69, (byte) 15, (byte) -43, (byte) 43, 
-        (byte) -19, (byte) -111, (byte) 35, (byte) 127, (byte) 73, (byte) -3, 
-        (byte) -45, (byte) 3, (byte) 15, (byte) -87, (byte) 93, (byte) -107, 
-        (byte) 115, (byte) 53, (byte) -5, (byte) -43, (byte) -45, (byte) 87, 
-        (byte) 43, (byte) -65, (byte) 87, (byte) 109, (byte) -95, (byte) -123, 
-        (byte) 71, (byte) -63, (byte) 11, (byte) -59, (byte) 101, (byte) -7, 
-        (byte) -109, (byte) -117, (byte) 33, (byte) 85, (byte) 49, (byte) 33, 
-        (byte) -91, (byte) -69, (byte) 97, (byte) 15, (byte) -83, (byte) -105, 
-        (byte) 21, (byte) -65, (byte) 45, (byte) 43, (byte) 127, (byte) 5, 
-        (byte) -37, (byte) -23, (byte) 15, (byte) 105, (byte) -117, (byte) 41, 
-        (byte) 65, (byte) -5, (byte) 7, (byte) 87, (byte) -103, (byte) 13, 
-        (byte) 0, (byte) -127, (byte) -31, (byte) 59, (byte) -123, (byte) -29, 
-        (byte) 49, (byte) 7, (byte) 25, (byte) 5, (byte) -35, (byte) 75, 
-        (byte) -71, (byte) -17, (byte) -69, (byte) -67, (byte) 123, (byte) -33, 
-        (byte) -67, (byte) -31, (byte) -27, (byte) -69, (byte) 125, (byte) -13, 
-        (byte) -111, (byte) 119, (byte) -85, (byte) 73, (byte) 47, (byte) -101, 
-        (byte) 125, (byte) -37, (byte) -53, (byte) -95, (byte) -27, (byte) -79, 
-        (byte) 115, (byte) -39, (byte) -105, (byte) 35, (byte) 15, (byte) -21, 
-        (byte) 31, (byte) -51, (byte) -113, (byte) 21, (byte) 91, (byte) 125, 
-        (byte) -11};
+    byte[] plainPKCS = new byte[]{
+        (byte) 0,
+        (byte) 2, (byte) 49, (byte) -97, (byte) 123, (byte) 127, (byte) 103,
+        (byte) -83, (byte) 103, (byte) 9, (byte) 25, (byte) -17, (byte) -17,
+        (byte) -21, (byte) 117, (byte) -69, (byte) 15, (byte) -43, (byte) 43,
+        (byte) -19, (byte) -111, (byte) 35, (byte) 127, (byte) 73, (byte) -3,
+        (byte) -45, (byte) 3, (byte) 15, (byte) -87, (byte) 93, (byte) -107,
+        (byte) 115, (byte) 53, (byte) -5, (byte) -43, (byte) -45, (byte) 87,
+        (byte) 43, (byte) -65, (byte) 87, (byte) 109, (byte) -95, (byte) -123,
+        (byte) 71, (byte) -63, (byte) 11, (byte) -59, (byte) 101, (byte) -7,
+        (byte) -109, (byte) -117, (byte) 33, (byte) 85, (byte) 49, (byte) 33,
+        (byte) -91, (byte) -69, (byte) 97, (byte) 15, (byte) -83, (byte) -105,
+        (byte) 21, (byte) -65, (byte) 45, (byte) 43, (byte) 127, (byte) 5,
+        (byte) -37, (byte) -23, (byte) 15, (byte) 105, (byte) -117, (byte) 41,
+        (byte) 65, (byte) -5, (byte) 7, (byte) 87, (byte) -103, (byte) 13,
+        (byte) 0, (byte) -127, (byte) -31, (byte) 59, (byte) -123, (byte) -29,
+        (byte) 49, (byte) 7, (byte) 25, (byte) 5, (byte) -35, (byte) 75,
+        (byte) -71, (byte) -17, (byte) -69, (byte) -67, (byte) 123, (byte) -33,
+        (byte) -67, (byte) -31, (byte) -27, (byte) -69, (byte) 125, (byte) -13,
+        (byte) -111, (byte) 119, (byte) -85, (byte) 73, (byte) 47, (byte) -101,
+        (byte) 125, (byte) -37, (byte) -53, (byte) -95, (byte) -27, (byte) -79,
+        (byte) 115, (byte) -39, (byte) -105, (byte) 35, (byte) 15, (byte) -21,
+        (byte) 31, (byte) -51, (byte) -113, (byte) 21, (byte) 91, (byte) 125,
+        (byte) -11
+    /*
+     * VALID PKCS with valid PMS 1024bit
+     */
+//        (byte) 0x00, (byte) 0x02,
+//        (byte) 0x01, (byte) 0x01, (byte) 0xc0, (byte) 0xff, (byte) 0xee,
+//        (byte) 0xba, (byte) 0xbe, (byte) 0xc0, (byte) 0xff, (byte) 0xee,
+//        (byte) 0xba, (byte) 0xbe, (byte) 0xc0, (byte) 0xff, (byte) 0xee,
+//        (byte) 0xba, (byte) 0xbe, (byte) 0xc0, (byte) 0xff, (byte) 0xee,
+//        (byte) 0xba, (byte) 0xbe, (byte) 0xc0, (byte) 0xff, (byte) 0xee,
+//        (byte) 0xba, (byte) 0xbe, (byte) 0xc0, (byte) 0xff, (byte) 0xee,
+//        (byte) 0xba, (byte) 0xbe, (byte) 0xc0, (byte) 0xff, (byte) 0xee,
+//        (byte) 0xba, (byte) 0xbe, (byte) 0xc0, (byte) 0xff, (byte) 0xee,
+//        (byte) 0xba, (byte) 0xbe, (byte) 0xc0, (byte) 0xff, (byte) 0xee,
+//        (byte) 0xba, (byte) 0xbe, (byte) 0xc0, (byte) 0xff, (byte) 0xee,
+//        (byte) 0xba, (byte) 0xbe, (byte) 0xc0, (byte) 0xff, (byte) 0xee,
+//        (byte) 0xba, (byte) 0xbe, (byte) 0xc0, (byte) 0xff, (byte) 0xee,
+//        (byte) 0xba, (byte) 0xbe, (byte) 0xc0, (byte) 0xff, (byte) 0xee,
+//        (byte) 0xba, (byte) 0xbe, (byte) 0xc0, (byte) 0xff, (byte) 0xee,
+//        (byte) 0xba, (byte) 0xbe, (byte) 0xc0, (byte) 0xff, (byte) 0xee,
+//        (byte) 0xba, (byte) 0xbe,
+//        (byte) 0x00,
+//        (byte) 0x03, (byte) 0x01,
+//        (byte) 0x01, (byte) 0x02, (byte) 0x03, (byte) 0x04, (byte) 0x05,
+//        (byte) 0x06, (byte) 0x07, (byte) 0x08, (byte) 0x09, (byte) 0x0a,
+//        (byte) 0x0b, (byte) 0x0c, (byte) 0x0d, (byte) 0x0e, (byte) 0x0f,
+//        (byte) 0x10, (byte) 0x11, (byte) 0x12, (byte) 0x13, (byte) 0x14,
+//        (byte) 0x15, (byte) 0x16, (byte) 0x17, (byte) 0x18, (byte) 0x19,
+//        (byte) 0x1a, (byte) 0x1b, (byte) 0x1c, (byte) 0x1d, (byte) 0x1e,
+//        (byte) 0x1f, (byte) 0x20, (byte) 0x21, (byte) 0x22, (byte) 0x23,
+//        (byte) 0x24, (byte) 0x25, (byte) 0x26, (byte) 0x27, (byte) 0x28,
+//        (byte) 0x29, (byte) 0x2a, (byte) 0x2b, (byte) 0x2c, (byte) 0x2d,
+//        (byte) 0x2e
+    };
     private PrivateKey privateKey;
     private PublicKey publicKey;
     /**
@@ -135,19 +169,14 @@ public class BleichenbacherJSSETest1024 {
 
     @Test(enabled = false, priority = 2)
     public void sslTriggerPlaintextTest() throws SocketException,
-            OracleException,
-            InterruptedException,
-            NoSuchAlgorithmException,
-            InvalidKeyException,
-            NoSuchPaddingException,
-            IOException,
+            OracleException, InterruptedException, IOException,
             GeneralSecurityException {
         byte[] plainPKCScopy = new byte[plainPKCS.length];
         System.arraycopy(plainPKCS, 0, plainPKCScopy, 0, plainPKCScopy.length);
         StdPlainOracle plainOracle = new StdPlainOracle(publicKey,
                 AOracle.OracleType.FFT, 128);
-        BleichenbacherCrypto12 bleichenbacher = new BleichenbacherCrypto12(plainPKCScopy,
-                plainOracle, true);
+        BleichenbacherCrypto12 bleichenbacher = new BleichenbacherCrypto12(
+                plainPKCScopy, plainOracle, true);
         bleichenbacher.attack();
     }
 
@@ -160,24 +189,26 @@ public class BleichenbacherJSSETest1024 {
             NoSuchPaddingException,
             IOException,
             GeneralSecurityException {
-        byte[] pms = new byte[48];
-        System.arraycopy(plainPKCS, 80, pms, 0, pms.length);
-        pms[0] = 03;
-        pms[1] = 01;
-        TimingOracle timingOracle = new TimingOracle("127.0.0.1", 10443,
-                privateKey, AOracle.OracleType.FFT, pms);
-
         byte[] valid;
-        byte[] invalid;
-        byte[] plainPKCSCopy = new byte[plainPKCS.length];
-        System.arraycopy(plainPKCS, 0, plainPKCSCopy, 0, plainPKCSCopy.length);
-        valid = encryptHelper(plainPKCSCopy, publicKey);
+        byte[] plainValidPKCSCopy = new byte[plainPKCS.length];
+        byte[] plainInvalidPKCSCopy = new byte[plainPKCS.length];
 
-        System.arraycopy(plainPKCS, 0, plainPKCSCopy, 0, plainPKCSCopy.length);
-        plainPKCSCopy[plainPKCSCopy.length - 48] = (byte) 23;
-        invalid = encryptHelper(plainPKCSCopy, publicKey);
+        // get fresh valid pkcsPKCS copy
+        System.arraycopy(plainPKCS, 0, plainValidPKCSCopy, 0,
+                plainValidPKCSCopy.length);
+        // get fresh invalid pkcsPKCS copy
+        System.arraycopy(plainPKCS, 0, plainInvalidPKCSCopy, 0,
+                plainInvalidPKCSCopy.length);
+        plainInvalidPKCSCopy[0] = (byte) 23;
 
-        timingOracle.warmUp(valid, invalid);
+        // get valid encrypted PKCS structure
+        valid = encryptHelper(plainValidPKCSCopy, publicKey);
+
+        boolean pmsContainedInPKCSIsValid = false;
+        TimingOracle timingOracle = new TimingOracle("127.0.0.1", 10443,
+                privateKey, AOracle.OracleType.FFT, plainValidPKCSCopy,
+                plainInvalidPKCSCopy, pmsContainedInPKCSIsValid);
+        timingOracle.warmUp();
 
         try {
             new File("test.csv").delete();
@@ -186,7 +217,8 @@ public class BleichenbacherJSSETest1024 {
             e.printStackTrace();
         }
 
-        BleichenbacherCrypto12 attacker = new BleichenbacherCrypto12(valid, timingOracle, true);
+        BleichenbacherCrypto12 attacker = new BleichenbacherCrypto12(valid,
+                timingOracle, true);
         attacker.attack();
 
 //        //test invalid PKCS1 messages

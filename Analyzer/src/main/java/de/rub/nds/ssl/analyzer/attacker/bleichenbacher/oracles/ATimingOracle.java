@@ -15,7 +15,6 @@ import de.rub.nds.ssl.stack.workflows.TLS10HandshakeWorkflow;
 import de.rub.nds.ssl.stack.workflows.commons.MessageBuilder;
 import de.rub.nds.ssl.stack.workflows.commons.ObservableBridge;
 import java.net.SocketException;
-import java.security.PublicKey;
 import java.util.List;
 import java.util.Observable;
 
@@ -28,11 +27,16 @@ import java.util.Observable;
  * September 14, 2012
  */
 public abstract class ATimingOracle extends ASSLServerOracle {
+
     /**
-     * PreMasterSecret decrypted and decoded.
+     * Encrypted PKCS structure for CKE message.
      */
-    private PreMasterSecret plainPMS;
-    
+    protected byte[] encPKCSStructure;
+    /**
+     * Plain PMS (without PKCS).
+     */
+    protected byte[] plainPMS;
+
     /**
      * Constructor
      *
@@ -49,7 +53,7 @@ public abstract class ATimingOracle extends ASSLServerOracle {
      * Tries to train an Oracle with two different requests (e.g. valid and
      * invalid PKCS1 ciphertext) and their response times
      *
-     * @param validCiphertext 
+     * @param validCiphertext
      * @param invalidCiphertext
      * @throws OracleException if training gets impossible
      */
@@ -90,17 +94,17 @@ public abstract class ATimingOracle extends ASSLServerOracle {
                 case CLIENT_KEY_EXCHANGE:
                     KeyExchangeParams keyParams =
                             KeyExchangeParams.getInstance();
-                    PublicKey pk = keyParams.getPublicKey();
                     ClientKeyExchange cke = new ClientKeyExchange(
                             PROTOCOL_VERSION,
                             keyParams.getKeyExchangeAlgorithm());
-                    getWorkflow().setPreMasterSecret(getPlainPMS());
-
-                    //encrypt the PreMasterSecret
-                    EncPreMasterSecret encPMS = new EncPreMasterSecret(pk);
-                    encPMS.setEncryptedPreMasterSecret(getEncPMS());
+                    // only if a valid PMS is set reset the Workflow PMS!
+                    if(plainPMS != null) {
+                        getWorkflow().setPreMasterSecret(new PreMasterSecret(
+                                plainPMS));
+                    }
+                    EncPreMasterSecret encPMS = new EncPreMasterSecret(publicKey);
+                    encPMS.setEncryptedPreMasterSecret(getEncPKCSStructure());
                     cke.setExchangeKeys(encPMS);
-                    
                     trace.setOldRecord(trace.getCurrentRecord());
                     trace.setCurrentRecord(cke);
                     break;
@@ -146,18 +150,46 @@ public abstract class ATimingOracle extends ASSLServerOracle {
     }
 
     /**
-     * Get the PreMasterSecret.
-     * @return Set PreMasterSecret.
+     * Get the already encrypted PKCS structure for CKE.
+     *
+     * @return Encrypted PKCS Structure
      */
-    public PreMasterSecret getPlainPMS() {
-        return new PreMasterSecret(plainPMS.encode(false));
+    public byte[] getEncPKCSStructure() {
+        byte[] tempCopy = new byte[this.encPKCSStructure.length];
+        System.arraycopy(this.encPKCSStructure, 0, tempCopy, 0, tempCopy.length);
+        return tempCopy;
     }
 
     /**
-     * Set the PreMasterSecret.
-     * @param plainPMS PMS to set.
+     * Set the already encrypted PKCS structure for CKE.
+     *
+     * @return Encrypted PKCS Structure
      */
-    public void setPlainPMS(final PreMasterSecret plainPMS) {
-        this.plainPMS = new PreMasterSecret(plainPMS.encode(false));
+    public void setEncPKCSStructure(final byte[] ckePKCSStructure) {
+        this.encPKCSStructure = new byte[ckePKCSStructure.length];
+        System.arraycopy(ckePKCSStructure, 0, this.encPKCSStructure, 0,
+                this.encPKCSStructure.length);
+    }
+
+    /**
+     * Get the plain PMS (without PKCS)
+     *
+     * @return Plain PMS
+     */
+    public byte[] getPlainPMS() {
+        byte[] tempCopy = new byte[this.plainPMS.length];
+        System.arraycopy(this.plainPMS, 0, tempCopy, 0, tempCopy.length);
+        return tempCopy;
+    }
+
+    /**
+     * Set the plain PMS (without PKCS)
+     *
+     * @param pms Plain PMS Structure
+     */
+    public void setPlainPMS(final byte[] pms) {
+        this.plainPMS = new byte[pms.length];
+        System.arraycopy(pms, 0, this.plainPMS, 0,
+                this.plainPMS.length);
     }
 }
