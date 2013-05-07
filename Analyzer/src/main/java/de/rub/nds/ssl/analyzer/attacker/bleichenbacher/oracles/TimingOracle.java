@@ -73,7 +73,7 @@ public class TimingOracle extends ATimingOracle {
     /**
      * Amount of measurementsTest per Oracle query
      */
-    private static final int measurementAmount = 200;
+    private static final int measurementAmount = 100;
     private static final int measurementFactorForValidation = 1;
     /**
      * Amount of warmup measurementsTest
@@ -82,9 +82,9 @@ public class TimingOracle extends ATimingOracle {
     /**
      * Timing difference between invalid and valid timings
      */
-    private static final long validInvalidBoundary = -10000000;
-    private int boxLowPercentile = 5,
-            boxHighPercentile = 5;
+    private static final long validInvalidBoundary = -20000;
+    private int boxLowPercentile = 20,
+            boxHighPercentile = 20;
     private int counterOracle = 0;
     private int counterRequest = 0;
     ArrayList<Long> validTimings = new ArrayList<Long>(trainingAmount);
@@ -385,7 +385,7 @@ public class TimingOracle extends ATimingOracle {
         try {
             groundTruth = cheat(encPKCS);
 
-            if (counterOracle < 1890) {
+            if (counterOracle < 792) {
                 if (counterOracle % 100 == 0) {
                     System.out.print("\r" + counterOracle);
                 }
