@@ -286,7 +286,7 @@ public class BleichenbacherJSSETest {
     @BeforeClass
     public void setUpClass() {
         PropertyConfigurator.configure("logging.properties");
-        logger.info("##################################");
+        logger.info("##################################1");
         logger.info(this.getClass().getSimpleName());
         logger.info("##################################");
         Security.addProvider(new BouncyCastleProvider());

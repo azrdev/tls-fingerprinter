@@ -59,9 +59,9 @@ public class MessageUtils {
         int readBytes = 0;
         try {
             // TODO: soll so nicht sein, read darf auch mal weniger als
-            // header.length zurück liefern. Rückgabewert muss geprüft werden.
+            // header.length zurueck liefern. Rueckgabewert muss geprueft werden.
             // Und falls das weniger war, muss hier noch mal gelesen werden, mit
-            // entsprechender berücksichtigung von timeouts.
+            // entsprechender beruecksichtigung von timeouts.
             // TODO: readBytes nutzen!
             readBytes = in.read(header);
         } catch (IOException e) {
