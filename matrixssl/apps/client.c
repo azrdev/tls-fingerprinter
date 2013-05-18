@@ -152,6 +152,7 @@ WRITE_MORE:
 	while ((len = matrixSslGetOutdata(ssl, &buf)) > 0) {
 		transferred = send(fd, buf, len, 0);
 
+                // FIXME: Timestamp of the measurement start
                 asm             volatile(
                                                          "cpuid \n"
                                                          "rdtsc"
@@ -162,6 +163,7 @@ WRITE_MORE:
                 );
         
                 start = ((((ticks) mayor) << 32) | ((ticks) minor));
+                // Start timestamp now in "start"
         
                 puts("$$$$$$$$$$$$$$ Were sending info");
 		if (transferred <= 0) {
@@ -195,6 +197,7 @@ READ_MORE:
 		goto L_CLOSE_ERR;
 	}
 
+                // FIXME: Timestamp of the measurement end
                 asm             volatile(
                                                          "cpuid \n"
                                                          "rdtsc"
@@ -205,6 +208,7 @@ READ_MORE:
                 );
         
                 end = ((((ticks) mayor) << 32) | ((ticks) minor));
+                // We got the data at the "end" timestamp
         
 
         printf("$$$$$$$$$$$$$$ We were receiving info after %llu ticks\n", end-start);
