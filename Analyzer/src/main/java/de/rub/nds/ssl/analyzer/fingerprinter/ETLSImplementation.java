@@ -51,5 +51,9 @@ public enum ETLSImplementation {
     /**
      * BigIP 8950 - BIG-IP 11.3.0 Build 3022.0 Hotfix HF3
      */
-    BigIp_8950_11_3_0
+    BigIp_8950_11_3_0,
+    /**
+     * BigIP 8950 - BIG-IP 11.1.0 Build 2268.0 Hotfix HF5
+     */
+    BigIp_8950_11_1_0;
 }
