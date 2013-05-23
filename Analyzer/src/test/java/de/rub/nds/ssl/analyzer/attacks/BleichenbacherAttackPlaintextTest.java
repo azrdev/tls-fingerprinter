@@ -100,7 +100,7 @@ public class BleichenbacherAttackPlaintextTest {
     byte[] plainPKCS = new byte[]{
         (byte) 2, (byte) 49, (byte) -97, (byte) 123, (byte) 127, (byte) 103, (byte) -83, (byte) 103, (byte) 9, (byte) 25, (byte) -17, (byte) -17, (byte) -21, (byte) 117, (byte) -69, (byte) 15, (byte) -43, (byte) 43, (byte) -19, (byte) -111, (byte) 35, (byte) 127, (byte) 73, (byte) -3, (byte) -45, (byte) 3, (byte) 15, (byte) -87, (byte) 93, (byte) -107, (byte) 115, (byte) 53, (byte) -5, (byte) -43, (byte) -45, (byte) 87, (byte) 43, (byte) -65, (byte) 87, (byte) 109, (byte) -95, (byte) -123, (byte) 71, (byte) -63, (byte) 11, (byte) -59, (byte) 101, (byte) -7, (byte) -109, (byte) -117, (byte) 33, (byte) 85, (byte) 49, (byte) 33, (byte) -91, (byte) -69, (byte) 97, (byte) 15, (byte) -83, (byte) -105, (byte) 21, (byte) -65, (byte) 45, (byte) 43, (byte) 127, (byte) 5, (byte) -37, (byte) -23, (byte) 15, (byte) 105, (byte) -117, (byte) 41, (byte) 65, (byte) -5, (byte) 7, (byte) 87, (byte) -103, (byte) 13, (byte) 0, (byte) -127, (byte) -31, (byte) 59, (byte) -123, (byte) -29, (byte) 49, (byte) 7, (byte) 25, (byte) 5, (byte) -35, (byte) 75, (byte) -71, (byte) -17, (byte) -69, (byte) -67, (byte) 123, (byte) -33, (byte) -67, (byte) -31, (byte) -27, (byte) -69, (byte) 125, (byte) -13, (byte) -111, (byte) 119, (byte) -85, (byte) 73, (byte) 47, (byte) -101, (byte) 125, (byte) -37, (byte) -53, (byte) -95, (byte) -27, (byte) -79, (byte) 115, (byte) -39, (byte) -105, (byte) 35, (byte) 15, (byte) -21, (byte) 31, (byte) -51, (byte) -113, (byte) 21, (byte) 91, (byte) 125, (byte) -11};
 
-    @Test(enabled = true)
+    @Test(enabled = false)
     public final void testBleichenbacherAttack()
             throws Exception {
 
@@ -326,14 +326,14 @@ public class BleichenbacherAttackPlaintextTest {
         byte[] plainBytes = plainPKCS;
 
         AOracle oracle = new StdPlainOracle(ks.getCertificate("2048_rsa").
-                getPublicKey(), ATestOracle.OracleType.TTT, 256);
+                getPublicKey(), ATestOracle.OracleType.JSSE, 256);
 
         Bleichenbacher attacker = new Bleichenbacher(plainBytes,
                 oracle, true);
         attacker.attack();
     }
 
-    @Test(enabled = true)
+    @Test(enabled = false)
     public final void testFindGoodKey()
             throws Exception {
         Security.addProvider(new BouncyCastleProvider());
