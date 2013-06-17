@@ -41,9 +41,9 @@ import org.testng.annotations.Test;
  */
 public class BleichenbacherPossibleTest {
 
-    private static final String HOST = "localhost";
-//    private static final String HOST = "134.147.198.93";
-    private static final int PORT = 52624;
+//    private static final String HOST = "localhost";
+    private static final String HOST = "134.147.198.93";
+    private static final int PORT = 51635;
     /**
      * Plain PKCS message
      */
@@ -115,7 +115,7 @@ public class BleichenbacherPossibleTest {
         return result;
     }
 
-    @Test(enabled = true, priority = 2)
+    @Test(enabled = false, priority = 2)
     public void sslTriggerOracleTest() throws SocketException,
             OracleException {
         JSSE16Oracle jsseOracle = new JSSE16Oracle(HOST, PORT);
