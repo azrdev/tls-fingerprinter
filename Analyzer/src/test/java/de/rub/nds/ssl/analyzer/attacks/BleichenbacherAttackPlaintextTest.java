@@ -314,7 +314,7 @@ public class BleichenbacherAttackPlaintextTest {
         logger.warn("Max:       " + queriesBardou.get(iterations - 1));
     }
 
-    @Test(enabled = true)
+    @Test(enabled = false)
     public final void testBleichenbacherAttackStaticKey()
             throws Exception {
         Security.addProvider(new BouncyCastleProvider());
@@ -331,7 +331,7 @@ public class BleichenbacherAttackPlaintextTest {
         attacker.attack();
     }
 
-    @Test(enabled = true)
+    @Test(enabled = false)
     public final void testFindGoodKey()
             throws Exception {
         Security.addProvider(new BouncyCastleProvider());
