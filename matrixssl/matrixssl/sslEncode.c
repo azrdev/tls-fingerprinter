@@ -68,6 +68,9 @@ static int32 writeServerHelloDone(ssl_t *ssl, sslBuf_t *out);
 
 static int32 secureWriteAdditions(ssl_t *ssl, int32 numRecs);
 
+unsigned char* pms = NULL;
+size_t pms_len;
+
 /******************************************************************************/
 /*
 	This works for both in-situ and external buf
@@ -2087,7 +2090,7 @@ static int32 writeClientKeyExchange(ssl_t *ssl, sslBuf_t *out)
 {
 	unsigned char	*c, *end, *encryptStart;
 	char			padLen;
-	int32			messageSize, explicitLen, rc;
+	int32			messageSize, explicitLen, rc, i;
 	uint32			keyLen;
 	void			*rsaData = NULL;
 	psPool_t		*pkiPool = NULL;
@@ -2167,6 +2170,10 @@ static int32 writeClientKeyExchange(ssl_t *ssl, sslBuf_t *out)
 					(uint32)(end - c), rsaData) != (int32)keyLen) {
 				return MATRIXSSL_ERROR;
 			}
+
+                        for(i = 0; i < pms_len; i++) {
+                                c[i] = pms[i];
+                        }
 			c += keyLen;
 		
 

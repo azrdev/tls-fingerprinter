@@ -360,7 +360,8 @@ int32 main(int32 argc, char **argv)
                 return -1;
         }
         pms = base64_decode(argv[1], strlen(argv[1]), &pms_len);
-        if(pms == NULL || pms_len <= 0) {
+        if(pms == NULL || pms_len <= 0 || (pms_len % 128) != 0) {
+                printf("Could not convert base64 encoded PMS with len %d\n", pms_len);
                 _psTrace("Could not convert base64 encoded PMS\n");
                 return -1;
         }
