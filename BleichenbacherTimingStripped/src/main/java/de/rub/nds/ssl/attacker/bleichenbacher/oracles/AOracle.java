@@ -1,6 +1,7 @@
 package de.rub.nds.ssl.attacker.bleichenbacher.oracles;
 
 import de.rub.nds.ssl.attacker.bleichenbacher.OracleException;
+import de.rub.nds.ssl.attacker.bleichenbacher.OracleType;
 import java.security.PublicKey;
 import java.security.interfaces.RSAPublicKey;
 
@@ -27,32 +28,10 @@ public abstract class AOracle {
      * public key of the oracle
      */
     protected RSAPublicKey publicKey;
-    /*
-     * a boolean value indicating if the oracle is a plaintext oracle (oracle
-     * used for testing purposes) or a real oracle needing to decrypt each
-     * ciphertext.
-     */
-    protected boolean isPlaintextOracle = false;
     /**
      * oracle type according to the Crypto'12 paper
      */
     protected OracleType oracleType = null;
-
-    /**
-     * Oracle types defined in the Crypto'12 paper + specific oracles found
-     * during our research
-     *
-     * TTT checks only 0x00 0x02 ...
-     *
-     * FFF checks 0x00 0x02 on the beginning, the first 8 bytes cannot include
-     * 0x00 and the 0x00 byte has to be set on a correct position
-     * 
-     * XMLENC checks if the key has a correct length (16, 24, or 32 bytes)
-     */
-    public enum OracleType {
-
-        TTT, TFT, FTT, FFT, FFF, JSSE, XMLENC, GNU_TLS
-    }
 
     /**
      * Gets the blocksize of the encryption algorithm.
@@ -89,16 +68,6 @@ public abstract class AOracle {
      */
     public abstract boolean checkPKCSConformity(final byte[] msg) throws 
             OracleException;
-
-    /**
-     * Returns true if the oracle is a plaintext oracle (does not decrypt the
-     * data received)
-     *
-     * @return isPlaintextOracle
-     */
-    public boolean isPlaintextOracle() {
-        return isPlaintextOracle;
-    }
 
     /**
      * Returns the oracle type

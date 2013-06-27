@@ -116,14 +116,13 @@ public class BleichenbacherCrypto12 extends Bleichenbacher {
                 shortpad = false;
                 break;
             case FFT:
+                break;
             case FFF:
-            case JSSE:
-                noterm = false;
-                shortpad = false;
                 break;
             default:
                 noterm = false;
                 shortpad = true;
+                break;
         }
     }
 
@@ -133,7 +132,8 @@ public class BleichenbacherCrypto12 extends Bleichenbacher {
         System.out.println("Starting step 1b: Trimming");
 
         // Compute n/(9B)
-        int _n_div_9B = publicKey.getModulus().divide(bigB.multiply(new BigInteger("9"))).intValue();
+        int _n_div_9B = publicKey.getModulus().divide(bigB.
+                multiply(new BigInteger("9"))).intValue();
 
         /* Note: plaintextLength will not be used below
          if USE_INTERVAL_LENGTH = false */
@@ -155,7 +155,8 @@ public class BleichenbacherCrypto12 extends Bleichenbacher {
         List<BigInteger[]> usedTrimmers = new LinkedList<BigInteger[]>();
 
         // Generate (initial) trimmers for lower bound
-        List<BigInteger[]> trimmersLower = getFractionLower(_E0, _F0m1, _n_div_9B);
+        List<BigInteger[]> trimmersLower = getFractionLower(_E0, _F0m1,
+                _n_div_9B);
 
         // Search for denominators (for lower bound)
         for (BigInteger[] fi : trimmersLower) {
@@ -257,7 +258,8 @@ public class BleichenbacherCrypto12 extends Bleichenbacher {
                         System.out.println("   Aha! A valid padding with "
                                 + num.intValue() + "/"
                                 + lcm_dens.intValue());
-                        BigInteger[] newFracLower = updateFrac(FracLower, ni[0], ni[1]);
+                        BigInteger[] newFracLower = updateFrac(FracLower, ni[0],
+                                ni[1]);
                         FracLower = newFracLower;
                         indexMax = index;
                     }
@@ -296,7 +298,8 @@ public class BleichenbacherCrypto12 extends Bleichenbacher {
                         System.out.println("   Aha! A valid padding with "
                                 + num.intValue() + "/"
                                 + lcm_dens.intValue());
-                        BigInteger[] newFracUpper = updateFrac(FracUpper, ni[0], ni[1]);
+                        BigInteger[] newFracUpper = updateFrac(FracUpper, ni[0],
+                                ni[1]);
                         FracUpper = newFracUpper;
                         indexMax = index;
                     }
@@ -313,7 +316,8 @@ public class BleichenbacherCrypto12 extends Bleichenbacher {
         System.out.println(" counter_frac: " + counter_frac);
 
         // Update the initial interval by using the obtained fractions
-        BigInteger[] new_m = updateM(m[0].lower, m[0].upper, FracLower, FracUpper, _E0, _F0m1, lcm_dens_real);
+        BigInteger[] new_m = updateM(m[0].lower, m[0].upper, FracLower,
+                FracUpper, _E0, _F0m1, lcm_dens_real);
 
         m = new Interval[]{new Interval(new_m[0], new_m[1])};
 
@@ -341,8 +345,10 @@ public class BleichenbacherCrypto12 extends Bleichenbacher {
         int j = 0;
         do {
             j++;
-            BigInteger min = divideCeil((_2B.add(n.multiply(BigInteger.valueOf(j)))), m[0].upper);
-            BigInteger max = (_3B.add(n.multiply(BigInteger.valueOf(j)))).divide(m[0].lower);
+            BigInteger min = divideCeil((_2B.add(n.multiply(BigInteger.
+                    valueOf(j)))), m[0].upper);
+            BigInteger max = (_3B.add(n.multiply(BigInteger.valueOf(j)))).
+                    divide(m[0].lower);
             si = min;
             boolean skipHole = false;
             do {
@@ -400,10 +406,12 @@ public class BleichenbacherCrypto12 extends Bleichenbacher {
             BigInteger _F = _2B;
             if (plaintextLength >= 0) {
                 for (int j = blockSize - 3; j > plaintextLength; j--) {
-                    _F = _F.add(new BigInteger("255").multiply(new BigInteger("256").pow(j)));
+                    _F = _F.add(new BigInteger("255").multiply(new BigInteger(
+                            "256").pow(j)));
                 }
                 for (int j = plaintextLength - 1; j >= 0; j--) {
-                    _F = _F.add(new BigInteger("255").multiply(new BigInteger("256").pow(j)));
+                    _F = _F.add(new BigInteger("255").multiply(new BigInteger(
+                            "256").pow(j)));
                 }
             }
             return _F;
@@ -411,7 +419,8 @@ public class BleichenbacherCrypto12 extends Bleichenbacher {
             BigInteger _F = _2B;
             if (plaintextLength >= 0) {
                 for (int j = blockSize - 3; j > 0; j--) {
-                    _F = _F.add(new BigInteger("255").multiply(new BigInteger("256").pow(j)));
+                    _F = _F.add(new BigInteger("255").multiply(new BigInteger(
+                            "256").pow(j)));
                 }
             }
             return _F;
@@ -426,7 +435,8 @@ public class BleichenbacherCrypto12 extends Bleichenbacher {
      * @param trimmers List of fractions (called trimmers).
      * @return True if trim is contained in trimmers and false otherwise.
      */
-    public Boolean pairContainedIn(BigInteger[] trim, List<BigInteger[]> trimmers) {
+    public Boolean pairContainedIn(BigInteger[] trim,
+            List<BigInteger[]> trimmers) {
         Boolean containedIn = false;
         if (trim.length >= 2) {
             for (BigInteger[] ti : trimmers) {
@@ -452,7 +462,8 @@ public class BleichenbacherCrypto12 extends Bleichenbacher {
      * @param _n_div_9B n / (9B)
      * @return List of trimmers for lower bound.
      */
-    public List<BigInteger[]> getFractionLower(BigInteger _E0, BigInteger _F0m1, int _n_div_9B) {
+    public List<BigInteger[]> getFractionLower(BigInteger _E0, BigInteger _F0m1,
+            int _n_div_9B) {
         List<BigInteger[]> trimmers = new ArrayList<BigInteger[]>();
         int j = 2;
         // Width search
@@ -484,7 +495,8 @@ public class BleichenbacherCrypto12 extends Bleichenbacher {
                     j <= MAX_FEW_FRACTION_SEARCH; j++) {
                 int i = j - k;
                 while (i != 1 && i < j
-                        && BigInteger.valueOf(i).multiply(_F0m1).compareTo(BigInteger.valueOf(j).multiply(_E0)) > 0) {
+                        && BigInteger.valueOf(i).multiply(_F0m1).
+                        compareTo(BigInteger.valueOf(j).multiply(_E0)) > 0) {
                     BigInteger bi = BigInteger.valueOf(i);
                     BigInteger bj = BigInteger.valueOf(j);
                     BigInteger[] trim = {bi, bj};
@@ -508,7 +520,9 @@ public class BleichenbacherCrypto12 extends Bleichenbacher {
             k++;
         } while (trimmers.size() < numTrimmers / 2);
         System.out.println("   loop num: " + k);
-        System.out.println("   length of trimmers: " + trimmers.size() + " last j: " + j);
+        System.out.
+                println(
+                "   length of trimmers: " + trimmers.size() + " last j: " + j);
         return trimmers;
     }
 
@@ -569,7 +583,8 @@ public class BleichenbacherCrypto12 extends Bleichenbacher {
      * @param _F0m1 The initial upper bound of possible plaintexts.
      * @return List of numerator candidates for lower bound.
      */
-    public List<BigInteger> getNumeratorL(BigInteger lcm_dens, BigInteger _E0, BigInteger _F0m1) {
+    public List<BigInteger> getNumeratorL(BigInteger lcm_dens, BigInteger _E0,
+            BigInteger _F0m1) {
         List<BigInteger> trimmers_num = new ArrayList<BigInteger>();
         if (lcm_dens.compareTo(BigInteger.ONE) > 0) {
             // lcm of dens
@@ -577,7 +592,8 @@ public class BleichenbacherCrypto12 extends Bleichenbacher {
 
             // Minimum of candidates of numerators
             // (den / iMin)  <= (_F0m1 / _E0) = 3/2
-            final long iMin = BigInteger.valueOf(den).multiply(_E0).divide(_F0m1).intValue();
+            final long iMin = BigInteger.valueOf(den).multiply(_E0).
+                    divide(_F0m1).intValue();
 
             // Collect i such that iMin <= i < den(denominator)
             for (long i = iMin; i < den; i++) {
@@ -597,7 +613,8 @@ public class BleichenbacherCrypto12 extends Bleichenbacher {
      * @param _F0m1 The initial upper bound of possible plaintexts.
      * @return List of numerator candidates for upper bound.
      */
-    public List<BigInteger> getNumeratorU(BigInteger lcm_dens, BigInteger _E0, BigInteger _F0m1) {
+    public List<BigInteger> getNumeratorU(BigInteger lcm_dens, BigInteger _E0,
+            BigInteger _F0m1) {
         List<BigInteger> trimmers_num = new ArrayList<BigInteger>();
         if (lcm_dens.compareTo(BigInteger.ONE) > 0) {
             // lcm of dens
@@ -605,7 +622,8 @@ public class BleichenbacherCrypto12 extends Bleichenbacher {
 
             // Maximum of candidates of numerators
             // (den / iMax)  >= (_E0 / _F0m1) = 2/3
-            final long iMax = BigInteger.valueOf(den).multiply(_F0m1).divide(_E0).intValue();
+            final long iMax = BigInteger.valueOf(den).multiply(_F0m1).
+                    divide(_E0).intValue();
 
             // Collect i such that den(denominator) < i <= iMax
             for (long i = iMax; i > den; i--) {
@@ -625,7 +643,8 @@ public class BleichenbacherCrypto12 extends Bleichenbacher {
      * @param den New denominator to be compared.
      * @return New maximum/minumum fraction.
      */
-    public BigInteger[] updateFrac(BigInteger[] Frac, BigInteger num, BigInteger den) {
+    public BigInteger[] updateFrac(BigInteger[] Frac, BigInteger num,
+            BigInteger den) {
         BigInteger newF[] = {Frac[0], Frac[1]};
         try {
             if (Frac[0].compareTo(BigInteger.ONE) == 0
@@ -634,7 +653,8 @@ public class BleichenbacherCrypto12 extends Bleichenbacher {
                 newF[1] = den;
                 return newF;
             } else {
-                double oldFracVal = Frac[0].doubleValue() / Frac[1].doubleValue();
+                double oldFracVal = Frac[0].doubleValue() / Frac[1].
+                        doubleValue();
                 double newFracVal = num.doubleValue() / den.doubleValue();
 
                 if (newFracVal > 1) { // Adjust upper bound:
@@ -668,7 +688,9 @@ public class BleichenbacherCrypto12 extends Bleichenbacher {
      * @param lcm_dens The lcm of denominators.
      * @return Updated interval of possible plaintexts.
      */
-    public BigInteger[] updateM(BigInteger M0_lower, BigInteger M0_upper, BigInteger FracLower[], BigInteger FracUpper[], BigInteger _E0, BigInteger _F0m1, BigInteger lcm_dens_real) {
+    public BigInteger[] updateM(BigInteger M0_lower, BigInteger M0_upper,
+            BigInteger FracLower[], BigInteger FracUpper[], BigInteger _E0,
+            BigInteger _F0m1, BigInteger lcm_dens_real) {
         BigInteger newM0[] = {M0_lower, M0_upper};
         try {
             // Adjust upper bound:
@@ -676,7 +698,8 @@ public class BleichenbacherCrypto12 extends Bleichenbacher {
             BigInteger den = FracUpper[1];
             BigInteger newUpper = divideCeil(M0_upper.multiply(den), num);
             if (USE_STEP1b_ROUND) {
-                newUpper = newUpper.divide(lcm_dens_real).multiply(lcm_dens_real);
+                newUpper = newUpper.divide(lcm_dens_real).
+                        multiply(lcm_dens_real);
             }
 
             // If this new bound (newUpper) is better, use it.
@@ -689,7 +712,8 @@ public class BleichenbacherCrypto12 extends Bleichenbacher {
             den = FracLower[1];
             BigInteger newLower = M0_lower.multiply(den).divide(num); //floor
             if (USE_STEP1b_ROUND) {
-                newLower = divideCeil(newLower, lcm_dens_real).multiply(lcm_dens_real);
+                newLower = divideCeil(newLower, lcm_dens_real).multiply(
+                        lcm_dens_real);
             }
 
             // If this new bound (newLower) is better, use it.
@@ -799,27 +823,12 @@ public class BleichenbacherCrypto12 extends Bleichenbacher {
         byte[] msg;
         BigInteger tmp;
 
-        // if we use a real oracle (not a plaintext oracle), the si value has
-        // to be encrypted first.
-        if (!oracle.isPlaintextOracle()) {
-            // encrypt: c*si^e*denominator^(-e) mod n
-            tmp = originalMessage.multiply(si.modPow(publicKey.getPublicExponent(),
-                    publicKey.getModulus())).multiply(denominator.modPow(
-                    publicKey.getPublicExponent().negate(),
-                    publicKey.getModulus())).mod(publicKey.getModulus());
-        } else {
-            // encrypt: m*si/denominator mod n
-            BigInteger[] val;
-            val = originalMessage.multiply(si).divideAndRemainder(denominator);
-            if (val[1].equals(BigInteger.ZERO)) {
-                tmp = val[0].mod(publicKey.getModulus());
-            } else {
-                // we cannot divide, thus we set the temp value to some
-                // invalid message, e.g. 4B
-                tmp = _2B.multiply(_2B);
-            }
 
-        }
+        // encrypt: c*si^e*denominator^(-e) mod n
+        tmp = originalMessage.multiply(si.modPow(publicKey.getPublicExponent(),
+                publicKey.getModulus())).multiply(denominator.modPow(
+                publicKey.getPublicExponent().negate(),
+                publicKey.getModulus())).mod(publicKey.getModulus());
 
         // get bytes
         msg = Utility.correctSize(tmp.toByteArray(), blockSize, true);

