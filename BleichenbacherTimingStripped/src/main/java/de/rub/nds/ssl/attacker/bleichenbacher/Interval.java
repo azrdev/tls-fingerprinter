@@ -1,4 +1,4 @@
-package de.rub.nds.ssl.analyzer.attacker.bleichenbacher;
+package de.rub.nds.ssl.attacker.bleichenbacher;
 
 import java.math.BigInteger;
 
