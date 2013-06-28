@@ -5,12 +5,13 @@ import java.math.BigInteger;
 import java.security.GeneralSecurityException;
 import java.security.KeyPair;
 import java.security.cert.X509Certificate;
+import java.security.interfaces.RSAPublicKey;
 import java.util.Date;
 import java.util.List;
 import sun.security.x509.*;
 
 /**
- * Helper routines for common use
+ * Helper routines for common use.
  *
  * @author Christopher Meyer - christopher.meyer@rub.de
  * @author Juraj Somorovsky - juraj.somorovsky@rub.de
@@ -23,7 +24,7 @@ public abstract class Utility {
     /**
      * Valid Hex Chars.
      */
-    private final static char[] HEXCHARS = {
+    private static final char[] HEXCHARS = {
         '0', '1', '2', '3', '4', '5', '6', '7',
         '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'
     };
@@ -54,23 +55,6 @@ public abstract class Utility {
         return builder.toString();
     }
 
-//    public static String bytesToHex(byte[] array) {
-//        StringBuilder sb = new StringBuilder(200);
-//        int bytecon = 0;
-//        for (int i = 0; i < array.length; i++) {
-//            bytecon = array[i] & 0xFF;
-//
-//            // byte-wise AND converts signed byte to unsigned.
-//            if (bytecon < 16) {
-//                sb.append("0x0" + Integer.toHexString(bytecon).toUpperCase() + ", ");
-//            } // pad on left if single hex digit.
-//            else {
-//                sb.append("0x" + Integer.toHexString(bytecon).toUpperCase() + ", ");
-//            }
-//            // pad on left if single hex digit.
-//        }
-//        return sb.toString();
-//    }
     /**
      * Computes the Greatest Common Divisor of two integers.
      *
@@ -78,7 +62,7 @@ public abstract class Utility {
      * @param b Second Integer
      * @return Greatest Common Divisor of both integers
      */
-    public static int findGCD(int a, int b) {
+    public static int findGCD(final int a, final int b) {
         if (b == 0) {
             return a;
         }
@@ -92,7 +76,7 @@ public abstract class Utility {
      * @param b Second BigInteger
      * @return Greatest Common Divisor of both BigIntegers
      */
-    public static BigInteger findGCD(BigInteger a, BigInteger b) {
+    public static BigInteger findGCD(final BigInteger a, final BigInteger b) {
         if (b.compareTo(BigInteger.ZERO) == 0) {
             return a;
         }
@@ -106,7 +90,7 @@ public abstract class Utility {
      * @param b Second Integer
      * @return Least Common Multiple of both integers
      */
-    public static int findLCM(int a, int b) {
+    public static int findLCM(final int a, final int b) {
         int result = 0;
         int num1, num2;
         if (a > b) {
@@ -132,7 +116,7 @@ public abstract class Utility {
      * @param bb Second BigInteger
      * @return Least Common Multiple of both BigIntegers
      */
-    public static BigInteger findLCM(BigInteger ba, BigInteger bb) {
+    public static BigInteger findLCM(final BigInteger ba, final BigInteger bb) {
         BigInteger result = BigInteger.ZERO;
         long a = ba.longValue();
         long b = bb.longValue();
@@ -159,7 +143,7 @@ public abstract class Utility {
      * @param numbers List of BigIntegers
      * @return Least Common Multiple of all BigIntegers contained in the list
      */
-    public static BigInteger findLCM(List<BigInteger> numbers) {
+    public static BigInteger findLCM(final List<BigInteger> numbers) {
         BigInteger result = numbers.get(0);
         for (int i = 1; i < numbers.size(); i++) {
             result = findLCM(result, numbers.get(i));
@@ -176,8 +160,8 @@ public abstract class Utility {
      * @param removeSignByte If set to TRUE leading sign bytes will be removed
      * @return Size corrected array (maybe padded or stripped the sign byte)
      */
-    public static byte[] correctSize(final byte[] array, int blockSize,
-            boolean removeSignByte) {
+    public static byte[] correctSize(final byte[] array, final int blockSize,
+            final boolean removeSignByte) {
         int remainder = array.length % blockSize;
         byte[] result = array;
         byte[] tmp;
@@ -202,7 +186,7 @@ public abstract class Utility {
     }
 
     /**
-     * Create a self-signed X.509 Certificate
+     * Create a self-signed X.509 Certificate.
      *
      * @param keyPair Public/Private key pair
      * @param algorithm Signature alogrithm
@@ -211,11 +195,14 @@ public abstract class Utility {
      * @param validFrom Valid strating from this date
      * @param validUntil Valid until this date
      * @param serialNumber Serial number
+     * @return Self-signed X.509 certificate.
+     * @throws GeneralSecurityException
+     * @throws IOException  
      */
-    public static X509Certificate generateX509v3Cert(KeyPair keyPair,
-            String algorithm, String distinguishedNameSubject,
-            String distinguishedNameIssuer, Date validFrom, Date validUntil,
-            BigInteger serialNumber)
+    public static X509Certificate generateX509v3Cert(final KeyPair keyPair,
+            final String algorithm, final String distinguishedNameSubject,
+            final String distinguishedNameIssuer, final Date validFrom,
+            final Date validUntil, final BigInteger serialNumber)
             throws GeneralSecurityException, IOException {
         // prepare necessary infos
         X500Name subject = new X500Name(distinguishedNameSubject);
@@ -246,17 +233,45 @@ public abstract class Utility {
 
         return cert;
     }
-    
+
     /**
      * Converts a byte[] to int.
      *
      * @param bytes 4 bytes array to be converted
      * @return Integer representation of the byte[]
      */
-    public static int bytesToInt(byte... bytes) {
+    public static int bytesToInt(final byte... bytes) {
         return (int) ((0xFF & bytes[0]) << 24
                 | (0xFF & bytes[1]) << 16
                 | (0xFF & bytes[2]) << 8
                 | (0xFF & bytes[3]));
+    }
+
+    /**
+     * Compute the block size of a given public key.
+     *
+     * @param publicKey Public key
+     * @return Block size of this public key.
+     */
+    public static int computeBlockSize(final RSAPublicKey publicKey) {
+        byte[] tmp = publicKey.getModulus().toByteArray();
+        int result = tmp.length;
+        int remainder = tmp.length % 8;
+
+        if (remainder > 0 && tmp[0] == 0x0) {
+            // extract signing byte if present
+            byte[] tmp2 = new byte[tmp.length - 1];
+            System.arraycopy(tmp, 1, tmp2, 0, tmp2.length);
+            tmp = tmp2;
+            remainder = tmp.length % 8;
+            result = tmp.length;
+        }
+
+        while (remainder > 0) {
+            result++;
+            remainder = result % 8;
+        }
+
+        return result;
     }
 }
