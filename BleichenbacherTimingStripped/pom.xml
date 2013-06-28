@@ -33,7 +33,7 @@
                     </descriptorRefs>
                     <archive>
                         <manifest>
-                            <mainClass>de.rub.nds.ssl.analyzer.attacker.misc.CommandLineWorkflowExecutor</mainClass>
+                            <mainClass>de.rub.nds.ssl.attacker.Launcher</mainClass>
                         </manifest>
                     </archive>
                 </configuration>

@@ -13,11 +13,22 @@ import org.bouncycastle.util.encoders.Base64;
  * @author Juraj Somorovsky - juraj.somorovsky@rub.de
  * @version 0.1
  */
-public class CommandLineWorkflowExecutor {
+public final class CommandLineWorkflowExecutor {
 
+    /**
+     * Command.
+     */
     private String command;
+    /**
+     * Ticks (execution duration of the request).
+     */
     private long ticks;
 
+    /**
+     * Instance of this executor.
+     *
+     * @param command The command to be executed.
+     */
     public CommandLineWorkflowExecutor(final String command) {
         this.command = command;
     }
@@ -31,7 +42,7 @@ public class CommandLineWorkflowExecutor {
      * @return Number of ticks
      * @throws OracleException
      */
-    public long executeClientWithPMS(byte[] msg) throws OracleException {
+    public long executeClientWithPMS(final byte[] msg) throws OracleException {
         String base64msg = new String(Base64.encode(msg));
         String cmd = command + base64msg;
         Runtime rt = Runtime.getRuntime();
@@ -50,8 +61,7 @@ public class CommandLineWorkflowExecutor {
 
             int exitVal = proc.waitFor();
 
-            // we have to wait until the output thread reads the complete 
-            // lines
+            // we have to wait until the output thread reads the complete lines
             output.join();
             if (exitVal != 0) {
                 throw new OracleException("Exit value incorrect. ", null);
@@ -67,8 +77,6 @@ public class CommandLineWorkflowExecutor {
             }
             System.out.println("there are your ticks: " + output.ticks);
 
-//            String out = output.sb.toString();
-//            System.out.println(out);
             return output.ticks;
 
         } catch (IOException ioe) {
@@ -78,6 +86,10 @@ public class CommandLineWorkflowExecutor {
         }
     }
 
+    /**
+     * Getter for ticks.
+     * @return Ticks.
+     */
     public long getTicks() {
         return ticks;
     }
@@ -142,7 +154,6 @@ public class CommandLineWorkflowExecutor {
                         sc.useDelimiter("[^0-9]+");
                         if (sc.hasNextLong()) {
                             ticks = sc.nextLong();
-//                            System.out.println(ticks);
                             readTicks = false;
                         }
                     }
@@ -154,9 +165,4 @@ public class CommandLineWorkflowExecutor {
         }
     }
 
-    public static void main(String[] args) throws Exception {
-        CommandLineWorkflowExecutor clo = new CommandLineWorkflowExecutor(
-                "cat ticks_sample.txt");
-        clo.executeClientWithPMS("".getBytes());
-    }
 }
