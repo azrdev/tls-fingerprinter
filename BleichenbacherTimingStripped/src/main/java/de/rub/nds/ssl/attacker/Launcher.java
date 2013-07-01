@@ -17,7 +17,8 @@ public class Launcher {
     /**
      * Command to be executed.
      */
-    private static final String COMMAND = "sshpass -p password ssh -t chris@192.168.1.2 '/opt/matrixssl/apps/client '";
+//    private static final String COMMAND = "sshpass -p password ssh -t chris@192.168.1.2 '/opt/matrixssl/apps/client '";
+    private static final String COMMAND = "../matrixssl/apps/client ";
     
         /**
      * Main entry point.
@@ -28,7 +29,7 @@ public class Launcher {
         // just for testing
         CommandLineWorkflowExecutor executor = 
                 new CommandLineWorkflowExecutor(COMMAND);
-        executor.executeClientWithPMS("".getBytes());
+        executor.executeClientWithPMS("aaa=".getBytes());
         
 //        CommandLineTimingOracle oracle = new CommandLineTimingOracle(
 //                OracleType.TTT, publicKey, privateKey);

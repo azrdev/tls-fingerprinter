@@ -64,16 +64,18 @@ public final class CommandLineWorkflowExecutor {
             // we have to wait until the output thread reads the complete lines
             output.join();
             if (exitVal != 0) {
-                throw new OracleException("Exit value incorrect. ", null);
+                throw new OracleException("Exit value incorrect:\n" + output.sb 
+                        + "\n" + error.sb, error.e);
             }
 
             if (error.e != null) {
-                throw new OracleException("Error Fetcher Exception. ", error.e);
+                throw new OracleException("Error Fetcher Exception:\n" + 
+                        output.sb + "\n" + error.sb, error.e);
             }
 
             if (output.e != null) {
-                throw new OracleException("Output Fetcher Exception. ",
-                        output.e);
+                throw new OracleException("Output Fetcher Exception\n" + 
+                        output.sb + "\n" + error.sb, output.e);
             }
             System.out.println("there are your ticks: " + output.ticks);
 
@@ -94,7 +96,7 @@ public final class CommandLineWorkflowExecutor {
         return ticks;
     }
 
-    class CommandLineFetcher extends Thread {
+    private class CommandLineFetcher extends Thread {
 
         /**
          * Indicates that the next sent message is PMS and we should read ticks.
@@ -111,7 +113,7 @@ public final class CommandLineWorkflowExecutor {
         /**
          * String builder.
          */
-        private StringBuilder sb;
+        StringBuilder sb;
         /**
          * Exception found during processing.
          */
@@ -142,6 +144,7 @@ public final class CommandLineWorkflowExecutor {
                 String line = null;
                 while ((line = br.readLine()) != null) {
                     sb.append(line);
+//                    System.out.println(line);
 
                     // indicates that the next ticks are relevant for us
                     if (line.contains(PMS_INFO)) {
