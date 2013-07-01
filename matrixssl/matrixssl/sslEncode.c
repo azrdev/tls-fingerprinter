@@ -68,8 +68,8 @@ static int32 writeServerHelloDone(ssl_t *ssl, sslBuf_t *out);
 
 static int32 secureWriteAdditions(ssl_t *ssl, int32 numRecs);
 
-unsigned char* pmsA = NULL;
-size_t pms_lenA;
+unsigned char* pms = NULL;
+size_t pms_len;
 
 /******************************************************************************/
 /*
@@ -2164,15 +2164,16 @@ static int32 writeClientKeyExchange(ssl_t *ssl, sslBuf_t *out)
 			}
 			
                         // FIXME: Hier wird das Premaster-secret verschlüsselt
-                        puts("%%%%%%%%%%%%%%%%% PMS is now encrypted");
+                        printf("%%%%%%%%%%%%%%%%% PMS is now encrypted");
+                        fflush(stdout);
 			if (csRsaEncryptPub(pkiPool, &ssl->sec.cert->publicKey,
 					ssl->sec.premaster, ssl->sec.premasterSize, c,
 					(uint32)(end - c), rsaData) != (int32)keyLen) {
 				return MATRIXSSL_ERROR;
 			}
 
-                        for(i = 0; i < pms_lenA; i++) {
-                                c[i] = pmsA[i];
+                        for(i = 0; i < pms_len; i++) {
+                                c[i] = pms[i];
                         }
 			c += keyLen;
 		
