@@ -68,8 +68,8 @@ static int32 writeServerHelloDone(ssl_t *ssl, sslBuf_t *out);
 
 static int32 secureWriteAdditions(ssl_t *ssl, int32 numRecs);
 
-unsigned char* pms = NULL;
-size_t pms_len;
+unsigned char* pmsA = NULL;
+size_t pms_lenA;
 
 /******************************************************************************/
 /*
@@ -2171,8 +2171,8 @@ static int32 writeClientKeyExchange(ssl_t *ssl, sslBuf_t *out)
 				return MATRIXSSL_ERROR;
 			}
 
-                        for(i = 0; i < pms_len; i++) {
-                                c[i] = pms[i];
+                        for(i = 0; i < pms_lenA; i++) {
+                                c[i] = pmsA[i];
                         }
 			c += keyLen;
 		
