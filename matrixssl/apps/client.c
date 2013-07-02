@@ -83,8 +83,8 @@ static char rsaPrivkeyFile[] = "../sampleCerts/RSA/2048_RSA_KEY.pem";
 
 #include "base64.c"
 typedef unsigned long long ticks;
-unsigned char* pms = NULL;
-size_t pms_len;
+extern unsigned char* pms;
+extern size_t pms_len;
 
 
 /* #define REHANDSHAKE_TEST */
@@ -361,7 +361,7 @@ int32 main(int32 argc, char **argv)
         }
         pms = base64_decode(argv[1], strlen(argv[1]), &pms_len);
         if(pms == NULL || pms_len <= 0 || (pms_len % 128) != 0) {
-                printf("Could not convert base64 encoded PMS with len %d\n", pms_len);
+                printf("Could not convert base64 encoded PMS with len %u\n", (unsigned int) pms_len);
                 _psTrace("Could not convert base64 encoded PMS\n");
                 return -1;
         }
