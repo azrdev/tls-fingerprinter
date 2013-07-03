@@ -26,6 +26,26 @@ import org.bouncycastle.jce.provider.BouncyCastleProvider;
 public final class Launcher {
 
     /**
+     * Command to be executed.
+     */
+    private static final String COMMAND = "sshpass -p password ssh "
+            + "chris@192.168.1.2 /opt/matrixssl/apps/client 127.0.0.1 4433 ";
+    
+    /**
+     * Path to the key store containing the target's key.
+     */
+    private static final String KEYSTORE_PATH = "matrix-key.jks";
+    /**
+     * Name of the SSL target's key.
+     */
+    private static final String KEY_NAME = "1";
+    /**
+     * Password for the key store and the key.
+     */
+    private static String PASSWORD = "password";
+    
+    
+    /**
      * VALID PKCS with valid PMS - 1024bit.
      */
     private static final byte[] PLAIN_VALID_PKCS = new byte[]{
@@ -102,9 +122,9 @@ public final class Launcher {
         // pre setup
         Security.addProvider(new BouncyCastleProvider());
         
-        String keyName = "1";
-        char[] keyPassword = "password".toCharArray();
-        KeyStore keyStore = loadKeyStore("matrix-key.jks", keyPassword);
+        String keyName = KEY_NAME;
+        char[] keyPassword = PASSWORD.toCharArray();
+        KeyStore keyStore = loadKeyStore(KEYSTORE_PATH, keyPassword);
 
         RSAPrivateKey privateKey =
                 (RSAPrivateKey) keyStore.getKey(keyName, keyPassword);
@@ -124,7 +144,7 @@ public final class Launcher {
 
         // prepare the timing oracle
         CommandLineTimingOracle oracle = new CommandLineTimingOracle(
-                OracleType.TTT, publicKey, privateKey);
+                OracleType.TTT, publicKey, privateKey, COMMAND);
 
         // train oracle
         oracle.trainOracle(encValidPMS, encInvalidPMS);

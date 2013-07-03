@@ -31,11 +31,6 @@ public final class CommandLineTimingOracle extends AOracle {
      * CONFIGURATION SECTION
      */
     /**
-     * Command to be executed.
-     */
-    private static final String COMMAND = "sshpass -p password ssh "
-            + "chris@192.168.1.2 /opt/matrixssl/apps/client ";
-    /**
      * Amount of training measurementsTest.
      */
     private static final int TRAINING_AMOUNT = 1000;
@@ -43,18 +38,6 @@ public final class CommandLineTimingOracle extends AOracle {
      * Amount of warmup measurementsTest.
      */
     private static final int WARMUP_AMOUNT = 50;
-    /**
-     * Timing difference between invalid and valid timings.
-     */
-    private static final long VALID_INVALID_BOUNDARY = -20000;
-    /**
-     * Amount of measurementsTest per Oracle query.
-     */
-    private static final int MEASUREMENT_AMOUNT = 100;
-    /**
-     * TODO: Sebastian - bitte bitte bitte Parameter kommentieren!
-     */
-    private static final int MEASUREMENT_FACTOR_FOR_VALIDITY = 1;
     /*
      * RUNTIME DATA SECTION
      */
@@ -75,10 +58,6 @@ public final class CommandLineTimingOracle extends AOracle {
      */
     private int counterOracle = 0;
     /**
-     * RSA private key (needed for the cheat operation).
-     */
-    private RSAPrivateKey privateKey;
-    /**
      * Cipher (needed for the cheat operation).
      */
     private Cipher cipher;
@@ -89,12 +68,12 @@ public final class CommandLineTimingOracle extends AOracle {
      * @param type Oracle type.
      * @param rsaPublicKey Public key of the server.
      * @param rsaPrivateKey Private key of the server - needed for cheating.
+     * @param command Command to be executed. 
      */
     public CommandLineTimingOracle(final OracleType type,
             final RSAPublicKey rsaPublicKey,
-            final RSAPrivateKey rsaPrivateKey) {
+            final RSAPrivateKey rsaPrivateKey, final String command) {
         this.publicKey = rsaPublicKey;
-        this.privateKey = rsaPrivateKey;
         this.oracleType = type;
         this.blockSize = Utility.computeBlockSize(rsaPublicKey);
         try {
@@ -105,7 +84,7 @@ public final class CommandLineTimingOracle extends AOracle {
             ex.printStackTrace();
         }
 
-        this.clwe = new CommandLineWorkflowExecutor(COMMAND);
+        this.clwe = new CommandLineWorkflowExecutor(command);
     }
 
     /**
