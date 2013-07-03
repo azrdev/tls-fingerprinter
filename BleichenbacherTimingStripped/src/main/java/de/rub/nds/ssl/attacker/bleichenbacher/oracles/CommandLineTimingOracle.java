@@ -25,11 +25,16 @@ import javax.crypto.NoSuchPaddingException;
  *
  * Jun 27, 2013
  */
-public class CommandLineTimingOracle extends AOracle {
+public final class CommandLineTimingOracle extends AOracle {
 
     /*
      * CONFIGURATION SECTION
      */
+    /**
+     * Command to be executed.
+     */
+    private static final String COMMAND = "sshpass -p password ssh "
+            + "chris@192.168.1.2 /opt/matrixssl/apps/client ";
     /**
      * Amount of training measurementsTest.
      */
@@ -81,24 +86,26 @@ public class CommandLineTimingOracle extends AOracle {
     /**
      * Create a new instance of this object.
      *
-     * @param type
-     * @param publicKey
-     * @param privateKey
+     * @param type Oracle type.
+     * @param rsaPublicKey Public key of the server.
+     * @param rsaPrivateKey Private key of the server - needed for cheating.
      */
     public CommandLineTimingOracle(final OracleType type,
-            final RSAPublicKey publicKey, final RSAPrivateKey privateKey) {
-        this.publicKey = publicKey;
-        this.privateKey = privateKey;
+            final RSAPublicKey rsaPublicKey,
+            final RSAPrivateKey rsaPrivateKey) {
+        this.publicKey = rsaPublicKey;
+        this.privateKey = rsaPrivateKey;
         this.oracleType = type;
-        this.blockSize = Utility.computeBlockSize(publicKey);
+        this.blockSize = Utility.computeBlockSize(rsaPublicKey);
         try {
             this.cipher = Cipher.getInstance("RSA/None/NoPadding");
-            this.cipher.init(Cipher.DECRYPT_MODE, privateKey);
-        } catch (InvalidKeyException | NoSuchAlgorithmException | NoSuchPaddingException ex) {
+            this.cipher.init(Cipher.DECRYPT_MODE, rsaPrivateKey);
+        } catch (InvalidKeyException | NoSuchAlgorithmException |
+                NoSuchPaddingException ex) {
             ex.printStackTrace();
         }
 
-        this.clwe = new CommandLineWorkflowExecutor("./client ");
+        this.clwe = new CommandLineWorkflowExecutor(COMMAND);
     }
 
     /**
@@ -167,8 +174,8 @@ public class CommandLineTimingOracle extends AOracle {
     @Override
     public boolean checkPKCSConformity(final byte[] preMasterSecret)
             throws OracleException {
-        boolean result = false;
-        boolean groundTruth = false;
+        boolean result;
+        boolean groundTruth;
 
         counterOracle += 1;
 
@@ -230,6 +237,11 @@ public class CommandLineTimingOracle extends AOracle {
         return result;
     }
 
+    /**
+     * Cheat - needed to confirm a guess.
+     * @param pms Pre Master Secret.
+     * @return true if the PMS is valid, false otherwise
+     */
     private boolean cheat(final byte[] pms) {
         boolean result = false;
         try {

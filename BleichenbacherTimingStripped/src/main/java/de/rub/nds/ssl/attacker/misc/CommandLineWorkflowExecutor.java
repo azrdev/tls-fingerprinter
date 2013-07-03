@@ -44,6 +44,7 @@ public final class CommandLineWorkflowExecutor {
      */
     public long executeClientWithPMS(final byte[] msg) throws OracleException {
         String base64msg = new String(Base64.encode(msg));
+        
         String cmd = command + base64msg;
         Runtime rt = Runtime.getRuntime();
         try {
@@ -144,7 +145,7 @@ public final class CommandLineWorkflowExecutor {
                 String line = null;
                 while ((line = br.readLine()) != null) {
                     sb.append(line);
-//                    System.out.println(line);
+                    System.out.println(line);
 
                     // indicates that the next ticks are relevant for us
                     if (line.contains(PMS_INFO)) {
