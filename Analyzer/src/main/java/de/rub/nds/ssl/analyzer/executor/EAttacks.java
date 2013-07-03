@@ -1,7 +1,5 @@
 package de.rub.nds.ssl.analyzer.executor;
 
-import de.rub.nds.ssl.analyzer.attacker.Bleichenbacher;
-
 /**
  * Listing of all available attacks.
  *
@@ -11,8 +9,8 @@ import de.rub.nds.ssl.analyzer.attacker.Bleichenbacher;
  * Jan 15, 2013
  */
 public enum EAttacks {
-
-    BLEICHENBACHER("Bleichenbacher Attack", Bleichenbacher.class);
+        ;
+//    BLEICHENBACHER("Bleichenbacher Attack", Bleichenbacher.class);
     
     /**
      * Attack description.

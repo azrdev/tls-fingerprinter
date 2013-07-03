@@ -1,7 +1,6 @@
 package de.rub.nds.ssl.analyzer.fingerprinter.tests;
 
 import de.rub.nds.ssl.analyzer.TestResult;
-import de.rub.nds.ssl.analyzer.attacker.bleichenbacher.oracles.ASSLServerOracle;
 import de.rub.nds.ssl.analyzer.executor.EFingerprintTests;
 import de.rub.nds.ssl.analyzer.parameters.BleichenbacherParameters;
 import de.rub.nds.ssl.stack.Utility;
@@ -23,11 +22,22 @@ import de.rub.nds.ssl.stack.workflows.commons.MessageUtils;
 import de.rub.nds.ssl.stack.workflows.commons.ObservableBridge;
 import java.io.IOException;
 import java.math.BigInteger;
+import java.security.GeneralSecurityException;
 import java.security.PublicKey;
+import java.security.cert.Certificate;
+import java.security.cert.X509Certificate;
 import java.security.interfaces.RSAPublicKey;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Observable;
 import java.util.Observer;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLSession;
+import javax.net.ssl.SSLSocket;
+import javax.net.ssl.SSLSocketFactory;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.X509TrustManager;
 
 /**
  * Test for BleichenbacherPossible attack.
@@ -162,7 +172,7 @@ public final class BleichenbacherPossible extends AGenericFingerprintTest
                     CipherSuites suites = new CipherSuites();
                     RandomValue random = new RandomValue();
                     suites.setSuites(new ECipherSuite[]{
-                                ECipherSuite.TLS_RSA_WITH_AES_128_CBC_SHA});
+                        ECipherSuite.TLS_RSA_WITH_AES_128_CBC_SHA});
                     ClientHello clientHello = builder.
                             createClientHello(protocolVersion.
                             getId(),
@@ -186,8 +196,8 @@ public final class BleichenbacherPossible extends AGenericFingerprintTest
                         System.arraycopy(version, 0, encodedPMS, 0,
                                 version.length);
                     }
-                    logger.debug("PreMasterSecret original: " + 
-                            Utility.bytesToHex(encodedPMS));
+                    logger.debug("PreMasterSecret original: "
+                            + Utility.bytesToHex(encodedPMS));
                     //encrypt the PreMasterSecret
                     EncPreMasterSecret encPMS =
                             new EncPreMasterSecret(pk);
@@ -208,7 +218,8 @@ public final class BleichenbacherPossible extends AGenericFingerprintTest
                          * set the padding length of the PKCS#1 padding string (it
                          * is [<Modulus length> - <Data length> -3])
                          */
-                        utils.setPaddingLength((modLength - encodedPMS.length - 3));
+                        utils.setPaddingLength(
+                                (modLength - encodedPMS.length - 3));
                         utils.setSeparateByte(params.getSeparate());
                         utils.setMode(params.getMode());
                         //generate the PKCS#1 padding string
@@ -291,7 +302,7 @@ public final class BleichenbacherPossible extends AGenericFingerprintTest
         };
 
         // get key / message length
-        RSAPublicKey pk = (RSAPublicKey) ASSLServerOracle.fetchServerPublicKey(
+        RSAPublicKey pk = (RSAPublicKey) fetchServerPublicKey(
                 getTargetHost(), getTargetPort());
         int messageLength = pk.getModulus().bitLength() / 8;
         Object[][] parameters = new Object[customParameters.length
@@ -351,5 +362,52 @@ public final class BleichenbacherPossible extends AGenericFingerprintTest
         }
 
         return result;
+    }
+
+    public static PublicKey fetchServerPublicKey(final String serverHost,
+            final int serverPort) throws
+            GeneralSecurityException, IOException {
+        // everyone is our friend - let's trust the whole world
+        TrustManager trustManager = new X509TrustManager() {
+            @Override
+            public X509Certificate[] getAcceptedIssuers() {
+                return null;
+            }
+
+            @Override
+            public void checkClientTrusted(X509Certificate[] certs,
+                    String authType) {
+            }
+
+            @Override
+            public void checkServerTrusted(X509Certificate[] certs,
+                    String authType) {
+            }
+        };
+
+        // get a socket and extract the certificate
+        SSLContext sc = SSLContext.getInstance("SSL");
+        sc.init(null, new TrustManager[]{trustManager}, null);
+        SSLSocketFactory sslSocketFactory = sc.getSocketFactory();
+        SSLSocket sslSocket = (SSLSocket) sslSocketFactory.createSocket(
+                serverHost, serverPort);
+        sslSocket.setEnabledCipherSuites(buildRSACipherSuiteList(
+                sslSocket.getEnabledCipherSuites()));
+        sslSocket.startHandshake();
+        SSLSession sslSession = sslSocket.getSession();
+        Certificate[] peerCerts = sslSession.getPeerCertificates();
+
+        return peerCerts[0].getPublicKey();
+    }
+    
+    private static String[] buildRSACipherSuiteList(String[] suites) {
+        List<String> cs = new ArrayList<String>(10);
+
+        for (String suite : suites) {
+            if (suite.contains("RSA")) {
+                cs.add(suite);
+            }
+        }
+        return cs.toArray(new String[cs.size()]);
     }
 }

@@ -49,6 +49,10 @@ public enum ETLSImplementation {
      */
     IIS_6_0,
     /**
+     * Microsoft SChannel as shipped with IIS 7.5
+     */
+    IIS_7_5,
+    /**
      * BigIP 8950 - BIG-IP 11.3.0 Build 3022.0 Hotfix HF3
      */
     BigIp_8950_11_3_0,
