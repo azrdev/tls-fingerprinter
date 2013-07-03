@@ -99,7 +99,9 @@ static unsigned char g_httpRequestHdr[] = "GET / HTTP/1.0\r\n"
 
 /********************************** Defines ***********************************/
 
-#define HTTPS_IP				(char *)"127.0.0.1"
+// #define HTTPS_IP				(char *)"127.0.0.1"
+char ip[256];
+unsigned int port = 0;
 
 /****************************** Local Functions *******************************/
 
@@ -136,8 +138,10 @@ static int32 httpsClientConnection(sslKeys_t *keys, sslSessionId_t *sid)
 
 	complete = 0;
 	memset(&cp, 0x0, sizeof(httpConn_t));
-	fd = socketConnect(HTTPS_IP, HTTPS_PORT, &rc);
+	// fd = socketConnect(HTTPS_IP, HTTPS_PORT, &rc);
+	fd = socketConnect(ip, port, &rc);
 	if (fd == INVALID_SOCKET || rc != PS_SUCCESS) {
+                printf("ERROR: connent to %s:%u failed\n", ip, port);
 		_psTraceInt("Connect failed: %d.  Exiting\n", rc);
 		return PS_PLATFORM_FAIL;
 	}
@@ -355,11 +359,24 @@ int32 main(int32 argc, char **argv)
 	WSAStartup(MAKEWORD(1, 1), &wsaData);
 #endif
 
-        if(argc != 2) {
-                _psTrace("Usage: ./client base64(pms)\n");
+
+        if(argc != 4) {
+                _psTrace("Usage: ./client IP PORT base64(pms)\n");
                 return -1;
         }
-        pms = base64_decode(argv[1], strlen(argv[1]), &pms_len);
+
+        bzero(ip, sizeof(ip));
+        strncpy(ip, argv[1], sizeof(ip)-1);
+
+        port = atoi(argv[2]);
+        if(port < 1 || port > 65535) {
+                printf("Wrong port %u\n", (unsigned int) port);
+                _psTrace("Wrong port\n");
+                return -1;
+        }
+
+        pms = base64_decode(argv[3], strlen(argv[3]), &pms_len);
+
         if(pms == NULL || pms_len <= 0 || (pms_len % 128) != 0) {
                 printf("Could not convert base64 encoded PMS with len %u\n", (unsigned int) pms_len);
                 _psTrace("Could not convert base64 encoded PMS\n");
@@ -370,6 +387,7 @@ int32 main(int32 argc, char **argv)
                 printf("%c", pms[i]);
         }
         puts("");
+
 	if ((rc = matrixSslOpen()) < 0) {
 		_psTrace("MatrixSSL library init failure.  Exiting\n");
 		return rc; 
