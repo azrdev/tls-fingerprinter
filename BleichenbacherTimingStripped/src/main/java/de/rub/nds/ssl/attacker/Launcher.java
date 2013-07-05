@@ -12,6 +12,7 @@ import java.security.Security;
 import java.security.cert.CertificateException;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
+import java.util.Properties;
 import javax.crypto.Cipher;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 
@@ -101,8 +102,7 @@ public final class Launcher {
             final char[] keyStorePassword) throws KeyStoreException, 
             IOException, NoSuchAlgorithmException, CertificateException {
         KeyStore ks = KeyStore.getInstance("JKS");
-        ks.load(Launcher.class.getResourceAsStream(keyStorePath), 
-                keyStorePassword);
+        ks.load(new FileInputStream(keyStorePath), keyStorePassword);
 
         return ks;
     }
@@ -119,15 +119,24 @@ public final class Launcher {
 //                new CommandLineWorkflowExecutor(COMMAND);
 //        executor.executeClientWithPMS("IamBatman".getBytes());
 
+        Properties properties = new Properties();
+        if(args == null || args.length == 0) {
+            properties.load(new FileInputStream("/opt/timing.properties"));
+        } else{
+            properties.load(new FileInputStream(args[0]));
+        }
+        
         // pre setup
         Security.addProvider(new BouncyCastleProvider());
         
-        String keyName = KEY_NAME;
-        char[] keyPassword = PASSWORD.toCharArray();
-        KeyStore keyStore = loadKeyStore(KEYSTORE_PATH, keyPassword);
-
+        String keyName = properties.getProperty("keyName");
+        char[] keyPassword = properties.getProperty("password").toCharArray();
+        KeyStore keyStore = loadKeyStore(properties.getProperty("keyStorePath"), 
+                keyPassword);
+        
         RSAPrivateKey privateKey =
                 (RSAPrivateKey) keyStore.getKey(keyName, keyPassword);
+        keyStore.getCertificate(keyName).getPublicKey();
         RSAPublicKey publicKey =
                 (RSAPublicKey) keyStore.getCertificate(keyName).getPublicKey();
 
@@ -144,13 +153,14 @@ public final class Launcher {
 
         // prepare the timing oracle
         CommandLineTimingOracle oracle = new CommandLineTimingOracle(
-                OracleType.TTT, publicKey, privateKey, COMMAND);
+                OracleType.TTT, publicKey, privateKey, 
+                properties.getProperty("command"));
 
         // train oracle
         oracle.trainOracle(encValidPMS, encInvalidPMS);
 
         // launch the attack
-        Bleichenbacher attack = new Bleichenbacher(encValidPMS, oracle, true);
+//        Bleichenbacher attack = new Bleichenbacher(encValidPMS, oracle, true);
 //        attack.attack();
     }
 }

@@ -30,7 +30,7 @@ public final class CommandLineWorkflowExecutor {
      * @param command The command to be executed.
      */
     public CommandLineWorkflowExecutor(final String command) {
-        this.command = command;
+        this.command = command + " ";
     }
 
     /**
