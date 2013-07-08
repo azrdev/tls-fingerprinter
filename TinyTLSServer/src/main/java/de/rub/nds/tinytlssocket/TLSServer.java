@@ -1,5 +1,6 @@
 package de.rub.nds.tinytlssocket;
 
+import de.rub.nds.ssl.stack.protocols.commons.ECipherSuite;
 import de.rub.nds.ssl.stack.protocols.commons.EProtocolVersion;
 import de.rub.nds.ssl.stack.protocols.msgs.TLSPlaintext;
 import java.io.FileInputStream;
@@ -19,6 +20,7 @@ import java.security.cert.CertificateException;
 import javax.net.ssl.KeyManager;
 import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLServerSocket;
 import javax.net.ssl.SSLServerSocketFactory;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.TrustManagerFactory;
@@ -124,7 +126,6 @@ public final class TLSServer extends Thread {
 
         result = SSLContext.getInstance(protocol);
         result.init(keyManagers, trustManagers, null);
-
         return result;
     }
 
@@ -177,9 +178,11 @@ public final class TLSServer extends Thread {
     private ServerSocket setupSocket() throws SocketException, IOException {
         SSLServerSocketFactory serverSocketFactory =
                 sslContext.getServerSocketFactory();
-        ServerSocket result =
+        SSLServerSocket result = (SSLServerSocket) 
                 serverSocketFactory.createServerSocket(listenPort);
-
+        result.setEnabledCipherSuites(new String[]{
+                    "TLS_RSA_WITH_AES_128_CBC_SHA"
+                });
         result.setSoTimeout(TIMEOUT);
         result.setReuseAddress(true);
         logger.info("|| presetup successful");

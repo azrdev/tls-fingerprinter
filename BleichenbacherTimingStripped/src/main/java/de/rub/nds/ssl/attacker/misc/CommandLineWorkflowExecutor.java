@@ -77,7 +77,7 @@ public final class CommandLineWorkflowExecutor {
                 throw new OracleException("Output Fetcher Exception\n" + 
                         output.sb + "\n" + error.sb, output.e);
             }
-            System.out.println("there are your ticks: " + output.ticks);
+            //System.out.println("there are your ticks: " + output.ticks);
 
             return output.ticks;
 

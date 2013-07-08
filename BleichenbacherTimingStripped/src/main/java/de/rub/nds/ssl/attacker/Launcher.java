@@ -68,7 +68,7 @@ public final class Launcher {
         (byte) 0xba, (byte) 0xbe, (byte) 0xc0, (byte) 0xff, (byte) 0xee,
         (byte) 0xba, (byte) 0xbe,
         (byte) 0x00,
-        (byte) 0x03, (byte) 0x01,
+        (byte) 0x03, (byte) 0x08, // TLS 1.2 = 03 03
         (byte) 0x01, (byte) 0x02, (byte) 0x03, (byte) 0x04, (byte) 0x05,
         (byte) 0x06, (byte) 0x07, (byte) 0x08, (byte) 0x09, (byte) 0x0a,
         (byte) 0x0b, (byte) 0x0c, (byte) 0x0d, (byte) 0x0e, (byte) 0x0f,
@@ -148,7 +148,7 @@ public final class Launcher {
 
         //  encrypt invalid PMS
         byte[] plainInvalidPKCS = PLAIN_VALID_PKCS.clone();
-        plainInvalidPKCS[1] = 0x3;
+        plainInvalidPKCS[1] = 0x8;
         byte[] encInvalidPMS = cipher.doFinal(plainInvalidPKCS);
 
         // prepare the timing oracle

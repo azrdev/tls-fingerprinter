@@ -33,7 +33,7 @@ public final class CommandLineTimingOracle extends AOracle {
     /**
      * Amount of training measurementsTest.
      */
-    private static final int TRAINING_AMOUNT = 1000;
+    private static final int TRAINING_AMOUNT = 10000;
     /**
      * Amount of warmup measurementsTest.
      */
@@ -121,7 +121,7 @@ public final class CommandLineTimingOracle extends AOracle {
         System.out.print("warmup... ");
         for (int i = 0; i < WARMUP_AMOUNT / 2; i++) {
             clwe.executeClientWithPMS(validPMS);
-            clwe.executeClientWithPMS(invalidPMS);
+            // clwe.executeClientWithPMS(invalidPMS);
             System.out.println(i + "th round");
         }
         System.out.println("done!");
@@ -135,8 +135,10 @@ public final class CommandLineTimingOracle extends AOracle {
             delay = clwe.executeClientWithPMS(invalidPMS);
             invalidTimings.add(delay);
 
-            System.out.print("\r left requests for training "
-                    + (TRAINING_AMOUNT - i));
+            if(i % 50 == 0) {
+                System.out.print("\r left requests for training "
+                        + (TRAINING_AMOUNT - i));
+            }
         }
         System.out.println("\n");
         try (FileWriter fw = new FileWriter("training_data.csv");) {
