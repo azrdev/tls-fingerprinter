@@ -359,9 +359,9 @@ public class BleichenbacherAttackPlaintextTest {
         byte[] plainBytes = plainPKCS1024;
 
         AOracle oracle = new StdPlainOracle(ks.getCertificate("1024_rsa").
-                getPublicKey(), ATestOracle.OracleType.TTT, 128);
+                getPublicKey(), ATestOracle.OracleType.TFT, 128);
 
-        BleichenbacherCrypto12 attacker = new BleichenbacherCrypto12(plainBytes,
+        Bleichenbacher attacker = new Bleichenbacher(plainBytes,
                 oracle, true);
         attacker.attack();
     }
