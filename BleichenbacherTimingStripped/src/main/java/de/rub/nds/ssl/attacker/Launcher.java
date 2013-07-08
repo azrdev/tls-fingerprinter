@@ -128,7 +128,7 @@ public final class Launcher {
 
         // prepare the timing oracle
         CommandLineTimingOracle oracle = new CommandLineTimingOracle(
-                OracleType.TFT, publicKey, privateKey, 
+                OracleType.TFT, publicKey, privateKey,
                 properties.getProperty("command"));
 
         // setup PMSs
@@ -141,8 +141,7 @@ public final class Launcher {
         // oracle.trainOracle(encValidPMS, encInvalidPMS);
 
         // launch the attack
-        Bleichenbacher attack = new Bleichenbacher(encValidPMS.clone(), oracle,
-                true);
+        Bleichenbacher attack = new Bleichenbacher(encValidPMS, oracle, true);
         attack.attack();
     }
 }
