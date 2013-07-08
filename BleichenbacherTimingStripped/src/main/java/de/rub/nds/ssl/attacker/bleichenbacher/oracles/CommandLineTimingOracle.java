@@ -76,19 +76,26 @@ public final class CommandLineTimingOracle extends AOracle {
      * Invalid PKCS encrypted PMS.
      */
     private byte[] invalidPMS;
-    
+    /**
+     * Boundary to distinguish PKCS valid (but PMS invalid) from PKCS invalid.
+     */
     private int minBoxPos = 15;
+    /**
+     * Boundary to distinguish PKCS invalid from PKCS valid (but PMS invalid).
+     */
     private int maxBoxPos = 20;
-    
-    int round = 0;
-    
+    /**
+     * Round counter - trick to speed up finding: TODO: REMOVE ME.
+     */
+    private int round = 0;
+
     /**
      * Create a new instance of this object.
      *
      * @param type Oracle type.
      * @param rsaPublicKey Public key of the server.
      * @param rsaPrivateKey Private key of the server - needed for cheating.
-     * @param command Command to be executed. 
+     * @param command Command to be executed.
      */
     public CommandLineTimingOracle(final OracleType type,
             final RSAPublicKey rsaPublicKey,
@@ -114,43 +121,54 @@ public final class CommandLineTimingOracle extends AOracle {
      * Crosby's box test.
      *
      * @param testPKCS PKCS to be tested for validity.
+     * @param firstRun Is this the first run of this method (recursion)?
      * @return True if the PKCS was a valid one or false otherwise.
+     * @throws OracleException
      */
-    private boolean isValidPKCS(final byte[] testPMS, boolean firstRun) throws OracleException {
-        
-        
+    private boolean isValidPKCS(final byte[] testPKCS, final boolean firstRun)
+            throws OracleException {
         long[] validTiming = new long[MEASUREMENT_AMOUNT];
         long[] testTiming = new long[MEASUREMENT_AMOUNT];
-        
-        
+
+
         for (int i = 0; i < MEASUREMENT_AMOUNT; i++) {
             try {
                 validTiming[i] = clwe.executeClientWithPMS(getValidPMS());
                 Thread.sleep(20);
-                testTiming[i]  = clwe.executeClientWithPMS(testPMS);
+                testTiming[i] = clwe.executeClientWithPMS(testPKCS);
                 Thread.sleep(20);
             } catch (InterruptedException ex) {
-                Logger.getLogger(CommandLineTimingOracle.class.getName()).log(Level.SEVERE, null, ex);
+                Logger.getLogger(CommandLineTimingOracle.class.getName()).log(
+                        Level.SEVERE, null, ex);
             }
         }
         
-        Arrays.sort(validTiming); // Fall 2
-        Arrays.sort(testTiming); // Fall 2 oder Fall 3?
-        
-        System.out.println("####### timing: " + (validTiming[minBoxPos / MEASUREMENT_AMOUNT] - testTiming[minBoxPos / MEASUREMENT_AMOUNT]));
-        
-        if(validTiming[maxBoxPos / MEASUREMENT_AMOUNT] > testTiming[minBoxPos / MEASUREMENT_AMOUNT]) {
-            if(firstRun) {
-                return isValidPKCS(testPMS, false);
+        // case PKCS valid (but PMS invalid)
+        Arrays.sort(validTiming);
+        // case PKCS valid (but PMS invalid) or PKCS invalid?
+        Arrays.sort(testTiming); 
+
+        System.out.println("####### timing: " 
+                + (validTiming[minBoxPos / MEASUREMENT_AMOUNT] 
+                - testTiming[minBoxPos / MEASUREMENT_AMOUNT]));
+
+        if (validTiming[maxBoxPos / MEASUREMENT_AMOUNT] > 
+                testTiming[minBoxPos / MEASUREMENT_AMOUNT]) {
+            if (firstRun) {
+                return isValidPKCS(testPKCS, false);
             }
             return true;
         } else {
             return false;
         }
     }
-    
+
+    /**
+     * Warmup function - prepares the target.
+     * @throws OracleException 
+     */
     public void warmup() throws OracleException {
-            // warmup
+        // warmup
         System.out.print("warmup... ");
         for (int i = 0; i < WARMUP_AMOUNT / 2; i++) {
             clwe.executeClientWithPMS(getValidPMS());
@@ -162,11 +180,11 @@ public final class CommandLineTimingOracle extends AOracle {
 
     /**
      * Train the timing oracle.
-     * 
+     *
      * @throws OracleException
      */
     public void trainOracle() throws OracleException {
-      
+
         long delay;
         // train the oracle using the executeWorkflow functionality
         for (int i = 0; i < TRAINING_AMOUNT; i++) {
@@ -176,7 +194,7 @@ public final class CommandLineTimingOracle extends AOracle {
             delay = clwe.executeClientWithPMS(getInvalidPMS());
             invalidTimings.add(delay);
 
-            if(i % 50 == 0) {
+            if (i % 50 == 0) {
                 System.out.print("\r left requests for training "
                         + (TRAINING_AMOUNT - i));
             }
@@ -202,11 +220,13 @@ public final class CommandLineTimingOracle extends AOracle {
         counterOracle += 1;
 
         groundTruth = cheat(preMasterSecret);
-        
-        if(round++ < 5450) {
+
+        // trick to speed up PMS finding - TODO: REMOVE ME
+        if (round++ < 5450) {
             return groundTruth;
         }
 
+        numberOfQueries++;
         boolean timingOracleAnswer = isValidPKCS(preMasterSecret, true);
 
         if (!groundTruth) {
@@ -246,7 +266,7 @@ public final class CommandLineTimingOracle extends AOracle {
                 /*
                  * all good!
                  */
-                
+
                 // System.err.println("OK: valid key was predicted to "
                 //        + "be valid");
                 result = timingOracleAnswer;
@@ -261,6 +281,7 @@ public final class CommandLineTimingOracle extends AOracle {
 
     /**
      * Cheat - needed to confirm a guess.
+     *
      * @param pms Pre Master Secret.
      * @return true if the PMS is valid, false otherwise
      */
@@ -278,30 +299,34 @@ public final class CommandLineTimingOracle extends AOracle {
     }
 
     /**
-     * @return the valid PKCS encoded, encrypted PMS
+     * Get the valid encrypted PMS.
+     * @return Valid PKCS encoded, encrypted PMS
      */
     public byte[] getValidPMS() {
         return validPMS;
     }
 
     /**
-     * @param validPMS the valid PKCS encoded, encrypted PMS to set
+     * Set the valid encrypted PMS.
+     * @param valid Valid PKCS encoded, encrypted PMS to set
      */
-    public void setValidPMS(byte[] validPMS) {
-        this.validPMS = validPMS.clone();
+    public void setValidPMS(final byte[] valid) {
+        this.validPMS = valid.clone();
     }
 
     /**
-     * @return the invalid PKCS encoded, encrypted PMS
+     * Get the invalid encrypted PMS.
+     * @return Invalid PKCS encoded, encrypted PMS
      */
     public byte[] getInvalidPMS() {
         return invalidPMS;
     }
 
     /**
-     * @param invalidPMS the invalid PKCS encoded, encrypted PMS to set
+     * Set the invalid encrypted PMS.
+     * @param invalid Invalid PKCS encoded, encrypted PMS to set
      */
-    public void setInvalidPMS(byte[] invalidPMS) {
-        this.invalidPMS = invalidPMS.clone();
+    public void setInvalidPMS(final byte[] invalid) {
+        this.invalidPMS = invalid.clone();
     }
 }
