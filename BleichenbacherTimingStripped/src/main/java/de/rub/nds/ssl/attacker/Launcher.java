@@ -153,7 +153,7 @@ public final class Launcher {
 
         // prepare the timing oracle
         CommandLineTimingOracle oracle = new CommandLineTimingOracle(
-                OracleType.TTT, publicKey, privateKey, 
+                OracleType.TFT, publicKey, privateKey, 
                 properties.getProperty("command"));
 
         // setup PMSs
