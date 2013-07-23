@@ -58,7 +58,7 @@ public enum EFingerprintTests {
     BLEICHENBACHER_POSSIBLE("Bleichenbacher Vulnerability Test",
     BleichenbacherPossible.class, TestHashAnalyzer.class);
 //    EXTENSIONS("Supported extensions test",
-//    CheckExtensions.class, TestHashAnalyzer.class)
+//    CheckExtensions.class, TestHashAnalyzer.class);
     /**
      * Fingerprint Test description.
      */

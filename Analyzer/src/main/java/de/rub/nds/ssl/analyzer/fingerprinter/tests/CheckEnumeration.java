@@ -34,15 +34,15 @@ public final class CheckEnumeration extends AGenericFingerprintTest {
             workflow.start();
 
             this.counter++;
+            boolean isContinued = testForHandshakeEnumeration(workflow.
+                getTraceList());
+            handshakeParams.setContinued(isContinued);
+            logger.info("Handshake message stapling enabled: " + isContinued);
             logger.info("++++Test finished.++++");
         } finally {
             // close the Socket after the test run
             workflow.closeSocket();
         }
-
-        boolean isContinued = testForHandshakeEnumeration(workflow.
-                getTraceList());
-        handshakeParams.setContinued(isContinued);
 
         return new TestResult(handshakeParams, workflow.getTraceList(),
                 getAnalyzer());

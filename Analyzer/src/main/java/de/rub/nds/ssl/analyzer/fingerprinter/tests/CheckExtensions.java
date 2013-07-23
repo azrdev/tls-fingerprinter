@@ -5,7 +5,9 @@ import de.rub.nds.ssl.analyzer.executor.EFingerprintTests;
 import de.rub.nds.ssl.analyzer.parameters.ClientHelloParameters;
 import de.rub.nds.ssl.stack.protocols.commons.ECipherSuite;
 import de.rub.nds.ssl.stack.protocols.handshake.ClientHello;
+import de.rub.nds.ssl.stack.protocols.handshake.ServerHello;
 import de.rub.nds.ssl.stack.protocols.handshake.datatypes.CipherSuites;
+import de.rub.nds.ssl.stack.protocols.handshake.datatypes.EExtension;
 import de.rub.nds.ssl.stack.protocols.handshake.datatypes.Extensions;
 import de.rub.nds.ssl.stack.protocols.handshake.datatypes.RandomValue;
 import de.rub.nds.ssl.stack.trace.MessageContainer;
@@ -25,9 +27,9 @@ import java.util.Observer;
  * Feb 4, 2013
  */
 public class CheckExtensions extends AGenericFingerprintTest implements Observer {
-    
+
     private ClientHelloParameters chParameters = new ClientHelloParameters();
-    
+
     private TestResult manipulateCHExtensionsList(final String desc,
             final byte[] extensions) throws
             SocketException {
@@ -39,25 +41,43 @@ public class CheckExtensions extends AGenericFingerprintTest implements Observer
 
         //add the observer
         workflow.addObserver(this, TLS10HandshakeWorkflow.EStates.CLIENT_HELLO);
-        logger.info(TLS10HandshakeWorkflow.EStates.CLIENT_HELLO.name() 
+        logger.info(TLS10HandshakeWorkflow.EStates.CLIENT_HELLO.name()
                 + " state is observed");
 
         //set the test clientParameters
-        chParameters.setIdentifier(EFingerprintTests.CH_HH);
+//        chParameters.setIdentifier(EFingerprintTests.EXTENSIONS);
         chParameters.setDescription(desc);
         chParameters.setExtensions(extensions);
-        
+
         try {
             workflow.start();
-            
+
             this.counter++;
+            for (MessageContainer msg : workflow.getTraceList()) {
+                if (msg.getState()
+                        == TLS10HandshakeWorkflow.EStates.SERVER_HELLO) {
+                    ServerHello serverHelloMsg =
+                            (ServerHello) msg.getCurrentRecord();
+
+                    Extensions serverExtensions =
+                            serverHelloMsg.getExtensions();
+                    if (serverExtensions != null) {
+                        logger.info("Supported extensions: \n");
+                        for (EExtension ex : serverExtensions.getExtensions()) {
+                            logger.info(ex.name() + "\n");
+                        }
+                    }
+
+                    break;
+                }
+            }
             logger.info("++++Test finished.++++");
         } finally {
             // close the Socket after the test run
             workflow.closeSocket();
         }
-        
-        return new TestResult(headerParameters, workflow.getTraceList(),
+
+        return new TestResult(chParameters, workflow.getTraceList(),
                 getAnalyzer());
     }
 
@@ -92,7 +112,7 @@ public class CheckExtensions extends AGenericFingerprintTest implements Observer
             Extensions extensions = new Extensions(chParameters.getExtensions());
             clientHello.setExtensions(extensions);
             byte[] payload = clientHello.encode(true);
-            
+
             trace.setCurrentRecordBytes(payload);
             trace.setCurrentRecord(clientHello);
         }
@@ -116,7 +136,7 @@ public class CheckExtensions extends AGenericFingerprintTest implements Observer
                     (byte[]) parameters[i][1]);
             result[i].setTestName(this.getClass().getCanonicalName());
         }
-        
+
         return result;
     }
 }
