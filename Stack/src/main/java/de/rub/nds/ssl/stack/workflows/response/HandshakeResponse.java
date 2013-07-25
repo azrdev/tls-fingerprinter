@@ -2,6 +2,7 @@ package de.rub.nds.ssl.stack.workflows.response;
 
 import de.rub.nds.ssl.stack.protocols.handshake.AHandshakeRecord;
 import de.rub.nds.ssl.stack.protocols.handshake.Certificate;
+import de.rub.nds.ssl.stack.protocols.handshake.Finished;
 import de.rub.nds.ssl.stack.protocols.handshake.ServerHello;
 import de.rub.nds.ssl.stack.protocols.handshake.ServerHelloDone;
 import de.rub.nds.ssl.stack.protocols.handshake.ServerKeyExchange;
@@ -68,6 +69,11 @@ public final class HandshakeResponse {
             logger.debug("Server Hello Done message received");
             workflow.switchToState(trace, EStates.SERVER_HELLO_DONE);
             trace.setCurrentRecord((ServerHelloDone) handRecord);
+        }
+        if (handRecord instanceof Finished) {
+            logger.debug("Server Finished message received");
+            workflow.switchToState(trace, EStates.SERVER_FINISHED);
+            trace.setCurrentRecord((Finished) handRecord);
         }
     }
 }

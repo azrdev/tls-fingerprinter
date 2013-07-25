@@ -1,13 +1,12 @@
 package de.rub.nds.ssl.stack.protocols.handshake.datatypes;
 
-import de.rub.nds.ssl.stack.Utility;
 import de.rub.nds.ssl.stack.protocols.commons.APubliclySerializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 /**
- * Extensions part - as defined in RFC-2246.
+ * Extensions part - as defined in RFC-3546.
  *
  * @author Christopher Meyer - christopher.meyer@rub.de
  * @version 0.1
