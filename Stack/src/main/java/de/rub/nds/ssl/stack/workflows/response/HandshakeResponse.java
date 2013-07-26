@@ -71,7 +71,7 @@ public final class HandshakeResponse {
             trace.setCurrentRecord((ServerHelloDone) handRecord);
         }
         if (handRecord instanceof Finished) {
-            logger.debug("Server Finished message received");
+            logger.debug("Finished message received");
             workflow.switchToState(trace, EStates.SERVER_FINISHED);
             trace.setCurrentRecord((Finished) handRecord);
         }

@@ -1,18 +1,26 @@
 package de.rub.nds.ssl.stack.workflows.response;
 
+import de.rub.nds.ssl.stack.Utility;
 import de.rub.nds.ssl.stack.protocols.ARecordFrame;
 import de.rub.nds.ssl.stack.protocols.alert.Alert;
 import de.rub.nds.ssl.stack.protocols.alert.datatypes.EAlertLevel;
 import de.rub.nds.ssl.stack.protocols.commons.EContentType;
+import de.rub.nds.ssl.stack.protocols.commons.EProtocolVersion;
 import de.rub.nds.ssl.stack.protocols.commons.KeyExchangeParams;
 import de.rub.nds.ssl.stack.protocols.handshake.AHandshakeRecord;
+import de.rub.nds.ssl.stack.protocols.handshake.Finished;
 import de.rub.nds.ssl.stack.protocols.handshake.HandshakeEnumeration;
 import de.rub.nds.ssl.stack.protocols.handshake.MessageObservable;
 import de.rub.nds.ssl.stack.protocols.msgs.ChangeCipherSpec;
 import de.rub.nds.ssl.stack.protocols.msgs.TLSCiphertext;
+import de.rub.nds.ssl.stack.protocols.msgs.TLSPlaintext;
+import de.rub.nds.ssl.stack.protocols.msgs.datatypes.GenericBlockCipher;
+import de.rub.nds.ssl.stack.protocols.msgs.datatypes.IGenericCipher;
 import de.rub.nds.ssl.stack.trace.MessageContainer;
 import de.rub.nds.ssl.stack.workflows.TLS10HandshakeWorkflow;
 import de.rub.nds.ssl.stack.workflows.TLS10HandshakeWorkflow.EStates;
+import de.rub.nds.ssl.stack.workflows.commons.MessageBuilder;
+import java.util.Arrays;
 import java.util.Observable;
 import java.util.Observer;
 import org.apache.log4j.Logger;
@@ -98,24 +106,35 @@ public final class TLSResponse extends ARecordFrame implements Observer {
                 break;
             case HANDSHAKE:
                 if (workflow.isEncrypted()) {
+// TODO fix this code!                    
                     /*
                      * Since it is not possible to send CCS and Finished in a
                      * handhsake enumeration it is safe to distinguish this way
                      */
-                    logger.debug("Finished message received");
                     TLSCiphertext ciphertext = new TLSCiphertext(response,
                             true);
+                    
                     trace.setCurrentRecord(ciphertext);
                     trace.setPreviousState(EStates.getStateById(workflow.
                             getCurrentState()));
                     workflow.nextStateAndNotify(trace);
                     trace.setState(EStates.getStateById(
                             workflow.getCurrentState()));
-                    workflow.addToTraceList(trace);
+                    workflow.addToTraceList(trace);         
+                    
+                    MessageBuilder builder = new MessageBuilder();
+                    TLSPlaintext plaintext = builder.decryptRecord(ciphertext);
+                    setTrace(trace);
+                    msgObserve.addObserver(this);
+//// TODO: WTF is this???
+                    new HandshakeEnumeration(plaintext.encode(false), false,
+                            KeyExchangeParams.getInstance().
+                            getKeyExchangeAlgorithm());
+                    msgObserve.deleteObservers();
                 } else {
                     setTrace(trace);
                     msgObserve.addObserver(this);
-                    // TODO: WTF is this???
+// TODO: WTF is this???
                     new HandshakeEnumeration(response, true,
                             KeyExchangeParams.getInstance().
                             getKeyExchangeAlgorithm());

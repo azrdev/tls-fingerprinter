@@ -1,5 +1,6 @@
 package de.rub.nds.ssl.stack.workflows.commons;
 
+import de.rub.nds.ssl.stack.Utility;
 import de.rub.nds.ssl.stack.protocols.ARecordFrame;
 import de.rub.nds.ssl.stack.protocols.commons.*;
 import de.rub.nds.ssl.stack.protocols.handshake.ClientHello;
@@ -7,6 +8,7 @@ import de.rub.nds.ssl.stack.protocols.handshake.ClientKeyExchange;
 import de.rub.nds.ssl.stack.protocols.handshake.Finished;
 import de.rub.nds.ssl.stack.protocols.handshake.datatypes.*;
 import de.rub.nds.ssl.stack.protocols.msgs.TLSCiphertext;
+import de.rub.nds.ssl.stack.protocols.msgs.TLSPlaintext;
 import de.rub.nds.ssl.stack.protocols.msgs.datatypes.GenericBlockCipher;
 import de.rub.nds.ssl.stack.protocols.msgs.datatypes.GenericStreamCipher;
 import de.rub.nds.ssl.stack.workflows.TLS10HandshakeWorkflow;
@@ -165,7 +167,7 @@ public class MessageBuilder {
      */
     public final TLSCiphertext encryptRecord(
             final EProtocolVersion protocolVersion,
-            ARecordFrame record) {
+            final ARecordFrame record) {
         SecurityParameters param = SecurityParameters.getInstance();
         //create the key material
         KeyMaterial keyMat = new KeyMaterial();
@@ -187,6 +189,65 @@ public class MessageBuilder {
             streamCipher.computePayloadMAC(macKey, macName);
             streamCipher.encryptData(symmKey, cipherName);
             rec.setGenericCipher(streamCipher);
+        }
+
+        return rec;
+    }
+    
+    public final TLSPlaintext decryptRecord(
+            final ARecordFrame record) {
+        SecurityParameters param = SecurityParameters.getInstance();
+        //create the key material
+        KeyMaterial keyMat = new KeyMaterial();
+        //decrypt message
+        String cipherName = param.getBulkCipherAlgorithm().toString();
+        String macName = param.getMacAlgorithm().toString();
+        SecretKey macKey = new SecretKeySpec(keyMat.getServerMACSecret(),
+                macName);
+        SecretKey symmKey = new SecretKeySpec(keyMat.getServerKey(), cipherName);
+        byte[] plainBytes;
+        TLSPlaintext rec = null;
+        if (param.getCipherType() == ECipherType.BLOCK) {
+            GenericBlockCipher blockCipher = 
+                    new GenericBlockCipher(record.getPayload());
+            plainBytes = blockCipher.decryptData(symmKey, cipherName, 
+                    keyMat.getServerIV());
+            
+            // check padding (padding = padding bytes + padding length)
+            int paddingLength = plainBytes[plainBytes.length-1];
+            for(int i= 0; i <= paddingLength+1; i++) {
+                if(plainBytes[plainBytes.length-1-i] != paddingLength) {
+                    // TODO Padding error
+                }
+            }
+            
+            // TODO add MAC check
+//            blockCipher.computePayloadMAC(macKey, macName);
+            
+            // remove padding
+            byte[] tmp = new byte[plainBytes.length-paddingLength-1];
+            System.arraycopy(plainBytes, 0, tmp, 0, tmp.length);
+            plainBytes = tmp;
+
+            // remove MAC
+            int macLength = 0;
+            switch(param.getMacAlgorithm()) {
+                case MD5: macLength = 16; break;
+                case SHA1: macLength = 20; break;
+            }
+            tmp =new byte[plainBytes.length-macLength];
+            System.arraycopy(plainBytes, 0, tmp, 0, tmp.length);
+            plainBytes = tmp;
+            
+            rec = new TLSPlaintext(plainBytes, false);
+        } else if (param.getCipherType() == ECipherType.STREAM) {
+            GenericStreamCipher streamCipher = new GenericStreamCipher(record);
+            streamCipher.computePayloadMAC(macKey, macName);
+            // TODO add stream cipher decryption
+//            plainBytes = streamCipher.decryptData(symmKey, cipherName, 
+//                    keyMat.getClientIV());
+//            
+//            rec = new TLSPlaintext(plainBytes, true);
         }
 
         return rec;

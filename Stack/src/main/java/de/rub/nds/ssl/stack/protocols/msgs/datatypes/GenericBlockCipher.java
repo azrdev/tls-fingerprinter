@@ -143,8 +143,7 @@ public class GenericBlockCipher extends APubliclySerializable implements
             final String cipherName, final byte[] iv) {
         Cipher blockCipher;
         try {
-            blockCipher =
-                    Cipher.getInstance(cipherName + "/CBC/NoPadding");
+            blockCipher = Cipher.getInstance(cipherName + "/CBC/NoPadding");
             AlgorithmParameters params =
                     AlgorithmParameters.getInstance(cipherName);
             IvParameterSpec iVector = new IvParameterSpec(iv);
