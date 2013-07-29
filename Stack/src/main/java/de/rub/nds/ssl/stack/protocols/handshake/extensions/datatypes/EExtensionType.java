@@ -1,5 +1,6 @@
 package de.rub.nds.ssl.stack.protocols.handshake.extensions.datatypes;
 
+import de.rub.nds.ssl.stack.Utility;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -57,11 +58,11 @@ public enum EExtensionType {
     /**
      * Elliptic curves (RFC4492).
      */
-//    ELLIPTIC_CURVES(new byte[]{0x00, 0x0A}),
+    ELLIPTIC_CURVES(new byte[]{0x00, 0x0A}),
     /**
      * EC point formats (RFC4492).
      */
-//    EC_POINT_FORMATS(new byte[]{0x00, 0x0B}),
+    EC_POINT_FORMATS(new byte[]{0x00, 0x0B}),
     /**
      * SRP (RFC5054).
      */
@@ -100,16 +101,12 @@ public enum EExtensionType {
      * Id of the extension.
      */
     private final byte[] id;
-    /**
-     * Bits in byte.
-     */
-    private static final int BITS_IN_BYTE = 8;
 
     static {
         byte[] id;
         for (EExtensionType tmp : EExtensionType.values()) {
             id = tmp.getId();
-            ID_MAP.put(id[0] << BITS_IN_BYTE | id[1] & 0xff, tmp);
+            ID_MAP.put(id[0] << Utility.BITS_IN_BYTE | id[1] & 0xff, tmp);
         }
     }
 
@@ -157,7 +154,7 @@ public enum EExtensionType {
                     + LENGTH_ENCODED + " bytes.");
         }
 
-        extension = id[0] << BITS_IN_BYTE | id[1] & 0xff;
+        extension = id[0] << Utility.BITS_IN_BYTE | id[1] & 0xff;
 
         if (!ID_MAP.containsKey(extension)) {
             throw new IllegalArgumentException("No such extension.");

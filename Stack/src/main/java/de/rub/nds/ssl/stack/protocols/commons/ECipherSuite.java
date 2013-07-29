@@ -1,5 +1,6 @@
 package de.rub.nds.ssl.stack.protocols.commons;
 
+import de.rub.nds.ssl.stack.Utility;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -586,7 +587,7 @@ public enum ECipherSuite {
                     "ID must not be null and have a length of exactly "
                     + LENGTH_ENCODED + " bytes.");
         }
-        cipherSuite = ((id[0]&0xff) << 8) | (id[1] & 0xff);
+        cipherSuite = ((id[0]&0xff) << Utility.BITS_IN_BYTE) | (id[1] & 0xff);
 
         if (!ID_MAP.containsKey(cipherSuite)) {
             throw new IllegalArgumentException("No such cipher suite: " + Integer.toHexString(cipherSuite));

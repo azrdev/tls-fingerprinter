@@ -1,5 +1,7 @@
 package de.rub.nds.ssl.stack.protocols.commons;
 
+import de.rub.nds.ssl.stack.Utility;
+
 /**
  * Interface for all publicly serializable messages, message parts or record
  * frames.
@@ -35,12 +37,13 @@ public abstract class APubliclySerializable {
      *
      * @return Extracted length
      */
-    protected int extractLength(final byte[] bytes, final int offset,
+    protected final int extractLength(final byte[] bytes, final int offset,
             final int length) {
         int result = 0;
 
         for (int i = 0; i < length; i++) {
-            result |= (bytes[offset + i] & 0xff) << ((length - i - 1) * 8);
+            result |= (bytes[offset + i] & 0xff) << ((length - i - 1)
+                    * Utility.BITS_IN_BYTE);
         }
 
         return result;
@@ -54,31 +57,34 @@ public abstract class APubliclySerializable {
      *
      * @return Byte array representation of the length
      */
-    protected byte[] buildLength(final int length, final int bytes) {
+    protected final byte[] buildLength(final int length, final int bytes) {
         byte[] result = new byte[bytes];
 
         for (int i = 0; i < bytes; i++) {
-            result[bytes - 1 - i] = ((Integer) (length >> (8 * i))).byteValue();
+            result[bytes - 1 - i] = ((Integer) (length
+                    >> (Utility.BITS_IN_BYTE * i))).byteValue();
         }
 
         return result;
     }
-    
+
     /**
      * Builds the String representation of the current object.
+     *
      * @return Current object in String representation
      */
+    @Override
     public String toString() {
-    	StringBuffer sb = new StringBuffer(50);
-    	byte[] encoded = this.encode(true);
-    	sb.append("APubliclySerializeable (");
+        StringBuffer sb = new StringBuffer(50);
+        byte[] encoded = this.encode(true);
+        sb.append("APubliclySerializeable (");
         sb.append(this.getClass().getCanonicalName());
         sb.append("): ");
-    	for (int i = 0; i < encoded.length-1; i++) {
-    		sb.append(Integer.toHexString(encoded[i]&0xff));
-    		sb.append(" ");
-    	}
-    	sb.append(Integer.toHexString(encoded[encoded.length-1]&0xff));
-    	return new String(sb);
+        for (int i = 0; i < encoded.length - 1; i++) {
+            sb.append(Integer.toHexString(encoded[i] & 0xff));
+            sb.append(" ");
+        }
+        sb.append(Integer.toHexString(encoded[encoded.length - 1] & 0xff));
+        return new String(sb);
     }
 }

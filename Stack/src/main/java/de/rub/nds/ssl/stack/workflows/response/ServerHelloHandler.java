@@ -1,5 +1,6 @@
 package de.rub.nds.ssl.stack.workflows.response;
 
+import de.rub.nds.ssl.stack.Utility;
 import de.rub.nds.ssl.stack.protocols.commons.*;
 import de.rub.nds.ssl.stack.protocols.handshake.AHandshakeRecord;
 import de.rub.nds.ssl.stack.protocols.handshake.ServerHello;
@@ -181,8 +182,8 @@ public class ServerHelloHandler implements IHandshakeStates {
             case RC4:
                 param.setBulkCipherAlgorithm(EBulkCipherAlgorithm.RC4);
                 suiteList.remove(0);
-                param.setKeySize(
-                        Integer.valueOf(suiteList.get(0)) / 8);
+                param.setKeySize(Integer.valueOf(suiteList.get(0)) / 
+                        Utility.BITS_IN_BYTE);
                 suiteList.remove(0);
                 break;
             case RC2:
@@ -191,8 +192,8 @@ public class ServerHelloHandler implements IHandshakeStates {
                 param.setModeOfOperation(
                         EModeOfOperation.valueOf(suiteList.get(0)));
                 suiteList.remove(0);
-                param.setKeySize(
-                        Integer.valueOf(suiteList.get(0)) / 8);
+                param.setKeySize(Integer.valueOf(suiteList.get(0)) / 
+                        Utility.BITS_IN_BYTE);
                 suiteList.remove(0);
                 break;
             case DES:
@@ -225,8 +226,8 @@ public class ServerHelloHandler implements IHandshakeStates {
             case AES:
                 param.setBulkCipherAlgorithm(EBulkCipherAlgorithm.AES);
                 suiteList.remove(0);
-                param.setKeySize(
-                        Integer.valueOf(suiteList.get(0)) / 8);
+                param.setKeySize(Integer.valueOf(suiteList.get(0)) / 
+                        Utility.BITS_IN_BYTE);
                 suiteList.remove(0);
                 param.setModeOfOperation(
                         EModeOfOperation.valueOf(suiteList.get(0)));

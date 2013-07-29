@@ -36,8 +36,8 @@ public final class CipherSuites extends APubliclySerializable {
     }
 
     /**
-     * Initializes a cipher suites object as defined in RFC-2246 All supported
-     * cipher suites are added by default at construction time.
+     * Initializes a cipher suites object as defined in RFC-2246.
+     * All supported cipher suites are added by default at construction time.
      */
     public CipherSuites() {
         setSuites(ECipherSuite.values());
@@ -70,7 +70,7 @@ public final class CipherSuites extends APubliclySerializable {
      *
      * @param suites The cipher suites to be used for this message
      */
-    public final void setSuites(final ECipherSuite[] suites) {
+    public void setSuites(final ECipherSuite[] suites) {
         if (suites == null) {
             throw new IllegalArgumentException("Suites must not be null!");
         }
@@ -92,7 +92,7 @@ public final class CipherSuites extends APubliclySerializable {
         int pointer = 0;
         Integer cipherSuitesBytes = suites.length * ECipherSuite.LENGTH_ENCODED;
         byte[] tmp = new byte[LENGTH_LENGTH_FIELD + cipherSuitesBytes];
-        byte[] tmpID = null;
+        byte[] tmpID;
 
         // length
         tmpID = buildLength(cipherSuitesBytes, LENGTH_LENGTH_FIELD);
@@ -113,6 +113,7 @@ public final class CipherSuites extends APubliclySerializable {
      *
      * Method parameter will be ignored - no support for chained decoding.
      */
+    @Override
     public void decode(final byte[] message, final boolean chained) {
         final int cipherSuitesCount;
         // deep copy

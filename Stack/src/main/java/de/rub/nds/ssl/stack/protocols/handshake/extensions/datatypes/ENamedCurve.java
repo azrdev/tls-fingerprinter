@@ -1,5 +1,6 @@
 package de.rub.nds.ssl.stack.protocols.handshake.extensions.datatypes;
 
+import de.rub.nds.ssl.stack.Utility;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -10,10 +11,10 @@ import java.util.Map;
  * @version 0.1 Jul 27, 2013
  */
 public enum ENamedCurve {
-
-    /**
-     * TODO JavaDoc.
+    /*
+     * SECG Curves
      */
+
     SECT_163_K1(new byte[]{0x00, 0x01}),
     SECT_163_R1(new byte[]{0x00, 0x02}),
     SECT_163_R2(new byte[]{0x00, 0x03}),
@@ -39,8 +40,8 @@ public enum ENamedCurve {
     SECP_256_R1(new byte[]{0x00, 0x17}),
     SECP_384_R1(new byte[]{0x00, 0x18}),
     SECP_521_R1(new byte[]{0x00, 0x19}),
-    ARBITRARY_EXPLICIT_PRIME_CURVES(new byte[]{(byte)0xFF, 0x01}),
-    ARBITRARY_EXPLICIT_CHAR2_CURVES(new byte[]{(byte)0xFF, 0x02});
+    ARBITRARY_EXPLICIT_PRIME_CURVES(new byte[]{(byte) 0xFF, 0x01}),
+    ARBITRARY_EXPLICIT_CHAR2_CURVES(new byte[]{(byte) 0xFF, 0x02});
     /**
      * Length of the name id: 2 Bytes.
      */
@@ -54,16 +55,12 @@ public enum ENamedCurve {
      * Id of the named curve.
      */
     private final byte[] id;
-    /**
-     * Bits in byte.
-     */
-    private static final int BITS_IN_BYTE = 8;
 
     static {
         byte[] id;
         for (ENamedCurve tmp : ENamedCurve.values()) {
             id = tmp.getId();
-            ID_MAP.put(id[0] << BITS_IN_BYTE | id[1] & 0xff, tmp);
+            ID_MAP.put(id[0] << Utility.BITS_IN_BYTE | id[1] & 0xff, tmp);
         }
     }
 
@@ -88,14 +85,15 @@ public enum ENamedCurve {
 
         return tmp;
     }
-    
+
     /**
      * Get a human readable representation of this named curve.
      */
     @Override
     public String toString() {
-    	byte[] tmpID = this.getId();
-    	return "ENamedCurve: Major " + tmpID[0] + " Minor " + tmpID[1];
+        byte[] tmpID = this.getId();
+        return "ENamedCurve: Major " + (tmpID[0] & 0xFF)
+                + " Minor " + (tmpID[1] & 0xFF);
     }
 
     /**
@@ -112,7 +110,7 @@ public enum ENamedCurve {
                     + LENGTH_ENCODED + " bytes.");
         }
 
-        namedCurve = id[0] << BITS_IN_BYTE | id[1] & 0xff;
+        namedCurve = id[0] << Utility.BITS_IN_BYTE | id[1] & 0xff;
 
         if (!ID_MAP.containsKey(namedCurve)) {
             throw new IllegalArgumentException("No such named curve.");

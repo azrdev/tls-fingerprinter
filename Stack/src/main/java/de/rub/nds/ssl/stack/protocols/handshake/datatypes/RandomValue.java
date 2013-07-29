@@ -1,5 +1,6 @@
 package de.rub.nds.ssl.stack.protocols.handshake.datatypes;
 
+import de.rub.nds.ssl.stack.Utility;
 import de.rub.nds.ssl.stack.protocols.commons.APubliclySerializable;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;

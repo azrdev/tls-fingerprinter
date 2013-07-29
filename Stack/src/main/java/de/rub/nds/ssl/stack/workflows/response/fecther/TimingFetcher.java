@@ -1,6 +1,7 @@
 package de.rub.nds.ssl.stack.workflows.response.fecther;
 
 import de.rub.nds.research.timingsocket.TimingSocket;
+import de.rub.nds.ssl.stack.Utility;
 import de.rub.nds.ssl.stack.protocols.ARecordFrame;
 import de.rub.nds.ssl.stack.trace.MessageContainer;
 import de.rub.nds.ssl.stack.workflows.AWorkflow;
@@ -57,7 +58,8 @@ public class TimingFetcher extends AResponseFetcher {
                 long time = ts.getTiming();
                 
                 //Determine the length of the frame
-                int length = (header[3] & 0xff) << 8 | (header[4] & 0xff);
+                int length = (header[3] & 0xff) << Utility.BITS_IN_BYTE | 
+                        (header[4] & 0xff);
                 byte[] answer = new byte[length + header.length];
                 System.arraycopy(header, 0, answer, 0, header.length);
                 dis.readFully(answer, header.length, length);

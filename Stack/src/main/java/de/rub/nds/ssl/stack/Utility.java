@@ -19,7 +19,11 @@ import sun.security.x509.*;
  * Dec 20, 2011
  */
 public abstract class Utility {
-
+    /**
+     * Bits in byte.
+     */
+    public static final int BITS_IN_BYTE = 8;
+    
     /**
      * Valid Hex Chars.
      */
@@ -254,9 +258,9 @@ public abstract class Utility {
      * @return Integer representation of the byte[]
      */
     public static int bytesToInt(byte... bytes) {
-        return (int) ((0xFF & bytes[0]) << 24
-                | (0xFF & bytes[1]) << 16
-                | (0xFF & bytes[2]) << 8
+        return (int) ((0xFF & bytes[0]) << Utility.BITS_IN_BYTE*3
+                | (0xFF & bytes[1]) << Utility.BITS_IN_BYTE*2
+                | (0xFF & bytes[2]) << Utility.BITS_IN_BYTE
                 | (0xFF & bytes[3]));
     }
 }

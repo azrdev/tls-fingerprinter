@@ -1,5 +1,6 @@
 package de.rub.nds.ssl.stack.protocols.handshake.datatypes;
 
+import de.rub.nds.ssl.stack.Utility;
 import de.rub.nds.ssl.stack.protocols.commons.APubliclySerializable;
 import java.math.BigInteger;
 import java.security.InvalidKeyException;
@@ -30,10 +31,6 @@ public final class EncPreMasterSecret extends APubliclySerializable
      * Length bytes.
      */
     public static final int LENGTH_BYTES = 2;
-    /**
-     * Bits in byte.
-     */
-    public static final int BITS_IN_BYTE = 8;
 
     /**
      * Initializes an EncPreMasterSecret part as defined in RFC 2246.
@@ -53,7 +50,7 @@ public final class EncPreMasterSecret extends APubliclySerializable
         if (mod == null) {
             throw new IllegalArgumentException("Modulus must not be null");
         }
-        int length = mod.bitLength() / BITS_IN_BYTE;
+        int length = mod.bitLength() / Utility.BITS_IN_BYTE;
         this.ciphertext = new byte[length];
         this.encryptPreMasterSecret(pms, pk);
     }
@@ -76,7 +73,7 @@ public final class EncPreMasterSecret extends APubliclySerializable
         if (mod == null) {
             throw new IllegalArgumentException("Modulus must not be null");
         }
-        int length = mod.bitLength() / BITS_IN_BYTE;
+        int length = mod.bitLength() / Utility.BITS_IN_BYTE;
         this.ciphertext = new byte[length];
     }
 
