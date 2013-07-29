@@ -22,6 +22,10 @@ import sun.security.x509.*;
 public abstract class Utility {
 
     /**
+     * Bits in byte.
+     */
+    public static final int BITS_IN_BYTE = 8;
+    /**
      * Valid Hex Chars.
      */
     private static final char[] HEXCHARS = {
@@ -197,7 +201,7 @@ public abstract class Utility {
      * @param serialNumber Serial number
      * @return Self-signed X.509 certificate.
      * @throws GeneralSecurityException
-     * @throws IOException  
+     * @throws IOException
      */
     public static X509Certificate generateX509v3Cert(final KeyPair keyPair,
             final String algorithm, final String distinguishedNameSubject,
@@ -256,20 +260,20 @@ public abstract class Utility {
     public static int computeBlockSize(final RSAPublicKey publicKey) {
         byte[] tmp = publicKey.getModulus().toByteArray();
         int result = tmp.length;
-        int remainder = tmp.length % 8;
+        int remainder = tmp.length % Utility.BITS_IN_BYTE;
 
         if (remainder > 0 && tmp[0] == 0x0) {
             // extract signing byte if present
             byte[] tmp2 = new byte[tmp.length - 1];
             System.arraycopy(tmp, 1, tmp2, 0, tmp2.length);
             tmp = tmp2;
-            remainder = tmp.length % 8;
+            remainder = tmp.length % Utility.BITS_IN_BYTE;
             result = tmp.length;
         }
 
         while (remainder > 0) {
             result++;
-            remainder = result % 8;
+            remainder = result % Utility.BITS_IN_BYTE;
         }
 
         return result;

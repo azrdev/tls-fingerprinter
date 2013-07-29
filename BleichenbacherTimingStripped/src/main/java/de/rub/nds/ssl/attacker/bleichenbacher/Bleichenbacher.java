@@ -53,10 +53,10 @@ public class Bleichenbacher {
 
         // b computation
         int tmp = publicKey.getModulus().bitLength();
-        while (tmp % 8 != 0) {
+        while (tmp % Utility.BITS_IN_BYTE != 0) {
             tmp++;
         }
-        tmp = ((tmp / 8) - 2) * 8;
+        tmp = ((tmp / Utility.BITS_IN_BYTE) - 2) * Utility.BITS_IN_BYTE;
         bigB = BigInteger.valueOf(2).pow(tmp);
         System.out.println("B computed: " + bigB);
         System.out.println("Blocksize: " + blockSize + " bytes");
