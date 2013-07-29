@@ -1,4 +1,4 @@
-package de.rub.nds.ssl.stack.protocols.handshake.datatypes;
+package de.rub.nds.ssl.stack.protocols.handshake.extensions.datatypes;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -12,7 +12,7 @@ import java.util.Map;
  *
  * Feb 4, 2013
  */
-public enum EExtension {
+public enum EExtensionType {
 
     /**
      * Server Name (RFC6066).
@@ -94,8 +94,8 @@ public enum EExtension {
     /**
      * Map of an id to the extension.
      */
-    private static final Map<Integer, EExtension> ID_MAP =
-            new HashMap<Integer, EExtension>(16);
+    private static final Map<Integer, EExtensionType> ID_MAP =
+            new HashMap<Integer, EExtensionType>(16);
     /**
      * Id of the extension.
      */
@@ -107,7 +107,7 @@ public enum EExtension {
 
     static {
         byte[] id;
-        for (EExtension tmp : EExtension.values()) {
+        for (EExtensionType tmp : EExtensionType.values()) {
             id = tmp.getId();
             ID_MAP.put(id[0] << BITS_IN_BYTE | id[1] & 0xff, tmp);
         }
@@ -118,7 +118,7 @@ public enum EExtension {
      *
      * @param idBytes Id of this version
      */
-    private EExtension(final byte[] idBytes) {
+    private EExtensionType(final byte[] idBytes) {
         id = idBytes;
     }
 
@@ -149,7 +149,7 @@ public enum EExtension {
      * @param id ID of the desired extension
      * @return Associated extension
      */
-    public static EExtension getExtension(final byte[] id) {
+    public static EExtensionType getExtension(final byte[] id) {
         final int extension;
         if (id == null || id.length != LENGTH_ENCODED) {
             throw new IllegalArgumentException(

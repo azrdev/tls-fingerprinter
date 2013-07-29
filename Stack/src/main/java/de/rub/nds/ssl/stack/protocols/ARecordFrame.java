@@ -284,6 +284,6 @@ public abstract class ARecordFrame extends APubliclySerializable {
 
         // deep copy
         this.payload = new byte[payload.length];
-        System.arraycopy(payload, 0, this.payload, 0, payload.length);
+        System.arraycopy(payload, 0, this.payload, 0, this.payload.length);
     }
 }

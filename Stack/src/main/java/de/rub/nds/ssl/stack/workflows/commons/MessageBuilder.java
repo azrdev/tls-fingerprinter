@@ -18,6 +18,7 @@ import java.security.PublicKey;
 import java.security.SecureRandom;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
+import org.apache.log4j.Logger;
 
 /**
  * Builder for SSL handshake messages.
@@ -26,6 +27,11 @@ import javax.crypto.spec.SecretKeySpec;
  * @version 0.1 Apr 04, 2012
  */
 public class MessageBuilder {
+    
+    /**
+     * Log4j logger.
+     */
+    private static Logger logger = Logger.getRootLogger();
 
     /**
      * Empty public constructor.
@@ -214,10 +220,16 @@ public class MessageBuilder {
                     keyMat.getServerIV());
             
             // check padding (padding = padding bytes + padding length)
-            int paddingLength = plainBytes[plainBytes.length-1];
-            for(int i= 0; i <= paddingLength+1; i++) {
+            int paddingLength = plainBytes[plainBytes.length-1];;
+            for(int i= 0; i < paddingLength+1; i++) {
                 if(plainBytes[plainBytes.length-1-i] != paddingLength) {
-                    // TODO Padding error
+                    // TODO Communicate padding error 
+                    byte[] padding = new byte[paddingLength];
+                    System.arraycopy(plainBytes, 
+                            plainBytes.length-1-paddingLength, padding, 0, 
+                            padding.length);
+                    logger.info("Invalid padding detected: " 
+                            + Utility.bytesToHex(padding));
                 }
             }
             

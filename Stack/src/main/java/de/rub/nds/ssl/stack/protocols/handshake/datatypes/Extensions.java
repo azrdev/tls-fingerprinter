@@ -1,6 +1,7 @@
 package de.rub.nds.ssl.stack.protocols.handshake.datatypes;
 
 import de.rub.nds.ssl.stack.protocols.commons.APubliclySerializable;
+import de.rub.nds.ssl.stack.protocols.handshake.extensions.datatypes.EExtensionType;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -26,7 +27,7 @@ public class Extensions extends APubliclySerializable {
     /**
      * List of all extensions of this object.
      */
-    private EExtension[] extensions;
+    private EExtensionType[] extensions;
 
     /**
      * {@inheritDoc} 
@@ -41,7 +42,7 @@ public class Extensions extends APubliclySerializable {
      * All supported extensions are added by default at construction time.
      */
     public Extensions() {
-        setExtensions(EExtension.values());
+        setExtensions(EExtensionType.values());
     }
 
     /**
@@ -58,9 +59,9 @@ public class Extensions extends APubliclySerializable {
      *
      * @return The extensions of this message
      */
-    public EExtension[] getExtensions() {
+    public EExtensionType[] getExtensions() {
         // deep copy
-        EExtension[] tmp = new EExtension[extensions.length];
+        EExtensionType[] tmp = new EExtensionType[extensions.length];
         System.arraycopy(extensions, 0, tmp, 0, extensions.length);
 
         return tmp;
@@ -71,13 +72,13 @@ public class Extensions extends APubliclySerializable {
      *
      * @param extensions The extensions to be used
      */
-    public final void setExtensions(final EExtension[] extensions) {
+    public final void setExtensions(final EExtensionType[] extensions) {
         if (extensions == null) {
             throw new IllegalArgumentException("Extensions must not be null!");
         }
 
         // new objects keep the array clean and small, Mr. Proper will be proud!
-        this.extensions = new EExtension[extensions.length];
+        this.extensions = new EExtensionType[extensions.length];
         // refill, deep copy
         System.arraycopy(extensions, 0, this.extensions, 0, extensions.length);
     }
@@ -94,7 +95,7 @@ public class Extensions extends APubliclySerializable {
         int pointer = 0;
         // TODO Extensions are not implemented yet - thus add 2 additional length bytes
         Integer extensionBytes = extensions.length * 
-                (EExtension.LENGTH_ENCODED+2);
+                (EExtensionType.LENGTH_ENCODED+2);
         byte[] tmp = new byte[LENGTH_LENGTH_FIELD + extensionBytes];
         byte[] tmpID = null;
 
@@ -103,7 +104,7 @@ public class Extensions extends APubliclySerializable {
         System.arraycopy(tmpID, 0, tmp, pointer, tmpID.length);
         //pointer += tmpID.length;
 
-        for (int i = 0, j=EExtension.LENGTH_ENCODED; i < extensions.length; i++) {
+        for (int i = 0, j=EExtensionType.LENGTH_ENCODED; i < extensions.length; i++) {
             tmpID = extensions[i].getId();
             tmp[j] = tmpID[0];
             tmp[j + 1] = tmpID[1];
@@ -134,16 +135,16 @@ public class Extensions extends APubliclySerializable {
         }
         
         // extract extensions
-        List<EExtension> extensions = new ArrayList<EExtension>(5);
+        List<EExtensionType> extensions = new ArrayList<EExtensionType>(5);
         int length = 0;
         for (int i = LENGTH_LENGTH_FIELD; i < tmpExtensions.length;) {
-            extensions.add(EExtension.getExtension(
+            extensions.add(EExtensionType.getExtension(
                     new byte[]{tmpExtensions[i], tmpExtensions[i + 1]}));
             
             // TODO Extensions are not implemented yet - thus skip extension bytes
             length = (extractLength(tmpExtensions, i+2, 2) >> 1) & 0xff;
-            i += length + 2 + EExtension.LENGTH_ENCODED;
+            i += length + 2 + EExtensionType.LENGTH_ENCODED;
         }
-        setExtensions(extensions.toArray(new EExtension[extensions.size()]));
+        setExtensions(extensions.toArray(new EExtensionType[extensions.size()]));
     }
 }
