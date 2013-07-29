@@ -13,7 +13,9 @@
         <module>TimingSocket</module>
         <module>Analyzer</module>
         <module>TinyTLSServer</module>
-    </modules>
+        <module>BleichenbacherTests</module>
+    <module>BleichenbacherTimingStripped</module>
+  </modules>
     
     <build>
         <pluginManagement>
