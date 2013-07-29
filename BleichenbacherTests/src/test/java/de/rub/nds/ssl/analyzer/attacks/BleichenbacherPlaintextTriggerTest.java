@@ -151,7 +151,7 @@ public class BleichenbacherPlaintextTriggerTest {
         
         try {
             KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("RSA");
-            keyPairGenerator.initialize(BLOCKSIZE*8);
+            keyPairGenerator.initialize(BLOCKSIZE*Utility.BITS_IN_BYTE);
             keyPair = keyPairGenerator.genKeyPair();
         } catch(NoSuchAlgorithmException e) {
             e.printStackTrace();

@@ -114,20 +114,20 @@ public abstract class ASSLServerOracle extends AOracle implements Observer {
     int computeBlockSize() {
         byte[] tmp = ((RSAPublicKey) getPublicKey()).getModulus().toByteArray();
         int result = tmp.length;
-        int remainder = tmp.length % 8;
+        int remainder = tmp.length % Utility.BITS_IN_BYTE;
 
         if (remainder > 0 && tmp[0] == 0x0) {
             // extract signing byte if present
             byte[] tmp2 = new byte[tmp.length - 1];
             System.arraycopy(tmp, 1, tmp2, 0, tmp2.length);
             tmp = tmp2;
-            remainder = tmp.length % 8;
+            remainder = tmp.length % Utility.BITS_IN_BYTE;
             result = tmp.length;
         }
 
         while (remainder > 0) {
             result++;
-            remainder = result % 8;
+            remainder = result % Utility.BITS_IN_BYTE;
         }
 
         return result;
