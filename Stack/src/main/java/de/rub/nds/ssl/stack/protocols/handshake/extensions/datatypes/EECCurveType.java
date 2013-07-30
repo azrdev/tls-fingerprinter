@@ -1,4 +1,4 @@
-package de.rub.nds.ssl.stack.protocols.handshake.datatypes;
+package de.rub.nds.ssl.stack.protocols.handshake.extensions.datatypes;
 
 import de.rub.nds.ssl.stack.protocols.handshake.extensions.datatypes.*;
 import java.util.HashMap;

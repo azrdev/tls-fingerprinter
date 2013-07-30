@@ -68,7 +68,7 @@ public class Dummy implements Observer {
         // code that will be invoked before this test starts
     }
     
-    @Test(enabled = false)
+    @Test(enabled = true)
     public final void testECCExtension() throws SocketException {
         logger.info("++++ Start Test No. 1 (ECC Extension test) ++++");
         workflow = new TLS10HandshakeWorkflow();
