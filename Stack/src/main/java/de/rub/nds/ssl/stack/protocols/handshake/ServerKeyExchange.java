@@ -5,6 +5,7 @@ import de.rub.nds.ssl.stack.protocols.commons.KeyExchangeParams;
 import de.rub.nds.ssl.stack.protocols.handshake.datatypes.EKeyExchangeAlgorithm;
 import de.rub.nds.ssl.stack.protocols.handshake.datatypes.IExchangeKeys;
 import de.rub.nds.ssl.stack.protocols.handshake.datatypes.ServerDHParams;
+import de.rub.nds.ssl.stack.protocols.handshake.datatypes.ServerECDHParams;
 import de.rub.nds.ssl.stack.protocols.handshake.datatypes.ServerRSAParams;
 import de.rub.nds.ssl.stack.protocols.msgs.datatypes.TLSSignature;
 
@@ -96,6 +97,9 @@ public class ServerKeyExchange extends AHandshakeRecord {
             case RSA:
                 keys = new ServerRSAParams(tmp);
                 break;
+            case EC_DIFFIE_HELLMAN:
+                keys = new ServerECDHParams(tmp);
+                break;
             default:
                 break;
         }
@@ -126,6 +130,10 @@ public class ServerKeyExchange extends AHandshakeRecord {
                 break;
             case RSA:
                 exchangeKeys = new ServerRSAParams(payloadCopy);
+                signature = new TLSSignature(payloadCopy);
+                break;
+            case EC_DIFFIE_HELLMAN:
+                exchangeKeys = new ServerECDHParams(payloadCopy);
                 signature = new TLSSignature(payloadCopy);
                 break;
             default:

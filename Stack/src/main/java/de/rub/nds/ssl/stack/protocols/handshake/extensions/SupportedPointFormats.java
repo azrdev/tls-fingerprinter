@@ -1,10 +1,7 @@
 package de.rub.nds.ssl.stack.protocols.handshake.extensions;
 
-import de.rub.nds.ssl.stack.Utility;
-import de.rub.nds.ssl.stack.protocols.commons.ECipherSuite;
 import de.rub.nds.ssl.stack.protocols.handshake.extensions.datatypes.EECPointFormat;
 import de.rub.nds.ssl.stack.protocols.handshake.extensions.datatypes.EExtensionType;
-import de.rub.nds.ssl.stack.protocols.handshake.extensions.datatypes.ENamedCurve;
 
 /**
  * Supported Point Formats extension as defined in RFC 4492.

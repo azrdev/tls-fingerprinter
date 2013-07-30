@@ -395,7 +395,7 @@ public enum ECipherSuite {
     	} else if (this.isDhe()) {
     		return EKeyExchangeAlgorithm.DIFFIE_HELLMAN;
     	} else if (this.isEcdhe()) {
-    		return EKeyExchangeAlgorithm.ECDHE;
+    		return EKeyExchangeAlgorithm.EC_DIFFIE_HELLMAN;
     	} else {
     		throw new IllegalArgumentException("sorry, key exchange type is not supported: " + this);
     	}
