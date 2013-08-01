@@ -408,7 +408,7 @@ public class Bleichenbacher {
         tmp = originalMessage.multiply(tmp);
         tmp = tmp.mod(publicKey.getModulus());
         // get bytes
-        msg = Utility.correctSize(tmp.toByteArray(), blockSize, true);
+        msg = AttackerUtility.correctSize(tmp.toByteArray(), blockSize, true);
 
         return msg;
     }

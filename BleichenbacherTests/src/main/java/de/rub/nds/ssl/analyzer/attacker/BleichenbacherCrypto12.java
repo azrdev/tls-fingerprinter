@@ -3,7 +3,6 @@ package de.rub.nds.ssl.analyzer.attacker;
 import de.rub.nds.ssl.analyzer.attacker.bleichenbacher.Interval;
 import de.rub.nds.ssl.analyzer.attacker.bleichenbacher.OracleException;
 import de.rub.nds.ssl.analyzer.attacker.bleichenbacher.oracles.AOracle;
-import de.rub.nds.ssl.stack.Utility;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -824,7 +823,7 @@ public class BleichenbacherCrypto12 extends Bleichenbacher {
         }
 
         // get bytes
-        msg = Utility.correctSize(tmp.toByteArray(), blockSize, true);
+        msg = AttackerUtility.correctSize(tmp.toByteArray(), blockSize, true);
 
         return msg;
     }
