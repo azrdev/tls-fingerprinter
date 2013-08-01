@@ -26,7 +26,7 @@ public enum EECCurveType {
      * Elliptic curve is a named curve. This is definitively your favorite
      * choice!
      */
-    NAMED_CURVE((byte) 0x02);
+    NAMED_CURVE((byte) 0x03);
     /**
      * Length of id: 1 Byte.
      */
@@ -73,7 +73,7 @@ public enum EECCurveType {
      */
     public static EECCurveType getECCurveType(final byte id) {
         if (!ID_MAP.containsKey(id)) {
-            throw new IllegalArgumentException("No such curve type.");
+            throw new IllegalArgumentException("No such curve type." + id);
         }
 
         return ID_MAP.get(id);

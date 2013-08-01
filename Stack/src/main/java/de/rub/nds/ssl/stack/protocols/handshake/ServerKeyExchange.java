@@ -113,7 +113,7 @@ public class ServerKeyExchange extends AHandshakeRecord {
     @Override
     public final void decode(final byte[] message, final boolean chained) {
         byte[] payloadCopy;
-
+        byte[] tmp;
         if (chained) {
             super.decode(message, true);
         } else {
@@ -126,19 +126,21 @@ public class ServerKeyExchange extends AHandshakeRecord {
         switch (keyExchangeAlgorithm) {
             case DIFFIE_HELLMAN:
                 exchangeKeys = new ServerDHParams(payloadCopy);
-                signature = new TLSSignature(payloadCopy);
                 break;
             case RSA:
                 exchangeKeys = new ServerRSAParams(payloadCopy);
-                signature = new TLSSignature(payloadCopy);
                 break;
             case EC_DIFFIE_HELLMAN:
                 exchangeKeys = new ServerECDHParams(payloadCopy);
-                signature = new TLSSignature(payloadCopy);
                 break;
             default:
                 break;
         }
 
+        tmp = exchangeKeys.encode(false);
+        tmp = new byte[payloadCopy.length - tmp.length];
+        System.arraycopy(payloadCopy, payloadCopy.length - tmp.length,
+                tmp, 0, tmp.length);
+        signature = new TLSSignature(tmp);
     }
 }

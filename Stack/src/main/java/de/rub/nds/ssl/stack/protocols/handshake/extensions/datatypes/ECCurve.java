@@ -111,8 +111,8 @@ public final class ECCurve extends APubliclySerializable
     /**
      * {@inheritDoc}
      *
-     * ECCurve representation 1 byte a + 1 byte b. Chained parameter is ignored
-     * - no chained encoding.
+     * ECCurve representation 1 byte a length + 1 byte a + 1 byte b length + 1
+     * byte b. Chained parameter is ignored - no chained encoding.
      */
     @Override
     public byte[] encode(final boolean chained) {
@@ -166,7 +166,7 @@ public final class ECCurve extends APubliclySerializable
         System.arraycopy(ecCurveCopy, pointer, tmpBytes, 0, tmpBytes.length);
         setA(tmpBytes);
         pointer += tmpBytes.length;
-                
+
         // 2. extract b
         extractedLength = extractLength(ecCurveCopy, 0, LENGTH_B);
         tmpBytes = new byte[extractedLength];

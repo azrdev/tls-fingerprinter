@@ -21,22 +21,20 @@ public final class ECPoint extends APubliclySerializable
     /**
      * Minimum length of the encoded form.
      */
-    public static final int LENGTH_MINIMUM_ENCODED = LENGTH_LENGTH_FIELD+1;
+    public static final int LENGTH_MINIMUM_ENCODED = LENGTH_LENGTH_FIELD + 1;
     /**
      * ANSI X9.62 encoded EC coefficient a.
      */
     private byte[] point;
-    
-    
+
     /**
-     * Initializes an EC Point part as defined in RFC 4492. 
+     * Initializes an EC Point part as defined in RFC 4492.
      */
     public ECPoint() {
-        
     }
 
     /**
-     * Initializes an EC Point part as defined in RFC 4492. 
+     * Initializes an EC Point part as defined in RFC 4492.
      *
      * @param message EC Point part in encoded form
      */
@@ -56,9 +54,9 @@ public final class ECPoint extends APubliclySerializable
 
         return tmp;
     }
-    
+
     /**
-     * Set the point value of this message part. 
+     * Set the point value of this message part.
      *
      * @param point The point value to be used for this message part
      */
@@ -76,8 +74,8 @@ public final class ECPoint extends APubliclySerializable
     /**
      * {@inheritDoc}
      *
-     * ECCurve representation 1 byte a + 1 byte b.
-     * Chained parameter is ignored - no chained encoding.
+     * ECCurve representation 1 byte a + 1 byte b. Chained parameter is ignored
+     * - no chained encoding.
      */
     @Override
     public byte[] encode(final boolean chained) {
@@ -103,7 +101,7 @@ public final class ECPoint extends APubliclySerializable
 
     /**
      * {@inheritDoc}
-     * 
+     *
      * Chained parameter is ignored - no chained decoding.
      */
     public void decode(final byte[] message, final boolean chained) {
@@ -122,5 +120,4 @@ public final class ECPoint extends APubliclySerializable
         setPoint(tmpBytes);
         pointer += tmpBytes.length;
     }
-
 }

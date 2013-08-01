@@ -1,9 +1,11 @@
 package de.rub.nds.ssl.stack.protocols.handshake.datatypes;
 
 import de.rub.nds.ssl.stack.protocols.commons.APubliclySerializable;
+import de.rub.nds.ssl.stack.protocols.handshake.extensions.datatypes.ECParameters;
+import de.rub.nds.ssl.stack.protocols.handshake.extensions.datatypes.ECPoint;
 
 /**
- * ServerECDHParams part - as defined in RFC 4492. 
+ * ServerECDHParams part - as defined in RFC 4492.
  *
  * @author Christopher Meyer - christopher.meyer@ruhr-uni-bochum.de
  * @version 0.1 Jul 30, 2013
@@ -12,21 +14,19 @@ public class ServerECDHParams extends APubliclySerializable implements
         IExchangeKeys {
 
     /**
-     * Length of the length field.
+     * Minimum length of the encoded form.
      */
-    private static final int LENGTH_LENGTH_FIELD = 2;
+    public static final int LENGTH_MINIMUM_ENCODED =
+            ECParameters.LENGTH_MINIMUM_ENCODED
+            + ECPoint.LENGTH_MINIMUM_ENCODED;
     /**
-     * Prime modulus for DH.
+     * Elliptic curve domain parameters.
      */
-    private byte[] dhp = new byte[0];
+    private ECParameters curveParameters;
     /**
-     * Generator for DH.
+     * Ephemeral ECDH Point (public key).
      */
-    private byte[] dhg = new byte[0];
-    /**
-     * Server's DH public value.
-     */
-    private byte[] dhys = new byte[0];
+    private ECPoint publicKey;
 
     /**
      * Initializes a ServerDHParams part as defined in RFC 2246.
@@ -45,44 +45,25 @@ public class ServerECDHParams extends APubliclySerializable implements
     @Override
     public final byte[] encode(final boolean chained) {
         int pointer = 0;
-        byte[] length = new byte[LENGTH_LENGTH_FIELD];
+
+        byte[] curveParams = getCurveParameters().encode(false);
+        byte[] publicPoint = getPublicKey().encode(false);
         byte[] serverDHParams;
-        serverDHParams = new byte[LENGTH_LENGTH_FIELD + this.dhp.length
-                + LENGTH_LENGTH_FIELD + this.dhg.length
-                + LENGTH_LENGTH_FIELD + this.dhys.length];
+        serverDHParams = new byte[curveParams.length + publicPoint.length];
 
         /*
-         * 2-byte length field for every parameter
+         * add the curve parameters
          */
-        length = buildLength(dhp.length, LENGTH_LENGTH_FIELD);
-        System.arraycopy(length, 0, serverDHParams, pointer,
-                LENGTH_LENGTH_FIELD);
-        pointer += LENGTH_LENGTH_FIELD;
-        /*
-         * add the DH prime parameter
-         */
-        System.arraycopy(this.dhp, 0, serverDHParams, pointer, this.dhp.length);
-        pointer += this.dhp.length;
+        System.arraycopy(curveParams, 0, serverDHParams, pointer,
+                curveParams.length);
+        pointer += curveParams.length;
 
         /*
-         * add the DH generator parameter
+         * add the public point (public key)
          */
-        length = buildLength(dhg.length, LENGTH_LENGTH_FIELD);
-        System.arraycopy(length, 0, serverDHParams, pointer,
-                LENGTH_LENGTH_FIELD);
-        pointer += LENGTH_LENGTH_FIELD;
-        System.arraycopy(this.dhg, 0, serverDHParams, pointer, this.dhg.length);
-        pointer += this.dhg.length;
-
-        /*
-         * add the DH public value parameter
-         */
-        length = buildLength(dhys.length, LENGTH_LENGTH_FIELD);
-        System.arraycopy(length, 0, serverDHParams, pointer,
-                LENGTH_LENGTH_FIELD);
-        pointer += LENGTH_LENGTH_FIELD;
-        System.arraycopy(this.dhys, 0, serverDHParams, pointer,
-                this.dhys.length);
+        System.arraycopy(publicPoint, 0, serverDHParams, pointer,
+                publicPoint.length);
+        pointer += publicPoint.length;
 
         return serverDHParams;
     }
@@ -94,90 +75,57 @@ public class ServerECDHParams extends APubliclySerializable implements
      */
     @Override
     public final void decode(final byte[] message, final boolean chained) {
-        int extractedLength;
         byte[] tmpBytes;
         // deep copy
         final byte[] paramCopy = new byte[message.length];
         System.arraycopy(message, 0, paramCopy, 0, paramCopy.length);
 
         int pointer = 0;
-        // 1. extract dh_p
-        extractedLength = extractLength(paramCopy, 0, LENGTH_LENGTH_FIELD);
-        tmpBytes = new byte[extractedLength];
-        pointer += LENGTH_LENGTH_FIELD;
-        System.arraycopy(paramCopy, pointer, tmpBytes, 0, tmpBytes.length);
-        setDHPrime(tmpBytes);
+        // 1. extract curve parameters
+        ECParameters params = new ECParameters(paramCopy);
+        setCurveParameters(params);
+        tmpBytes = getCurveParameters().encode(false);
         pointer += tmpBytes.length;
-
-        // 2. extract dh_g
-        extractedLength = extractLength(paramCopy, pointer,
-                LENGTH_LENGTH_FIELD);
-        tmpBytes = new byte[extractedLength];
-        pointer += LENGTH_LENGTH_FIELD;
+        // 2. extract public key
+        tmpBytes = new byte[paramCopy.length - tmpBytes.length];
         System.arraycopy(paramCopy, pointer, tmpBytes, 0, tmpBytes.length);
-        setDHGenerator(tmpBytes);
+        setPublicKey(new ECPoint(tmpBytes));
         pointer += tmpBytes.length;
-
-        // 3. extract dh_Ys
-        extractedLength = extractLength(paramCopy, pointer,
-                LENGTH_LENGTH_FIELD);
-        tmpBytes = new byte[extractedLength];
-        pointer += LENGTH_LENGTH_FIELD;
-        System.arraycopy(paramCopy, pointer, tmpBytes, 0, tmpBytes.length);
-        setDHPublicValue(tmpBytes);
     }
 
     /**
-     * Set prime modulus for DH.
+     * Get the curve parameters of this message part.
      *
-     * @param prime Prime modulus
+     * @return The curve parameters of this message part
      */
-    public final void setDHPrime(final byte[] prime) {
-        this.dhp = prime.clone();
+    public ECParameters getCurveParameters() {
+        return new ECParameters(curveParameters.encode(false));
     }
 
     /**
-     * Get prime modulus for DH.
+     * Set the curve parameters of this message part.
      *
-     * @return Prime modulus
+     * @param point The curve parameters to be used for this message part
      */
-    public final byte[] getDHPrime() {
-        return this.dhp.clone();
+    public void setCurveParameters(final ECParameters curveParameters) {
+        this.curveParameters = new ECParameters(curveParameters.encode(false));
     }
 
     /**
-     * Set generator for DH.
+     * Get the public key (point) of this message part.
      *
-     * @param gen Generator
+     * @return The public key point of this message part
      */
-    public final void setDHGenerator(final byte[] gen) {
-        this.dhg = gen.clone();
+    public ECPoint getPublicKey() {
+        return new ECPoint(publicKey.encode(false));
     }
 
     /**
-     * Get generator for DH.
+     * Set the public key of this message part.
      *
-     * @return DH generator
+     * @param publicKey The public key to be used for this message part
      */
-    public final byte[] getDHGenerator() {
-        return this.dhg.clone();
-    }
-
-    /**
-     * Set server's public value for DH.
-     *
-     * @param pubValue Server's public value
-     */
-    public final void setDHPublicValue(final byte[] pubValue) {
-        this.dhys = pubValue.clone();
-    }
-
-    /**
-     * Get server's public value for DH.
-     *
-     * @return DH public value
-     */
-    public final byte[] getDHPublicValue() {
-        return this.dhys.clone();
+    public void setPublicKey(final ECPoint publicKey) {
+        this.publicKey = new ECPoint(publicKey.encode(false));
     }
 }
