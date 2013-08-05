@@ -171,61 +171,56 @@ public final class TLS10HandshakeWorkflow extends AWorkflow {
             /*
              * create ClientKeyExchange
              */
-            MessageContainer trace1 = new MessageContainer();
-            trace1.setPreviousState(EStates.getStateById(
+            trace = new MessageContainer();
+            trace.setPreviousState(EStates.getStateById(
                     this.getCurrentState()));
             record = msgBuilder.createClientKeyExchange(protocolVersion, this);
-            setRecordTrace(trace1, record);
+            setRecordTrace(trace, record);
             // change status and notify observers
-            switchToState(trace1, EStates.CLIENT_KEY_EXCHANGE);
+            switchToState(trace, EStates.CLIENT_KEY_EXCHANGE);
             // encode the message
-            trace1.prepare();
+            trace.prepare();
             // drop it on the wire!
-            /*
-             * Due to timing related issues these message will be send in bulk 
-             * together with CCS and Finished.
-             * send(trace1);
-             * logger.debug("Client Key Exchange message sent");
-             */
+             send(trace);
+             logger.debug("Client Key Exchange message sent");
+
             // add trace to ArrayList
             addToTraceList(new MessageContainer(EStates.CLIENT_KEY_EXCHANGE,
-                    trace1.getCurrentRecord(),
-                    trace1.getOldRecord(), false));
+                    trace.getCurrentRecord(),
+                    trace.getOldRecord(), false));
             // hash current record
-            updateHash(hashBuilder, trace1);
+            updateHash(hashBuilder, trace);
 
             /*
              * create ChangeCipherSepc
              */
-            MessageContainer trace2 = new MessageContainer();
-            trace2.setPreviousState(EStates.getStateById(
+            trace = new MessageContainer();
+            trace.setPreviousState(EStates.getStateById(
                     this.getCurrentState()));
             record = new ChangeCipherSpec(protocolVersion);
-            setRecordTrace(trace2, record);
+            setRecordTrace(trace, record);
             //change status and notify observers
-            switchToState(trace2, EStates.CLIENT_CHANGE_CIPHER_SPEC);
+            switchToState(trace, EStates.CLIENT_CHANGE_CIPHER_SPEC);
             // encode the message
-            trace2.prepare();
+            trace.prepare();
             // drop it on the wire!
-            /*
-             * Due to timing related issues these message will be send in bulk 
-             * together with CCS and Finished.
-             * send(trace2);
-             * logger.debug("Change Cipher Spec message sent");
-             */
+            send(trace);
+            
+            logger.debug("Change Cipher Spec message sent");
+            
             // switch to encrypted mode
             encrypted = true;
             // add trace to ArrayList
             addToTraceList(new MessageContainer(
                     EStates.CLIENT_CHANGE_CIPHER_SPEC,
-                    trace2.getCurrentRecord(),
-                    trace2.getOldRecord(), false));
+                    trace.getCurrentRecord(),
+                    trace.getOldRecord(), false));
 
             /*
              * create Finished
              */;            
-            MessageContainer trace3 = new MessageContainer();
-            trace3.setPreviousState(EStates.getStateById(
+            trace = new MessageContainer();
+            trace.setPreviousState(EStates.getStateById(
                     this.getCurrentState()));
             // create the master secret
             MasterSecret masterSec = msgBuilder.createMasterSecret(this);
@@ -238,31 +233,25 @@ public final class TLS10HandshakeWorkflow extends AWorkflow {
             record = msgBuilder.createFinished(protocolVersion,
                     EConnectionEnd.CLIENT, handshakeHashes, masterSec);
             record = msgBuilder.encryptRecord(protocolVersion, record);
-            setRecordTrace(trace3, record);
+            setRecordTrace(trace, record);
             // change status and notify observers
-            switchToState(trace3, EStates.CLIENT_FINISHED);
+            switchToState(trace, EStates.CLIENT_FINISHED);
             // encode the message
-            trace3.prepare();
+            trace.prepare();
             // drop it on the wire!
-            /*
-             * Due to timing related issues these message will be send in bulk 
-             * together with CCS and Finished.
-             * send(trace3);
-             */
-
-            // send bundled!
-            // TimingSocketImpl.startMeasurement();
-            send(trace1, trace2, trace3);
-            logger.debug("Client Key Exchange message sent");
-            logger.debug("Change Cipher Spec message sent");
-
+            send(trace);
             logger.debug("Finished message sent");
+            
             // add trace to ArrayList
-            addToTraceList(new MessageContainer(EStates.CLIENT_FINISHED, trace3.
+            addToTraceList(new MessageContainer(EStates.CLIENT_FINISHED, trace.
                     getCurrentRecord(),
-                    trace3.getOldRecord(), false));
+                    trace.getOldRecord(), false));
             sleepPoller(EStates.SERVER_FINISHED);
-
+            try {
+Thread.sleep(120000);
+            } catch(InterruptedException e ) {
+            logger.debug("BAAAAM");
+            }  
             fetcher.stopFetching();
             logger.debug("<<< TLS Handshake finished");
         } catch (IOException e) {

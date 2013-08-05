@@ -107,7 +107,8 @@ public class ServerHelloHandler implements IHandshakeStates {
         for (String i : suiteParams) {
             suiteList.add(i);
         }
-        suiteList.remove(0);
+
+        suiteList.remove(0); // remove leading SSL or TLS String
         setKeyExchangeAlgorithm(suiteList);
         setExportable(suiteList);
         setBulkCipher(suiteList);
@@ -130,18 +131,38 @@ public class ServerHelloHandler implements IHandshakeStates {
      */
     private void setKeyExchangeAlgorithm(final List<String> suiteList) {
         KeyExchangeParams keyParams = KeyExchangeParams.getInstance();
-        if (suiteList.get(0).equals("RSA")) {
-            keyParams.setKeyExchangeAlgorithm(
-                    EKeyExchangeAlgorithm.valueOf("RSA"));
-            suiteList.remove(0);
-        } else if (suiteList.get(0).equals("DH")
-                || suiteList.get(0).equals("DHE")) {
-            keyParams.setKeyExchangeAlgorithm(
-                    EKeyExchangeAlgorithm.valueOf("DIFFIE_HELLMAN"));
-            suiteList.remove(0);
-            keyParams.setSignatureAlgorithm(
-                    ESignatureAlgorithm.valueOf(suiteList.get(0)));
-            suiteList.remove(0);
+
+        switch (suiteList.get(0)) {
+            case "RSA":
+                keyParams.setKeyExchangeAlgorithm(
+                        EKeyExchangeAlgorithm.RSA);
+                suiteList.remove(0);
+                break;
+
+            case "DH":
+                keyParams.setKeyExchangeAlgorithm(
+                        EKeyExchangeAlgorithm.DIFFIE_HELLMAN);
+                suiteList.remove(0);
+                keyParams.setSignatureAlgorithm(
+                        ESignatureAlgorithm.valueOf(suiteList.get(0)));
+                suiteList.remove(0);
+                break;
+            case "DHE":
+                keyParams.setKeyExchangeAlgorithm(
+                        EKeyExchangeAlgorithm.EC_DIFFIE_HELLMAN);
+                suiteList.remove(0);
+                keyParams.setSignatureAlgorithm(
+                        ESignatureAlgorithm.valueOf(suiteList.get(0)));
+                suiteList.remove(0);
+                break;
+            case "ECDHE":
+                keyParams.setKeyExchangeAlgorithm(
+                        EKeyExchangeAlgorithm.EC_DIFFIE_HELLMAN);
+                suiteList.remove(0);
+                keyParams.setSignatureAlgorithm(
+                        ESignatureAlgorithm.valueOf(suiteList.get(0)));
+                suiteList.remove(0);
+                break;
         }
     }
 
@@ -174,6 +195,7 @@ public class ServerHelloHandler implements IHandshakeStates {
         } else {
             param.setCipherType(ECipherType.BLOCK);
         }
+        
         switch (algorithm.getBulkCipher(suiteList.get(0))) {
             case NULL:
                 param.setBulkCipherAlgorithm(EBulkCipherAlgorithm.NULL);
@@ -182,8 +204,8 @@ public class ServerHelloHandler implements IHandshakeStates {
             case RC4:
                 param.setBulkCipherAlgorithm(EBulkCipherAlgorithm.RC4);
                 suiteList.remove(0);
-                param.setKeySize(Integer.valueOf(suiteList.get(0)) / 
-                        Utility.BITS_IN_BYTE);
+                param.setKeySize(Integer.valueOf(suiteList.get(0))
+                        / Utility.BITS_IN_BYTE);
                 suiteList.remove(0);
                 break;
             case RC2:
@@ -192,8 +214,8 @@ public class ServerHelloHandler implements IHandshakeStates {
                 param.setModeOfOperation(
                         EModeOfOperation.valueOf(suiteList.get(0)));
                 suiteList.remove(0);
-                param.setKeySize(Integer.valueOf(suiteList.get(0)) / 
-                        Utility.BITS_IN_BYTE);
+                param.setKeySize(Integer.valueOf(suiteList.get(0))
+                        / Utility.BITS_IN_BYTE);
                 suiteList.remove(0);
                 break;
             case DES:
@@ -226,8 +248,8 @@ public class ServerHelloHandler implements IHandshakeStates {
             case AES:
                 param.setBulkCipherAlgorithm(EBulkCipherAlgorithm.AES);
                 suiteList.remove(0);
-                param.setKeySize(Integer.valueOf(suiteList.get(0)) / 
-                        Utility.BITS_IN_BYTE);
+                param.setKeySize(Integer.valueOf(suiteList.get(0))
+                        / Utility.BITS_IN_BYTE);
                 suiteList.remove(0);
                 param.setModeOfOperation(
                         EModeOfOperation.valueOf(suiteList.get(0)));

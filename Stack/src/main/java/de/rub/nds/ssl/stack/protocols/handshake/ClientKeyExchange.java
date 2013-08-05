@@ -143,7 +143,7 @@ public final class ClientKeyExchange extends AHandshakeRecord {
      */
     public void setExchangeKeys(final IExchangeKeys keys) {
         if (keys == null) {
-            throw new IllegalArgumentException("Keys muste not be NULL!");
+            throw new IllegalArgumentException("Keys must not be NULL!");
         }
 
         setExchangeKeys(keys.encode(false));
@@ -156,7 +156,7 @@ public final class ClientKeyExchange extends AHandshakeRecord {
      */
     public void setExchangeKeys(final byte[] keys) {
         if (keys == null) {
-            throw new IllegalArgumentException("Keys muste not be NULL!");
+            throw new IllegalArgumentException("Keys must not be NULL!");
         }
 
         byte[] tmp = new byte[keys.length];
@@ -170,6 +170,9 @@ public final class ClientKeyExchange extends AHandshakeRecord {
 //          this.exchangeKeys = new PreMasterSecret(tmp);
 //          RSA needs an encrypted PreMasterSecret
                 this.exchangeKeys = new EncPreMasterSecret(tmp);
+                break;
+            case EC_DIFFIE_HELLMAN:
+                this.exchangeKeys = new ClientECDHPublic(tmp);
                 break;
             default:
                 break;
@@ -208,16 +211,16 @@ public final class ClientKeyExchange extends AHandshakeRecord {
         // check size
         switch (keyExchangeAlgorithm) {
             case DIFFIE_HELLMAN:
-                if (payloadCopy.length < 
-                        ClientDHPublic.LENGTH_MINIMUM_ENCODED) {
+                if (payloadCopy.length
+                        < ClientDHPublic.LENGTH_MINIMUM_ENCODED) {
                     throw new IllegalArgumentException(
                             "ClientKeyExchange message too short.");
                 }
                 exchangeKeys = new ClientDHPublic(payloadCopy);
                 break;
             case RSA:
-                if (payloadCopy.length < 
-                        PreMasterSecret.LENGTH_MINIMUM_ENCODED) {
+                if (payloadCopy.length
+                        < PreMasterSecret.LENGTH_MINIMUM_ENCODED) {
                     throw new IllegalArgumentException(
                             "ClientKeyExchange message too short.");
                 }

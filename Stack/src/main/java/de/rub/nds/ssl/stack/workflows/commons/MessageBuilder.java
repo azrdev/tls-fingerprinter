@@ -7,6 +7,9 @@ import de.rub.nds.ssl.stack.protocols.handshake.ClientHello;
 import de.rub.nds.ssl.stack.protocols.handshake.ClientKeyExchange;
 import de.rub.nds.ssl.stack.protocols.handshake.Finished;
 import de.rub.nds.ssl.stack.protocols.handshake.datatypes.*;
+import de.rub.nds.ssl.stack.protocols.handshake.extensions.datatypes.ClientECDHPublic;
+import de.rub.nds.ssl.stack.protocols.handshake.extensions.datatypes.ECParameters;
+import de.rub.nds.ssl.stack.protocols.handshake.extensions.datatypes.ECPoint;
 import de.rub.nds.ssl.stack.protocols.msgs.TLSCiphertext;
 import de.rub.nds.ssl.stack.protocols.msgs.TLSPlaintext;
 import de.rub.nds.ssl.stack.protocols.msgs.datatypes.GenericBlockCipher;
@@ -24,10 +27,12 @@ import org.apache.log4j.Logger;
  * Builder for SSL handshake messages.
  *
  * @author Eugen Weiss - eugen.weiss@ruhr-uni-bochum.de
+ * @author Christopher Meyer - christopher.meyer@ruhr-uni-bochum.de
+ *
  * @version 0.1 Apr 04, 2012
  */
 public class MessageBuilder {
-    
+
     /**
      * Log4j logger.
      */
@@ -73,7 +78,7 @@ public class MessageBuilder {
         //set the cipher suites
         CipherSuites suites = new CipherSuites();
         suites.setSuites(new ECipherSuite[]{
-                    ECipherSuite.TLS_RSA_WITH_AES_128_CBC_SHA});
+            ECipherSuite.TLS_RSA_WITH_AES_128_CBC_SHA});
         clientHello.setCipherSuites(suites);
         clientHello.encode(true);
         return clientHello;
@@ -95,49 +100,76 @@ public class MessageBuilder {
         PublicKey pk = keyParams.getPublicKey();
         ClientKeyExchange cke = new ClientKeyExchange(protocolVersion,
                 exchangeAlgorithm);
-        if (exchangeAlgorithm == EKeyExchangeAlgorithm.RSA) {
-            PreMasterSecret pms = new PreMasterSecret(protocolVersion);
-            //create encoded PMS
-            byte[] encodedPMS = pms.encode(false);
-            //encrypted PreMasterSecret
-            EncPreMasterSecret encPMS = new EncPreMasterSecret(
-                    encodedPMS, pk);
-            workflow.setPreMasterSecret(pms);
-            cke.setExchangeKeys(encPMS);
-        } else {
-            ClientDHPublic clientDHPublic = new ClientDHPublic();
-            byte[] generator = keyParams.getDHGenerator();
-            byte[] primeModulus = keyParams.getDHPrime();
-            byte[] privateValue = new byte[20];
-            byte[] clientPublic;
-            /*
-             * generate a random private value
-             */
-            SecureRandom random = new SecureRandom();
-            random.nextBytes(privateValue);
+        PreMasterSecret pms;
+        SecureRandom random = new SecureRandom();
+        byte[] privateValue;
+        BigInteger priv;
 
-            BigInteger gen = new BigInteger(1, generator);
-            BigInteger primeMod = new BigInteger(1, primeModulus);
-            BigInteger priv = new BigInteger(1, privateValue);
+        switch (exchangeAlgorithm) {
+            case RSA:
+                pms = new PreMasterSecret(protocolVersion);
+                //create encoded PMS
+                byte[] encodedPMS = pms.encode(false);
+                //encrypted PreMasterSecret
+                EncPreMasterSecret encPMS = new EncPreMasterSecret(
+                        encodedPMS, pk);
+                workflow.setPreMasterSecret(pms);
+                cke.setExchangeKeys(encPMS);
+                break;
+            case DIFFIE_HELLMAN:
+                ClientDHPublic clientDHPublic = new ClientDHPublic();
+                byte[] generator = keyParams.getDHGenerator();
+                byte[] primeModulus = keyParams.getDHPrime();
+                byte[] clientPublic;
 
-            /*
-             * compute clients DH public value g^x mod p
-             */
-            clientPublic = gen.modPow(priv, primeMod).toByteArray();
+                BigInteger gen = new BigInteger(1, generator);
+                BigInteger primeMod = new BigInteger(1, primeModulus);
 
-            byte[] tmp = new byte[primeModulus.length];
+                // generate a random private value
+                privateValue = new byte[primeModulus.length];
+                random.nextBytes(privateValue);
+                priv = new BigInteger(1, privateValue);
+                // TODO check that priv != 1
+                // 2 <= priv <= q-2
+                priv = priv.mod(primeMod.subtract(BigInteger.valueOf(2)));
 
-            if (clientPublic.length > primeModulus.length) {
-                System.arraycopy(clientPublic, 1, tmp, 0, primeModulus.length);
-                clientPublic = tmp;
-            }
-            clientDHPublic.setDhyc(clientPublic);
-            cke.setExchangeKeys(clientDHPublic);
-            PreMasterSecret pms = new PreMasterSecret(privateValue, keyParams.
-                    getDhPublic(),
-                    primeModulus);
-            workflow.setPreMasterSecret(pms);
+                /*
+                 * compute clients DH public value g^x mod p
+                 */
+                clientPublic = gen.modPow(priv, primeMod).toByteArray();
+
+                byte[] tmp = new byte[primeModulus.length];
+
+                if (clientPublic.length > primeModulus.length) {
+                    System.arraycopy(clientPublic, 1, tmp, 0,
+                            primeModulus.length);
+                    clientPublic = tmp;
+                }
+                clientDHPublic.setDhyc(clientPublic);
+                cke.setExchangeKeys(clientDHPublic);
+                pms = new PreMasterSecret(privateValue, keyParams.
+                        getDhPublic(), primeModulus);
+                workflow.setPreMasterSecret(pms);
+                break;
+            case EC_DIFFIE_HELLMAN:
+                ClientECDHPublic clientECDHPublic = new ClientECDHPublic();
+                clientECDHPublic.setExplicitPublicValueEncoding(true);
+                ECParameters ecParameters = keyParams.getECDHParameters();
+//                BigInteger order = new BigInteger(1, ecParameters.getOrder());
+//                ECPoint genPoint = ecParameters.getBase();
+//                
+//                // generate a random private value
+//                privateValue = new byte[ecParameters.getPrimeP().length];
+//                random.nextBytes(privateValue);
+//                priv = new BigInteger(1, privateValue);
+//                // 1 <= priv <= n-1
+//                priv = priv.mod(order.subtract(BigInteger.ONE));
+//                
+// TODO         priv*genPoint
+//                clientECDHPublic.setECDHYc(null);
+                break;
         }
+
         return cke;
     }
 
@@ -199,7 +231,7 @@ public class MessageBuilder {
 
         return rec;
     }
-    
+
     public final TLSPlaintext decryptRecord(
             final ARecordFrame record) {
         SecurityParameters param = SecurityParameters.getInstance();
@@ -214,43 +246,47 @@ public class MessageBuilder {
         byte[] plainBytes;
         TLSPlaintext rec = null;
         if (param.getCipherType() == ECipherType.BLOCK) {
-            GenericBlockCipher blockCipher = 
+            GenericBlockCipher blockCipher =
                     new GenericBlockCipher(record.getPayload());
-            plainBytes = blockCipher.decryptData(symmKey, cipherName, 
+            plainBytes = blockCipher.decryptData(symmKey, cipherName,
                     keyMat.getServerIV());
-            
+
             // check padding (padding = padding bytes + padding length)
-            int paddingLength = plainBytes[plainBytes.length-1];;
-            for(int i= 0; i < paddingLength+1; i++) {
-                if(plainBytes[plainBytes.length-1-i] != paddingLength) {
+            int paddingLength = plainBytes[plainBytes.length - 1];;
+            for (int i = 0; i < paddingLength + 1; i++) {
+                if (plainBytes[plainBytes.length - 1 - i] != paddingLength) {
                     // TODO Communicate padding error 
                     byte[] padding = new byte[paddingLength];
-                    System.arraycopy(plainBytes, 
-                            plainBytes.length-1-paddingLength, padding, 0, 
+                    System.arraycopy(plainBytes,
+                            plainBytes.length - 1 - paddingLength, padding, 0,
                             padding.length);
-                    logger.info("Invalid padding detected: " 
+                    logger.info("Invalid padding detected: "
                             + Utility.bytesToHex(padding));
                 }
             }
-            
+
             // TODO add MAC check
 //            blockCipher.computePayloadMAC(macKey, macName);
-            
+
             // remove padding
-            byte[] tmp = new byte[plainBytes.length-paddingLength-1];
+            byte[] tmp = new byte[plainBytes.length - paddingLength - 1];
             System.arraycopy(plainBytes, 0, tmp, 0, tmp.length);
             plainBytes = tmp;
 
             // remove MAC
             int macLength = 0;
-            switch(param.getMacAlgorithm()) {
-                case MD5: macLength = 16; break;
-                case SHA1: macLength = 20; break;
+            switch (param.getMacAlgorithm()) {
+                case MD5:
+                    macLength = 16;
+                    break;
+                case SHA1:
+                    macLength = 20;
+                    break;
             }
-            tmp =new byte[plainBytes.length-macLength];
+            tmp = new byte[plainBytes.length - macLength];
             System.arraycopy(plainBytes, 0, tmp, 0, tmp.length);
             plainBytes = tmp;
-            
+
             rec = new TLSPlaintext(plainBytes, false);
         } else if (param.getCipherType() == ECipherType.STREAM) {
             GenericStreamCipher streamCipher = new GenericStreamCipher(record);
@@ -271,16 +307,24 @@ public class MessageBuilder {
      * @param workflow Handshake workflow
      * @return Computed MasterSecret
      */
-    public MasterSecret createMasterSecret(final TLS10HandshakeWorkflow 
-            workflow) {
+    public MasterSecret createMasterSecret(final TLS10HandshakeWorkflow workflow) {
         KeyExchangeParams keyParams = KeyExchangeParams.getInstance();
         PreMasterSecret pms = workflow.getPreMasterSecret();
         //set pre_master_secret
-        byte[] pre_master_secret;
-        if (keyParams.getKeyExchangeAlgorithm() == EKeyExchangeAlgorithm.RSA) {
-            pre_master_secret = pms.encode(false);
-        } else {
-            pre_master_secret = pms.getDHKey();
+        byte[] pre_master_secret = new byte[46];
+        switch (keyParams.getKeyExchangeAlgorithm()) {
+            case RSA:
+                pre_master_secret = pms.encode(false);
+                break;
+            case DIFFIE_HELLMAN:
+                pre_master_secret = pms.getDHKey();
+                break;
+            case EC_DIFFIE_HELLMAN:
+// TODO compute pre master secret correctly                
+                
+                break;
+            default:
+                break;
         }
 
         SecurityParameters param = SecurityParameters.getInstance();

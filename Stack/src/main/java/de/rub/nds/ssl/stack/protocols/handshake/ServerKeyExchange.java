@@ -13,6 +13,7 @@ import de.rub.nds.ssl.stack.protocols.msgs.datatypes.TLSSignature;
  * Defines the ServerKeyExchange message of SSL/TLS as defined in RFC 2246.
  *
  * @author Eugen Weiss - eugen.weiss@rub.de
+ * @author Christopher Meyer - christopher.meyer@rub.de
  * @version 0.1
  *
  * Apr 17, 2012

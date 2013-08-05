@@ -199,7 +199,8 @@ public final class ClientHello extends AHandshakeRecord {
         }
 
         // deep copy
-        this.extensions = new Extensions(extensions.encode(false));
+//        this.extensions = new Extensions(extensions.encode(false));
+        this.extensions = extensions;
     }
 
     /**
@@ -273,10 +274,11 @@ public final class ClientHello extends AHandshakeRecord {
         byte[] encCipherSuites = cipherSuites.encode(false);
         byte[] encCompressionMethod = compressionMethod.encode(false);
         byte[] encExtensions = new byte[0];
-        if(extensions != null) {
+        if (extensions != null) {
             encExtensions = extensions.encode(false);
+System.out.println("=====> encExtensions.length="+encExtensions.length);            
         }
-        
+
         // putting the pieces together
         byte[] clientHelloMsg = new byte[EProtocolVersion.LENGTH_ENCODED
                 + RandomValue.LENGTH_ENCODED
@@ -314,12 +316,12 @@ public final class ClientHello extends AHandshakeRecord {
         System.arraycopy(encCompressionMethod, 0, clientHelloMsg, pointer,
                 encCompressionMethod.length);
         pointer += encCompressionMethod.length;
-        
+
         // 6. add extensions (if any)
         System.arraycopy(encExtensions, 0, clientHelloMsg, pointer,
                 encExtensions.length);
         pointer += encExtensions.length;
-        
+
         super.setPayload(clientHelloMsg);
         return chained ? super.encode(true) : clientHelloMsg;
     }

@@ -1,9 +1,9 @@
 package de.rub.nds.ssl.stack.protocols.handshake.datatypes;
 
 import de.rub.nds.ssl.stack.protocols.commons.APubliclySerializable;
+import de.rub.nds.ssl.stack.protocols.handshake.extensions.AExtension;
 import de.rub.nds.ssl.stack.protocols.handshake.extensions.datatypes.EExtensionType;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -27,22 +27,13 @@ public class Extensions extends APubliclySerializable {
     /**
      * List of all extensions of this object.
      */
-    private EExtensionType[] extensions;
+    private List<AExtension> extensions = new ArrayList<>(5);
 
     /**
-     * {@inheritDoc} 
-     */
-    @Override
-    public String toString() {
-        return Arrays.toString(extensions);
-    }
-
-    /**
-     * Initializes an extensions object as defined in RFC-2246. 
-     * All supported extensions are added by default at construction time.
+     * Initializes an extensions object as defined in RFC-2246. No extensions
+     * are added by default at construction time.
      */
     public Extensions() {
-        setExtensions(EExtensionType.values());
     }
 
     /**
@@ -59,10 +50,10 @@ public class Extensions extends APubliclySerializable {
      *
      * @return The extensions of this message
      */
-    public EExtensionType[] getExtensions() {
+    public AExtension[] getExtensions() {
         // deep copy
-        EExtensionType[] tmp = new EExtensionType[extensions.length];
-        System.arraycopy(extensions, 0, tmp, 0, extensions.length);
+        AExtension[] tmp = new AExtension[extensions.size()];
+        extensions.toArray(tmp);
 
         return tmp;
     }
@@ -72,50 +63,58 @@ public class Extensions extends APubliclySerializable {
      *
      * @param extensions The extensions to be used
      */
-    public final void setExtensions(final EExtensionType[] extensions) {
+    public final void setExtensions(final List<AExtension> extensions) {
         if (extensions == null) {
             throw new IllegalArgumentException("Extensions must not be null!");
         }
 
         // new objects keep the array clean and small, Mr. Proper will be proud!
-        this.extensions = new EExtensionType[extensions.length];
-        // refill, deep copy
-        System.arraycopy(extensions, 0, this.extensions, 0, extensions.length);
+        this.extensions = new ArrayList<>(extensions.size());
+        // refill, deep copy list, but not extensions itself!
+        this.extensions.addAll(this.extensions);
     }
 
     /**
-     * {@inheritDoc} 
-     * Extensions representation 2 + x*2 bytes for x extensions
+     * Add an extension to the extension list
+     *
+     * @param extension Extension to be added
+     */
+    public final void addExtension(final AExtension extension) {
+        this.extensions.add(extension);
+    }
+
+    /**
+     * {@inheritDoc} Extensions representation 2 + x*2 bytes for x extensions
      * suites.
      *
      * Method parameter will be ignored - no support for chained encoding.
      */
     @Override
-    public byte[] encode(final boolean chained) {
+    public final byte[] encode(final boolean chained) {
         int pointer = 0;
-        // TODO Extensions are not implemented yet - thus add 2 additional length bytes
-        Integer extensionBytes = extensions.length * 
-                (EExtensionType.LENGTH_ENCODED+2);
-        byte[] tmp = new byte[LENGTH_LENGTH_FIELD + extensionBytes];
-        byte[] tmpID = null;
-
-        // length
-        tmpID = buildLength(extensionBytes, LENGTH_LENGTH_FIELD);
-        System.arraycopy(tmpID, 0, tmp, pointer, tmpID.length);
-        //pointer += tmpID.length;
-
-        for (int i = 0, j=EExtensionType.LENGTH_ENCODED; i < extensions.length; i++) {
-            tmpID = extensions[i].getId();
-            tmp[j] = tmpID[0];
-            tmp[j + 1] = tmpID[1];
-            
-        // TODO Extensions are not implemented yet - thus add 0 length
-            tmp[j + 2] = 0;
-            tmp[j + 3] = 0;
-            j+=4;
+        List<byte[]> encodedExtensions = new ArrayList<>(extensions.size());
+        byte[] tmp;
+        for (AExtension tmpExtension : extensions) {
+            tmp = tmpExtension.encode(false);
+            encodedExtensions.add(tmp);
+            pointer += tmp.length;
         }
         
-        return tmp;
+        byte[] extenionBytes = new byte[LENGTH_LENGTH_FIELD + pointer];
+
+        // length
+        pointer = 0;
+        tmp = buildLength(pointer, LENGTH_LENGTH_FIELD);
+        System.arraycopy(tmp, 0, extenionBytes, pointer, tmp.length);
+        pointer += tmp.length;
+
+        for (byte[] tmpBytes : encodedExtensions) {
+            System.arraycopy(tmpBytes, 0, extenionBytes, pointer,
+                    tmpBytes.length);
+            pointer += tmpBytes.length;
+        }
+
+        return extenionBytes;
     }
 
     /**
@@ -123,7 +122,11 @@ public class Extensions extends APubliclySerializable {
      *
      * Method parameter will be ignored - no support for chained decoding.
      */
-    public void decode(final byte[] message, final boolean chained) {
+    @Override
+    public final void decode(final byte[] message, final boolean chained) {
+        int pointer = 0;
+        byte[] tmp;
+        
         // deep copy
         final byte[] tmpExtensions = new byte[message.length];
         System.arraycopy(message, 0, tmpExtensions, 0, tmpExtensions.length);
@@ -133,18 +136,9 @@ public class Extensions extends APubliclySerializable {
             throw new IllegalArgumentException(
                     "Extensions record too short.");
         }
+
+        pointer = extractLength(tmpExtensions, 0, LENGTH_LENGTH_FIELD);
         
-        // extract extensions
-        List<EExtensionType> extensions = new ArrayList<EExtensionType>(5);
-        int length = 0;
-        for (int i = LENGTH_LENGTH_FIELD; i < tmpExtensions.length;) {
-            extensions.add(EExtensionType.getExtension(
-                    new byte[]{tmpExtensions[i], tmpExtensions[i + 1]}));
-            
-            // TODO Extensions are not implemented yet - thus skip extension bytes
-            length = (extractLength(tmpExtensions, i+2, 2) >> 1) & 0xff;
-            i += length + 2 + EExtensionType.LENGTH_ENCODED;
-        }
-        setExtensions(extensions.toArray(new EExtensionType[extensions.size()]));
+        // TODO extract extensions!
     }
 }

@@ -3,8 +3,8 @@ package de.rub.nds.ssl.stack.workflows.response;
 import de.rub.nds.ssl.stack.protocols.commons.KeyExchangeParams;
 import de.rub.nds.ssl.stack.protocols.handshake.AHandshakeRecord;
 import de.rub.nds.ssl.stack.protocols.handshake.ServerKeyExchange;
-import de.rub.nds.ssl.stack.protocols.handshake.datatypes.EKeyExchangeAlgorithm;
 import de.rub.nds.ssl.stack.protocols.handshake.datatypes.ServerDHParams;
+import de.rub.nds.ssl.stack.protocols.handshake.datatypes.ServerECDHParams;
 
 /**
  * Handles a Server Key Exchange message. The handler extract parameters from
@@ -27,7 +27,7 @@ public final class ServerKeyExchangeHandler implements IHandshakeStates {
     }
 
     /**
-     * Extract the DHPrime, DHGenerator and DHPublic parameter.
+     * Extract the key exchange parameters.
      *
      * @param handRecord Handshake record
      */
@@ -35,13 +35,22 @@ public final class ServerKeyExchangeHandler implements IHandshakeStates {
     public void handleResponse(final AHandshakeRecord handRecord) {
         serverKeyExchange = (ServerKeyExchange) handRecord;
         KeyExchangeParams keyExParams = KeyExchangeParams.getInstance();
-        if (keyExParams.getKeyExchangeAlgorithm()
-                == EKeyExchangeAlgorithm.DIFFIE_HELLMAN) {
-            ServerDHParams params = new ServerDHParams(serverKeyExchange.
-                    getPayload());
-            keyExParams.setDHGenerator(params.getDHGenerator());
-            keyExParams.setDHPrime(params.getDHPrime());
-            keyExParams.setDhPublic(params.getDHPublicValue());
+        switch (keyExParams.getKeyExchangeAlgorithm()) {
+            case DIFFIE_HELLMAN:
+                ServerDHParams dhParams = new ServerDHParams(serverKeyExchange.
+                        getPayload());
+                keyExParams.setDHGenerator(dhParams.getDHGenerator());
+                keyExParams.setDHPrime(dhParams.getDHPrime());
+                keyExParams.setDhPublic(dhParams.getDHPublicValue());
+                break;
+            case EC_DIFFIE_HELLMAN:
+                ServerECDHParams ecdhParams =
+                        new ServerECDHParams(serverKeyExchange.getPayload());
+                keyExParams.setECDHParameters(ecdhParams.getCurveParameters());
+                keyExParams.setECDHPublicPoint(ecdhParams.getPublicKey());
+                break;
+            default:
+                break;
         }
     }
 }

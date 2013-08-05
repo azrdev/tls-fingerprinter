@@ -2,6 +2,8 @@ package de.rub.nds.ssl.stack.protocols.commons;
 
 import de.rub.nds.ssl.stack.protocols.handshake.datatypes.EKeyExchangeAlgorithm;
 import de.rub.nds.ssl.stack.protocols.handshake.datatypes.ESignatureAlgorithm;
+import de.rub.nds.ssl.stack.protocols.handshake.extensions.datatypes.ECParameters;
+import de.rub.nds.ssl.stack.protocols.handshake.extensions.datatypes.ECPoint;
 import java.security.PublicKey;
 
 /**
@@ -40,7 +42,12 @@ public final class KeyExchangeParams {
      * Diffie-Hellman public value.
      */
     private byte[] dhPublic;
-
+    private ECParameters ecdhParameters;
+    private ECPoint ecDHPublicPoint;
+    /**
+     * 
+     */
+    
     /**
      * Private constructor for singleton.
      */
@@ -170,5 +177,21 @@ public final class KeyExchangeParams {
      */
     public synchronized void setDhPublic(final byte[] pub) {
         this.dhPublic = pub.clone();
+    }
+
+    public ECParameters getECDHParameters() {
+        return new ECParameters(this.ecdhParameters.encode(false));
+    }
+    
+    public void setECDHParameters(final ECParameters curveParameters) {
+        this.ecdhParameters = new ECParameters(curveParameters.encode(false));
+    }
+
+    public ECPoint getECDHPublicPoint() {
+        return new ECPoint(this.ecDHPublicPoint.encode(false));
+    }
+    
+    public void setECDHPublicPoint(final ECPoint publicKey) {
+        this.ecDHPublicPoint = new ECPoint(publicKey.encode(false));
     }
 }

@@ -78,7 +78,7 @@ public final class ECPoint extends APubliclySerializable {
     @Override
     public byte[] encode(final boolean chained) {
         int pointer = 0;
-        byte[] length = new byte[LENGTH_LENGTH_FIELD];
+        byte[] length;
         byte[] ecPoint;
         ecPoint = new byte[LENGTH_LENGTH_FIELD + this.point.length];
 
@@ -112,7 +112,7 @@ public final class ECPoint extends APubliclySerializable {
 
         int pointer = 0;
         // 1. extract the point
-        extractedLength = extractLength(ecPointCopy, 0, LENGTH_LENGTH_FIELD);
+        extractedLength = extractLength(ecPointCopy, 0, LENGTH_LENGTH_FIELD);    
         tmpBytes = new byte[extractedLength];
         pointer += LENGTH_LENGTH_FIELD;
         System.arraycopy(ecPointCopy, pointer, tmpBytes, 0, tmpBytes.length);
