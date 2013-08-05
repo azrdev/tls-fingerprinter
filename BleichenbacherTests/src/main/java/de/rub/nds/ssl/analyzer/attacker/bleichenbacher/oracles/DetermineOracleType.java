@@ -297,7 +297,7 @@ System.out.println("size: =======> " + currentPKCS.length);
 //            Thread.sleep(2000);
             
             System.out.println("#################### Sending a PMS with wrong SECOND byte");
-            currentPKCS = getPMS_WrongFirstByte();
+            currentPKCS = getPMS_WrongSecondByte();
             result = cipher.doFinal(currentPKCS);
             executeWorkflow(result, socket);
 //            Thread.sleep(2000);

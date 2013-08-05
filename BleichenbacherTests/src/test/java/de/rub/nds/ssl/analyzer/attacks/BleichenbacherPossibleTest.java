@@ -3,12 +3,14 @@ package de.rub.nds.ssl.analyzer.attacks;
 import de.rub.nds.ssl.analyzer.attacker.Bleichenbacher;
 import de.rub.nds.ssl.analyzer.attacker.BleichenbacherCrypto12;
 import de.rub.nds.ssl.analyzer.attacker.bleichenbacher.OracleException;
+import de.rub.nds.ssl.analyzer.attacker.bleichenbacher.oracles.ASSLServerOracle;
 import de.rub.nds.ssl.analyzer.attacker.bleichenbacher.oracles.JSSE16Oracle;
 import de.rub.nds.ssl.stack.Utility;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.lang.reflect.Method;
 import java.net.SocketException;
+import java.security.GeneralSecurityException;
 import java.security.InvalidKeyException;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
@@ -19,6 +21,7 @@ import java.security.Security;
 import java.security.UnrecoverableKeyException;
 import java.security.cert.CertificateException;
 import java.util.Arrays;
+import java.util.logging.Level;
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
 import javax.crypto.IllegalBlockSizeException;
@@ -75,7 +78,6 @@ public class BleichenbacherPossibleTest {
         (byte) 0xd4, (byte) 0x84, (byte) 0xed, (byte) 0xc9, (byte) 0x63,
         (byte) 0x2b, (byte) 0x16, (byte) 0x6f, (byte) 0x2c, (byte) 0x38,
         (byte) 0x40};
-    private PrivateKey privateKey;
     private PublicKey publicKey;
     private byte[] encPMS;
     /**
@@ -231,24 +233,25 @@ public class BleichenbacherPossibleTest {
         Security.addProvider(new BouncyCastleProvider());
 
         try {
-            String keyName = "1024_rsa";
-            String keyPassword = "password";
-            KeyStore ks = loadKeyStore("server.jks", "password");
-            publicKey = ks.getCertificate(keyName).getPublicKey();
-            privateKey = (PrivateKey) ks.getKey(keyName, keyPassword.
-                    toCharArray());
+//            String keyName = "1024_rsa";
+//            String keyPassword = "password";
+//            KeyStore ks = loadKeyStore("server.jks", "password");
+//            publicKey = ks.getCertificate(keyName).getPublicKey();
+            publicKey = ASSLServerOracle.fetchServerPublicKey(HOST, PORT);
 
             encPMS = encryptHelper(plainPKCS, publicKey);
-        } catch (UnrecoverableKeyException ex) {
-            logger.error(ex.getMessage(), ex);
-        } catch (KeyStoreException ex) {
-            logger.error(ex.getMessage(), ex);
+//        } catch (UnrecoverableKeyException ex) {
+//            logger.error(ex.getMessage(), ex);
+        } catch (GeneralSecurityException ex) {
+            java.util.logging.Logger.getLogger(BleichenbacherPossibleTest.class.getName()).log(Level.SEVERE, null, ex);
+//        } catch (KeyStoreException ex) {
+//            logger.error(ex.getMessage(), ex);
         } catch (IOException ex) {
             logger.error(ex.getMessage(), ex);
-        } catch (CertificateException ex) {
-            logger.error(ex.getMessage(), ex);
-        } catch (NoSuchAlgorithmException ex) {
-            logger.error(ex.getMessage(), ex);
+//        } catch (CertificateException ex) {
+//            logger.error(ex.getMessage(), ex);
+//        } catch (NoSuchAlgorithmException ex) {
+//            logger.error(ex.getMessage(), ex);
         }
     }
 
