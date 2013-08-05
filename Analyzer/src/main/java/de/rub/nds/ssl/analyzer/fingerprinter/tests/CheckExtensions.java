@@ -9,6 +9,7 @@ import de.rub.nds.ssl.stack.protocols.handshake.ServerHello;
 import de.rub.nds.ssl.stack.protocols.handshake.datatypes.CipherSuites;
 import de.rub.nds.ssl.stack.protocols.handshake.datatypes.Extensions;
 import de.rub.nds.ssl.stack.protocols.handshake.datatypes.RandomValue;
+import de.rub.nds.ssl.stack.protocols.handshake.extensions.AExtension;
 import de.rub.nds.ssl.stack.protocols.handshake.extensions.datatypes.EExtensionType;
 import de.rub.nds.ssl.stack.trace.MessageContainer;
 import de.rub.nds.ssl.stack.workflows.TLS10HandshakeWorkflow;
@@ -63,8 +64,8 @@ public class CheckExtensions extends AGenericFingerprintTest implements Observer
                             serverHelloMsg.getExtensions();
                     if (serverExtensions != null) {
                         logger.info("Supported extensions: \n");
-                        for (EExtensionType ex : serverExtensions.getExtensions()) {
-                            logger.info(ex.name() + "\n");
+                        for (AExtension ex : serverExtensions.getExtensions()) {
+                            logger.info(ex.getExtensionType().name() + "\n");
                         }
                     }
 
