@@ -1,7 +1,6 @@
 package de.rub.nds.ssl.stack.protocols.handshake.extensions.datatypes;
 
 import de.rub.nds.ssl.stack.protocols.commons.APubliclySerializable;
-import de.rub.nds.ssl.stack.protocols.handshake.datatypes.IExchangeKeys;
 
 /**
  * ECCurve part - as defined in RFC 4492.
@@ -11,8 +10,7 @@ import de.rub.nds.ssl.stack.protocols.handshake.datatypes.IExchangeKeys;
  *
  * Jul 30, 2013
  */
-public final class ECCurve extends APubliclySerializable
-        implements IExchangeKeys {
+public final class ECCurve extends APubliclySerializable {
 
     /**
      * Length of the a parameter.
@@ -151,6 +149,7 @@ public final class ECCurve extends APubliclySerializable
     /**
      * {@inheritDoc}
      */
+    @Override
     public void decode(final byte[] message, final boolean chained) {
         int extractedLength;
         byte[] tmpBytes;

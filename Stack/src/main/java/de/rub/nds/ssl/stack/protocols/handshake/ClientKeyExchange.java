@@ -2,6 +2,7 @@ package de.rub.nds.ssl.stack.protocols.handshake;
 
 import de.rub.nds.ssl.stack.protocols.commons.EProtocolVersion;
 import de.rub.nds.ssl.stack.protocols.handshake.datatypes.*;
+import de.rub.nds.ssl.stack.protocols.handshake.extensions.datatypes.ClientECDHPublic;
 
 /**
  * Defines the ClientKeyExchange message of SSL/TLS as defined in RFC 2246
@@ -14,23 +15,28 @@ import de.rub.nds.ssl.stack.protocols.handshake.datatypes.*;
 public final class ClientKeyExchange extends AHandshakeRecord {
 
     /**
-     * Minimum length of the encoded form
+     * Minimum length of the encoded form.
      */
-    public final static int LENGTH_MINIMUM_ENCODED = 0;
-    private IExchangeKeys exchangeKeys;
-    private EKeyExchangeAlgorithm keyExchangeAlgorithm = null;
+    public static final int LENGTH_MINIMUM_ENCODED = 0;
     /**
-     * Length bytes
+     * Length bytes.
      */
-    public final static int LENGTH_BYTES = 2;
+    public static final int LENGTH_BYTES = 2;
+    /**
+     * Client values for the key exchange.
+     */
+    private IExchangeKeys exchangeKeys;
+    /**
+     * Key exchange algorithm.
+     */
+    private EKeyExchangeAlgorithm keyExchangeAlgorithm = null;
 
     /**
      * Initializes a ClientKeyExchange message as defined in RFC 2246.
-     * 
+     *
      * This constructor will skip the key exchange type. Use at your own risk.
      *
      * @param message ClientKeyExchange message in encoded form
-     * @param exchangeAlgorithm Key exchange algorithm to be used
      * @param chained Decode single or chained with underlying frames
      */
     public ClientKeyExchange(final byte[] message,
@@ -39,7 +45,7 @@ public final class ClientKeyExchange extends AHandshakeRecord {
         super();
         this.decode(message, chained);
     }
-    
+
     /**
      * Initializes a ClientKeyExchange message as defined in RFC 2246.
      *
@@ -103,7 +109,7 @@ public final class ClientKeyExchange extends AHandshakeRecord {
     }
 
     /**
-     * Get the exchange keys
+     * Get the exchange keys.
      *
      * @return Key exchange keys of this message
      */
@@ -119,6 +125,9 @@ public final class ClientKeyExchange extends AHandshakeRecord {
             case RSA:
 //                keys = new PreMasterSecret(tmp);
                 keys = new EncPreMasterSecret(tmp);
+                break;
+            case EC_DIFFIE_HELLMAN:
+                keys = new ClientECDHPublic(tmp);
                 break;
             default:
                 break;
@@ -158,8 +167,8 @@ public final class ClientKeyExchange extends AHandshakeRecord {
                 this.exchangeKeys = new ClientDHPublic(tmp);
                 break;
             case RSA:
-//            	this.exchangeKeys = new PreMasterSecret(tmp);
-//            	RSA needs an encrypted PreMasterSecret
+//          this.exchangeKeys = new PreMasterSecret(tmp);
+//          RSA needs an encrypted PreMasterSecret
                 this.exchangeKeys = new EncPreMasterSecret(tmp);
                 break;
             default:
@@ -183,6 +192,7 @@ public final class ClientKeyExchange extends AHandshakeRecord {
     /**
      * {@inheritDoc}
      */
+    @Override
     public void decode(final byte[] message, final boolean chained) {
         byte[] payloadCopy;
 
@@ -198,14 +208,16 @@ public final class ClientKeyExchange extends AHandshakeRecord {
         // check size
         switch (keyExchangeAlgorithm) {
             case DIFFIE_HELLMAN:
-                if (payloadCopy.length < ClientDHPublic.LENGTH_MINIMUM_ENCODED) {
+                if (payloadCopy.length < 
+                        ClientDHPublic.LENGTH_MINIMUM_ENCODED) {
                     throw new IllegalArgumentException(
                             "ClientKeyExchange message too short.");
                 }
                 exchangeKeys = new ClientDHPublic(payloadCopy);
                 break;
             case RSA:
-                if (payloadCopy.length < PreMasterSecret.LENGTH_MINIMUM_ENCODED) {
+                if (payloadCopy.length < 
+                        PreMasterSecret.LENGTH_MINIMUM_ENCODED) {
                     throw new IllegalArgumentException(
                             "ClientKeyExchange message too short.");
                 }

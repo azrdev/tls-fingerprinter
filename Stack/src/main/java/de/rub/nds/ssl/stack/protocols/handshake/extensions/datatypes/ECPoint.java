@@ -1,7 +1,6 @@
 package de.rub.nds.ssl.stack.protocols.handshake.extensions.datatypes;
 
 import de.rub.nds.ssl.stack.protocols.commons.APubliclySerializable;
-import de.rub.nds.ssl.stack.protocols.handshake.datatypes.IExchangeKeys;
 
 /**
  * ECPoint part - as defined in RFC 4492.
@@ -11,8 +10,7 @@ import de.rub.nds.ssl.stack.protocols.handshake.datatypes.IExchangeKeys;
  *
  * Jul 30, 2013
  */
-public final class ECPoint extends APubliclySerializable
-        implements IExchangeKeys {
+public final class ECPoint extends APubliclySerializable {
 
     /**
      * Length of the point parameter.
@@ -104,6 +102,7 @@ public final class ECPoint extends APubliclySerializable
      *
      * Chained parameter is ignored - no chained decoding.
      */
+    @Override
     public void decode(final byte[] message, final boolean chained) {
         int extractedLength;
         byte[] tmpBytes;

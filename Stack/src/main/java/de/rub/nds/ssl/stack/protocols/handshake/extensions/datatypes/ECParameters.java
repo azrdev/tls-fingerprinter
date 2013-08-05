@@ -2,7 +2,6 @@ package de.rub.nds.ssl.stack.protocols.handshake.extensions.datatypes;
 
 import de.rub.nds.ssl.stack.Utility;
 import de.rub.nds.ssl.stack.protocols.commons.APubliclySerializable;
-import de.rub.nds.ssl.stack.protocols.handshake.datatypes.IExchangeKeys;
 import de.rub.nds.ssl.stack.protocols.handshake.extensions.datatypes.EECBasisType;
 import de.rub.nds.ssl.stack.protocols.handshake.extensions.datatypes.EECCurveType;
 
@@ -14,8 +13,7 @@ import de.rub.nds.ssl.stack.protocols.handshake.extensions.datatypes.EECCurveTyp
  *
  * Jul 31, 2013
  */
-public final class ECParameters extends APubliclySerializable
-        implements IExchangeKeys {
+public final class ECParameters extends APubliclySerializable {
 
     /**
      * Length filed of prime p.
@@ -467,8 +465,8 @@ public final class ECParameters extends APubliclySerializable
     /**
      * {@inheritDoc} Chained parameter is ignored - no chained decoding.
      */
+    @Override
     public void decode(final byte[] message, final boolean chained) {
-        int extractedLength;
         byte[] tmp;
         // deep copy
         final byte[] paramCopy = new byte[message.length];
