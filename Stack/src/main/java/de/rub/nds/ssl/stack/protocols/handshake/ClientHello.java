@@ -200,6 +200,7 @@ public final class ClientHello extends AHandshakeRecord {
 
         // deep copy
 //        this.extensions = new Extensions(extensions.encode(false));
+        // TODO fix me!
         this.extensions = extensions;
     }
 

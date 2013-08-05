@@ -18,10 +18,10 @@ import de.rub.nds.ssl.stack.workflows.commons.WorkflowState;
 import de.rub.nds.ssl.stack.workflows.response.TLSResponse;
 import de.rub.nds.ssl.stack.workflows.response.fecther.AResponseFetcher;
 import de.rub.nds.ssl.stack.workflows.response.fecther.StandardFetcher;
-import de.rub.nds.ssl.stack.workflows.response.fecther.TimingFetcher;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import static java.lang.Thread.sleep;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.SocketAddress;
@@ -40,6 +40,7 @@ import org.apache.log4j.Logger;
  */
 public final class TLS10HandshakeWorkflow extends AWorkflow {
 
+    // TODO add JavaDoc
     private final EProtocolVersion protocolVersion = EProtocolVersion.TLS_1_0;
     private Socket so = null;
     private InputStream in = null;
@@ -58,6 +59,7 @@ public final class TLS10HandshakeWorkflow extends AWorkflow {
      */
     public enum EStates implements WorkflowState {
 
+    // TODO add JavaDoc
         CLIENT_HELLO,
         SERVER_HELLO,
         SERVER_CERTIFICATE,
@@ -78,6 +80,7 @@ public final class TLS10HandshakeWorkflow extends AWorkflow {
             return this.ordinal();
         }
 
+    // TODO add JavaDoc
         public static EStates getStateById(int id) {
             EStates[] states = EStates.values();
             return states[id];
@@ -99,10 +102,11 @@ public final class TLS10HandshakeWorkflow extends AWorkflow {
                 so = new Socket();
                 fetcher = new StandardFetcher(so, this);
                 break;
-            case TimingSocket:
-                so = new TimingSocket();
-                fetcher = new TimingFetcher(so, this);
-                break;
+//            case TimingSocket:
+//                so = new TimingSocket();
+//                fetcher = new TimingFetcher(so, this);
+//                break;
+            default: break;
         }
     }
 
@@ -110,6 +114,7 @@ public final class TLS10HandshakeWorkflow extends AWorkflow {
      * Public constructor to initialize the workflow with its states.
      *
      * @param socketType Socket type to be used
+     * @throws SocketException  
      */
     public TLS10HandshakeWorkflow(final ESupportedSockets socketType) throws
             SocketException {
@@ -118,6 +123,7 @@ public final class TLS10HandshakeWorkflow extends AWorkflow {
 
     /**
      * Initialize the handshake workflow with the state values
+     * @throws SocketException 
      */
     public TLS10HandshakeWorkflow() throws SocketException {
         this(EStates.values(), ESupportedSockets.StandardSocket);
@@ -140,6 +146,7 @@ public final class TLS10HandshakeWorkflow extends AWorkflow {
             try {
                 hashBuilder = new HandshakeHashBuilder();
             } catch (NoSuchAlgorithmException ex) {
+                // TODO remove
                 ex.printStackTrace();
             }
 
@@ -181,8 +188,8 @@ public final class TLS10HandshakeWorkflow extends AWorkflow {
             // encode the message
             trace.prepare();
             // drop it on the wire!
-             send(trace);
-             logger.debug("Client Key Exchange message sent");
+            send(trace);
+            logger.debug("Client Key Exchange message sent");
 
             // add trace to ArrayList
             addToTraceList(new MessageContainer(EStates.CLIENT_KEY_EXCHANGE,
@@ -205,9 +212,9 @@ public final class TLS10HandshakeWorkflow extends AWorkflow {
             trace.prepare();
             // drop it on the wire!
             send(trace);
-            
+
             logger.debug("Change Cipher Spec message sent");
-            
+
             // switch to encrypted mode
             encrypted = true;
             // add trace to ArrayList
@@ -215,10 +222,9 @@ public final class TLS10HandshakeWorkflow extends AWorkflow {
                     EStates.CLIENT_CHANGE_CIPHER_SPEC,
                     trace.getCurrentRecord(),
                     trace.getOldRecord(), false));
-
             /*
              * create Finished
-             */;            
+             */
             trace = new MessageContainer();
             trace.setPreviousState(EStates.getStateById(
                     this.getCurrentState()));
@@ -228,6 +234,7 @@ public final class TLS10HandshakeWorkflow extends AWorkflow {
             try {
                 handshakeHashes = hashBuilder.getHandshakeMsgsHashes();
             } catch (DigestException e) {
+                // TODO remove
                 e.printStackTrace();
             }
             record = msgBuilder.createFinished(protocolVersion,
@@ -241,17 +248,13 @@ public final class TLS10HandshakeWorkflow extends AWorkflow {
             // drop it on the wire!
             send(trace);
             logger.debug("Finished message sent");
-            
+
             // add trace to ArrayList
             addToTraceList(new MessageContainer(EStates.CLIENT_FINISHED, trace.
                     getCurrentRecord(),
                     trace.getOldRecord(), false));
             sleepPoller(EStates.SERVER_FINISHED);
-            try {
-Thread.sleep(120000);
-            } catch(InterruptedException e ) {
-            logger.debug("BAAAAM");
-            }  
+
             fetcher.stopFetching();
             logger.debug("<<< TLS Handshake finished");
         } catch (IOException e) {
@@ -265,12 +268,13 @@ Thread.sleep(120000);
      * yet.
      *
      * @param desiredState State to wait for
+     * @throws IOException
      */
     private void sleepPoller(final EStates desiredState) throws IOException {
         while (getCurrentState() != desiredState.getID()) {
             if (getResponseThread().isAlive()) {
                 try {
-                    Thread.sleep(100);
+                    sleep(100);
                 } catch (InterruptedException e) {
                     Thread.interrupted();
                 }
@@ -309,6 +313,7 @@ Thread.sleep(120000);
      * Delivers one or multiple message(s) to the network layer.
      *
      * @param messages MessageContainer(s) to be send
+     * @throws IOException
      */
     private void send(final MessageContainer... messages) throws
             IOException {
@@ -375,7 +380,7 @@ Thread.sleep(120000);
      * @param host Hostname of the server
      * @param port Port number of the server
      */
-    public void connectToTestServer(String host, int port) {
+    public void connectToTestServer(final String host, final int port) {
         SocketAddress addr = new InetSocketAddress(host, port);
         try {
 //            so.connect(addr, 1000);
@@ -384,6 +389,7 @@ Thread.sleep(120000);
             out = so.getOutputStream();
             in = so.getInputStream();
         } catch (IOException e) {
+            // TODO remove
             e.printStackTrace();
         }
     }
@@ -399,14 +405,13 @@ Thread.sleep(120000);
 
     /**
      * Close the socket.
-     *
-     * @throws IOException On I/O error
      */
     public void closeSocket() {
         if (out != null) {
             try {
                 out.close();
             } catch (IOException e) {
+                // TODO remove
                 e.printStackTrace();
             } finally {
                 out = null;
@@ -416,6 +421,7 @@ Thread.sleep(120000);
             try {
                 in.close();
             } catch (IOException e) {
+                // TODO remove
                 e.printStackTrace();
             } finally {
                 in = null;
@@ -425,6 +431,7 @@ Thread.sleep(120000);
             try {
                 so.close();
             } catch (IOException e) {
+                // TODO remove
                 e.printStackTrace();
             } finally {
                 so = null;
@@ -445,7 +452,7 @@ Thread.sleep(120000);
      * {@inheritDoc}
      */
     @Override
-    public void update(Observable o, Object arg) {
+    public void update(final Observable o, final Object arg) {
         MessageContainer response = null;
         AResponseFetcher fetcher = null;
         if (o instanceof AResponseFetcher) {
@@ -467,5 +474,4 @@ Thread.sleep(120000);
         updateHash(hashBuilder, response.getCurrentRecordBytes());
         Thread.currentThread().interrupt();
     }
-
 }
