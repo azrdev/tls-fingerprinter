@@ -16,9 +16,9 @@ import java.security.interfaces.RSAPublicKey;
  * @author Juraj Somorovsky - juraj.somorovsky@rub.de
  * @version 0.1
  */
-public class TestOracle extends AOracle {
+public class PlaintextOracle extends AOracle {
     
-    public TestOracle(final PublicKey pubKey,
+    public PlaintextOracle(final PublicKey pubKey,
             final OracleType oracleType, final int blockSize) {
         this.publicKey = (RSAPublicKey) pubKey;
         this.oracleType = oracleType;
