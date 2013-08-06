@@ -30,6 +30,8 @@ public final class LauncherJSSE {
     /**
      * VALID PKCS with valid PMS - 1024bit.
      * 
+     * mvn exec:java -Dexec.mainClass="de.rub.nds.ssl.attacker.LauncherJSSE"
+     * 
      * valid request: query number 2508, 2510, 2543 ...
      * total number of queries: 14237
      */
