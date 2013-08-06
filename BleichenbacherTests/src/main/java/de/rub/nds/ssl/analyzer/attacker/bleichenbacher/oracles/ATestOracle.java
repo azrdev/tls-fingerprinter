@@ -4,6 +4,8 @@
  */
 package de.rub.nds.ssl.analyzer.attacker.bleichenbacher.oracles;
 
+import de.rub.nds.ssl.stack.Utility;
+
 /**
  *
  * @author Juraj Somorovsky - juraj.somorovsky@rub.de
@@ -17,7 +19,7 @@ public abstract class ATestOracle extends AOracle {
      * @return
      */
     boolean checkDecryptedBytes(final byte[] msg) {
-
+        
         boolean conform = false;
         byte[] tmpMsg = msg;
 
