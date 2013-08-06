@@ -257,7 +257,7 @@ public final class CommandLineTimingOracle extends AOracle {
             System.out.print("\r--> round " + round);
         }
         
-        if( (round < 54807) || (round > 54812 && round < 169950)) {
+        if( (round < 2500) ) {
             // TODO: Ooooh jeeeee!
             // return groundTruth;
             return false;
