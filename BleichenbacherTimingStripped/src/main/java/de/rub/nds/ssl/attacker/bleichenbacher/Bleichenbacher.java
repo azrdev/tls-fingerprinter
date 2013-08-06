@@ -31,10 +31,6 @@ public class Bleichenbacher {
     protected final int blockSize;
     protected final BigInteger bigB;
     protected final boolean msgIsPKCS;
-    /** allows to write all the requests and the corresponding si values
-     * to the FILE_NAME file */
-    protected final boolean WRITE_TO_FILE = false;
-    protected final String FILE_NAME = "ValidQueries.csv";
     protected BufferedWriter bw;
    
     public Bleichenbacher(final byte[] msg,
@@ -60,14 +56,6 @@ public class Bleichenbacher {
         System.out.println("Blocksize: " + blockSize + " bytes");
         //decryptedMsg = oracle.decrypt(encryptedMsg);
         //System.out.println("our goal: " + new BigInteger(decryptedMsg));
-
-        if (WRITE_TO_FILE) {
-            try {
-                bw = new BufferedWriter(new FileWriter(FILE_NAME));
-            } catch (IOException ioe) {
-                throw new RuntimeException(ioe);
-            }
-        }
     }
 
     public void attack() throws OracleException {
@@ -120,7 +108,6 @@ public class Bleichenbacher {
 
             // check PKCS#1 conformity
             pkcsConform = oracle.checkPKCSConformity(send);
-            writeToFile(si, send, pkcsConform);
         } while (!pkcsConform);
 
         c0 = new BigInteger(1, send);
@@ -178,7 +165,7 @@ public class Bleichenbacher {
 
             // check PKCS#1 conformity
             pkcsConform = oracle.checkPKCSConformity(send);
-            writeToFile(si, send, pkcsConform);
+
         } while (!pkcsConform);
     }
 
@@ -194,7 +181,6 @@ public class Bleichenbacher {
 
             // check PKCS#1 conformity
             pkcsConform = oracle.checkPKCSConformity(send);
-            writeToFile(si, send, pkcsConform);
         } while (!pkcsConform);
     }
 
@@ -239,7 +225,6 @@ public class Bleichenbacher {
 
             // check PKCS#1 conformity
             pkcsConform = oracle.checkPKCSConformity(send);
-            writeToFile(si, send, pkcsConform);
         } while (!pkcsConform);
     }
 
@@ -297,7 +282,7 @@ public class Bleichenbacher {
             }
         }
 
-        System.out.println(" # of intervals for M" + i + ": " + ms.size());
+//        System.out.println(" # of intervals for M" + i + ": " + ms.size());
         m = ms.toArray(new Interval[ms.size()]);
     }
 
@@ -313,13 +298,6 @@ public class Bleichenbacher {
                     toByteArray()));
             //    System.out.println("original decrypted message: \n" + Utility.bytesToHex(decryptedMsg));
             //}
-            if (WRITE_TO_FILE) {
-                try {
-                    bw.close();
-                } catch (IOException ioe) {
-                    System.out.println("unable to close the file " + FILE_NAME);
-                }
-            }
 
             result = true;
         }
@@ -381,11 +359,6 @@ public class Bleichenbacher {
         byte[] msg;
         BigInteger tmp;
 
-        if (oracle.getNumberOfQueries() % 100 == 0) {
-            System.out.println("# of queries so far: " + oracle.
-                    getNumberOfQueries());
-        }
-
         // if we use a real oracle (not a plaintext oracle), the si value has
         // to be encrypted first.
         if (!oracle.isPlaintextOracle()) {
@@ -404,23 +377,5 @@ public class Bleichenbacher {
         msg = Utility.correctSize(tmp.toByteArray(), blockSize, true);
 
         return msg;
-    }
-
-    protected void writeToFile(final BigInteger si, final byte[] send, final boolean pkcsConform) {
-        if (WRITE_TO_FILE) {
-            try {
-                if (pkcsConform) {
-                    bw.append("valid; ");
-                } else {
-                    bw.append("invalid; ");
-                }
-                bw.append(Utility.bytesToHex(si.toByteArray()));
-                bw.append("; ");
-                bw.append(Utility.bytesToHex(send));
-                bw.append(";\r\n");
-            } catch (IOException ioe) {
-                System.out.println("unable to write to the file " + FILE_NAME);
-            }
-        }
     }
 }

@@ -1,9 +1,16 @@
 package de.rub.nds.ssl.attacker.misc;
 
 import de.rub.nds.ssl.attacker.bleichenbacher.OracleType;
+import static de.rub.nds.ssl.attacker.bleichenbacher.OracleType.FFF;
+import static de.rub.nds.ssl.attacker.bleichenbacher.OracleType.FFT;
+import static de.rub.nds.ssl.attacker.bleichenbacher.OracleType.FTT;
+import static de.rub.nds.ssl.attacker.bleichenbacher.OracleType.TFT;
+import static de.rub.nds.ssl.attacker.bleichenbacher.OracleType.TTT;
+import static de.rub.nds.ssl.attacker.misc.PKCS15Toolkit.containsByte;
+import static de.rub.nds.ssl.attacker.misc.PKCS15Toolkit.hasCorrectKeySize;
 
 /**
- * Helpfull routines for PKCS v1.5 handling.
+ * Helpful routines for PKCS v1.5 handling.
  * @author  Christopher Meyer - christopher.meyer@rub.de
  * @version 0.1
  *
@@ -21,14 +28,15 @@ public class PKCS15Toolkit {
             final OracleType oracleType, final int blockSize) {
         boolean conform = false;
         byte[] tmpMsg = decryptedPKCS;
-
+        
         if (tmpMsg[0] == 0x00) {
             byte[] tmp = new byte[tmpMsg.length - 1];
             System.arraycopy(tmpMsg, 1, tmp, 0, tmp.length);
             tmpMsg = tmp;
         }
-
-        if (tmpMsg[0] == 0x02 && tmpMsg.length == (blockSize - 1)) {
+        
+        if (tmpMsg[0] == 0x02 && tmpMsg.length == (blockSize-1)) {
+            System.out.println("    CASE X starting with 00 02");
             switch (oracleType) {
                 case TTT:
                     conform = true;
@@ -48,6 +56,8 @@ public class PKCS15Toolkit {
 
                 case FFT:
                     if (checkFirst(tmpMsg, blockSize) && checkSecond(tmpMsg)) {
+                        System.out.println("    CASE 2 with 00 02, 00 on valid position");
+System.out.println(Utility.bytesToHex(tmpMsg));
                         conform = true;
                     }
                     break;
@@ -62,6 +72,8 @@ public class PKCS15Toolkit {
                 default:
                     break;
             }
+        } else {
+            System.out.println("    CASE 3 with 00 " + tmpMsg[0]);
         }
 
         return conform;
@@ -76,7 +88,7 @@ public class PKCS15Toolkit {
      */
     private static boolean checkFirst(final byte[] msg, final int blockSize) {
         boolean result = false;
-        for (int i = 9; i < blockSize - 1; i++) {
+        for (int i = 9; i < blockSize-1 && !result; i++) {
             if (msg[i] == 0x00) {
                 result = true;
             }
