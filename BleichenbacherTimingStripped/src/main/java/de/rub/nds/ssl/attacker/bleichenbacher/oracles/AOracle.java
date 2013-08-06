@@ -32,6 +32,11 @@ public abstract class AOracle {
      * oracle type according to the Crypto'12 paper
      */
     protected OracleType oracleType = null;
+    
+    /**
+     * indicates if it is plaintext oracle
+     */
+    protected boolean plaintextOracle = false;
 
     /**
      * Gets the blocksize of the encryption algorithm.
@@ -76,5 +81,9 @@ public abstract class AOracle {
      */
     public OracleType getOracleType() {
         return oracleType;
+    }
+    
+    public boolean isPlaintextOracle() {
+        return plaintextOracle;
     }
 }
