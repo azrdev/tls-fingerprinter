@@ -45,8 +45,8 @@ import org.testng.annotations.Test;
 public class BleichenbacherPossibleTest {
 
 //    private static final String HOST = "localhost";
-    private static final String HOST = "134.147.198.93";
-    private static final int PORT = 51635;
+    private static final String HOST = "localhost";
+    private static final int PORT = 51624;
     /**
      * Plain PKCS message
      */
@@ -77,7 +77,7 @@ public class BleichenbacherPossibleTest {
         (byte) 0xc9, (byte) 0xbf, (byte) 0x34, (byte) 0x8b, (byte) 0x8d,
         (byte) 0xd4, (byte) 0x84, (byte) 0xed, (byte) 0xc9, (byte) 0x63,
         (byte) 0x2b, (byte) 0x16, (byte) 0x6f, (byte) 0x2c, (byte) 0x38,
-        (byte) 0x40};
+        (byte) 0x01};
     private PublicKey publicKey;
     private byte[] encPMS;
     /**
@@ -117,7 +117,7 @@ public class BleichenbacherPossibleTest {
         return result;
     }
 
-    @Test(enabled = false, priority = 2)
+    @Test(enabled = true, priority = 2)
     public void sslTriggerOracleTest() throws SocketException,
             OracleException {
         JSSE16Oracle jsseOracle = new JSSE16Oracle(HOST, PORT);
@@ -145,6 +145,16 @@ public class BleichenbacherPossibleTest {
         }
 
         System.out.println("counter: " + counter);
+    }
+    
+    @Test(enabled = true, priority = 2)
+    public void sslSingleRequest() throws SocketException,
+            OracleException {
+        JSSE16Oracle jsseOracle = new JSSE16Oracle(HOST, PORT);
+
+        // valid
+        byte[] enc = encryptHelper(plainPKCS, publicKey);
+        jsseOracle.checkPKCSConformity(enc);
     }
 
     /**
