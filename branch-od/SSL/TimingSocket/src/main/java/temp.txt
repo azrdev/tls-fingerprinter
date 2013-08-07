@@ -1,0 +1,307 @@
+Hallo Herr Alt,
+
+ich konnte gerade einen Blick auf die Notes werfen. Wenn ich das richtig verstehe,
+dann führen Sie zwei Gegenmaßnahmen ein:
+
+1. XML-Encryption nicht verwenden, sondern SSL.
+
+2. Sperre einen Session-Key, wenn er zu oft Entschlüsselungsfehler verursacht
+(Default ist nach 100 Versuchen).
+
+Die zweite Gegenmaßnahme verhindert den im ESORICS-Paper beschriebenen 
+Angriff in keiner Weise. Der von uns angepasste Bleichenbacher-Angriff ist ein
+Adaptive-Chosen-Ciphertext-Angriff, bei dem der Angreifer den verschlüsselten
+Session-Key ständig ändert und anhand der Server-Antwortzeit den Session-Key
+schrittweise lernt. Daher wird das "100 Versuche-Limit" nie anschlagen.
+
+Hier nochmals das Paper:
+http://www.nds.rub.de/research/publications/breaking-xml-encryption-pkcs15/
+
+Hier der Talk beim 28c3 von letztem Jahr, wo ich den Angriff auch erkläre:
+http://events.ccc.de/congress/2011/Fahrplan/events/4640.en.html
+Hier der Mitschnitt:
+http://www.youtube.com/watch?v=ykNt8pSQFZQ
+
+In diesem Jahr werde ich wieder einen Talk auf dem CCC Kongress halten, 
+in dem ich an den Talk von letztem Jahr anknüpfen werde, aber aus der
+defensiven Seite. Es könnte trotzdem sein, dass Aufmerksamkeit wieder auf
+den 28c3-Talk gelenkt wird.
+
+Viele Grüße,
+Sebastian Schinzel
+
+---
+Dr. Sebastian Schinzel
+
+Gottesweg 28
+50969 Köln
+Germany
+
+Web:    http://sebastian-schinzel.de
+Email:  ssc@seecurity.org
+Mobil:  +49 (0) 163 / 31 31 420
+Twitter:        http://twitter.com/seecurity
+
+
+
+On 29. Aug 2012, at 08:54 AM, Secure@sap.com wrote:
+
+Hallo Herr Schinzel,
+
+ich würde Sie bitten in dem Paper einfach auf die entsprechenden Sicherheitshinweise 
+zu verweisen, welche das Problem lösen.
+
+Dazu können Sie einfach folgende URL benutzen:
+
+https://service.sap.com/sap/support/notes/1687334
+
+https://service.sap.com/sap/support/notes/1684632
+
+Volltexte von Sicherheitshinweisen geben wir in der Regel nicht an externe Researcher
+raus.
+
+Zusätzlich würde ich Sie bitten uns Ihren Public PGP Key zur Verfügung zu stellen, damit 
+wir diesen für zukünftige Kommunikation benutzen können.
+
+Mit freundlichen Grüßen
+
+Thomas Alt
+Product Security Response Team (PSRT) | TIP Architecture Governance - Product Standard Security & Security Response
+SAP AG   I   Dietmar-Hopp-Allee 16   I   69190 Walldorf   I   Germany
+
+mailto:secure@sap.com
+Public PGP key: http://www.sap.com/solutions/security/keyblock.txt
+www.sap.com
+
+Please consider the impact on the environment before printing this e-mail.
+
+Pflichtangaben/Mandatory Disclosure Statements:
+http://www.sap.com/company/legal/impressum.epx
+
+Diese E-Mail kann Betriebs- oder Geschäftsgeheimnisse oder sonstige vertrauliche Informationen enthalten.
+Sollten Sie diese E-Mail irrtümlich erhalten haben, ist Ihnen eine Kenntnisnahme des Inhalts, eine Vervielfältigung
+oder Weitergabe der E-Mail ausdrücklich untersagt. Bitte benachrichtigen Sie uns und vernichten Sie die
+empfangene E-Mail. Vielen Dank.
+
+This e-mail may contain trade secrets or privileged, undisclosed, or otherwise confidential information. If you have
+received this e-mail in error, you are hereby notified that any review, copying, or distribution of it is strictly prohibited.
+Please inform us immediately and destroy the original transmittal. Thank you for your cooperation.
+
+
+
+
+-----Original Message-----
+From: Sebastian Schinzel [mailto:ssc@seecurity.org] 
+Sent: Dienstag, 28. August 2012 14:03
+To: SAP Product Security Response Team
+Subject: Re: Credits for reported security issues: August Patch Day 2012
+
+Liebe Frau Zimmermann,
+
+können Sie mir bitte die Texte der beiden Hinweise (SAP-Notes) zusenden?
+
+Danke und Gruß,
+Sebastian Schinzel
+
+On 15. Aug 2012, at 11:19 AM, Sebastian Schinzel wrote:
+
+Liebe Frau Zimmermann,
+
+wie können die Hinweise mit in die volle Version des Papers übernehmen, die
+über den RUB-Server zugänglich ist.
+
+Können Sie mir bitte noch den Volltext der beiden Hinweise zusenden?
+
+Danke und viele Grüße,
+Sebastian Schinzel
+
+On 14. Aug 2012, at 06:28 AM, Secure@sap.com wrote:
+
+Hallo Herr Schinzel,
+
+vielen Dank für Ihre Antwort. Herrn Juraj Somorovsky hatte ich bereits über seine Credits informiert.
+Herr Tibor Jager bekommt selbstverständlich auch Credits.
+
+Vielen Dank für das finale Papier. 
+Wir schauen nochmal drüber. Könnten Sie bitte die beiden Hinweise als Lösungen noch aufnehmen?
+
+Viele Grüße
+Susanne Zimmermann
+
+Susanne Zimmermann
+Product Security Response Team (PSRT)
+SAP AG   I   Dietmar-Hopp-Allee 16   I   69190 Walldorf   I   Germany
+
+mailto:secure@sap.com
+Public PGP key: http://www.sap.com/solutions/security/keyblock.txt
+www.sap.com
+
+Please consider the impact on the environment before printing this e-mail.
+
+Pflichtangaben/Mandatory Disclosure Statements:
+http://www.sap.com/company/legal/impressum.epx
+
+Diese E-Mail kann Betriebs- oder Geschäftsgeheimnisse oder sonstige vertrauliche Informationen enthalten.
+Sollten Sie diese E-Mail irrtümlich erhalten haben, ist Ihnen eine Kenntnisnahme des Inhalts, eine Vervielfältigung
+oder Weitergabe der E-Mail ausdrücklich untersagt. Bitte benachrichtigen Sie uns und vernichten Sie die
+empfangene E-Mail. Vielen Dank.
+
+This e-mail may contain trade secrets or privileged, undisclosed, or otherwise confidential information. If you have
+received this e-mail in error, you are hereby notified that any review, copying, or distribution of it is strictly prohibited.
+Please inform us immediately and destroy the original transmittal. Thank you for your cooperation.
+
+
+
+
+
+From: Sebastian Schinzel [mailto:ssc@seecurity.org] 
+Sent: Montag, 13. August 2012 14:48
+To: SAP Product Security Response Team
+Cc: Andreas Wiegenstein
+Subject: Re: Credits for reported security issues: August Patch Day 2012
+
+Liebe Frau Zimmermann,
+
+die Arbeit war Joint Work mit Juraj Somorovsky und Tibor Jager von der Ruhr-Uni-Bochum.
+Es ist mir sehr wichtig, dass die beiden auch in den Credits stehen. Können Sie das bitte 
+veranlassen und mir bestätigen?
+
+Anbei sende ich Ihnen das finale Paper, das im September bei der ESORICS präsentiert
+wird. Beachten Sie, dass wir im Paper den Angriff beispielhaft gegen Axis2 zeigen und
+SAP nur am Rande erwähnen. Wir planen nicht, Details über den Angriff gegen SAP zu
+zeigen, da der Angriff gegen alle Standardimplementierungen von XML Encryption
+funktioniert.
+
+Wir wissen die gute und konstruktive Zusammenarbeit mit der SAP in dieser Sache zu
+schätzen und werden das im Vortrag auch so erwähnen. Wir werden auch erwähnen, dass
+SAP Patches bereit stellt.
+
+Viele Grüße,
+Sebastian Schinzel
+
+On 13. Aug 2012, at 14:17 PM, Secure@sap.com wrote:
+
+Hallo Herr Schinzel,
+
+ich freue mich Ihnen mitteilen zu können, dass wir an unserem August Patch Day folgenden Sicherheitshinweis freigeben, für die Sie Credits bekommen.
+Da Sie uns das Problem als Virtual Forge Mitarbeiter gemeldet haben, ist als Firma Virtual Forge genannt.
+
+SecMsg ID
+Title
+Security Note
+Delivery date of fix/Patch Day
+Advisory    Plan Date
+CVSS Based Score
+CVSS Based Vector
+Credits
+2217597 2011
+XML-Encryption Issue: CBC Attack (Standard Problem) - ABAP
+1687334
+
+14/August/12
+
+13/November/12
+
+4.3
+
+AV:N/AC:M/AU:N/C:P/I:N/A:N
+
+Virtual Forge,
+Sebastian Schinzel
+1045656 2012
+XML-Encryption Issue: CBC Attack (Standard Problem) - JAVA
+1684632
+
+14/August/12
+
+13/November/12
+
+4.3
+
+AV:N/AC:M/AU:N/C:P/I:N/A:N
+
+Virtual Forge,
+Sebastian Schinzel
+
+Die Hinweise sind ab dem 14. August für unsere Kunden sichtbar.
+Damit unsere Kunden etwas Zeit haben, die Hinweise einzuspielen, bitten wir Sie, von einer  Veröffentlichung dieser Schwachstellen vor dem 13. November 2012 abzusehen.
+Außerdem  wären wir Ihnen dankbar, wenn Sie uns Ihre Veröffentlichungen vorab zukommen lassen würden, so dass wir die Möglichkeit haben Ihnen Feedback zu geben.
+
+Mit freundlichen Grüßen
+Susanne Zimmermann
+
+Susanne Zimmermann
+Product Security Response Team (PSRT)
+SAP AG   I   Dietmar-Hopp-Allee 16   I   69190 Walldorf   I   Germany
+
+mailto:secure@sap.com
+Public PGP key: http://www.sap.com/solutions/security/keyblock.txt
+www.sap.com
+
+Please consider the impact on the environment before printing this e-mail.
+
+Pflichtangaben/Mandatory Disclosure Statements:
+http://www.sap.com/company/legal/impressum.epx
+
+Diese E-Mail kann Betriebs- oder Geschäftsgeheimnisse oder sonstige vertrauliche Informationen enthalten.
+Sollten Sie diese E-Mail irrtümlich erhalten haben, ist Ihnen eine Kenntnisnahme des Inhalts, eine Vervielfältigung
+oder Weitergabe der E-Mail ausdrücklich untersagt. Bitte benachrichtigen Sie uns und vernichten Sie die
+empfangene E-Mail. Vielen Dank.
+
+This e-mail may contain trade secrets or privileged, undisclosed, or otherwise confidential information. If you have
+received this e-mail in error, you are hereby notified that any review, copying, or distribution of it is strictly prohibited.
+Please inform us immediately and destroy the original transmittal. Thank you for your cooperation.
+
+
+
+
+
+
+---
+Dr. Sebastian Schinzel,
+
+Universität Erlangen-Nürnberg
+Lehrstuhl für Informatik 1
+IT-Sicherheitsinfrastrukturen
+
+Martensstr. 3
+91058 Erlangen
+Germany
+
+Tel.:           +49 (0) 221 / 97 61 02 52
+Mobil:  +49 (0) 163 / 31 31 420
+Fax:            +49 (0) 9131 / 85-25319
+Web:     http://www1.cs.fau.de/
+Email:  sebastian.schinzel@cs.fau.de
+Twitter:        http://twitter.com/seecurity
+
+
+
+
+---
+Dr. Sebastian Schinzel,
+
+Universität Erlangen-Nürnberg
+Lehrstuhl für Informatik 1
+IT-Sicherheitsinfrastrukturen
+
+Martensstr. 3
+91058 Erlangen
+Germany
+
+Tel.:           +49 (0) 221 / 97 61 02 52
+Mobil:  +49 (0) 163 / 31 31 420
+Fax:            +49 (0) 9131 / 85-25319
+Web:    http://www1.cs.fau.de/
+Email:  sebastian.schinzel@cs.fau.de
+Twitter:        http://twitter.com/seecurity
+
+
+
+
+
+
+
+
+
+

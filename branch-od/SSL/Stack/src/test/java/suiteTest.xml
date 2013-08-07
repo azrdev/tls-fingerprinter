@@ -1,0 +1,15 @@
+<!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd" >
+ 
+<suite name="fingerprintSuite" verbose="1" >
+    <listeners>
+    <!-- Analyzes results after test suite execution -->  
+        <listener class-name="de.rub.nds.ssl.stack.tests.analyzer.common.AnalyzeResults"/>
+    </listeners>
+    <test name="Fingerprint">
+        <classes>
+            <class name="de.rub.nds.ssl.stack.tests.common.TestSuiteInit"/>
+            <class name="de.rub.nds.ssl.stack.tests.fingerprint.CheckEnumeration"/>
+            <class name="de.rub.nds.ssl.stack.tests.fingerprint.FingerprintCCSRecordHeader" />
+        </classes>
+    </test>
+</suite>
