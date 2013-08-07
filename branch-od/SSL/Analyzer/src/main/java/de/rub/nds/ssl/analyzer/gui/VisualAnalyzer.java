@@ -83,6 +83,7 @@ public class VisualAnalyzer extends javax.swing.JFrame {
         scanTargetsButton = new javax.swing.JButton();
         attackTargetsButton = new javax.swing.JButton();
         targetListLabel = new javax.swing.JLabel();
+        uncheckTestsButton = new javax.swing.JButton();
 
         errorDialog.setMinimumSize(new java.awt.Dimension(300, 120));
         errorDialog.setModal(true);
@@ -151,7 +152,7 @@ public class VisualAnalyzer extends javax.swing.JFrame {
         scannerConfigurationLayout.setVerticalGroup(
             scannerConfigurationLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, scannerConfigurationLayout.createSequentialGroup()
-                .addGap(0, 12, Short.MAX_VALUE)
+                .addGap(0, 11, Short.MAX_VALUE)
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 221, javax.swing.GroupLayout.PREFERRED_SIZE))
         );
 
@@ -174,7 +175,7 @@ public class VisualAnalyzer extends javax.swing.JFrame {
         attackerPanelLayout.setVerticalGroup(
             attackerPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, attackerPanelLayout.createSequentialGroup()
-                .addGap(0, 12, Short.MAX_VALUE)
+                .addGap(0, 11, Short.MAX_VALUE)
                 .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 221, javax.swing.GroupLayout.PREFERRED_SIZE))
         );
 
@@ -201,7 +202,7 @@ public class VisualAnalyzer extends javax.swing.JFrame {
                     .addGroup(fuzzerPanelLayout.createSequentialGroup()
                         .addComponent(fuzzingLabel)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jComboBox1, 0, 561, Short.MAX_VALUE))
+                        .addComponent(jComboBox1, 0, 627, Short.MAX_VALUE))
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, fuzzerPanelLayout.createSequentialGroup()
                         .addGap(0, 0, Short.MAX_VALUE)
                         .addComponent(createFingerprintButton)))
@@ -216,7 +217,7 @@ public class VisualAnalyzer extends javax.swing.JFrame {
                     .addComponent(jComboBox1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(createFingerprintButton)
-                .addContainerGap(160, Short.MAX_VALUE))
+                .addContainerGap(167, Short.MAX_VALUE))
         );
 
         tabbedPane.addTab("Implementation Fuzzing", fuzzerPanel);
@@ -238,7 +239,7 @@ public class VisualAnalyzer extends javax.swing.JFrame {
             outputPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, outputPanelLayout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jScrollPane3, javax.swing.GroupLayout.DEFAULT_SIZE, 209, Short.MAX_VALUE)
+                .addComponent(jScrollPane3, javax.swing.GroupLayout.DEFAULT_SIZE, 210, Short.MAX_VALUE)
                 .addContainerGap())
         );
 
@@ -274,11 +275,18 @@ public class VisualAnalyzer extends javax.swing.JFrame {
 
         targetListLabel.setText("Please select target(s)");
 
+        uncheckTestsButton.setText("Uncheck tests");
+        uncheckTestsButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                uncheckTestsButtonActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(tabbedPane, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 782, Short.MAX_VALUE)
+            .addComponent(tabbedPane, javax.swing.GroupLayout.Alignment.TRAILING)
             .addComponent(progressBar, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
@@ -286,12 +294,13 @@ public class VisualAnalyzer extends javax.swing.JFrame {
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(targetListScrollPane, javax.swing.GroupLayout.PREFERRED_SIZE, 284, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(openListButton, javax.swing.GroupLayout.PREFERRED_SIZE, 207, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(attackTargetsButton, javax.swing.GroupLayout.PREFERRED_SIZE, 207, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(scanTargetsButton, javax.swing.GroupLayout.PREFERRED_SIZE, 207, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                            .addComponent(openListButton, javax.swing.GroupLayout.DEFAULT_SIZE, 207, Short.MAX_VALUE)
+                            .addComponent(attackTargetsButton, javax.swing.GroupLayout.DEFAULT_SIZE, 207, Short.MAX_VALUE)
+                            .addComponent(scanTargetsButton, javax.swing.GroupLayout.DEFAULT_SIZE, 207, Short.MAX_VALUE)
+                            .addComponent(uncheckTestsButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
                     .addComponent(targetListLabel))
-                .addContainerGap())
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -304,6 +313,8 @@ public class VisualAnalyzer extends javax.swing.JFrame {
                         .addComponent(attackTargetsButton)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(scanTargetsButton)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(uncheckTestsButton)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addComponent(openListButton))
                     .addComponent(targetListScrollPane, javax.swing.GroupLayout.PREFERRED_SIZE, 135, javax.swing.GroupLayout.PREFERRED_SIZE))
@@ -378,6 +389,13 @@ public class VisualAnalyzer extends javax.swing.JFrame {
             logger.error("Execution interrupted.", e);
         }
     }//GEN-LAST:event_createFingerprintButtonActionPerformed
+
+    private void uncheckTestsButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_uncheckTestsButtonActionPerformed
+        ScannerConfigurationData x = (ScannerConfigurationData)scannerConfigurationTable.getModel();
+        for(int i = 0; i < x.getRowCount(); i++)
+            x.setValueAt(false, i, 1);
+        x.fireTableDataChanged();
+    }//GEN-LAST:event_uncheckTestsButtonActionPerformed
 
     private void createErrorDialog(final String title, final String message) {
         errorDialog.setTitle(title);
@@ -486,6 +504,7 @@ public class VisualAnalyzer extends javax.swing.JFrame {
     private javax.swing.JLabel targetListLabel;
     private javax.swing.JScrollPane targetListScrollPane;
     private javax.swing.JTextArea targetListTextArea;
+    private javax.swing.JButton uncheckTestsButton;
     // End of variables declaration//GEN-END:variables
 
     private static class RunnableImpl implements Runnable {

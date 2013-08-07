@@ -12,6 +12,7 @@ import de.rub.nds.ssl.stack.workflows.commons.ObservableBridge;
 import java.net.SocketException;
 import java.util.Observable;
 import java.util.Observer;
+import java.util.List;
 import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
 import org.testng.annotations.AfterClass;
@@ -91,12 +92,13 @@ public class Dummy implements Observer {
                                 ECipherSuite.TLS_ECDHE_ECDSA_WITH_RC4_128_SHA});
                     ClientHello clientHello = 
                             (ClientHello) trace.getCurrentRecord();
+                    /*
                     extensions.setExtensions(new EExtensionType[]{
                         EExtensionType.EC_POINT_FORMATS, 
                         EExtensionType.ELLIPTIC_CURVES
-                    });
+                    });*/
                     
-                    clientHello.setExtensions(extensions);
+                    //clientHello.setExtensions(extensions);
                     trace.setCurrentRecord(clientHello);
                     break;
                 default:

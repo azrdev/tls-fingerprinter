@@ -53,6 +53,9 @@ public final class TLS10HandshakeWorkflow extends AWorkflow {
     private final static Logger logger = Logger.getRootLogger();
     private HandshakeHashBuilder hashBuilder = null;
     private AResponseFetcher fetcher = null;
+    private boolean enterApplicationPhase = false;
+    private boolean runApplicationPhase = false;
+    private ArrayList<TLSResponse> responses = null;
 
     /**
      * Define the workflow states.
@@ -73,7 +76,10 @@ public final class TLS10HandshakeWorkflow extends AWorkflow {
         CLIENT_FINISHED,
         SERVER_CHANGE_CIPHER_SPEC,
         SERVER_FINISHED,
-        ALERT;
+        ALERT,
+        APPLICATION,
+        APPLICATION_PING,
+        APPLICATION_SERVER_MESSAGE;
 
         @Override
         public int getID() {
@@ -94,9 +100,12 @@ public final class TLS10HandshakeWorkflow extends AWorkflow {
      * @param socketType Socket type to be used
      */
     public TLS10HandshakeWorkflow(final WorkflowState[] workflowStates,
-            final ESupportedSockets socketType) throws SocketException {
+            final ESupportedSockets socketType, boolean enterApplicationPhase) throws SocketException {
         super(workflowStates);
-
+        
+        this.enterApplicationPhase = enterApplicationPhase;
+        responses = new ArrayList<TLSResponse>();
+        
         switch (socketType) {
             case StandardSocket:
                 so = new Socket();
@@ -116,17 +125,17 @@ public final class TLS10HandshakeWorkflow extends AWorkflow {
      * @param socketType Socket type to be used
      * @throws SocketException  
      */
-    public TLS10HandshakeWorkflow(final ESupportedSockets socketType) throws
+    public TLS10HandshakeWorkflow(final ESupportedSockets socketType, boolean enterApplicationPhase) throws
             SocketException {
-        this(EStates.values(), socketType);
+        this(EStates.values(), socketType, enterApplicationPhase);
     }
 
     /**
      * Initialize the handshake workflow with the state values
      * @throws SocketException 
      */
-    public TLS10HandshakeWorkflow() throws SocketException {
-        this(EStates.values(), ESupportedSockets.StandardSocket);
+    public TLS10HandshakeWorkflow(boolean enterApplicationPhase) throws SocketException {
+        this(EStates.values(), ESupportedSockets.StandardSocket, enterApplicationPhase);
     }
 
     /**
@@ -254,13 +263,43 @@ public final class TLS10HandshakeWorkflow extends AWorkflow {
                     getCurrentRecord(),
                     trace.getOldRecord(), false));
             sleepPoller(EStates.SERVER_FINISHED);
-
-            fetcher.stopFetching();
+            runApplicationPhase = true;
             logger.debug("<<< TLS Handshake finished");
+            
+            if(enterApplicationPhase){
+                logger.debug(">>> Enter application phase");
+                switchToState(trace, EStates.APPLICATION);                
+                while(runApplicationPhase){
+                    switchToState(trace, EStates.APPLICATION_PING);
+                }
+            }
+            logger.debug("<<< Application phase finished");
+            fetcher.stopFetching();
         } catch (IOException e) {
             logger.debug("### Connection reset by peer.");
             closeSocket();
         }
+    }
+    
+    /**
+     * End application phase.
+     */
+    
+    public void endApplicationPhase(){
+        this.runApplicationPhase = false;
+    }
+    
+    /**
+     * Get current messages
+     */
+    
+    public ArrayList<TLSResponse> getMessages(){
+        if((responses == null) || responses.size() == 0)
+            return null;
+        ArrayList<TLSResponse> result = new ArrayList<TLSResponse>(responses.size());
+        result.addAll(responses);
+        responses.clear();
+        return result;
     }
 
     /**
@@ -315,7 +354,7 @@ public final class TLS10HandshakeWorkflow extends AWorkflow {
      * @param messages MessageContainer(s) to be send
      * @throws IOException
      */
-    private void send(final MessageContainer... messages) throws
+    public void send(final MessageContainer... messages) throws
             IOException {
         ARecordFrame rec;
         byte[] msg;
@@ -463,6 +502,8 @@ public final class TLS10HandshakeWorkflow extends AWorkflow {
         //fetch the input bytes
         TLSResponse tlsResponse = new TLSResponse(response.
                 getCurrentRecordBytes(), this);
+        if(runApplicationPhase)
+            responses.add(tlsResponse);
         tlsResponse.handleResponse(response);
         if (getCurrentState() == EStates.ALERT.getID()) {
             logger.debug("### Connection reset due to FATAL_ALERT.");

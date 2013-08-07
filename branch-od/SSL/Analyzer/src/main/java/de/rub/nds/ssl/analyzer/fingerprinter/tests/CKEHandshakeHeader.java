@@ -19,7 +19,7 @@ public final class CKEHandshakeHeader extends AGenericFingerprintTest implements
             final byte[] msgType, final byte[] recordLength) throws
             SocketException {
         logger.info("++++Start Test No." + counter + "(" + desc + ")++++");
-        workflow = new TLS10HandshakeWorkflow();
+        workflow = new TLS10HandshakeWorkflow(false);
         //connect to test server
         workflow.connectToTestServer(getTargetHost(), getTargetPort());
         logger.info("Test Server: " + getTargetHost() + ":" + getTargetPort());

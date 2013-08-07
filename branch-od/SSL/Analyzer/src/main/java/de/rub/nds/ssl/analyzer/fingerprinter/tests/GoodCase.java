@@ -11,6 +11,7 @@ import de.rub.nds.ssl.stack.workflows.TLS10HandshakeWorkflow;
 import de.rub.nds.ssl.stack.workflows.TLS10HandshakeWorkflow.EStates;
 import de.rub.nds.ssl.stack.workflows.commons.MessageBuilder;
 import de.rub.nds.ssl.stack.workflows.commons.ObservableBridge;
+import java.io.IOException;
 import java.net.SocketException;
 import java.util.Observable;
 import java.util.Observer;
@@ -27,14 +28,17 @@ public final class GoodCase extends AGenericFingerprintTest implements Observer 
      * Cipher suite.
      */
     private ECipherSuite[] suite;
+    private int blub = 0;
 
     private TestResult executeHandshake(final String desc,
             final ECipherSuite[] suite) throws SocketException {
         logger.info("++++Start Test No." + counter + "(" + desc + ")++++");
-        workflow = new TLS10HandshakeWorkflow();
+        workflow = new TLS10HandshakeWorkflow(true);
         workflow.connectToTestServer(getTargetHost(), getTargetPort());
         logger.info("Test Server: " + getTargetHost() + ":" + getTargetPort());
         workflow.addObserver(this, EStates.CLIENT_HELLO);
+        workflow.addObserver(this, EStates.APPLICATION);
+        workflow.addObserver(this, EStates.APPLICATION_PING);
         this.suite = suite;
 
         //set the test headerParameters
@@ -83,6 +87,32 @@ public final class GoodCase extends AGenericFingerprintTest implements Observer 
             trace.setCurrentRecord(clientHello);
         }
 
+        if(states == EStates.APPLICATION){
+            logger.debug("Schön hier in der Application phase.");
+            /*
+            MessageBuilder builder = new MessageBuilder();
+            CipherSuites suites = new CipherSuites();
+            RandomValue random = new RandomValue();
+            suites.setSuites(this.suite);
+            ClientHello clientHello = builder.createClientHello(protocolVersion.
+                    getId(),
+                    random.encode(false),
+                    suites.encode(false), new byte[]{0x00});
+            trace = new MessageContainer();
+            trace.setCurrentRecord(clientHello);
+            trace.prepare();
+            try{
+                workflow.send(trace);
+            }catch(IOException e){
+            }*/
+        }
+        if(states == EStates.APPLICATION_PING){
+            if(workflow.getMessages() != null){
+                logger.debug("Da is wat!");
+                workflow.endApplicationPhase();
+            }
+                
+        }
     }
 
     /**
