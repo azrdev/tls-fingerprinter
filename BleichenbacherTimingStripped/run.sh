@@ -26,8 +26,6 @@ do
 	/etc/init.d/postfix restart
 	postqueue -f
 
-	exit 1
-
 	sleep 15
 done
 

