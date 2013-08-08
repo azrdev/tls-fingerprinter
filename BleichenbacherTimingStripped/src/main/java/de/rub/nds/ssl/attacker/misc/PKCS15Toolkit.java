@@ -57,7 +57,6 @@ public class PKCS15Toolkit {
                 case FFT:
                     if (checkFirst(tmpMsg, blockSize) && checkSecond(tmpMsg)) {
                         System.out.println("    CASE 2 with 00 02, 00 on valid position");
-System.out.println(Utility.bytesToHex(tmpMsg));
                         conform = true;
                     }
                     break;
