@@ -1,5 +1,6 @@
 package de.rub.nds.ssl.stack.protocols.handshake;
 
+import de.rub.nds.ssl.stack.Utility;
 import de.rub.nds.ssl.stack.protocols.commons.ECipherSuite;
 import de.rub.nds.ssl.stack.protocols.commons.EProtocolVersion;
 import de.rub.nds.ssl.stack.protocols.handshake.datatypes.CompressionMethod;
@@ -375,13 +376,14 @@ public final class ServerHello extends AHandshakeRecord {
         setCompressionMethod(tmpBytes);
         pointer += tmpBytes.length;
 
-        // 6. check for extions
+        // 6. check for extensions
         if (payloadCopy.length > pointer) {
             // OK, extensions present
             byte[] extension_part = new byte[payloadCopy.length - pointer];
             System.arraycopy(payloadCopy, pointer, extension_part, 0,
                     extension_part.length);
-            Extensions extensions = new Extensions(message);
+            
+            Extensions extensions = new Extensions(extension_part);
             setExtensions(extensions);
         } else {
             extensions = null;

@@ -71,11 +71,13 @@ public final class ECParameters extends APubliclySerializable {
     /**
      * Order n of the base point - order of the curve.
      */
-    private byte[] order;
+    private byte[] order = new byte[0];
+    ;
     /**
      * Cofactor h of the elliptic curve.
      */
-    private byte[] cofactor;
+    private byte[] cofactor = new byte[0];
+    ;
     /**
      * Degree of the Characteristic-2 field F2^m.
      */
@@ -87,19 +89,22 @@ public final class ECParameters extends APubliclySerializable {
     /**
      * Exponent k of the trinomial form x^m + x^k + 1.
      */
-    private byte[] k;
+    private byte[] k = new byte[0];
     /**
      * Exponent k1 of the pentanomial form x^m + x^k3 + x^k2 + x^k1 + 1.
      */
-    private byte[] k1;
+    private byte[] k1 = new byte[0];
+    ;
     /**
      * Exponent k2 of the pentanomial form x^m + x^k3 + x^k2 + x^k1 + 1.
      */
-    private byte[] k2;
+    private byte[] k2 = new byte[0];
+    ;
     /**
      * Exponent k3 of the pentanomial form x^m + x^k3 + x^k2 + x^k1 + 1.
      */
-    private byte[] k3;
+    private byte[] k3 = new byte[0];
+    ;
     /**
      * Named curve.
      */

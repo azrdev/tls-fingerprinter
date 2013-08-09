@@ -155,6 +155,14 @@ public class ServerHelloHandler implements IHandshakeStates {
                         ESignatureAlgorithm.valueOf(suiteList.get(0)));
                 suiteList.remove(0);
                 break;
+            case "ECDH":
+                keyParams.setKeyExchangeAlgorithm(
+                        EKeyExchangeAlgorithm.EC_DIFFIE_HELLMAN);
+                suiteList.remove(0);
+                keyParams.setSignatureAlgorithm(
+                        ESignatureAlgorithm.valueOf(suiteList.get(0)));
+                suiteList.remove(0);
+                break;
             case "ECDHE":
                 keyParams.setKeyExchangeAlgorithm(
                         EKeyExchangeAlgorithm.EC_DIFFIE_HELLMAN);
@@ -163,6 +171,9 @@ public class ServerHelloHandler implements IHandshakeStates {
                         ESignatureAlgorithm.valueOf(suiteList.get(0)));
                 suiteList.remove(0);
                 break;
+            default:
+                throw new IllegalArgumentException(
+                        "Invalid Key Exchnage Algorithm");
         }
     }
 

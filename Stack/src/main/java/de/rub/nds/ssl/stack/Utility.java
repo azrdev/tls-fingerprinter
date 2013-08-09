@@ -81,6 +81,22 @@ public final class Utility {
     }
 
     /**
+     * Converts an int value to byte[].
+     *
+     * @param toConvert Value to converted.
+     * @return Byte array representation of the integer.
+     */
+    public static byte[] intToBytes(final int toConvert) {
+        byte[] result = new byte[4];
+        result[0] = (byte) ((toConvert >> Utility.BITS_IN_BYTE * 3) & 0xff);
+        result[1] = (byte) ((toConvert >> Utility.BITS_IN_BYTE * 2) & 0xff);
+        result[2] = (byte) ((toConvert >> Utility.BITS_IN_BYTE) & 0xff);
+        result[3] = (byte) ((toConvert) & 0xff);
+
+        return result;
+    }
+    
+    /**
      * Converts a short value to byte[].
      *
      * @param toConvert Value to converted.
@@ -89,7 +105,7 @@ public final class Utility {
     public static byte[] shortToBytes(final short toConvert) {
         byte[] result = new byte[2];
         result[0] = (byte) (toConvert & 0xff);
-        result[1] = (byte) ((toConvert >> 8) & 0xff);
+        result[1] = (byte) ((toConvert >> Utility.BITS_IN_BYTE) & 0xff);
 
         return result;
     }
@@ -102,7 +118,7 @@ public final class Utility {
      */
     public static short bytesToShort(final byte[] toConvert) {
         short result = toConvert[0];
-        result += (toConvert[1] >> 8);
+        result += (toConvert[1] >> Utility.BITS_IN_BYTE);
 
         return result;
     }

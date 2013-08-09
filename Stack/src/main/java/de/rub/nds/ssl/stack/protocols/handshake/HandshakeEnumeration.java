@@ -131,11 +131,10 @@ final public class HandshakeEnumeration extends ARecordFrame {
             msgObserve.statusChanged(tmpHandshakeMsg);
             messages.add(tmpHandshakeMsg);
         }
-        // System.err.println("decoded " + messages.size() + " messages and payloadCopy.length - pointer = " + (payloadCopy.length - pointer));
     }
 
     /**
-     * Delegates decoding process to the implementing message class
+     * Delegates decoding process to the implementing message class.
      *
      * @param messageType Message type
      * @param message Message to decode

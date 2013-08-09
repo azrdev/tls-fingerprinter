@@ -1,8 +1,12 @@
 package de.rub.nds.ssl.stack.protocols.handshake.datatypes;
 
+import de.rub.nds.ssl.stack.Utility;
 import de.rub.nds.ssl.stack.protocols.commons.APubliclySerializable;
 import de.rub.nds.ssl.stack.protocols.handshake.extensions.AExtension;
 import de.rub.nds.ssl.stack.protocols.handshake.extensions.datatypes.EExtensionType;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -27,13 +31,14 @@ public class Extensions extends APubliclySerializable {
     /**
      * List of all extensions of this object.
      */
-    private List<AExtension> extensions = new ArrayList<>(5);
+    private List<AExtension> extensions;
 
     /**
      * Initializes an extensions object as defined in RFC-2246. No extensions
      * are added by default at construction time.
      */
     public Extensions() {
+        this.extensions = new ArrayList<>(5);
     }
 
     /**
@@ -42,6 +47,7 @@ public class Extensions extends APubliclySerializable {
      * @param extensions Extensions in encoded form
      */
     public Extensions(final byte[] extensions) {
+        this.extensions = new ArrayList<>(5);
         this.decode(extensions, false);
     }
 
@@ -99,7 +105,7 @@ public class Extensions extends APubliclySerializable {
             encodedExtensions.add(tmp);
             pointer += tmp.length;
         }
-        
+
         byte[] extenionBytes = new byte[LENGTH_LENGTH_FIELD + pointer];
 
         // length
@@ -124,21 +130,97 @@ public class Extensions extends APubliclySerializable {
      */
     @Override
     public final void decode(final byte[] message, final boolean chained) {
-        int pointer = 0;
+        int pointer;
+        int extractedLength;
+        EExtensionType extensionType;
+        AExtension tmpExtension;
         byte[] tmp;
-        
+
         // deep copy
-        final byte[] tmpExtensions = new byte[message.length];
-        System.arraycopy(message, 0, tmpExtensions, 0, tmpExtensions.length);
+        final byte[] payloadCopy = new byte[message.length];
+        System.arraycopy(message, 0, payloadCopy, 0, payloadCopy.length);
 
         // check size
-        if (tmpExtensions.length < LENGTH_MINIMUM_ENCODED) {
-            throw new IllegalArgumentException(
-                    "Extensions record too short.");
+        if (payloadCopy.length < LENGTH_MINIMUM_ENCODED) {
+            throw new IllegalArgumentException("Extensions record too short.");
         }
 
-        pointer = extractLength(tmpExtensions, 0, LENGTH_LENGTH_FIELD);
-        
-        // TODO extract extensions!
+        pointer = LENGTH_LENGTH_FIELD;
+        while (payloadCopy.length >= pointer
+                + AExtension.LENGTH_MINIMUM_ENCODED) {
+
+            // 1. extract extension type
+            tmp = new byte[EExtensionType.LENGTH_ENCODED];
+            System.arraycopy(payloadCopy, pointer, tmp, 0, tmp.length);
+            extensionType = EExtensionType.getExtension(tmp);
+
+            // 2. determine extension length
+            extractedLength = extractLength(payloadCopy,
+                    pointer + EExtensionType.LENGTH_ENCODED,
+                    AExtension.LENGTH_MINIMUM_ENCODED
+                    - EExtensionType.LENGTH_ENCODED);
+
+            // 3. extract message
+            if (payloadCopy.length < pointer + extractedLength) {
+                throw new IllegalArgumentException(
+                        "Extensions payload too short.");
+            }
+            tmp = new byte[extractedLength + AExtension.LENGTH_MINIMUM_ENCODED];
+            System.arraycopy(payloadCopy, pointer, tmp, 0, tmp.length);
+            pointer += tmp.length;
+
+            // 4. add message to message list
+            tmpExtension = delegateDecoding(extensionType, tmp);
+            extensions.add(tmpExtension);
+System.out.println("Extension added: " + tmpExtension.getExtensionType().name());
+        }
+    }
+
+    /**
+     * Delegates decoding process to the implementing class.
+     *
+     * @param type Extension type
+     * @param message Extension to decode
+     * @return A decoded extension object
+     */
+    private AExtension delegateDecoding(final EExtensionType type,
+            final byte[] message) {
+        AExtension result = null;
+
+        // invoke decode
+        Class<AExtension> implClass = type.getImplementingClass();
+        if (implClass == null) {
+            throw new IllegalArgumentException(
+                    "No suitable implementing class. "
+                    + "Unsupport extension? (Type: " + type + ")");
+        }
+
+        try {
+            Class[] parameter = new Class[1];
+            parameter[0] = byte[].class;
+            Constructor<AExtension> constructor = implClass.getConstructor(
+                    parameter);
+            result = constructor.newInstance(message);
+
+            // set extension type
+            Method setExtensionType = AExtension.class
+                    .getDeclaredMethod("setExtensionType",
+                    EExtensionType.class);
+            setExtensionType.setAccessible(true);
+            setExtensionType.invoke(result, type);
+        } catch (InvocationTargetException | SecurityException | 
+                NoSuchMethodException | InstantiationException | 
+                IllegalArgumentException | IllegalAccessException ex) {
+            throw new IllegalArgumentException(
+                    "Problems during decoding delegation for "
+                    + type + " and class " + implClass.getCanonicalName(), ex);
+        }
+        return result;
+
+//        KeyExchangeParams params = KeyExchangeParams.getInstance();
+//        ECParameters ecParameters = new ECParameters();
+//        ecParameters.setCurveType(EECCurveType.NAMED_CURVE);
+//        ecParameters.setNamedCurve(ENamedCurve.SECP_256_R1);
+//        params.setECDHParameters(ecParameters);
     }
 }

@@ -80,7 +80,7 @@ public class ServerECDHParams extends APubliclySerializable implements
         final byte[] paramCopy = new byte[message.length];
         System.arraycopy(message, 0, paramCopy, 0, paramCopy.length);
 
-        int pointer = 0;
+        int pointer = 0;        
         // 1. extract curve parameters
         ECParameters params = new ECParameters(paramCopy);
         setCurveParameters(params);
@@ -105,7 +105,8 @@ public class ServerECDHParams extends APubliclySerializable implements
     /**
      * Set the curve parameters of this message part.
      *
-     * @param point The curve parameters to be used for this message part
+     * @param curveParameters The curve parameters to be used for this message
+     * part
      */
     public void setCurveParameters(final ECParameters curveParameters) {
         this.curveParameters = new ECParameters(curveParameters.encode(false));

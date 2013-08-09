@@ -42,12 +42,15 @@ public final class KeyExchangeParams {
      * Diffie-Hellman public value.
      */
     private byte[] dhPublic;
-    private ECParameters ecdhParameters;
-    private ECPoint ecDHPublicPoint;
     /**
-     * 
+     * ECDH parameter set.
      */
-    
+    private ECParameters ecdhParameters;
+    /**
+     * ECDH public key/point.
+     */
+    private ECPoint ecDHPublicPoint;
+
     /**
      * Private constructor for singleton.
      */
@@ -179,18 +182,38 @@ public final class KeyExchangeParams {
         this.dhPublic = pub.clone();
     }
 
+    /**
+     * Get the ECDH parameters.
+     *
+     * @return Parameters used for ECDH.
+     */
     public ECParameters getECDHParameters() {
         return new ECParameters(this.ecdhParameters.encode(false));
     }
-    
+
+    /**
+     * Set the ECDH parameters.
+     *
+     * @param curveParameters The parameters to be used.
+     */
     public void setECDHParameters(final ECParameters curveParameters) {
         this.ecdhParameters = new ECParameters(curveParameters.encode(false));
     }
 
+    /**
+     * Get the ECDH public point/key.
+     *
+     * @return The public point.
+     */
     public ECPoint getECDHPublicPoint() {
         return new ECPoint(this.ecDHPublicPoint.encode(false));
     }
-    
+
+    /**
+     * Set the ECDH public point/key.
+     *
+     * @param publicKey The point/key to be set.
+     */
     public void setECDHPublicPoint(final ECPoint publicKey) {
         this.ecDHPublicPoint = new ECPoint(publicKey.encode(false));
     }

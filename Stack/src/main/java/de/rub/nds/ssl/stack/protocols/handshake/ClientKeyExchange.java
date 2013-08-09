@@ -5,7 +5,7 @@ import de.rub.nds.ssl.stack.protocols.handshake.datatypes.*;
 import de.rub.nds.ssl.stack.protocols.handshake.extensions.datatypes.ClientECDHPublic;
 
 /**
- * Defines the ClientKeyExchange message of SSL/TLS as defined in RFC 2246
+ * Defines the ClientKeyExchange message of SSL/TLS as defined in RFC 2246.
  *
  * @author Christopher Meyer - christopher.meyer@rub.de
  * @version 0.1

@@ -1,13 +1,18 @@
 package de.rub.nds.ssl.stack.workflows.response;
 
+import de.rub.nds.ssl.stack.Utility;
 import de.rub.nds.ssl.stack.protocols.commons.KeyExchangeParams;
 import de.rub.nds.ssl.stack.protocols.handshake.AHandshakeRecord;
 import de.rub.nds.ssl.stack.protocols.handshake.Certificate;
 import de.rub.nds.ssl.stack.protocols.handshake.datatypes.ASN1Certificate;
+import de.rub.nds.ssl.stack.protocols.handshake.extensions.datatypes.ECParameters;
+import de.rub.nds.ssl.stack.protocols.handshake.extensions.datatypes.ECPoint;
 import java.io.ByteArrayInputStream;
 import java.security.PublicKey;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
+import java.security.interfaces.ECPublicKey;
+import java.security.spec.ECParameterSpec;
 
 public class CertificateHandler implements IHandshakeStates {
 
@@ -40,7 +45,23 @@ public class CertificateHandler implements IHandshakeStates {
                         inCert);
                 pk = cert.getPublicKey();
                 keyParams.setPublicKey(pk);
-                return;
+                
+// TODO extract curve parameters                
+                if(pk instanceof ECPublicKey) {
+                    ECPublicKey ecPK = (ECPublicKey) pk;
+                    ECParameterSpec paramSpec = ecPK.getParams();
+                    if(paramSpec != null) {
+                        ECParameters curveParameters = keyParams.getECDHParameters();
+                        
+//                        curveParameters.setBase();
+                        byte[] co = Utility.intToBytes(paramSpec.getCofactor());
+                        curveParameters.setCofactor(co);
+                        curveParameters.setOrder(
+                                paramSpec.getOrder().toByteArray());
+                        
+                        keyParams.setECDHParameters(curveParameters);
+                    }
+                }
             } catch (CertificateException e) {
                 e.printStackTrace();
             }

@@ -1,6 +1,5 @@
 package de.rub.nds.ssl.stack.protocols.handshake;
 
-import de.rub.nds.ssl.stack.Utility;
 import de.rub.nds.ssl.stack.protocols.commons.ECipherSuite;
 import de.rub.nds.ssl.stack.protocols.commons.EProtocolVersion;
 import de.rub.nds.ssl.stack.protocols.handshake.datatypes.CipherSuites;
@@ -10,7 +9,7 @@ import de.rub.nds.ssl.stack.protocols.handshake.datatypes.RandomValue;
 import de.rub.nds.ssl.stack.protocols.handshake.datatypes.SessionId;
 
 /**
- * Defines the ClientHello message of SSL/TLS as defined in RFC 2246
+ * Defines the ClientHello message of SSL/TLS as defined in RFC 2246.
  *
  * @author Christopher Meyer - christopher.meyer@rub.de
  * @version 0.1
@@ -20,21 +19,45 @@ import de.rub.nds.ssl.stack.protocols.handshake.datatypes.SessionId;
 public final class ClientHello extends AHandshakeRecord {
 
     /**
-     * Minimum length of the encoded form
+     * Minimum length of the encoded form.
      */
-    public final static int LENGTH_MINIMUM_ENCODED =
+    public static final int LENGTH_MINIMUM_ENCODED =
             EProtocolVersion.LENGTH_ENCODED
             + RandomValue.LENGTH_ENCODED
             + SessionId.LENGTH_MINIMUM_ENCODED
             + CipherSuites.LENGTH_MINIMUM_ENCODED
             + CompressionMethod.LENGTH_MINIMUM_ENCODED;
+    /**
+     * Protocol version of this message.
+     */
     private EProtocolVersion msgProtocolVersion = getProtocolVersion();
+    /**
+     * Random value.
+     */
     private RandomValue random = new RandomValue();
+    /**
+     * Supported cipher suites.
+     */
     private CipherSuites cipherSuites = new CipherSuites();
+    /**
+     * Session ID, if any.
+     */
     private SessionId sessionID = new SessionId();
+    /**
+     * Supported compression method.
+     */
     private CompressionMethod compressionMethod = new CompressionMethod();
+    /**
+     * Supported extensions.
+     */
     private Extensions extensions = null;
 
+    /**
+     * Display all contained information.
+     *
+     * @return string representation of the contained information.
+     */
+    @Override
     public String toString() {
         return "SSL Client Hello:\n"
                 + " EProtocolVersion = " + msgProtocolVersion + "\n"
@@ -121,7 +144,8 @@ public final class ClientHello extends AHandshakeRecord {
      */
     public void setRandom(final RandomValue randomValue) {
         if (randomValue == null) {
-            throw new IllegalArgumentException("Random value must not be null!");
+            throw new IllegalArgumentException(
+                    "Random value must not be null!");
         }
         // deep copy
         this.random = new RandomValue(randomValue.encode(false));
@@ -135,7 +159,8 @@ public final class ClientHello extends AHandshakeRecord {
      */
     public void setRandom(final byte[] randomValue) {
         if (randomValue == null) {
-            throw new IllegalArgumentException("Random value must not be null!");
+            throw new IllegalArgumentException(
+                    "Random value must not be null!");
         }
         // deep copy
         this.random = new RandomValue(randomValue);
@@ -163,45 +188,45 @@ public final class ClientHello extends AHandshakeRecord {
     /**
      * Set the session ID of this message.
      *
-     * @param sessionID The session id object to be used for this message in
-     * encoded form
+     * @param sessionIDValue The session id object to be used for this message
+     * in encoded form
      */
-    public void setSessionID(final byte[] sessionID) {
-        if (sessionID == null) {
+    public void setSessionID(final byte[] sessionIDValue) {
+        if (sessionIDValue == null) {
             throw new IllegalArgumentException("Session ID must not be null!");
         }
         // deep copy
-        this.sessionID = new SessionId(sessionID);
+        this.sessionID = new SessionId(sessionIDValue);
     }
 
     /**
      * Set the session ID of this message.
      *
-     * @param sessionID The session id to be used for this message
+     * @param sessionIDValue The session id to be used for this message
      */
-    public void setSessionID(final SessionId sessionID) {
-        if (sessionID == null) {
+    public void setSessionID(final SessionId sessionIDValue) {
+        if (sessionIDValue == null) {
             throw new IllegalArgumentException("Session ID must not be null!");
         }
 
         // deep copy
-        this.sessionID = new SessionId(sessionID.encode(false));
+        this.sessionID = new SessionId(sessionIDValue.encode(false));
     }
 
     /**
      * Set the extensions of this message.
      *
-     * @param extensions The extensions to be used for this message
+     * @param extensionsValue The extensions to be used for this message
      */
-    public void setExtensions(final Extensions extensions) {
-        if (extensions == null) {
+    public void setExtensions(final Extensions extensionsValue) {
+        if (extensionsValue == null) {
             throw new IllegalArgumentException("Extensions must not be null!");
         }
 
         // deep copy
 //        this.extensions = new Extensions(extensions.encode(false));
         // TODO fix me!
-        this.extensions = extensions;
+        this.extensions = extensionsValue;
     }
 
     /**
@@ -216,48 +241,50 @@ public final class ClientHello extends AHandshakeRecord {
     /**
      * Set the compression method of this message.
      *
-     * @param compressionMethod The compression method object to be used for
-     * this message in encoded form
+     * @param compressionMethodValue The compression method object to be used
+     * for this message in encoded form
      */
-    public void setCompressionMethod(final byte[] compressionMethod) {
-        this.compressionMethod.setMethods(compressionMethod);
+    public void setCompressionMethod(final byte[] compressionMethodValue) {
+        this.compressionMethod.setMethods(compressionMethodValue);
     }
 
     /**
      * Set the compression method of this message.
      *
-     * @param compressionMethod The compression method to be used for this
+     * @param compressionMethodValue The compression method to be used for this
      * message
      */
-    public void setCompressionMethod(final CompressionMethod compressionMethod) {
-        if (compressionMethod == null) {
+    public void setCompressionMethod(
+            final CompressionMethod compressionMethodValue) {
+        if (compressionMethodValue == null) {
             throw new IllegalArgumentException(
                     "Compression method must not be null!");
         }
 
         // deep copy
         this.compressionMethod = new CompressionMethod(
-                compressionMethod.encode(false));
+                compressionMethodValue.encode(false));
     }
 
     /**
      * Set the protocol version at the record layer level. This will NOT change
      * the protocol version of this message.
      *
-     * @param version Protocol version for the record Layer
+     * @param versionValue Protocol version for the record Layer
      */
-    public void setRecordLayerProtocolVersion(final EProtocolVersion version) {
-        this.setProtocolVersion(version);
+    public void setRecordLayerProtocolVersion(
+            final EProtocolVersion versionValue) {
+        this.setProtocolVersion(versionValue);
     }
 
     /**
      * Set the protocol version at the record layer level. This will NOT change
      * the protocol version of this message.
      *
-     * @param version Protocol version for the record Layer
+     * @param versionValue Protocol version for the record Layer
      */
-    public void setRecordLayerProtocolVersion(final byte[] version) {
-        this.setProtocolVersion(version);
+    public void setRecordLayerProtocolVersion(final byte[] versionValue) {
+        this.setProtocolVersion(versionValue);
     }
 
     /**
@@ -277,7 +304,6 @@ public final class ClientHello extends AHandshakeRecord {
         byte[] encExtensions = new byte[0];
         if (extensions != null) {
             encExtensions = extensions.encode(false);
-System.out.println("=====> encExtensions.length="+encExtensions.length);            
         }
 
         // putting the pieces together
@@ -348,7 +374,8 @@ System.out.println("=====> encExtensions.length="+encExtensions.length);
 
         // check size
         if (payloadCopy.length < LENGTH_MINIMUM_ENCODED) {
-            throw new IllegalArgumentException("ClientHello message too short.");
+            throw new IllegalArgumentException(
+                    "ClientHello message too short.");
         }
 
         pointer = 0;
@@ -404,11 +431,11 @@ System.out.println("=====> encExtensions.length="+encExtensions.length);
         // 6. check for extions
         if (payloadCopy.length > pointer) {
             // OK, extensions present
-            byte[] extension_part = new byte[payloadCopy.length - pointer];
-            System.arraycopy(payloadCopy, pointer, extension_part, 0,
-                    extension_part.length);
-            Extensions extensions = new Extensions(message);
-            setExtensions(extensions);
+            byte[] extensionPart = new byte[payloadCopy.length - pointer];
+            System.arraycopy(payloadCopy, pointer, extensionPart, 0,
+                    extensionPart.length);
+            Extensions decodedExtensions = new Extensions(message);
+            setExtensions(decodedExtensions);
         } else {
             extensions = null;
         }
@@ -430,7 +457,8 @@ System.out.println("=====> encExtensions.length="+encExtensions.length);
      */
     public void setCipherSuites(final ECipherSuite[] suites) {
         if (suites == null) {
-            throw new IllegalArgumentException("Cipher suites must not be null!");
+            throw new IllegalArgumentException(
+                    "Cipher suites must not be null!");
         }
 
         this.cipherSuites.setSuites(suites);
