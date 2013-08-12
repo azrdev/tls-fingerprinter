@@ -206,7 +206,7 @@ public class ServerHelloHandler implements IHandshakeStates {
         } else {
             param.setCipherType(ECipherType.BLOCK);
         }
-        
+
         switch (algorithm.getBulkCipher(suiteList.get(0))) {
             case NULL:
                 param.setBulkCipherAlgorithm(EBulkCipherAlgorithm.NULL);

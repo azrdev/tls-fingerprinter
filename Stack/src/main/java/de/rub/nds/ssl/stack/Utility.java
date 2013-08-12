@@ -74,10 +74,16 @@ public final class Utility {
      * @return Integer representation of the byte[]
      */
     public static int bytesToInt(final byte... bytes) {
-        return (int) ((0xFF & bytes[0]) << Utility.BITS_IN_BYTE * 3
-                | (0xFF & bytes[1]) << Utility.BITS_IN_BYTE * 2
-                | (0xFF & bytes[2]) << Utility.BITS_IN_BYTE
-                | (0xFF & bytes[3]));
+        byte[] copy = bytes;
+        if(copy.length < 4){
+            byte[] tmp = new byte[4];
+            System.arraycopy(bytes, 0, tmp, tmp.length-copy.length, copy.length);
+            copy = tmp;
+        }
+        return (int) ((0xFF & copy[0]) << Utility.BITS_IN_BYTE * 3
+                | (0xFF & copy[1]) << Utility.BITS_IN_BYTE * 2
+                | (0xFF & copy[2]) << Utility.BITS_IN_BYTE
+                | (0xFF & copy[3]));
     }
 
     /**

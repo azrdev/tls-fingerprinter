@@ -172,7 +172,6 @@ public class Extensions extends APubliclySerializable {
             // 4. add message to message list
             tmpExtension = delegateDecoding(extensionType, tmp);
             extensions.add(tmpExtension);
-System.out.println("Extension added: " + tmpExtension.getExtensionType().name());
         }
     }
 

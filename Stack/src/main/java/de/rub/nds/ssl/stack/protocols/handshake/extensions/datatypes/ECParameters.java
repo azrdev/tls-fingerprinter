@@ -2,8 +2,6 @@ package de.rub.nds.ssl.stack.protocols.handshake.extensions.datatypes;
 
 import de.rub.nds.ssl.stack.Utility;
 import de.rub.nds.ssl.stack.protocols.commons.APubliclySerializable;
-import de.rub.nds.ssl.stack.protocols.handshake.extensions.datatypes.EECBasisType;
-import de.rub.nds.ssl.stack.protocols.handshake.extensions.datatypes.EECCurveType;
 
 /**
  * ECParameters part - as defined in RFC 4492.
@@ -509,7 +507,7 @@ public final class ECParameters extends APubliclySerializable {
         byte[] tmp;
 
         // extract prime p
-        extractedLength = extractLength(paramCopy, 0, LENGTH_FIELD_PRIME_P);
+        extractedLength = extractLength(paramCopy, pointer, LENGTH_FIELD_PRIME_P);
         tmp = new byte[extractedLength];
         pointer += LENGTH_FIELD_PRIME_P;
         System.arraycopy(paramCopy, pointer, tmp, 0, tmp.length);
@@ -517,19 +515,19 @@ public final class ECParameters extends APubliclySerializable {
         pointer += tmp.length;
 
         // extract curve
-        tmp = new byte[ECCurve.LENGTH_MINIMUM_ENCODED];
+        tmp = new byte[paramCopy.length - pointer];
         System.arraycopy(paramCopy, pointer, tmp, 0, tmp.length);
         setCurve(new ECCurve(tmp));
-        pointer += tmp.length;
+        pointer += getCurve().encode(false).length;
 
         // extract base
-        tmp = new byte[ECPoint.LENGTH_MINIMUM_ENCODED];
+        tmp = new byte[paramCopy.length - pointer];
         System.arraycopy(paramCopy, pointer, tmp, 0, tmp.length);
         setBase(new ECPoint(tmp));
-        pointer += tmp.length;
+        pointer += getBase().encode(false).length;
 
         // extract order
-        extractedLength = extractLength(paramCopy, 0, LENGTH_FIELD_ORDER);
+        extractedLength = extractLength(paramCopy, pointer, LENGTH_FIELD_ORDER);
         tmp = new byte[extractedLength];
         pointer += LENGTH_FIELD_ORDER;
         System.arraycopy(paramCopy, pointer, tmp, 0, tmp.length);
@@ -537,7 +535,8 @@ public final class ECParameters extends APubliclySerializable {
         pointer += tmp.length;
 
         // extract cofactor
-        extractedLength = extractLength(paramCopy, 0, LENGTH_FIELD_COFACTOR);
+        extractedLength = extractLength(paramCopy, pointer,
+                LENGTH_FIELD_COFACTOR);
         tmp = new byte[extractedLength];
         pointer += LENGTH_FIELD_COFACTOR;
         System.arraycopy(paramCopy, pointer, tmp, 0, tmp.length);
@@ -565,7 +564,8 @@ public final class ECParameters extends APubliclySerializable {
         switch (getBasis()) {
             case EC_BASIS_TRINOMIAL:
                 // extract k
-                extractedLength = extractLength(paramCopy, 0, LENGTH_FIELD_K);
+                extractedLength = extractLength(paramCopy, pointer,
+                        LENGTH_FIELD_K);
                 tmp = new byte[extractedLength];
                 pointer += LENGTH_FIELD_K;
                 System.arraycopy(paramCopy, pointer, tmp, 0, tmp.length);
@@ -574,21 +574,24 @@ public final class ECParameters extends APubliclySerializable {
                 break;
             case EC_BASIS_PENTANOMIAL:
                 // extract k1
-                extractedLength = extractLength(paramCopy, 0, LENGTH_FIELD_K1);
+                extractedLength = extractLength(paramCopy, pointer,
+                        LENGTH_FIELD_K1);
                 tmp = new byte[extractedLength];
                 pointer += LENGTH_FIELD_K1;
                 System.arraycopy(paramCopy, pointer, tmp, 0, tmp.length);
                 setK1(tmp);
                 pointer += tmp.length;
                 // extract k2
-                extractedLength = extractLength(paramCopy, 0, LENGTH_FIELD_K2);
+                extractedLength = extractLength(paramCopy, pointer,
+                        LENGTH_FIELD_K2);
                 tmp = new byte[extractedLength];
                 pointer += LENGTH_FIELD_K2;
                 System.arraycopy(paramCopy, pointer, tmp, 0, tmp.length);
                 setK2(tmp);
                 pointer += tmp.length;
                 // extract k3
-                extractedLength = extractLength(paramCopy, 0, LENGTH_FIELD_K3);
+                extractedLength = extractLength(paramCopy, pointer,
+                        LENGTH_FIELD_K3);
                 tmp = new byte[extractedLength];
                 pointer += LENGTH_FIELD_K3;
                 System.arraycopy(paramCopy, pointer, tmp, 0, tmp.length);
@@ -612,7 +615,7 @@ public final class ECParameters extends APubliclySerializable {
         pointer += tmp.length;
 
         // extract order
-        extractedLength = extractLength(paramCopy, 0, LENGTH_FIELD_ORDER);
+        extractedLength = extractLength(paramCopy, pointer, LENGTH_FIELD_ORDER);
         tmp = new byte[extractedLength];
         pointer += LENGTH_FIELD_ORDER;
         System.arraycopy(paramCopy, pointer, tmp, 0, tmp.length);
@@ -620,7 +623,8 @@ public final class ECParameters extends APubliclySerializable {
         pointer += tmp.length;
 
         // extract cofactor
-        extractedLength = extractLength(paramCopy, 0, LENGTH_FIELD_COFACTOR);
+        extractedLength = extractLength(paramCopy, pointer,
+                LENGTH_FIELD_COFACTOR);
         tmp = new byte[extractedLength];
         pointer += LENGTH_FIELD_COFACTOR;
         System.arraycopy(paramCopy, pointer, tmp, 0, tmp.length);
@@ -637,63 +641,59 @@ public final class ECParameters extends APubliclySerializable {
         int pointer = 0;
         byte[] tmp;
         byte[] ecParameters = new byte[EECCurveType.LENGTH_ENCODED
-                + primeP.length + ECCurve.LENGTH_MINIMUM_ENCODED
+                + LENGTH_FIELD_PRIME_P + primeP.length
+                + ECCurve.LENGTH_MINIMUM_ENCODED
                 + curve.getA().length + curve.getB().length
                 + ECPoint.LENGTH_MINIMUM_ENCODED
-                + base.getPoint().length - 1 // 1 already in MINIMUM_ENC
+                + base.getPoint().length - 1 // 1 byte already in MINIMUM_ENC
                 + LENGTH_FIELD_ORDER + order.length
                 + LENGTH_FIELD_COFACTOR + cofactor.length];
 
         /*
-         * 1. add curve type
-         */
-        tmp = new byte[]{curveType.getId()};
-        System.arraycopy(tmp, 0, ecParameters, pointer, tmp.length);
-        pointer += tmp.length;
-        /*
-         * 2. add prime p length
+         * 1. add prime p length
          */
         tmp = buildLength(primeP.length, LENGTH_FIELD_PRIME_P);
         System.arraycopy(tmp, 0, ecParameters, pointer, tmp.length);
         pointer += tmp.length;
         /*
-         * 3. add prime p
+         * 2. add prime p
          */
         tmp = getPrimeP();
         System.arraycopy(tmp, 0, ecParameters, pointer, tmp.length);
         pointer += tmp.length;
         /*
-         * 4. add curve
+         * 3. add curve
          */
         tmp = curve.encode(false);
         System.arraycopy(tmp, 0, ecParameters, pointer, tmp.length);
         pointer += tmp.length;
+
         /*
-         * 5. add base
+         * 4. add base
          */
         tmp = base.encode(false);
         System.arraycopy(tmp, 0, ecParameters, pointer, tmp.length);
         pointer += tmp.length;
         /*
-         * 6. add order length
+         * 5. add order length
          */
         tmp = buildLength(order.length, LENGTH_FIELD_ORDER);
         System.arraycopy(tmp, 0, ecParameters, pointer, tmp.length);
         pointer += tmp.length;
         /*
-         * 7. add order
+         * 6. add order
          */
         tmp = getOrder();
         System.arraycopy(tmp, 0, ecParameters, pointer, tmp.length);
         pointer += tmp.length;
         /*
-         * 8. add cofactor length
+         * 7. add cofactor length
          */
         tmp = buildLength(cofactor.length, LENGTH_FIELD_COFACTOR);
         System.arraycopy(tmp, 0, ecParameters, pointer, tmp.length);
         pointer += tmp.length;
         /*
-         * 9. add cofactor
+         * 8. add cofactor
          */
         tmp = getCofactor();
         System.arraycopy(tmp, 0, ecParameters, pointer, tmp.length);

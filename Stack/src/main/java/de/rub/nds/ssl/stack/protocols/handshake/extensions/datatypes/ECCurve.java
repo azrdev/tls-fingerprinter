@@ -125,6 +125,7 @@ public final class ECCurve extends APubliclySerializable {
         length = buildLength(a.length, LENGTH_A);
         System.arraycopy(length, 0, ecCurve, pointer, length.length);
         pointer += length.length;
+
         /*
          * 2. add the a parameter
          */
@@ -159,7 +160,7 @@ public final class ECCurve extends APubliclySerializable {
 
         int pointer = 0;
         // 1. extract a
-        extractedLength = extractLength(ecCurveCopy, 0, LENGTH_A);
+        extractedLength = extractLength(ecCurveCopy, pointer, LENGTH_A);
         tmpBytes = new byte[extractedLength];
         pointer += LENGTH_A;
         System.arraycopy(ecCurveCopy, pointer, tmpBytes, 0, tmpBytes.length);
@@ -167,7 +168,7 @@ public final class ECCurve extends APubliclySerializable {
         pointer += tmpBytes.length;
 
         // 2. extract b
-        extractedLength = extractLength(ecCurveCopy, 0, LENGTH_B);
+        extractedLength = extractLength(ecCurveCopy, pointer, LENGTH_B);
         tmpBytes = new byte[extractedLength];
         pointer += LENGTH_B;
         System.arraycopy(ecCurveCopy, pointer, tmpBytes, 0, tmpBytes.length);
