@@ -1,6 +1,5 @@
 package de.rub.nds.tinytlssocket;
 
-import de.rub.nds.ssl.stack.protocols.commons.ECipherSuite;
 import de.rub.nds.ssl.stack.protocols.commons.EProtocolVersion;
 import de.rub.nds.ssl.stack.protocols.msgs.TLSPlaintext;
 import java.io.FileInputStream;
@@ -25,7 +24,6 @@ import javax.net.ssl.SSLServerSocketFactory;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.TrustManagerFactory;
 import org.apache.log4j.Category;
-import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.apache.log4j.Priority;
 
@@ -181,7 +179,8 @@ public final class TLSServer extends Thread {
         SSLServerSocket result = (SSLServerSocket) 
                 serverSocketFactory.createServerSocket(listenPort);
         result.setEnabledCipherSuites(new String[]{
-                    "TLS_RSA_WITH_AES_128_CBC_SHA"
+                    "TLS_RSA_WITH_AES_128_CBC_SHA",
+                    "TLS_ECDH_RSA_WITH_AES_128_CBC_SHA"
                 });
         result.setSoTimeout(TIMEOUT);
         result.setReuseAddress(true);
