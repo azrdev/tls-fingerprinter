@@ -1,6 +1,5 @@
 package de.rub.nds.ssl.stack.protocols.handshake;
 
-import de.rub.nds.ssl.stack.Utility;
 import de.rub.nds.ssl.stack.protocols.commons.ECipherSuite;
 import de.rub.nds.ssl.stack.protocols.commons.EProtocolVersion;
 import de.rub.nds.ssl.stack.protocols.handshake.datatypes.CompressionMethod;
@@ -53,6 +52,7 @@ public final class ServerHello extends AHandshakeRecord {
     public ServerHello(final byte[] message, final boolean chained) {
         // dummy call - decoding will invoke decoders of the parents if desired
         super();
+        this.setMessageType(EMessageType.SERVER_HELLO);
         this.decode(message, chained);
     }
 

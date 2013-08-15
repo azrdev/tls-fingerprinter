@@ -77,6 +77,7 @@ public final class ClientHello extends AHandshakeRecord {
     public ClientHello(final byte[] message, final boolean chained) {
         // dummy call - decoding will invoke decoders of the parents if desired
         super();
+        this.setMessageType(EMessageType.CLIENT_HELLO);
         this.decode(message, chained);
     }
 

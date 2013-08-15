@@ -29,6 +29,7 @@ public final class Certificate extends AHandshakeRecord {
     public Certificate(final byte[] message, final boolean chained) {
         // dummy call - decoding will invoke decoders of the parents if desired
         super();
+        this.setMessageType(EMessageType.CERTIFICATE);
         this.decode(message, chained);
     }
 

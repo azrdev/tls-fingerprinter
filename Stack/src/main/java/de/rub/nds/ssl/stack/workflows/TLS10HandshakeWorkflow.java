@@ -1,6 +1,5 @@
 package de.rub.nds.ssl.stack.workflows;
 
-import de.rub.nds.research.timingsocket.TimingSocket;
 import de.rub.nds.ssl.stack.Utility;
 import de.rub.nds.ssl.stack.protocols.ARecordFrame;
 import de.rub.nds.ssl.stack.protocols.commons.EConnectionEnd;
@@ -392,15 +391,6 @@ public final class TLS10HandshakeWorkflow extends AWorkflow {
             // TODO remove
             e.printStackTrace();
         }
-    }
-
-    /**
-     * Checks whether timing measurement capabilites are enabled or not.
-     *
-     * @return True if time measurement is enabled.
-     */
-    public boolean isTimingEnabled() {
-        return (this.so instanceof TimingSocket);
     }
 
     /**

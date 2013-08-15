@@ -2,6 +2,7 @@ package de.rub.nds.ssl.stack.protocols.handshake;
 
 import de.rub.nds.ssl.stack.protocols.commons.EProtocolVersion;
 import de.rub.nds.ssl.stack.protocols.handshake.datatypes.*;
+import static de.rub.nds.ssl.stack.protocols.handshake.datatypes.EKeyExchangeAlgorithm.DIFFIE_HELLMAN;
 import de.rub.nds.ssl.stack.protocols.handshake.extensions.datatypes.ClientECDHPublic;
 
 /**
@@ -58,6 +59,7 @@ public final class ClientKeyExchange extends AHandshakeRecord {
             final boolean chained) {
         // dummy call - decoding will invoke decoders of the parents if desired
         super();
+        this.setMessageType(EMessageType.CLIENT_KEY_EXCHANGE);
         this.keyExchangeAlgorithm =
                 EKeyExchangeAlgorithm.valueOf(exchangeAlgorithm.name());
         this.decode(message, chained);
@@ -225,6 +227,14 @@ public final class ClientKeyExchange extends AHandshakeRecord {
                             "ClientKeyExchange message too short.");
                 }
                 exchangeKeys = new EncPreMasterSecret(payloadCopy);
+                break;
+            case EC_DIFFIE_HELLMAN:
+                if (payloadCopy.length
+                        < ClientECDHPublic.LENGTH_MINIMUM_ENCODED) {
+                    throw new IllegalArgumentException(
+                            "ClientKeyExchange message too short.");
+                }
+                exchangeKeys = new ClientECDHPublic(payloadCopy);
                 break;
             default:
                 break;

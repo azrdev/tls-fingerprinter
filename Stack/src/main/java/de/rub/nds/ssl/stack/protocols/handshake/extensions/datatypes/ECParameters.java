@@ -70,12 +70,10 @@ public final class ECParameters extends APubliclySerializable {
      * Order n of the base point - order of the curve.
      */
     private byte[] order = new byte[0];
-    ;
     /**
      * Cofactor h of the elliptic curve.
      */
     private byte[] cofactor = new byte[0];
-    ;
     /**
      * Degree of the Characteristic-2 field F2^m.
      */
@@ -92,17 +90,14 @@ public final class ECParameters extends APubliclySerializable {
      * Exponent k1 of the pentanomial form x^m + x^k3 + x^k2 + x^k1 + 1.
      */
     private byte[] k1 = new byte[0];
-    ;
     /**
      * Exponent k2 of the pentanomial form x^m + x^k3 + x^k2 + x^k1 + 1.
      */
     private byte[] k2 = new byte[0];
-    ;
     /**
      * Exponent k3 of the pentanomial form x^m + x^k3 + x^k2 + x^k1 + 1.
      */
     private byte[] k3 = new byte[0];
-    ;
     /**
      * Named curve.
      */
@@ -135,10 +130,11 @@ public final class ECParameters extends APubliclySerializable {
     /**
      * Set the curve type value of this message part.
      *
-     * @param curveType The curve type value to be used for this message part
+     * @param curveTypeValue The curve type value to be used for this message
+     * part
      */
-    public void setCurveType(final EECCurveType curveType) {
-        this.curveType = EECCurveType.valueOf(curveType.name());
+    public void setCurveType(final EECCurveType curveTypeValue) {
+        this.curveType = EECCurveType.valueOf(curveTypeValue.name());
     }
 
     /**
@@ -157,17 +153,17 @@ public final class ECParameters extends APubliclySerializable {
     /**
      * Set the prime p value of this message part.
      *
-     * @param primeP The prime p value to be used for this message part
+     * @param primePValue The prime p value to be used for this message part
      */
-    public void setPrimeP(final byte[] primeP) {
-        if (primeP == null) {
+    public void setPrimeP(final byte[] primePValue) {
+        if (primePValue == null) {
             throw new IllegalArgumentException("Prime p value "
                     + "must not be null!");
         }
 
         // deep copy
-        this.primeP = new byte[primeP.length];
-        System.arraycopy(primeP, 0, this.primeP, 0, primeP.length);
+        this.primeP = new byte[primePValue.length];
+        System.arraycopy(primePValue, 0, this.primeP, 0, primePValue.length);
     }
 
     /**
@@ -182,10 +178,10 @@ public final class ECParameters extends APubliclySerializable {
     /**
      * Set the curve value of this message part.
      *
-     * @param curve The curve value to be used for this message part
+     * @param curveValue The curve value to be used for this message part
      */
-    public void setCurve(final ECCurve curve) {
-        this.curve = new ECCurve(curve.encode(false));
+    public void setCurve(final ECCurve curveValue) {
+        this.curve = new ECCurve(curveValue.encode(false));
     }
 
     /**
@@ -200,10 +196,10 @@ public final class ECParameters extends APubliclySerializable {
     /**
      * Set the base value of this message part.
      *
-     * @param base The base value to be used for this message part
+     * @param baseValue The base value to be used for this message part
      */
-    public void setBase(final ECPoint base) {
-        this.base = new ECPoint(base.encode(false));
+    public void setBase(final ECPoint baseValue) {
+        this.base = new ECPoint(baseValue.encode(false));
     }
 
     /**
@@ -222,17 +218,17 @@ public final class ECParameters extends APubliclySerializable {
     /**
      * Set the order value of this message part.
      *
-     * @param order The order value to be used for this message part
+     * @param orderValue The order value to be used for this message part
      */
-    public void setOrder(final byte[] order) {
-        if (order == null) {
+    public void setOrder(final byte[] orderValue) {
+        if (orderValue == null) {
             throw new IllegalArgumentException("Order value "
                     + "must not be null!");
         }
 
         // deep copy
-        this.order = new byte[order.length];
-        System.arraycopy(order, 0, this.order, 0, order.length);
+        this.order = new byte[orderValue.length];
+        System.arraycopy(orderValue, 0, this.order, 0, orderValue.length);
     }
 
     /**
@@ -251,17 +247,18 @@ public final class ECParameters extends APubliclySerializable {
     /**
      * Set the cofactor value of this message part.
      *
-     * @param cofactor The cofactor value to be used for this message part
+     * @param cofactorValue The cofactor value to be used for this message part
      */
-    public void setCofactor(final byte[] cofactor) {
-        if (cofactor == null) {
+    public void setCofactor(final byte[] cofactorValue) {
+        if (cofactorValue == null) {
             throw new IllegalArgumentException("Cofactor value "
                     + "must not be null!");
         }
 
         // deep copy
-        this.cofactor = new byte[cofactor.length];
-        System.arraycopy(cofactor, 0, this.cofactor, 0, cofactor.length);
+        this.cofactor = new byte[cofactorValue.length];
+        System.arraycopy(cofactorValue, 0, this.cofactor, 0,
+                cofactorValue.length);
     }
 
     /**
@@ -276,10 +273,10 @@ public final class ECParameters extends APubliclySerializable {
     /**
      * Set the m value of this message part.
      *
-     * @param m The m value to be used for this message part
+     * @param mValue The m value to be used for this message part
      */
-    public void setM(final short m) {
-        this.m = m;
+    public void setM(final short mValue) {
+        this.m = mValue;
     }
 
     /**
@@ -294,10 +291,10 @@ public final class ECParameters extends APubliclySerializable {
     /**
      * Set the basis value of this message part.
      *
-     * @param basis The basis value to be used for this message part
+     * @param basisValue The basis value to be used for this message part
      */
-    public void setBasis(final EECBasisType basis) {
-        this.basis = EECBasisType.valueOf(basis.name());
+    public void setBasis(final EECBasisType basisValue) {
+        this.basis = EECBasisType.valueOf(basisValue.name());
     }
 
     /**
@@ -316,17 +313,17 @@ public final class ECParameters extends APubliclySerializable {
     /**
      * Set the k value of this message part.
      *
-     * @param k The k value to be used for this message part
+     * @param kValue The k value to be used for this message part
      */
-    public void setK(final byte[] k) {
-        if (k == null) {
+    public void setK(final byte[] kValue) {
+        if (kValue == null) {
             throw new IllegalArgumentException("K value "
                     + "must not be null!");
         }
 
         // deep copy
-        this.k = new byte[k.length];
-        System.arraycopy(k, 0, this.k, 0, k.length);
+        this.k = new byte[kValue.length];
+        System.arraycopy(kValue, 0, this.k, 0, kValue.length);
     }
 
     /**
@@ -345,17 +342,17 @@ public final class ECParameters extends APubliclySerializable {
     /**
      * Set the k1 value of this message part.
      *
-     * @param k1 The k1 value to be used for this message part
+     * @param k1Value The k1 value to be used for this message part
      */
-    public void setK1(final byte[] k1) {
-        if (k1 == null) {
+    public void setK1(final byte[] k1Value) {
+        if (k1Value == null) {
             throw new IllegalArgumentException("K1 value "
                     + "must not be null!");
         }
 
         // deep copy
-        this.k1 = new byte[k1.length];
-        System.arraycopy(k1, 0, this.k1, 0, k1.length);
+        this.k1 = new byte[k1Value.length];
+        System.arraycopy(k1Value, 0, this.k1, 0, k1Value.length);
     }
 
     /**
@@ -374,17 +371,17 @@ public final class ECParameters extends APubliclySerializable {
     /**
      * Set the k2 value of this message part.
      *
-     * @param k2 The k2 value to be used for this message part
+     * @param k2Value The k2 value to be used for this message part
      */
-    public void setK2(final byte[] k2) {
-        if (k2 == null) {
+    public void setK2(final byte[] k2Value) {
+        if (k2Value == null) {
             throw new IllegalArgumentException("K2 value "
                     + "must not be null!");
         }
 
         // deep copy
-        this.k2 = new byte[k2.length];
-        System.arraycopy(k2, 0, this.k2, 0, k2.length);
+        this.k2 = new byte[k2Value.length];
+        System.arraycopy(k2Value, 0, this.k2, 0, k2Value.length);
     }
 
     /**
@@ -403,17 +400,17 @@ public final class ECParameters extends APubliclySerializable {
     /**
      * Set the k3 value of this message part.
      *
-     * @param k3 The k3 value to be used for this message part
+     * @param k3Value The k3 value to be used for this message part
      */
-    public void setK3(final byte[] k3) {
-        if (k3 == null) {
+    public void setK3(final byte[] k3Value) {
+        if (k3Value == null) {
             throw new IllegalArgumentException("K3 value "
                     + "must not be null!");
         }
 
         // deep copy
-        this.k3 = new byte[k3.length];
-        System.arraycopy(k3, 0, this.k3, 0, k3.length);
+        this.k3 = new byte[k3Value.length];
+        System.arraycopy(k3Value, 0, this.k3, 0, k3Value.length);
     }
 
     /**
@@ -428,10 +425,11 @@ public final class ECParameters extends APubliclySerializable {
     /**
      * Set the named curve value of this message part.
      *
-     * @param namedCurve The namedCurve value to be used for this message part
+     * @param namedCurveValue The namedCurve value to be used for this message
+     * part
      */
-    public void setNamedCurve(final ENamedCurve namedCurve) {
-        this.namedCurve = ENamedCurve.valueOf(namedCurve.name());
+    public void setNamedCurve(final ENamedCurve namedCurveValue) {
+        this.namedCurve = ENamedCurve.valueOf(namedCurveValue.name());
     }
 
     /**
@@ -441,7 +439,7 @@ public final class ECParameters extends APubliclySerializable {
      */
     @Override
     public byte[] encode(final boolean chained) {
-        byte[] ecParameters = null;
+        byte[] ecParameters;
         byte[] tmp;
 
         switch (curveType) {
@@ -501,13 +499,20 @@ public final class ECParameters extends APubliclySerializable {
 
     }
 
-    private void decodeExplicitPrime(final byte[] paramCopy, int offset) {
+    /**
+     * Decode an explicit prime parameter set.
+     *
+     * @param paramCopy Parameter copy.
+     * @param offset Offset where to start decoding.
+     */
+    private void decodeExplicitPrime(final byte[] paramCopy, final int offset) {
         int pointer = offset;
         int extractedLength;
         byte[] tmp;
 
         // extract prime p
-        extractedLength = extractLength(paramCopy, pointer, LENGTH_FIELD_PRIME_P);
+        extractedLength = extractLength(paramCopy, pointer,
+                LENGTH_FIELD_PRIME_P);
         tmp = new byte[extractedLength];
         pointer += LENGTH_FIELD_PRIME_P;
         System.arraycopy(paramCopy, pointer, tmp, 0, tmp.length);
@@ -544,7 +549,13 @@ public final class ECParameters extends APubliclySerializable {
         pointer += tmp.length;
     }
 
-    private void decodeExplicitChar2(final byte[] paramCopy, int offset) {
+    /**
+     * Decode an explicit characteristic-2 parameter set.
+     *
+     * @param paramCopy Parameter copy.
+     * @param offset Offset where to start decoding.
+     */
+    private void decodeExplicitChar2(final byte[] paramCopy, final int offset) {
         int pointer = offset;
         int extractedLength;
         byte[] tmp;

@@ -73,16 +73,16 @@ public final class ClientECDHPublic extends APubliclySerializable
     /**
      * Set the ECDH Yc value of this message part.
      *
-     * @param ecdhYc The ECDH Yc value to be used for this message part
+     * @param ecdhYcValue The ECDH Yc value to be used for this message part
      */
-    public void setECDHYc(final ECPoint ecdhYc) {
-        if (ecdhYc == null) {
+    public void setECDHYc(final ECPoint ecdhYcValue) {
+        if (ecdhYcValue == null) {
             throw new IllegalArgumentException("ECDH Yc value "
                     + "must not be null!");
         }
 
         // deep copy
-        this.ecdhYc = new ECPoint(ecdhYc.encode(false));
+        this.ecdhYc = new ECPoint(ecdhYcValue.encode(false));
     }
 
     /**

@@ -69,10 +69,10 @@ public class CertificateHandler implements IHandshakeStates {
                         java.security.spec.ECPoint generator = paramSpec.
                                 getGenerator();
                         byte[] encodedGenerator = ECUtility.encodeX9_62(
-                                generator.getAffineX().toByteArray(), 
+                                generator.getAffineX().toByteArray(),
                                 generator.getAffineY().toByteArray(),
                                 EECPointFormat.UNCOMPRESSED);
-                                
+
                         ECPoint generatorPoint = new ECPoint();
                         generatorPoint.setPoint(encodedGenerator);
                         curveParameters.setBase(generatorPoint);
@@ -84,7 +84,7 @@ public class CertificateHandler implements IHandshakeStates {
                         ecCurve.setA(a);
                         ecCurve.setB(b);
                         curveParameters.setCurve(ecCurve);
-                        
+
                         ECField field = curve.getField();
                         if (field != null) {
                             if (field instanceof ECFieldF2m) {
@@ -92,7 +92,7 @@ public class CertificateHandler implements IHandshakeStates {
                                 curveParameters.setCurveType(
                                         EECCurveType.EXPLICIT_CHAR2);
                                 curveParameters.setM((short) m);
-                                
+
                                 // TODO extract K | K1,K2,K3
                             } else {
                                 BigInteger p = ((ECFieldFp) field).getP();
@@ -101,7 +101,7 @@ public class CertificateHandler implements IHandshakeStates {
                                 curveParameters.setPrimeP(p.toByteArray());
                             }
                         }
-                        
+
                         // TODO named curve identifizieren!
 
                         keyParams.setECDHParameters(curveParameters);

@@ -63,6 +63,7 @@ public class ServerKeyExchange extends AHandshakeRecord {
         super();
         this.keyExchangeAlgorithm =
                 EKeyExchangeAlgorithm.valueOf(exchangeAlgorithm.name());
+        this.setMessageType(EMessageType.SERVER_KEY_EXCHANGE);
         this.decode(message, chained);
     }
 

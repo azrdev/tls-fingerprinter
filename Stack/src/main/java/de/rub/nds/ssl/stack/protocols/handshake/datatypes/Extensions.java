@@ -1,6 +1,5 @@
 package de.rub.nds.ssl.stack.protocols.handshake.datatypes;
 
-import de.rub.nds.ssl.stack.Utility;
 import de.rub.nds.ssl.stack.protocols.commons.APubliclySerializable;
 import de.rub.nds.ssl.stack.protocols.handshake.extensions.AExtension;
 import de.rub.nds.ssl.stack.protocols.handshake.extensions.datatypes.EExtensionType;
@@ -18,7 +17,7 @@ import java.util.List;
  *
  * Feb 4, 2013
  */
-public class Extensions extends APubliclySerializable {
+public final class Extensions extends APubliclySerializable {
 
     /**
      * Length of the length field.
@@ -44,11 +43,11 @@ public class Extensions extends APubliclySerializable {
     /**
      * Initializes an extension object as defined in RFC-2246.
      *
-     * @param extensions Extensions in encoded form
+     * @param extensionsValue Extensions in encoded form
      */
-    public Extensions(final byte[] extensions) {
+    public Extensions(final byte[] extensionsValue) {
         this.extensions = new ArrayList<>(5);
-        this.decode(extensions, false);
+        this.decode(extensionsValue, false);
     }
 
     /**
@@ -67,25 +66,25 @@ public class Extensions extends APubliclySerializable {
     /**
      * Set the extensions.
      *
-     * @param extensions The extensions to be used
+     * @param extensionsValue The extensions to be used
      */
-    public final void setExtensions(final List<AExtension> extensions) {
-        if (extensions == null) {
+    public void setExtensions(final List<AExtension> extensionsValue) {
+        if (extensionsValue == null) {
             throw new IllegalArgumentException("Extensions must not be null!");
         }
 
         // new objects keep the array clean and small, Mr. Proper will be proud!
-        this.extensions = new ArrayList<>(extensions.size());
+        this.extensions = new ArrayList<>(extensionsValue.size());
         // refill, deep copy list, but not extensions itself!
         this.extensions.addAll(this.extensions);
     }
 
     /**
-     * Add an extension to the extension list
+     * Add an extension to the extension list.
      *
      * @param extension Extension to be added
      */
-    public final void addExtension(final AExtension extension) {
+    public void addExtension(final AExtension extension) {
         this.extensions.add(extension);
     }
 
@@ -96,7 +95,7 @@ public class Extensions extends APubliclySerializable {
      * Method parameter will be ignored - no support for chained encoding.
      */
     @Override
-    public final byte[] encode(final boolean chained) {
+    public byte[] encode(final boolean chained) {
         int pointer = 0;
         List<byte[]> encodedExtensions = new ArrayList<>(extensions.size());
         byte[] tmp;
@@ -129,7 +128,7 @@ public class Extensions extends APubliclySerializable {
      * Method parameter will be ignored - no support for chained decoding.
      */
     @Override
-    public final void decode(final byte[] message, final boolean chained) {
+    public void decode(final byte[] message, final boolean chained) {
         int pointer;
         int extractedLength;
         EExtensionType extensionType;
@@ -207,19 +206,13 @@ public class Extensions extends APubliclySerializable {
                     EExtensionType.class);
             setExtensionType.setAccessible(true);
             setExtensionType.invoke(result, type);
-        } catch (InvocationTargetException | SecurityException | 
-                NoSuchMethodException | InstantiationException | 
+        } catch (InvocationTargetException | SecurityException |
+                NoSuchMethodException | InstantiationException |
                 IllegalArgumentException | IllegalAccessException ex) {
             throw new IllegalArgumentException(
                     "Problems during decoding delegation for "
                     + type + " and class " + implClass.getCanonicalName(), ex);
         }
         return result;
-
-//        KeyExchangeParams params = KeyExchangeParams.getInstance();
-//        ECParameters ecParameters = new ECParameters();
-//        ecParameters.setCurveType(EECCurveType.NAMED_CURVE);
-//        ecParameters.setNamedCurve(ENamedCurve.SECP_256_R1);
-//        params.setECDHParameters(ecParameters);
     }
 }

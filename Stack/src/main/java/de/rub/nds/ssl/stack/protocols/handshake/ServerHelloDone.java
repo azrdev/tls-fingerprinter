@@ -26,6 +26,7 @@ public final class ServerHelloDone extends AHandshakeRecord {
     public ServerHelloDone(final byte[] message, final boolean chained) {
         // dummy call - decoding will invoke decoders of the parents if desired
         super();
+        this.setMessageType(EMessageType.SERVER_HELLO_DONE);
         this.decode(message, chained);
     }
 

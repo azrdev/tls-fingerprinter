@@ -26,6 +26,7 @@ public final class HelloRequest extends AHandshakeRecord {
     public HelloRequest(final byte[] message, final boolean chained) {
         // dummy call - decoding will invoke decoders of the parents if desired
         super();
+        this.setMessageType(EMessageType.HELLO_REQUEST);
         this.decode(message, chained);
     }
 

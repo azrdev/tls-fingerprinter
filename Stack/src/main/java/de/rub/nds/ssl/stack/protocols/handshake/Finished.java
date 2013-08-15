@@ -35,6 +35,7 @@ public final class Finished extends AHandshakeRecord {
     public Finished(final byte[] message, final boolean chained) {
         // dummy call - decoding will invoke decoders of the parents if desired
         super();
+        this.setMessageType(EMessageType.FINISHED);
         this.decode(message, chained);
     }
 

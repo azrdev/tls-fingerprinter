@@ -2,6 +2,7 @@ package de.rub.nds.ssl.stack;
 
 import de.rub.nds.ssl.stack.protocols.handshake.extensions.datatypes.ECPoint;
 import de.rub.nds.ssl.stack.protocols.handshake.extensions.datatypes.EECPointFormat;
+import java.util.Arrays;
 
 /**
  * Helpful routines when working with elliptic curves.
@@ -19,9 +20,39 @@ public final class ECUtility {
     private ECUtility() {
     }
 
-    public static byte[] encodeX9_62(final byte[] x, final byte[] y,
+    /**
+     * Remove leading zeros from arrays - if any!
+     *
+     * @param array Array to be stripped.
+     * @return Array with leading zeros stripped off.
+     */
+    private static final byte[] stripLeadingZeroBytes(byte[] array) {
+        int counter = 0;
+        for (int i = 0; i < array.length; i++) {
+            if (array[i] != 0x00) {
+                break;
+            }
+            counter++;
+        }
+        
+        return Arrays.copyOfRange(array, counter, array.length);
+    }
+
+    /**
+     * Encode an EC Point according to X9.62.
+     *
+     * @param xBytes X coordinate
+     * @param yBytes Y coordinate
+     * @param pointFormat Desired point encoding
+     * @return Encoded point
+     */
+    public static byte[] encodeX9_62(final byte[] xBytes, final byte[] yBytes,
             final EECPointFormat pointFormat) {
         byte[] result;
+        // sanitze input
+        byte[] x = stripLeadingZeroBytes(xBytes);
+        byte[] y = stripLeadingZeroBytes(yBytes);
+
         switch (pointFormat) {
             case ANSI_X962_COMPRESSED_CHAR2:
                 // strip of Y coordinate
@@ -48,7 +79,7 @@ public final class ECUtility {
                 result = new byte[x.length + y.length + 1];
                 result[0] = 0x04;
                 System.arraycopy(x, 0, result, 1, x.length);
-                System.arraycopy(x, 0, result, 1 + x.length, y.length);
+                System.arraycopy(y, 0, result, 1 + x.length, y.length);
                 break;
             default:
                 result = new byte[0];
