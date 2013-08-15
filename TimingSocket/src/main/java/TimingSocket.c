@@ -11,7 +11,7 @@
 #include <pthread.h>
 
 
-// #define _debug
+//#define _debug
 
 static int sock = -1;
 static int start_measurement = 0;
