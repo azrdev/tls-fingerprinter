@@ -3,7 +3,9 @@ package de.rub.nds.ssl.analyzer.fingerprinter.tests;
 import de.rub.nds.ssl.analyzer.TestResult;
 import de.rub.nds.ssl.analyzer.executor.EFingerprintTests;
 import de.rub.nds.ssl.stack.protocols.commons.ECipherSuite;
+import de.rub.nds.ssl.stack.protocols.commons.EContentType;
 import de.rub.nds.ssl.stack.protocols.handshake.ClientHello;
+import de.rub.nds.ssl.stack.protocols.handshake.ApplicationRecord;
 import de.rub.nds.ssl.stack.protocols.handshake.datatypes.CipherSuites;
 import de.rub.nds.ssl.stack.protocols.handshake.datatypes.RandomValue;
 import de.rub.nds.ssl.stack.trace.MessageContainer;
@@ -40,6 +42,7 @@ public final class GoodCase extends AGenericFingerprintTest implements Observer 
         workflow.addObserver(this, EStates.APPLICATION);
         workflow.addObserver(this, EStates.APPLICATION_PING);
         this.suite = suite;
+        
 
         //set the test headerParameters
         headerParameters.setIdentifier(EFingerprintTests.GOOD);
@@ -86,7 +89,7 @@ public final class GoodCase extends AGenericFingerprintTest implements Observer 
                     suites.encode(false), new byte[]{0x00});
             trace.setCurrentRecord(clientHello);
         }
-
+       
         if(states == EStates.APPLICATION){
             logger.debug("Schön hier in der Application phase.");
             /*
@@ -109,6 +112,7 @@ public final class GoodCase extends AGenericFingerprintTest implements Observer 
         if(states == EStates.APPLICATION_PING){
             if(workflow.getMessages() != null){
                 logger.debug("Da is wat!");
+                workflow.applicationSend(new byte[]{13, 37});
                 workflow.endApplicationPhase();
             }
                 

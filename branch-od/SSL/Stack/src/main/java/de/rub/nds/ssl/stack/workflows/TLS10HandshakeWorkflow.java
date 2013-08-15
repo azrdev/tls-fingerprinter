@@ -4,6 +4,7 @@ import de.rub.nds.research.timingsocket.TimingSocket;
 import de.rub.nds.ssl.stack.Utility;
 import de.rub.nds.ssl.stack.protocols.ARecordFrame;
 import de.rub.nds.ssl.stack.protocols.commons.EConnectionEnd;
+import de.rub.nds.ssl.stack.protocols.commons.EContentType;
 import de.rub.nds.ssl.stack.protocols.commons.EProtocolVersion;
 import de.rub.nds.ssl.stack.protocols.handshake.ClientHello;
 import de.rub.nds.ssl.stack.protocols.handshake.datatypes.MasterSecret;
@@ -248,7 +249,7 @@ public final class TLS10HandshakeWorkflow extends AWorkflow {
             }
             record = msgBuilder.createFinished(protocolVersion,
                     EConnectionEnd.CLIENT, handshakeHashes, masterSec);
-            record = msgBuilder.encryptRecord(protocolVersion, record);
+            record = msgBuilder.encryptRecord(protocolVersion, record, EContentType.HANDSHAKE);
             setRecordTrace(trace, record);
             // change status and notify observers
             switchToState(trace, EStates.CLIENT_FINISHED);
@@ -354,7 +355,7 @@ public final class TLS10HandshakeWorkflow extends AWorkflow {
      * @param messages MessageContainer(s) to be send
      * @throws IOException
      */
-    public void send(final MessageContainer... messages) throws
+    private void send(final MessageContainer... messages) throws
             IOException {
         ARecordFrame rec;
         byte[] msg;
@@ -388,6 +389,25 @@ public final class TLS10HandshakeWorkflow extends AWorkflow {
         }
     }
 
+    /**
+    * Prepare and send message in application phase
+    *
+    */
+    public void applicationSend(final byte[] message) throws IllegalStateException{
+        if(runApplicationPhase){
+            MessageContainer trace = new MessageContainer();
+            MessageBuilder builder = new MessageBuilder();
+            setRecordTrace(trace, builder.encryptRecord(protocolVersion, builder.createApplication(protocolVersion, message), EContentType.APPLICATION));
+            trace.prepare();
+            try{
+                send(trace);
+            }catch(IOException e){
+                //TODO
+            }
+        }else
+            throw new IllegalStateException("Workflow is currently not in the application phase.");
+    }
+    
     /**
      * Get the PreMasterSecret.
      *

@@ -6,6 +6,7 @@ import de.rub.nds.ssl.stack.protocols.commons.*;
 import de.rub.nds.ssl.stack.protocols.handshake.ClientHello;
 import de.rub.nds.ssl.stack.protocols.handshake.ClientKeyExchange;
 import de.rub.nds.ssl.stack.protocols.handshake.Finished;
+import de.rub.nds.ssl.stack.protocols.handshake.ApplicationRecord;
 import de.rub.nds.ssl.stack.protocols.handshake.datatypes.*;
 import de.rub.nds.ssl.stack.protocols.handshake.extensions.datatypes.ClientECDHPublic;
 import de.rub.nds.ssl.stack.protocols.handshake.extensions.datatypes.ECParameters;
@@ -195,6 +196,14 @@ public class MessageBuilder {
 
         return finished;
     }
+    /**
+     * Create Application message
+     *
+     * @return Application message
+     */
+    public final ApplicationRecord createApplication(EProtocolVersion protocol, final byte[] message){
+        return new ApplicationRecord(protocol, message);
+    }
 
     /**
      * Encrypt a record frame depend on the cipher
@@ -205,7 +214,8 @@ public class MessageBuilder {
      */
     public final TLSCiphertext encryptRecord(
             final EProtocolVersion protocolVersion,
-            final ARecordFrame record) {
+            final ARecordFrame record,
+            final EContentType contentType) {
         SecurityParameters param = SecurityParameters.getInstance();
         //create the key material
         KeyMaterial keyMat = new KeyMaterial();
@@ -216,7 +226,7 @@ public class MessageBuilder {
                 macName);
         SecretKey symmKey = new SecretKeySpec(keyMat.getClientKey(), cipherName);
         TLSCiphertext rec = new TLSCiphertext(protocolVersion,
-                EContentType.HANDSHAKE);
+                contentType);
         if (param.getCipherType() == ECipherType.BLOCK) {
             GenericBlockCipher blockCipher = new GenericBlockCipher(record);
             blockCipher.computePayloadMAC(macKey, macName);
