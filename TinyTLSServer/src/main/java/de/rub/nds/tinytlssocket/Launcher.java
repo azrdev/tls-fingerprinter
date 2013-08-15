@@ -1,5 +1,10 @@
 package de.rub.nds.tinytlssocket;
 
+import java.security.Provider;
+import java.security.Security;
+import javax.crypto.Cipher;
+import sun.security.ec.SunEC;
+
 /**
  * Server launcher.
  *
@@ -17,6 +22,11 @@ public class Launcher {
      */
     public static void main(String[] args) throws Exception {
         final TLSServer serverThread;
+        Security.addProvider(new SunEC());
+        for(Provider provider : Security.getProviders()) {
+            System.out.println(provider);
+        }
+//args = new String[]{"/mnt/dataEnc/repos/repos_misc/cmeyer/code/FixedDHCertificates/FixedECDH.jks", "ecdh", "TLS", "51707", "true"};        
         if (args.length != 5) {
             System.out.println("Invalid number of arguments!\n"
                     + "Usage: java -jar TinyTLSServer.jar "
