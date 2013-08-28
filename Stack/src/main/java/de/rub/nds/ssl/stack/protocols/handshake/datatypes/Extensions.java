@@ -108,8 +108,8 @@ public final class Extensions extends APubliclySerializable {
         byte[] extenionBytes = new byte[LENGTH_LENGTH_FIELD + pointer];
 
         // length
-        pointer = 0;
         tmp = buildLength(pointer, LENGTH_LENGTH_FIELD);
+        pointer = 0;
         System.arraycopy(tmp, 0, extenionBytes, pointer, tmp.length);
         pointer += tmp.length;
 

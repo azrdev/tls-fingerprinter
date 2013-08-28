@@ -101,7 +101,8 @@ public enum EProtocolVersion {
         protocolVersion = id[0] << Utility.BITS_IN_BYTE | id[1] & 0xff;
 
         if (!ID_MAP.containsKey(protocolVersion)) {
-            throw new IllegalArgumentException("No such protocol version.");
+            throw new IllegalArgumentException("No such protocol version: " 
+                    + Utility.bytesToHex(id));
         }
 
         return ID_MAP.get(protocolVersion);

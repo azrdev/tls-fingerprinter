@@ -61,7 +61,7 @@ public class ECCExtractionTest implements Observer {
      * Sniffed ClientKeyExchnage message.
      */
     private static byte[] SNIFFED_CKE = new byte[]{
-//        (byte) 0x10, (byte) 0x00, (byte) 0x00, (byte) 0x42, 
+        //        (byte) 0x10, (byte) 0x00, (byte) 0x00, (byte) 0x42, 
         (byte) 0x41,
         (byte) 0x04, (byte) 0x85, (byte) 0x62, (byte) 0xb1, (byte) 0xb7,
         (byte) 0x0d, (byte) 0x5a, (byte) 0xfe, (byte) 0x4e, (byte) 0xef,
@@ -76,8 +76,6 @@ public class ECCExtractionTest implements Observer {
         (byte) 0xa4, (byte) 0x1e, (byte) 0xb1, (byte) 0xb5, (byte) 0x01,
         (byte) 0xa8, (byte) 0x1a, (byte) 0xe3, (byte) 0xb8, (byte) 0x78,
         (byte) 0xc9, (byte) 0x6f, (byte) 0xa7, (byte) 0xcb, (byte) 0xdd};
-    
-    
     /**
      * Valid point on secp256r1.
      */
@@ -96,26 +94,24 @@ public class ECCExtractionTest implements Observer {
         (byte) 0x29, (byte) 0xba, (byte) 0xfd, (byte) 0x2f, (byte) 0x6c,
         (byte) 0x0a, (byte) 0xe0, (byte) 0x99, (byte) 0x51, (byte) 0xd6
     };
-    
     /**
      * Nasty point on secp256r1.
      */
     private static final byte[] NASTY_PUBLIC_POINT = new byte[]{
-        (byte) 0x04, (byte) 0x48, (byte) 0xc2, (byte) 0xea, (byte) 0x5c,
-        (byte) 0x39, (byte) 0xde, (byte) 0xa6, (byte) 0x6f, (byte) 0x48,
-        (byte) 0x0a, (byte) 0x97, (byte) 0xd3, (byte) 0x5b, (byte) 0xff,
-        (byte) 0x72, (byte) 0xc4, (byte) 0x9e, (byte) 0xd4, (byte) 0x53,
-        (byte) 0x46, (byte) 0x8a, (byte) 0x6b, (byte) 0x59, (byte) 0x12,
-        (byte) 0x3a, (byte) 0x6d, (byte) 0x88, (byte) 0xa8, (byte) 0x81,
-        (byte) 0x9b, (byte) 0x97, (byte) 0xb0, (byte) 0x8e, (byte) 0x47,
-        (byte) 0xa2, (byte) 0x60, (byte) 0x9f, (byte) 0x0b, (byte) 0xde,
-        (byte) 0x66, (byte) 0xff, (byte) 0x6a, (byte) 0x3c, (byte) 0xaa,
-        (byte) 0x3f, (byte) 0x87, (byte) 0x31, (byte) 0xd9, (byte) 0xfe,
-        (byte) 0xfa, (byte) 0xc1, (byte) 0xa4, (byte) 0xbe, (byte) 0x53,
-        (byte) 0x64, (byte) 0x52, (byte) 0x5a, (byte) 0x9a, (byte) 0x4c,
-        (byte) 0x65, (byte) 0x45, (byte) 0xf4, (byte) 0x03, (byte) 0xd4
+        (byte) 0x04, (byte) 0xaa, (byte) 0xaa, (byte) 0xaa, (byte) 0xaa,
+        (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0xaa,
+        (byte) 0xaa, (byte) 0xaa, (byte) 0xaa, (byte) 0xaa, (byte) 0xaa,
+        (byte) 0xaa, (byte) 0xaa, (byte) 0xaa, (byte) 0xaa, (byte) 0xaa,
+        (byte) 0xab, (byte) 0x55, (byte) 0x55, (byte) 0x55, (byte) 0x55,
+        (byte) 0x55, (byte) 0x55, (byte) 0x55, (byte) 0x55, (byte) 0x55,
+        (byte) 0x55, (byte) 0x55, (byte) 0x55, (byte) 0x55, (byte) 0x55,
+        (byte) 0x55, (byte) 0x55, (byte) 0x00, (byte) 0x00, (byte) 0x00,
+        (byte) 0x00, (byte) 0x55, (byte) 0x55, (byte) 0x55, (byte) 0x55,
+        (byte) 0x55, (byte) 0x55, (byte) 0x55, (byte) 0x55, (byte) 0x55,
+        (byte) 0x55, (byte) 0x55, (byte) 0x55, (byte) 0xaa, (byte) 0xaa,
+        (byte) 0xaa, (byte) 0xaa, (byte) 0xaa, (byte) 0xaa, (byte) 0xaa,
+        (byte) 0xaa, (byte) 0xaa, (byte) 0xaa, (byte) 0xaa, (byte) 0xa9
     };
-    
     private static final byte[] VALID_PUBLIC_POINT_2 = new byte[]{
         (byte) 0x04, (byte) 0x85, (byte) 0x62, (byte) 0xb1, (byte) 0xb7,
         (byte) 0x0d, (byte) 0x5a, (byte) 0xfe, (byte) 0x4e, (byte) 0xef,
@@ -160,7 +156,6 @@ public class ECCExtractionTest implements Observer {
         // code that will be invoked after this test ends
     }
 
-    
     /**
      * Update observed object.
      *
@@ -189,11 +184,11 @@ public class ECCExtractionTest implements Observer {
                     });
                     clientHello.setCipherSuites(suites);
 //                    clientHello.setMessageProtocolVersion(EProtocolVersion.TLS_1_0);
-                    
+
                     Extensions extensions = new Extensions();
                     EllipticCurves curves = new EllipticCurves();
                     curves.setSupportedCurves(new ENamedCurve[]{
-                        ENamedCurve.SECP_256_R1,
+                        ENamedCurve.SECP_256_R1, 
 //                        ENamedCurve.SECP_384_R1,
 //                        ENamedCurve.SECP_521_R1
                     });
@@ -210,12 +205,12 @@ public class ECCExtractionTest implements Observer {
                 case CLIENT_KEY_EXCHANGE:
                     ClientKeyExchange cke =
                             (ClientKeyExchange) trace.getCurrentRecord();
-                    cke = new ClientKeyExchange(SNIFFED_CKE, 
+                    cke = new ClientKeyExchange(SNIFFED_CKE,
                             EKeyExchangeAlgorithm.EC_DIFFIE_HELLMAN, false);
-//                    byte[] tmp = VALID_PUBLIC_POINT_2;
-                    byte[] tmp = NASTY_PUBLIC_POINT;
+                    byte[] tmp = VALID_PUBLIC_POINT_2;
+//                    byte[] tmp = NASTY_PUBLIC_POINT;
                     // destroy the point
-//                    tmp[tmp.length - 6] = 17;                 
+                    tmp[tmp.length - 6] = 17;                 
 
                     ClientECDHPublic keyMaterial = new ClientECDHPublic();
                     ECPoint newPoint = new ECPoint();
