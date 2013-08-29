@@ -1,5 +1,6 @@
 package de.rub.nds.ssl.stack.protocols.msgs.datatypes;
 
+import de.rub.nds.ssl.stack.Utility;
 import de.rub.nds.ssl.stack.crypto.MACComputation;
 import de.rub.nds.ssl.stack.protocols.ARecordFrame;
 import de.rub.nds.ssl.stack.protocols.commons.APubliclySerializable;
@@ -118,7 +119,7 @@ public class GenericBlockCipher extends APubliclySerializable implements
         // 4. add padding length
         System.arraycopy(paddedDataLength, 0, tmp, pointer,
                 paddedDataLength.length);
-
+        
         //encrypt the data
         if (blockCipher != null) {
             try {

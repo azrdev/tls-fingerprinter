@@ -54,7 +54,7 @@ public class CertificateHandler implements IHandshakeStates {
                         inCert);
                 pk = cert.getPublicKey();
                 keyParams.setPublicKey(pk);
-
+                
 // TODO extract curve parameters                
                 if (pk instanceof ECPublicKey) {
                     ECPublicKey ecPK = (ECPublicKey) pk;
@@ -107,6 +107,13 @@ public class CertificateHandler implements IHandshakeStates {
                         keyParams.setECDHParameters(curveParameters);
                     }
                 }
+                
+                /*
+                 * We' ve got the key infos from the first certificate!
+                 * All following certificates build the certificate chain up to
+                 * the trust anchor --> we don't care
+                 */
+                break;
             } catch (CertificateException e) {
                 e.printStackTrace();
             }
