@@ -38,7 +38,7 @@ public class KeyMaterial {
      */
     private byte[] serverIV = null;
     /**
-     * AES Initialization vectpr length.
+     * AES Initialization vector length.
      */
     private static final int IV_LENGTH_AES = 16;
     /**

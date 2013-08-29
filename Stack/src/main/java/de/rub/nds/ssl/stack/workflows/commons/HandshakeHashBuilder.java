@@ -1,5 +1,6 @@
 package de.rub.nds.ssl.stack.workflows.commons;
 
+import de.rub.nds.ssl.stack.Utility;
 import java.security.DigestException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -43,7 +44,7 @@ public class HandshakeHashBuilder {
     }
 
     /**
-     * Get hash over exchanched handshake messages.
+     * Get hash over exchanged handshake messages.
      *
      * @return Hash value over the handshake messages
      * @throws DigestException Digest exception

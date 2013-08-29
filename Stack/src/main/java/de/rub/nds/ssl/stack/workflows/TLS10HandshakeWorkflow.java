@@ -189,14 +189,12 @@ public final class TLS10HandshakeWorkflow extends AWorkflow {
             // drop it on the wire!
             send(trace);
             logger.debug("Client Key Exchange message sent");
-
+            // hash current record
+            updateHash(hashBuilder, trace);
             // add trace to ArrayList
             addToTraceList(new MessageContainer(EStates.CLIENT_KEY_EXCHANGE,
                     trace.getCurrentRecord(),
                     trace.getOldRecord(), false));
-            // hash current record
-            updateHash(hashBuilder, trace);
-
             /*
              * create ChangeCipherSepc
              */
@@ -211,9 +209,7 @@ public final class TLS10HandshakeWorkflow extends AWorkflow {
             trace.prepare();
             // drop it on the wire!
             send(trace);
-
             logger.debug("Change Cipher Spec message sent");
-
             // switch to encrypted mode
             encrypted = true;
             // add trace to ArrayList
@@ -316,7 +312,6 @@ public final class TLS10HandshakeWorkflow extends AWorkflow {
      */
     private void send(final MessageContainer... messages) throws
             IOException {
-        ARecordFrame rec;
         byte[] msg;
         byte[][] byteBuffer = new byte[messages.length][];
         int overallCap = 0;
@@ -460,6 +455,7 @@ public final class TLS10HandshakeWorkflow extends AWorkflow {
             closeSocket();
             return;
         }
+        
         //hash current record
         updateHash(hashBuilder, response.getCurrentRecordBytes());
         Thread.currentThread().interrupt();

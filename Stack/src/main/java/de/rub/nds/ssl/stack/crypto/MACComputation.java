@@ -92,7 +92,7 @@ public class MACComputation {
         System.arraycopy(payload, 0, data, pointer, payload.length);
 
         //increment the sequence number
-        this.incrementArray(seqNum);
+        seqNum = this.incrementArray(seqNum);
 
         //compute the MAC of the message
         return mac.doFinal(data);

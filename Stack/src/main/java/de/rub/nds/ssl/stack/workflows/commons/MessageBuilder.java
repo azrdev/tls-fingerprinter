@@ -214,7 +214,8 @@ public class MessageBuilder {
         String macName = param.getMacAlgorithm().toString();
         SecretKey macKey = new SecretKeySpec(keyMat.getClientMACSecret(),
                 macName);
-        SecretKey symmKey = new SecretKeySpec(keyMat.getClientKey(), cipherName);
+        SecretKey symmKey = new SecretKeySpec(keyMat.getClientKey(), 
+                cipherName);
         TLSCiphertext rec = new TLSCiphertext(protocolVersion,
                 EContentType.HANDSHAKE);
         if (param.getCipherType() == ECipherType.BLOCK) {
@@ -307,23 +308,25 @@ public class MessageBuilder {
      * @param workflow Handshake workflow
      * @return Computed MasterSecret
      */
-    public MasterSecret createMasterSecret(final TLS10HandshakeWorkflow workflow) {
+    public MasterSecret createMasterSecret(
+            final TLS10HandshakeWorkflow workflow) {
         KeyExchangeParams keyParams = KeyExchangeParams.getInstance();
         PreMasterSecret pms = workflow.getPreMasterSecret();
         //set pre_master_secret
-        byte[] pre_master_secret = new byte[46];
+        byte[] preMasterSecret;
         switch (keyParams.getKeyExchangeAlgorithm()) {
             case RSA:
-                pre_master_secret = pms.encode(false);
+                preMasterSecret = pms.encode(false);
                 break;
             case DIFFIE_HELLMAN:
-                pre_master_secret = pms.getDHKey();
+                preMasterSecret = pms.getDHKey();
                 break;
             case EC_DIFFIE_HELLMAN:
-// TODO compute pre master secret correctly                
-                
+// TODO compute pre master secret correctly       
+                preMasterSecret = new byte[48];
                 break;
-            default:
+            default:   
+                preMasterSecret = new byte[48];
                 break;
         }
 
@@ -331,7 +334,7 @@ public class MessageBuilder {
         MasterSecret masterSec = null;
         try {
             masterSec = new MasterSecret(param.getClientRandom(), param.
-                    getServerRandom(), pre_master_secret);
+                    getServerRandom(), preMasterSecret);
         } catch (InvalidKeyException e) {
             e.printStackTrace();
         }

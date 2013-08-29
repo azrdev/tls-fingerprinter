@@ -222,23 +222,6 @@ public class MessageUtils {
     }
 
     /**
-     * Send a handshake record
-     *
-     * @param record The handshake record
-     * @param out The output stream
-     */
-    public final void sendHandshakeMessage(final AHandshakeRecord record,
-            final OutputStream out) {
-        byte[] msg = record.encode(true);
-        try {
-            out.write(msg);
-            out.flush();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    /**
      * Send a SSL message
      *
      * @param out Output stream

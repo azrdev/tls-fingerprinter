@@ -152,7 +152,7 @@ final public class HandshakeEnumeration extends ARecordFrame {
             throw new NullPointerException("implClass == NULL: type was "
                     + type);
         }
-
+        
         try {
             // Can we decide this in another way?
             if ((implClass.equals(ServerKeyExchange.class) || (implClass

@@ -149,7 +149,7 @@ public class ServerHelloHandler implements IHandshakeStates {
                 break;
             case "DHE":
                 keyParams.setKeyExchangeAlgorithm(
-                        EKeyExchangeAlgorithm.EC_DIFFIE_HELLMAN);
+                        EKeyExchangeAlgorithm.DIFFIE_HELLMAN);
                 suiteList.remove(0);
                 keyParams.setSignatureAlgorithm(
                         ESignatureAlgorithm.valueOf(suiteList.get(0)));

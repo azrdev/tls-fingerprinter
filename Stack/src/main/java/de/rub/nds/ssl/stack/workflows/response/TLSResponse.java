@@ -1,5 +1,6 @@
 package de.rub.nds.ssl.stack.workflows.response;
 
+import de.rub.nds.ssl.stack.Utility;
 import de.rub.nds.ssl.stack.protocols.ARecordFrame;
 import de.rub.nds.ssl.stack.protocols.alert.Alert;
 import de.rub.nds.ssl.stack.protocols.alert.datatypes.EAlertLevel;
