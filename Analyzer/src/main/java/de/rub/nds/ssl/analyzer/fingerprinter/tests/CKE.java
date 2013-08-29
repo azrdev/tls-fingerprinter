@@ -9,6 +9,7 @@ import de.rub.nds.ssl.stack.protocols.handshake.ClientHello;
 import de.rub.nds.ssl.stack.protocols.handshake.ClientKeyExchange;
 import de.rub.nds.ssl.stack.protocols.handshake.datatypes.CipherSuites;
 import de.rub.nds.ssl.stack.protocols.handshake.datatypes.ClientDHPublic;
+import de.rub.nds.ssl.stack.protocols.handshake.datatypes.EKeyExchangeAlgorithm;
 import de.rub.nds.ssl.stack.protocols.handshake.datatypes.RandomValue;
 import de.rub.nds.ssl.stack.trace.MessageContainer;
 import de.rub.nds.ssl.stack.workflows.TLS10HandshakeWorkflow;

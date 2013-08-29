@@ -103,7 +103,7 @@ public abstract class Launcher {
     }
 
     /**
-     * Checks if the target si reachable.
+     * Checks if the target is reachable.
      *
      * @param target Target to check
      * @return True if the target is reachable
