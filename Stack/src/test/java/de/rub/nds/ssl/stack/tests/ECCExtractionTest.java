@@ -57,25 +57,7 @@ public class ECCExtractionTest implements Observer {
      * Test port.
      */
     private static final int PORT = 51707;
-    /**
-     * Sniffed ClientKeyExchnage message.
-     */
-    private static byte[] SNIFFED_CKE = new byte[]{
-        //        (byte) 0x10, (byte) 0x00, (byte) 0x00, (byte) 0x42, 
-        (byte) 0x41,
-        (byte) 0x04, (byte) 0x85, (byte) 0x62, (byte) 0xb1, (byte) 0xb7,
-        (byte) 0x0d, (byte) 0x5a, (byte) 0xfe, (byte) 0x4e, (byte) 0xef,
-        (byte) 0xd1, (byte) 0xe1, (byte) 0x0c, (byte) 0xea, (byte) 0x0f,
-        (byte) 0xcb, (byte) 0x7a, (byte) 0x93, (byte) 0x57, (byte) 0x5a,
-        (byte) 0x19, (byte) 0x57, (byte) 0x4e, (byte) 0x70, (byte) 0x91,
-        (byte) 0x97, (byte) 0xef, (byte) 0x9e, (byte) 0x30, (byte) 0xae,
-        (byte) 0x9d, (byte) 0xf3, (byte) 0xf1, (byte) 0x98, (byte) 0x96,
-        (byte) 0x8a, (byte) 0xd8, (byte) 0x9e, (byte) 0xe1, (byte) 0x99,
-        (byte) 0x96, (byte) 0xe3, (byte) 0x6a, (byte) 0xb9, (byte) 0x20,
-        (byte) 0xc7, (byte) 0xd9, (byte) 0xa2, (byte) 0x69, (byte) 0x91,
-        (byte) 0xa4, (byte) 0x1e, (byte) 0xb1, (byte) 0xb5, (byte) 0x01,
-        (byte) 0xa8, (byte) 0x1a, (byte) 0xe3, (byte) 0xb8, (byte) 0x78,
-        (byte) 0xc9, (byte) 0x6f, (byte) 0xa7, (byte) 0xcb, (byte) 0xdd};
+   
     /**
      * Valid point on secp256r1.
      */
@@ -133,13 +115,13 @@ public class ECCExtractionTest implements Observer {
         // code that will be invoked before this test starts
     }
 
-    @Test(enabled = true)
+    @Test(enabled = false)
     public final void testECCExtension() throws SocketException {
         logger.info("++++ Start Test No. 1 (ECC Extension test) ++++");
-        Security.addProvider(new SunEC());
-        for (Provider provider : Security.getProviders()) {
-            System.out.println(provider);
-        }
+//        Security.addProvider(new SunEC());
+//        for (Provider provider : Security.getProviders()) {
+//            System.out.println(provider);
+//        }
 
         workflow = new TLS10HandshakeWorkflow();
         workflow.connectToTestServer(HOST, PORT);
@@ -183,7 +165,6 @@ public class ECCExtractionTest implements Observer {
                         ECipherSuite.TLS_ECDH_RSA_WITH_AES_128_CBC_SHA
                     });
                     clientHello.setCipherSuites(suites);
-//                    clientHello.setMessageProtocolVersion(EProtocolVersion.TLS_1_0);
 
                     Extensions extensions = new Extensions();
                     EllipticCurves curves = new EllipticCurves();
@@ -203,14 +184,13 @@ public class ECCExtractionTest implements Observer {
                     trace.setCurrentRecord(clientHello);
                     break;
                 case CLIENT_KEY_EXCHANGE:
-                    ClientKeyExchange cke =
-                            (ClientKeyExchange) trace.getCurrentRecord();
-                    cke = new ClientKeyExchange(SNIFFED_CKE,
-                            EKeyExchangeAlgorithm.EC_DIFFIE_HELLMAN, false);
+                    ClientKeyExchange cke = new ClientKeyExchange(
+                            EProtocolVersion.TLS_1_0,
+                            EKeyExchangeAlgorithm.EC_DIFFIE_HELLMAN);
                     byte[] tmp = VALID_PUBLIC_POINT_2;
 //                    byte[] tmp = NASTY_PUBLIC_POINT;
                     // destroy the point
-                    tmp[tmp.length - 6] = 17;                 
+//                    tmp[tmp.length - 6] = 17;                 
 
                     ClientECDHPublic keyMaterial = new ClientECDHPublic();
                     ECPoint newPoint = new ECPoint();
