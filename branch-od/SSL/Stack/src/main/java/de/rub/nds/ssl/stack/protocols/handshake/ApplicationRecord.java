@@ -8,6 +8,8 @@ import de.rub.nds.ssl.stack.protocols.commons.SecurityParameters;
 import de.rub.nds.ssl.stack.workflows.commons.KeyMaterial;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
+import org.apache.log4j.Logger;
+import de.rub.nds.ssl.stack.Utility;
 
 /**
  * Defines all Application Messages of SSL/TLS
@@ -72,38 +74,41 @@ public class ApplicationRecord extends ARecordFrame {
      */
     @Override
     public byte[] encode(final boolean chained) {
+
         int pointer;
-        byte[] tmp;
-        final byte[] payloadCopy = getPayload();
-        byte[] applicationRecord = new byte[payloadCopy.length + LENGTH_MAC_FIELD];
+        //byte[] tmp;
+        byte[] payloadCopy = getPayload();
+        //byte[] applicationRecord = new byte[payloadCopy.length + LENGTH_MAC_FIELD];
 
         pointer = 0;
 
+        /*
         // 1. payload
         tmp = payloadCopy;
         System.arraycopy(tmp, 0, applicationRecord, pointer, tmp.length);
-        pointer += tmp.length;
+        pointer += tmp.length;        
         
-        // 2. MAC        
+        // 2. MAC
         SecurityParameters param = SecurityParameters.getInstance();
         KeyMaterial keyMat = new KeyMaterial();
         String macName = param.getMacAlgorithm().toString();
         SecretKey macKey = new SecretKeySpec(keyMat.getClientMACSecret(), macName);
         MACComputation mac = new MACComputation(macKey, "SHA1");
         byte[] payloadLength = new byte[] {
-            (byte)(payloadCopy.length >>> 24),
-            (byte)(payloadCopy.length >>> 16),
-            (byte)(payloadCopy.length >>> 8),
-            (byte)(payloadCopy.length)
+            (byte)((tmp.length + LENGTH_MAC_FIELD) >>> 24),
+            (byte)((tmp.length + LENGTH_MAC_FIELD) >>> 16),
+            (byte)((tmp.length + LENGTH_MAC_FIELD) >>> 8),
+            (byte)(tmp.length + LENGTH_MAC_FIELD)
         };
         tmp = mac.computeMAC(this.getProtocolVersion().getId(), this.getContentType().getId(), payloadLength, payloadCopy);
         System.arraycopy(tmp, 0, applicationRecord, pointer, tmp.length);
+        Logger.getRootLogger().debug("Testmessage: " + Utility.bytesToHex(applicationRecord));
         //pointer += tmp.length;
         
-        // 3. Padding (TODO)
+        // 3. Padding (TODO)*/
 
-        super.setPayload(applicationRecord);
-        return chained ? super.encode(true) : applicationRecord;
+        super.setPayload(payloadCopy);
+        return chained ? super.encode(true) : payloadCopy;
     }
 
     /**
@@ -111,6 +116,7 @@ public class ApplicationRecord extends ARecordFrame {
      */
     @Override
     public void decode(final byte[] message, final boolean chained) {
+        /*
         final byte[] payloadCopy;
         byte[] tmpBytes;
         int pointer;
@@ -144,7 +150,8 @@ public class ApplicationRecord extends ARecordFrame {
         //pointer += tmpBytes.length;
         
         // 3. Padding (TODO)
-        
+        */
+        super.decode(message, chained);
     }
     
     public String toString() {

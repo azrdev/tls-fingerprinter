@@ -404,7 +404,7 @@
           <Properties>
             <Property name="columns" type="int" value="20"/>
             <Property name="rows" type="int" value="5"/>
-            <Property name="text" type="java.lang.String" value="https://134.147.198.93:53098"/>
+            <Property name="text" type="java.lang.String" value="https://127.0.0.1:8000"/>
             <Property name="toolTipText" type="java.lang.String" value="[ PROTOCOL:// IP or DOMAIN (: PORT) ] - single line per target"/>
           </Properties>
         </Component>

@@ -1,8 +1,10 @@
 package de.rub.nds.ssl.stack.protocols.msgs.datatypes;
 
+import de.rub.nds.ssl.stack.Utility;
 import de.rub.nds.ssl.stack.crypto.MACComputation;
 import de.rub.nds.ssl.stack.protocols.ARecordFrame;
 import de.rub.nds.ssl.stack.protocols.commons.APubliclySerializable;
+import de.rub.nds.ssl.stack.protocols.commons.EContentType;
 import java.security.AlgorithmParameters;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
@@ -10,6 +12,7 @@ import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidParameterSpecException;
 import javax.crypto.*;
 import javax.crypto.spec.IvParameterSpec;
+import org.apache.log4j.Logger;
 
 /**
  * Block cipher encryption and MAC computation.
@@ -118,7 +121,7 @@ public class GenericBlockCipher extends APubliclySerializable implements
         // 4. add padding length
         System.arraycopy(paddedDataLength, 0, tmp, pointer,
                 paddedDataLength.length);
-
+        Logger.getRootLogger().debug(Utility.bytesToHex(tmp));
         //encrypt the data
         if (blockCipher != null) {
             try {
@@ -263,7 +266,13 @@ public class GenericBlockCipher extends APubliclySerializable implements
         byte[] protocolVersion =
                 this.plainRecord.getProtocolVersion().getId();
         byte contentType = this.plainRecord.getContentType().getId();
-        byte[] payloadLength = super.buildLength(payload.length, 2);
+        Logger.getRootLogger().debug("(" + payload.length + ")" + Utility.bytesToHex(payload));
+        byte[] payloadLength;
+        //if(this.plainRecord.getContentType() == EContentType.APPLICATION){
+             //payloadLength = super.buildLength(32, 2);
+        //}else{
+             payloadLength = super.buildLength(payload.length, 2);
+        //}
         MACComputation comp = new MACComputation(key, macName);
         this.macData = comp.computeMAC(protocolVersion,
                 contentType, payloadLength, payload);

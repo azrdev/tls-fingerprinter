@@ -53,7 +53,7 @@ public class Dummy implements Observer {
     @Test(enabled = true)
     public final void testECCExtension() throws SocketException {
         logger.info("++++ Start Test No. 1 (ECC Extension test) ++++");
-        workflow = new TLS10HandshakeWorkflow();
+        workflow = new TLS10HandshakeWorkflow(false);
         workflow.connectToTestServer(HOST, PORT);
         workflow.addObserver(this, EStates.CLIENT_HELLO);
         

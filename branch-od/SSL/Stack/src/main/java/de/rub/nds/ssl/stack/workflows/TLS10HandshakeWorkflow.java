@@ -6,10 +6,13 @@ import de.rub.nds.ssl.stack.protocols.ARecordFrame;
 import de.rub.nds.ssl.stack.protocols.commons.EConnectionEnd;
 import de.rub.nds.ssl.stack.protocols.commons.EContentType;
 import de.rub.nds.ssl.stack.protocols.commons.EProtocolVersion;
+import de.rub.nds.ssl.stack.protocols.handshake.ApplicationRecord;
 import de.rub.nds.ssl.stack.protocols.handshake.ClientHello;
 import de.rub.nds.ssl.stack.protocols.handshake.datatypes.MasterSecret;
 import de.rub.nds.ssl.stack.protocols.handshake.datatypes.PreMasterSecret;
 import de.rub.nds.ssl.stack.protocols.msgs.ChangeCipherSpec;
+import de.rub.nds.ssl.stack.protocols.msgs.TLSCiphertext;
+import de.rub.nds.ssl.stack.protocols.msgs.TLSPlaintext;
 import de.rub.nds.ssl.stack.trace.MessageContainer;
 import de.rub.nds.ssl.stack.workflows.commons.ESupportedSockets;
 import de.rub.nds.ssl.stack.workflows.commons.HandshakeHashBuilder;
@@ -397,7 +400,19 @@ public final class TLS10HandshakeWorkflow extends AWorkflow {
         if(runApplicationPhase){
             MessageContainer trace = new MessageContainer();
             MessageBuilder builder = new MessageBuilder();
-            setRecordTrace(trace, builder.encryptRecord(protocolVersion, builder.createApplication(protocolVersion, message), EContentType.APPLICATION));
+            TLSPlaintext plain = builder.createApplication(protocolVersion, message);
+            //logger.debug("Plain: " + Utility.bytesToHex();
+            logger.debug("Client plain vars: " + plain.toString());
+            logger.debug("Client plain payload: " + Utility.bytesToHex(plain.getPayload()));
+            TLSCiphertext c = builder.encryptRecord(protocolVersion, plain, EContentType.APPLICATION);
+            //c.encode(false);
+            logger.debug("Client cipher vars: " + c.toString());
+            logger.debug("Client cipher value: "+ Utility.bytesToHex(c.getPayload()));
+            c.encode(true);
+            //logger.debug("Cipher vars: " + c.toString());
+            //logger.debug("Cipher payload: "+ Utility.bytesToHex(c.getPayload()));
+            //logger.debug("Test: " + builder.decryptRecord(c).toString());
+            setRecordTrace(trace, c);
             trace.prepare();
             try{
                 send(trace);
@@ -512,18 +527,31 @@ public final class TLS10HandshakeWorkflow extends AWorkflow {
      */
     @Override
     public void update(final Observable o, final Object arg) {
+        MessageBuilder builder = new MessageBuilder();
         MessageContainer response = null;
         AResponseFetcher fetcher = null;
         if (o instanceof AResponseFetcher) {
             fetcher = (AResponseFetcher) o;
             response = (MessageContainer) arg;
         }
-
+        
         //fetch the input bytes
         TLSResponse tlsResponse = new TLSResponse(response.
                 getCurrentRecordBytes(), this);
-        if(runApplicationPhase)
+        if(runApplicationPhase){
             responses.add(tlsResponse);
+            logger.debug("Server cipher vars: " + tlsResponse.toString());
+            logger.debug("Server cipher value: " + Utility.bytesToHex(tlsResponse.getPayload()));
+            TLSPlaintext p = builder.decryptRecord(tlsResponse);
+            logger.debug("Server plain vars: " + p.toString());
+            logger.debug("Server plain data: " + Utility.bytesToHex(p.getPayload()));
+            byte[] hex = p.getPayload().clone();
+            StringBuilder sb = new StringBuilder();
+            for(int i = 0; i < hex.length; i++)
+                sb.append((char)hex[i]);            
+            logger.debug("Server message: " + sb.toString());
+            
+        }
         tlsResponse.handleResponse(response);
         if (getCurrentState() == EStates.ALERT.getID()) {
             logger.debug("### Connection reset due to FATAL_ALERT.");

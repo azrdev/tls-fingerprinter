@@ -201,8 +201,13 @@ public class MessageBuilder {
      *
      * @return Application message
      */
-    public final ApplicationRecord createApplication(EProtocolVersion protocol, final byte[] message){
-        return new ApplicationRecord(protocol, message);
+    public final TLSPlaintext createApplication(EProtocolVersion protocol, final byte[] message){
+        TLSPlaintext plain = new TLSPlaintext(protocol);
+        plain.setFragment(message);
+        plain.encode(false);
+        return plain;
+        //ApplicationRecord application = new ApplicationRecord(protocol, message);        
+        //return application;
     }
 
     /**

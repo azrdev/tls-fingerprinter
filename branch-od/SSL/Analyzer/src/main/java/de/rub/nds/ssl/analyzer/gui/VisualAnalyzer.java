@@ -254,7 +254,7 @@ public class VisualAnalyzer extends javax.swing.JFrame {
 
         targetListTextArea.setColumns(20);
         targetListTextArea.setRows(5);
-        targetListTextArea.setText("https://134.147.198.93:53098");
+        targetListTextArea.setText("https://127.0.0.1:8000");
         targetListTextArea.setToolTipText("[ PROTOCOL:// IP or DOMAIN (: PORT) ] - single line per target");
         targetListScrollPane.setViewportView(targetListTextArea);
 

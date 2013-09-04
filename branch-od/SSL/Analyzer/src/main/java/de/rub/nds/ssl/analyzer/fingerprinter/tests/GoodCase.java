@@ -91,7 +91,6 @@ public final class GoodCase extends AGenericFingerprintTest implements Observer 
         }
        
         if(states == EStates.APPLICATION){
-            logger.debug("Schön hier in der Application phase.");
             /*
             MessageBuilder builder = new MessageBuilder();
             CipherSuites suites = new CipherSuites();
@@ -111,7 +110,6 @@ public final class GoodCase extends AGenericFingerprintTest implements Observer 
         }
         if(states == EStates.APPLICATION_PING){
             if(workflow.getMessages() != null){
-                logger.debug("Da is wat!");
                 workflow.applicationSend(new byte[]{13, 37});
                 workflow.endApplicationPhase();
             }
