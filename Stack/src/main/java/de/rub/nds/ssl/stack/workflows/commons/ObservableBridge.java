@@ -1,7 +1,5 @@
 package de.rub.nds.ssl.stack.workflows.commons;
 
-import de.rub.nds.ssl.stack.trace.MessageContainer;
-import java.util.ArrayList;
 import java.util.Observable;
 
 /**
@@ -12,7 +10,7 @@ import java.util.Observable;
  *
  * Apr 11, 2012
  */
-public class ObservableBridge extends Observable {
+public final class ObservableBridge extends Observable {
     /**
      * Associated state of this bridge.
      */
@@ -23,7 +21,7 @@ public class ObservableBridge extends Observable {
      *
      * @param handeledState State to be associated with this bridge.
      */
-    public ObservableBridge(WorkflowState handeledState) {
+    public ObservableBridge(final WorkflowState handeledState) {
         this.state = handeledState;
     }
 

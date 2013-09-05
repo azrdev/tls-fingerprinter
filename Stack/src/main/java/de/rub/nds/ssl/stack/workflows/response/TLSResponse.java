@@ -115,7 +115,11 @@ public final class TLSResponse extends ARecordFrame implements Observer {
                     workflow.nextStateAndNotify(trace);
                     trace.setState(EStates.getStateById(
                             workflow.getCurrentState()));
-                    workflow.addToTraceList(trace);
+                    /*
+                     * Don't add to trace list, will be done by the update 
+                     * method below triggerd by HandshakeEnumeration decoding.
+                     */
+//                    workflow.addToTraceList(trace);
 
                     MessageBuilder builder = new MessageBuilder();
                     TLSPlaintext plaintext = builder.decryptRecord(ciphertext);

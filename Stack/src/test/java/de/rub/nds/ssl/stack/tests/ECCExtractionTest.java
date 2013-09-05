@@ -18,18 +18,14 @@ import de.rub.nds.ssl.stack.workflows.TLS10HandshakeWorkflow;
 import de.rub.nds.ssl.stack.workflows.TLS10HandshakeWorkflow.EStates;
 import de.rub.nds.ssl.stack.workflows.commons.ObservableBridge;
 import java.net.SocketException;
-import java.security.Provider;
-import java.security.Security;
 import java.util.Observable;
 import java.util.Observer;
-import java.util.logging.Level;
 import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-import sun.security.ec.SunEC;
 
 /**
  * ECCExtractionTest Test - does nothing.
