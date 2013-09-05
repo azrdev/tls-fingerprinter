@@ -4,7 +4,6 @@ import de.rub.nds.ssl.analyzer.db.Database;
 import de.rub.nds.ssl.analyzer.executor.EFingerprintTests;
 import de.rub.nds.ssl.analyzer.executor.Launcher;
 import de.rub.nds.ssl.analyzer.fingerprinter.ETLSImplementation;
-import de.rub.nds.ssl.analyzer.gui.models.AttackerConfigurationData;
 import de.rub.nds.ssl.analyzer.gui.models.JTextAreaLog4JAppender;
 import de.rub.nds.ssl.analyzer.gui.models.ScannerConfigurationData;
 import java.io.BufferedReader;
@@ -29,7 +28,6 @@ import org.apache.log4j.PropertyConfigurator;
 public class VisualAnalyzer extends javax.swing.JFrame {
 
     private ScannerConfigurationData scannerConfigurationData;
-    private AttackerConfigurationData attackerConfigurationData;
     private DefaultComboBoxModel fuzzerConfigurationData;
     /**
      * Log4j logger initialization.
@@ -41,7 +39,7 @@ public class VisualAnalyzer extends javax.swing.JFrame {
      */
     public VisualAnalyzer() {
         scannerConfigurationData = new ScannerConfigurationData();
-        attackerConfigurationData = new AttackerConfigurationData();
+//        attackerConfigurationData = new AttackerConfigurationData();
         fuzzerConfigurationData = new DefaultComboBoxModel(ETLSImplementation.
                 values());
         initComponents();
@@ -66,9 +64,6 @@ public class VisualAnalyzer extends javax.swing.JFrame {
         scannerConfiguration = new javax.swing.JPanel();
         jScrollPane1 = new javax.swing.JScrollPane();
         scannerConfigurationTable = new javax.swing.JTable();
-        attackerPanel = new javax.swing.JPanel();
-        jScrollPane2 = new javax.swing.JScrollPane();
-        attackerConfigurationTable = new javax.swing.JTable();
         fuzzerPanel = new javax.swing.JPanel();
         fuzzingLabel = new javax.swing.JLabel();
         jComboBox1 = new javax.swing.JComboBox();
@@ -156,29 +151,6 @@ public class VisualAnalyzer extends javax.swing.JFrame {
         );
 
         tabbedPane.addTab("Scanner Configuration", scannerConfiguration);
-
-        attackerConfigurationTable.setModel(attackerConfigurationData);
-        attackerConfigurationTable.setAutoResizeMode(javax.swing.JTable.AUTO_RESIZE_ALL_COLUMNS);
-        attackerConfigurationTable.getTableHeader().setReorderingAllowed(false);
-        jScrollPane2.setViewportView(attackerConfigurationTable);
-
-        javax.swing.GroupLayout attackerPanelLayout = new javax.swing.GroupLayout(attackerPanel);
-        attackerPanel.setLayout(attackerPanelLayout);
-        attackerPanelLayout.setHorizontalGroup(
-            attackerPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(attackerPanelLayout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 751, Short.MAX_VALUE)
-                .addContainerGap())
-        );
-        attackerPanelLayout.setVerticalGroup(
-            attackerPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, attackerPanelLayout.createSequentialGroup()
-                .addGap(0, 12, Short.MAX_VALUE)
-                .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 221, javax.swing.GroupLayout.PREFERRED_SIZE))
-        );
-
-        tabbedPane.addTab("Attacker Configuration", attackerPanel);
 
         fuzzingLabel.setText("Implementation of target");
 
@@ -278,7 +250,7 @@ public class VisualAnalyzer extends javax.swing.JFrame {
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(tabbedPane, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 782, Short.MAX_VALUE)
+            .addComponent(tabbedPane, javax.swing.GroupLayout.Alignment.TRAILING)
             .addComponent(progressBar, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
@@ -291,7 +263,7 @@ public class VisualAnalyzer extends javax.swing.JFrame {
                             .addComponent(attackTargetsButton, javax.swing.GroupLayout.PREFERRED_SIZE, 207, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(scanTargetsButton, javax.swing.GroupLayout.PREFERRED_SIZE, 207, javax.swing.GroupLayout.PREFERRED_SIZE)))
                     .addComponent(targetListLabel))
-                .addContainerGap())
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -368,7 +340,7 @@ public class VisualAnalyzer extends javax.swing.JFrame {
     private void createFingerprintButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_createFingerprintButtonActionPerformed
         String[] targets = getTargets();
         ETLSImplementation implementation =
-                (ETLSImplementation) fuzzerConfigurationData.getSelectedItem();
+        (ETLSImplementation) fuzzerConfigurationData.getSelectedItem();
         try {
             Launcher.startFuzzing(targets, implementation);
         } catch (ExecutionException e) {
@@ -461,8 +433,6 @@ public class VisualAnalyzer extends javax.swing.JFrame {
     }
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton attackTargetsButton;
-    private javax.swing.JTable attackerConfigurationTable;
-    private javax.swing.JPanel attackerPanel;
     private javax.swing.JButton createFingerprintButton;
     private javax.swing.JLabel errorDecoratorLabel;
     private javax.swing.JDialog errorDialog;
@@ -473,7 +443,6 @@ public class VisualAnalyzer extends javax.swing.JFrame {
     private javax.swing.JComboBox jComboBox1;
     private javax.swing.JFileChooser jFileChooser1;
     private javax.swing.JScrollPane jScrollPane1;
-    private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JScrollPane jScrollPane3;
     private javax.swing.JButton openListButton;
     private javax.swing.JPanel outputPanel;

@@ -102,9 +102,9 @@ public final class TestHashAnalyzer implements IFingerprinter {
                     }
                 }
                 //assign 2 points for "no hit" if there is no hit in the database
-                if (!dbHit) {
-                    counter.countNoHit(2);
-                }
+//                if (!dbHit) {
+//                    counter.countNoHit(2);
+//                }
             };
         } catch (SQLException e) {
             logger.error("Database error.", e);
