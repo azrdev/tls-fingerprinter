@@ -242,8 +242,7 @@ public class DetermineOracleType extends ASSLServerOracle {
                     getWorkflow().setPreMasterSecret(pms);
                     
                     //encrypt the PreMasterSecret
-                    EncPreMasterSecret encPMS =
-                            new EncPreMasterSecret(pk);
+                    EncPreMasterSecret encPMS = new EncPreMasterSecret(pk);
                     encPMS.setEncryptedPreMasterSecret(getEncPMS());
                     cke.setExchangeKeys(encPMS);
 
@@ -285,7 +284,6 @@ public class DetermineOracleType extends ASSLServerOracle {
 
             System.out.println("#################### Sending a PERFECT PMS");
             currentPKCS = validPKCS;
-System.out.println("size: =======> " + currentPKCS.length);
             byte[] result = cipher.doFinal(currentPKCS);
             executeWorkflow(result, socket);
 //            Thread.sleep(2000);

@@ -96,7 +96,7 @@ public class BleichenbacherBigIPTest {
         attacker.attack();
     }
 
-    @Test(enabled = true, priority = 2)
+    @Test(enabled = false, priority = 2)
     public void optimizedBleichenbacher() throws SocketException,
             OracleException {
         BigIPOracle bigIPOracle = new BigIPOracle("134.147.198.93", 51635);
