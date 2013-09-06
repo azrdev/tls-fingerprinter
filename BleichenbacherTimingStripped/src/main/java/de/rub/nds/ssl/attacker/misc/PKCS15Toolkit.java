@@ -36,7 +36,7 @@ public class PKCS15Toolkit {
         }
         
         if (tmpMsg[0] == 0x02 && tmpMsg.length == (blockSize-1)) {
-            System.out.println("    CASE X starting with 00 02");
+//            System.out.println("    CASE X starting with 00 02");
             switch (oracleType) {
                 case TTT:
                     conform = true;
@@ -56,7 +56,7 @@ public class PKCS15Toolkit {
 
                 case FFT:
                     if (checkFirst(tmpMsg, blockSize) && checkSecond(tmpMsg)) {
-                        System.out.println("    CASE 2 with 00 02, 00 on valid position");
+//                        System.out.println("    CASE 2 with 00 02, 00 on valid position");
                         conform = true;
                     }
                     break;
@@ -72,7 +72,7 @@ public class PKCS15Toolkit {
                     break;
             }
         } else {
-            System.out.println("    CASE 3 with 00 " + tmpMsg[0]);
+//            System.out.println("    CASE 3 with 00 " + tmpMsg[0]);
         }
 
         return conform;
