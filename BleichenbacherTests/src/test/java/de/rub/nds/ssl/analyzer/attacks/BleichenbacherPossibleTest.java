@@ -1,7 +1,5 @@
 package de.rub.nds.ssl.analyzer.attacks;
 
-import de.rub.nds.ssl.analyzer.attacker.Bleichenbacher;
-import de.rub.nds.ssl.analyzer.attacker.BleichenbacherCrypto12;
 import de.rub.nds.ssl.analyzer.attacker.bleichenbacher.OracleException;
 import de.rub.nds.ssl.analyzer.attacker.bleichenbacher.oracles.ASSLServerOracle;
 import de.rub.nds.ssl.analyzer.attacker.bleichenbacher.oracles.JSSE16Oracle;
@@ -15,10 +13,8 @@ import java.security.InvalidKeyException;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
-import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.Security;
-import java.security.UnrecoverableKeyException;
 import java.security.cert.CertificateException;
 import java.util.Arrays;
 import java.util.logging.Level;
@@ -117,7 +113,7 @@ public class BleichenbacherPossibleTest {
         return result;
     }
 
-    @Test(enabled = true, priority = 2)
+    @Test(enabled = false, priority = 2)
     public void sslTriggerOracleTest() throws SocketException,
             OracleException {
         JSSE16Oracle jsseOracle = new JSSE16Oracle(HOST, PORT);
@@ -147,7 +143,7 @@ public class BleichenbacherPossibleTest {
         System.out.println("counter: " + counter);
     }
     
-    @Test(enabled = true, priority = 2)
+    @Test(enabled = false, priority = 2)
     public void sslSingleRequest() throws SocketException,
             OracleException {
         JSSE16Oracle jsseOracle = new JSSE16Oracle(HOST, PORT);
