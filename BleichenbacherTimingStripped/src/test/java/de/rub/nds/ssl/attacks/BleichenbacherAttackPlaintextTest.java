@@ -17,6 +17,7 @@ import java.security.Security;
 import java.security.cert.CertificateException;
 import javax.crypto.Cipher;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
+import org.testng.annotations.Test;
 
 /**
  *
@@ -78,7 +79,8 @@ public class BleichenbacherAttackPlaintextTest {
                 oracle, true);
         attacker.attack();
     }
-
+    
+    @Test(enabled = false)
     public final void testBleichenbacherAttackCiphertext()
             throws Exception {
         Security.addProvider(new BouncyCastleProvider());
