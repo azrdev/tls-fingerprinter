@@ -39,7 +39,7 @@ public final class TLSResponse extends ARecordFrame implements Observer {
     /**
      * Response bytes.
      */
-    private byte[] response;
+    public byte[] response;
     /**
      * Log4j logger.
      */

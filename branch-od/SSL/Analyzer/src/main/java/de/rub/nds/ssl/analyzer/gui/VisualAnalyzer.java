@@ -84,6 +84,7 @@ public class VisualAnalyzer extends javax.swing.JFrame {
         attackTargetsButton = new javax.swing.JButton();
         targetListLabel = new javax.swing.JLabel();
         uncheckTestsButton = new javax.swing.JButton();
+        applicationButton = new javax.swing.JButton();
 
         errorDialog.setMinimumSize(new java.awt.Dimension(300, 120));
         errorDialog.setModal(true);
@@ -282,6 +283,13 @@ public class VisualAnalyzer extends javax.swing.JFrame {
             }
         });
 
+        applicationButton.setText("Sinnloser Button");
+        applicationButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                applicationButtonActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -298,7 +306,8 @@ public class VisualAnalyzer extends javax.swing.JFrame {
                             .addComponent(openListButton, javax.swing.GroupLayout.DEFAULT_SIZE, 207, Short.MAX_VALUE)
                             .addComponent(attackTargetsButton, javax.swing.GroupLayout.DEFAULT_SIZE, 207, Short.MAX_VALUE)
                             .addComponent(scanTargetsButton, javax.swing.GroupLayout.DEFAULT_SIZE, 207, Short.MAX_VALUE)
-                            .addComponent(uncheckTestsButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                            .addComponent(uncheckTestsButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(applicationButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
                     .addComponent(targetListLabel))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
@@ -316,11 +325,13 @@ public class VisualAnalyzer extends javax.swing.JFrame {
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(uncheckTestsButton)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(applicationButton)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(openListButton))
                     .addComponent(targetListScrollPane, javax.swing.GroupLayout.PREFERRED_SIZE, 135, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(tabbedPane, javax.swing.GroupLayout.PREFERRED_SIZE, 262, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 99, Short.MAX_VALUE)
                 .addComponent(progressBar, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
         );
 
@@ -396,6 +407,10 @@ public class VisualAnalyzer extends javax.swing.JFrame {
             x.setValueAt(false, i, 1);
         x.fireTableDataChanged();
     }//GEN-LAST:event_uncheckTestsButtonActionPerformed
+
+    private void applicationButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_applicationButtonActionPerformed
+        //TODO
+    }//GEN-LAST:event_applicationButtonActionPerformed
 
     private void createErrorDialog(final String title, final String message) {
         errorDialog.setTitle(title);
@@ -478,6 +493,7 @@ public class VisualAnalyzer extends javax.swing.JFrame {
         });
     }
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton applicationButton;
     private javax.swing.JButton attackTargetsButton;
     private javax.swing.JTable attackerConfigurationTable;
     private javax.swing.JPanel attackerPanel;

@@ -262,17 +262,17 @@ public class GenericBlockCipher extends APubliclySerializable implements
      */
     public final void computePayloadMAC(final SecretKey key,
             final String macName) {
+        if(this.plainRecord == null){
+            this.macData = new byte[0];
+            return;
+        }
         byte[] payload = this.plainRecord.getPayload();
         byte[] protocolVersion =
                 this.plainRecord.getProtocolVersion().getId();
         byte contentType = this.plainRecord.getContentType().getId();
         Logger.getRootLogger().debug("(" + payload.length + ")" + Utility.bytesToHex(payload));
         byte[] payloadLength;
-        //if(this.plainRecord.getContentType() == EContentType.APPLICATION){
-             //payloadLength = super.buildLength(32, 2);
-        //}else{
-             payloadLength = super.buildLength(payload.length, 2);
-        //}
+        payloadLength = super.buildLength(payload.length, 2);
         MACComputation comp = new MACComputation(key, macName);
         this.macData = comp.computeMAC(protocolVersion,
                 contentType, payloadLength, payload);

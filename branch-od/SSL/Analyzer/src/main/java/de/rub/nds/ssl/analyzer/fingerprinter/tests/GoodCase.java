@@ -15,6 +15,7 @@ import de.rub.nds.ssl.stack.workflows.commons.MessageBuilder;
 import de.rub.nds.ssl.stack.workflows.commons.ObservableBridge;
 import java.io.IOException;
 import java.net.SocketException;
+import java.util.ArrayList;
 import java.util.Observable;
 import java.util.Observer;
 
@@ -31,9 +32,12 @@ public final class GoodCase extends AGenericFingerprintTest implements Observer 
      */
     private ECipherSuite[] suite;
     private int blub = 0;
+    
+    private ArrayList<byte[]> messages;
 
     private TestResult executeHandshake(final String desc,
             final ECipherSuite[] suite) throws SocketException {
+        messages = new ArrayList<byte[]>();
         logger.info("++++Start Test No." + counter + "(" + desc + ")++++");
         workflow = new TLS10HandshakeWorkflow(true);
         workflow.connectToTestServer(getTargetHost(), getTargetPort());
@@ -109,9 +113,12 @@ public final class GoodCase extends AGenericFingerprintTest implements Observer 
             }*/
         }
         if(states == EStates.APPLICATION_PING){
-            if(workflow.getMessages() != null){
-                workflow.applicationSend(new byte[]{13, 37});
-                workflow.endApplicationPhase();
+            ArrayList<byte[]> tmpMsgs = workflow.getMessages();
+            if(tmpMsgs != null){
+                messages.addAll(tmpMsgs);
+                //workflow.applicationSend(new byte[]{13, 37});
+                if(messages.size() == 1)
+                    workflow.endApplicationPhase();
             }
                 
         }

@@ -261,13 +261,15 @@ public class MessageBuilder {
         byte[] plainBytes;
         TLSPlaintext rec = null;
         if (param.getCipherType() == ECipherType.BLOCK) {
-            GenericBlockCipher blockCipher =
-                    new GenericBlockCipher(record.getPayload());
+            logger.debug("Encoded payload: " + Utility.bytesToHex(record.getPayload()));
+            //GenericBlockCipher blockCipher = new GenericBlockCipher(record.getPayload());
+            GenericBlockCipher blockCipher = new GenericBlockCipher(record);
+            blockCipher.decode(record.getPayload(), false);
             plainBytes = blockCipher.decryptData(symmKey, cipherName,
                     keyMat.getServerIV());
-
+            logger.debug("Decoded payload: " + Utility.bytesToHex(plainBytes));
             // check padding (padding = padding bytes + padding length)
-            int paddingLength = plainBytes[plainBytes.length - 1];;
+            int paddingLength = plainBytes[plainBytes.length - 1];
             for (int i = 0; i < paddingLength + 1; i++) {
                 if (plainBytes[plainBytes.length - 1 - i] != paddingLength) {
                     // TODO Communicate padding error 
@@ -279,15 +281,19 @@ public class MessageBuilder {
                             + Utility.bytesToHex(padding));
                 }
             }
-
+            byte[] padding = new byte[paddingLength];
+                    System.arraycopy(plainBytes,
+                            plainBytes.length - 1 - paddingLength, padding, 0,
+                            padding.length);
+            logger.debug("Padding: " + Utility.bytesToHex(padding));
             // TODO add MAC check
-//            blockCipher.computePayloadMAC(macKey, macName);
-
+            blockCipher.computePayloadMAC(macKey, macName);
+            logger.debug("MAC: " + Utility.bytesToHex(blockCipher.getMAC()));
             // remove padding
             byte[] tmp = new byte[plainBytes.length - paddingLength - 1];
             System.arraycopy(plainBytes, 0, tmp, 0, tmp.length);
             plainBytes = tmp;
-
+            logger.debug("Padding removed: " + Utility.bytesToHex(plainBytes));
             // remove MAC
             int macLength = 0;
             switch (param.getMacAlgorithm()) {
@@ -301,7 +307,7 @@ public class MessageBuilder {
             tmp = new byte[plainBytes.length - macLength];
             System.arraycopy(plainBytes, 0, tmp, 0, tmp.length);
             plainBytes = tmp;
-
+            logger.debug("MAC removed: " + Utility.bytesToHex(plainBytes));
             rec = new TLSPlaintext(plainBytes, false);
         } else if (param.getCipherType() == ECipherType.STREAM) {
             GenericStreamCipher streamCipher = new GenericStreamCipher(record);
