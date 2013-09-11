@@ -53,7 +53,6 @@ public class ECCExtractionTest implements Observer {
      * Test port.
      */
     private static final int PORT = 51707;
-   
     /**
      * Valid point on secp256r1.
      */
@@ -105,13 +104,28 @@ public class ECCExtractionTest implements Observer {
         (byte) 0xa8, (byte) 0x1a, (byte) 0xe3, (byte) 0xb8, (byte) 0x78,
         (byte) 0xc9, (byte) 0x6f, (byte) 0xa7, (byte) 0xcb, (byte) 0xdd
     };
+    private static final byte[] NASTY_PUBLIC_POINT_2 = new byte[]{
+        (byte) 0x04, (byte) 0xab, (byte) 0x88, (byte) 0xac, (byte) 0x8f,
+        (byte) 0x5e, (byte) 0xa4, (byte) 0xe5, (byte) 0x33, (byte) 0xee,
+        (byte) 0x27, (byte) 0x1e, (byte) 0xda, (byte) 0xf4, (byte) 0x3f,
+        (byte) 0xc2, (byte) 0xe3, (byte) 0x26, (byte) 0x0c, (byte) 0xf0,
+        (byte) 0xce, (byte) 0x96, (byte) 0x88, (byte) 0x70, (byte) 0x19,
+        (byte) 0xd0, (byte) 0x6e, (byte) 0xb2, (byte) 0x0e, (byte) 0x1d,
+        (byte) 0xe0, (byte) 0x10, (byte) 0x62, (byte) 0x00, (byte) 0x00,
+        (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00,
+        (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00,
+        (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00,
+        (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00,
+        (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00,
+        (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x01
+    };
 
     @BeforeClass
     public void setUp() {
         // code that will be invoked before this test starts
     }
 
-    @Test(enabled = false)
+    @Test(enabled = true)
     public final void testECCExtension() throws SocketException {
         logger.info("++++ Start Test No. 1 (ECC Extension test) ++++");
 //        Security.addProvider(new SunEC());
@@ -166,8 +180,8 @@ public class ECCExtractionTest implements Observer {
                     EllipticCurves curves = new EllipticCurves();
                     curves.setSupportedCurves(new ENamedCurve[]{
                         ENamedCurve.SECP_256_R1, 
-//                        ENamedCurve.SECP_384_R1,
-//                        ENamedCurve.SECP_521_R1
+                    //                        ENamedCurve.SECP_384_R1,
+                    //                        ENamedCurve.SECP_521_R1
                     });
                     extensions.addExtension(curves);
                     SupportedPointFormats formats = new SupportedPointFormats();
@@ -183,8 +197,8 @@ public class ECCExtractionTest implements Observer {
                     ClientKeyExchange cke = new ClientKeyExchange(
                             EProtocolVersion.TLS_1_0,
                             EKeyExchangeAlgorithm.EC_DIFFIE_HELLMAN);
-                    byte[] tmp = VALID_PUBLIC_POINT_2;
-//                    byte[] tmp = NASTY_PUBLIC_POINT;
+//                    byte[] tmp = VALID_PUBLIC_POINT_2;
+                    byte[] tmp = NASTY_PUBLIC_POINT_2;
                     // destroy the point
 //                    tmp[tmp.length - 6] = 17;                 
 

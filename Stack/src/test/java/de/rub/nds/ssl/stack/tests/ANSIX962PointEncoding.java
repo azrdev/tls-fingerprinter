@@ -17,17 +17,37 @@ import org.testng.annotations.Test;
 public class ANSIX962PointEncoding {
 
     private static final BigInteger x = new BigInteger(
-            "77194726140237499175131631299605049020057428943526876130355754205911398569301");
+            //            "77194726140237499175131631299605049020057428943526876130355754205911398569301");
+            "77586979274159623478653048100673486051194511623194014183595708893902300778594");
     private static final BigInteger y = new BigInteger(
-            "38597363070118749587565815649802524510028714471763438065177877102955699284649");
+            //            "38597363070118749587565815649802524510028714471763438065177877102955699284649");
+            "1");
     private static final String CURVE_NAME = "P-256";
 
     @Test(enabled = true)
     public static void test() throws InvalidKeyException {
         byte[] own = ECUtility.encodeX9_62(x.toByteArray(), y.toByteArray(),
                 EECPointFormat.UNCOMPRESSED);
-        System.out.println(bytesToHex(own));
+
+        System.out.println("X: " + x.toString(16));
+        System.out.println("Y: " + y.toString(16));
+        System.out.println("\n");
         
+        // bouncy castle encoding
+//        X9ECParameters params = NISTNamedCurves.getByName(CURVE_NAME);
+//        ECCurve curve = params.getCurve();
+//        ECPoint point = curve.decodePoint(own);
+//        
+//        ECPoint newPoint = curve.createPoint(x, y, false);
+//        System.out.println(point.getX().toBigInteger());
+//        System.out.println(point.getY().toBigInteger());
+//        System.out.println(newPoint.getX().toBigInteger());
+//        System.out.println(newPoint.getY().toBigInteger());
+//        byte[] encoded = newPoint.getEncoded();
+//        System.out.println(bytesToHex(encoded));
+        
+        System.out.println(bytesToHex(own));
+
 //        printCurves();
     }
     private final static char[] HEXCHARS = {
@@ -60,9 +80,9 @@ public class ANSIX962PointEncoding {
         int B = 2; // binary curve
         int PD = 5; // prime curve, mark as default
         int BD = 6; // binary curve, mark as default
-        
+
         System.out.println("<html><body>");
-/* SEC2 prime curves */
+        /* SEC2 prime curves */
         add("secp112r1", "1.3.132.0.6", P,
                 "DB7C2ABF62E35E668076BEAD208B",
                 "DB7C2ABF62E35E668076BEAD2088",
@@ -481,8 +501,8 @@ public class ANSIX962PointEncoding {
                 "20D0AF8903A96F8D5FA2C255745D3C451B302C9346D9B7E485E7BCE41F6B591F3E8F6ADDCBB0BC4C2F947A7DE1A89B625D6A598B3760",
                 "0340340340340340340340340340340340340340340340340340340323C313FAB50589703B5EC68D3587FEC60D161CC149C1AD4A91",
                 0x2760);
-        
-        
+
+
         System.out.println("</body></html>");
     }
 
@@ -494,31 +514,40 @@ public class ANSIX962PointEncoding {
 
         switch (type) {
             case 1:
-                System.out.println("<tr><td>Curve type</td><td>Prime Curve</td></tr>");
+                System.out.println(
+                        "<tr><td>Curve type</td><td>Prime Curve</td></tr>");
                 break;
             case 2:
-                System.out.println("<tr><td>Curve type</td><td>Binary Curve</td></tr>");
+                System.out.println(
+                        "<tr><td>Curve type</td><td>Binary Curve</td></tr>");
                 break;
             case 5:
                 System.out.
-                        println("<tr><td>Curve type</td><td>Prime Curve (marked as default)</td></tr>");
+                        println(
+                        "<tr><td>Curve type</td><td>Prime Curve (marked as default)</td></tr>");
                 break;
             case 6:
                 System.out.
-                        println("<tr><td>Curve type</td><td>Prime Curve (marked as default)</td></tr>");
+                        println(
+                        "<tr><td>Curve type</td><td>Prime Curve (marked as default)</td></tr>");
                 break;
             default:
                 System.out.
                         println("<tr><td>Curve type</td><td>unknown</td></tr>");
                 break;
-                
+
         }
 
-        System.out.println("<tr><td>Prime P</td><td>" + bi(sfield) + "</td></tr>");
-        System.out.println("<tr><td>Curve Parameter A</td><td>" + bi(a) + "</td></tr>");
-        System.out.println("<tr><td>Curve Parameter B</td><td>" + bi(b) + "</td></tr>");
-        System.out.println("<tr><td>Generator G (x)</td><td>" + bi(x) + "</td></tr>");
-        System.out.println("<tr><td>Generator G (y)</td><td>" + bi(y) + "</td></tr>");
+        System.out.println(
+                "<tr><td>Prime P</td><td>" + bi(sfield) + "</td></tr>");
+        System.out.println(
+                "<tr><td>Curve Parameter A</td><td>" + bi(a) + "</td></tr>");
+        System.out.println(
+                "<tr><td>Curve Parameter B</td><td>" + bi(b) + "</td></tr>");
+        System.out.println(
+                "<tr><td>Generator G (x)</td><td>" + bi(x) + "</td></tr>");
+        System.out.println(
+                "<tr><td>Generator G (y)</td><td>" + bi(y) + "</td></tr>");
         System.out.println("<tr><td>Order N</td><td>" + bi(n) + "</td></tr>");
         System.out.println("<tr><td>Cofactor H</td><td>" + h + "</td></tr>");
 

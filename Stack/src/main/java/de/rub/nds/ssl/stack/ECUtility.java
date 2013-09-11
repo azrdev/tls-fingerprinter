@@ -53,6 +53,11 @@ public final class ECUtility {
         byte[] x = stripLeadingZeroBytes(xBytes);
         byte[] y = stripLeadingZeroBytes(yBytes);
 
+        // pad to equal lengths
+        int newLength = Math.max(x.length, y.length);
+        x = prependZeros(newLength, x);
+        y = prependZeros(newLength, y);
+        
         switch (pointFormat) {
             case ANSI_X962_COMPRESSED_CHAR2:
                 // strip of Y coordinate
@@ -86,6 +91,13 @@ public final class ECUtility {
                 break;
         }
 
+        return result;
+    }
+    
+    private static byte[] prependZeros(final int newLength, final byte[] bytes) {
+        byte[] result = new byte[newLength];
+        System.arraycopy(bytes, 0, result, newLength - bytes.length, bytes.length);
+        
         return result;
     }
 }
