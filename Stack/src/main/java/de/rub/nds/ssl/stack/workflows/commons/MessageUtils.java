@@ -69,8 +69,8 @@ public class MessageUtils {
             e.printStackTrace();
         }
         //Determine the length of the frame
-        int length = (header[3] & 0xff) << Utility.BITS_IN_BYTE | 
-                (header[4] & 0xff);
+        int length = (header[3] & 0xff) << Utility.BITS_IN_BYTE
+                | (header[4] & 0xff);
         byte[] answer = new byte[length + header.length];
         System.arraycopy(header, 0, answer, 0, header.length);
         // TODO: Ineffizienter geht es nicht mehr!!!
@@ -199,12 +199,13 @@ public class MessageUtils {
         }
         byte length;
 
+        // TODO: Is this code correct?
         //set the value of the padding bytes
-        if (changePadding) {
-            length = (byte) (padLength);
-        } else {
-            length = (byte) (padLength - 1);
-        }
+//        if (changePadding) {
+//            length = (byte) (padLength);
+//        } else {
+        length = (byte) (padLength - 1);
+//        }
 
         //create padding
         byte[] padding = new byte[padLength];
@@ -212,6 +213,11 @@ public class MessageUtils {
             padding[i] = (byte) (length);
         }
         int pointer = 0;
+
+        // TODO: Or is this code correct?
+        if (changePadding) {
+            padding[0] = (byte) (paddingLength - 1);
+        }
 
         //add padding to the data
         byte[] paddedData = new byte[data.length + padLength];
