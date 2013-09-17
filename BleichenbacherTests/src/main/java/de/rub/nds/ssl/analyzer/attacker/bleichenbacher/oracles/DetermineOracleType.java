@@ -20,10 +20,7 @@ import de.rub.nds.ssl.stack.workflows.TLS10HandshakeWorkflow;
 import de.rub.nds.ssl.stack.workflows.commons.ESupportedSockets;
 import de.rub.nds.ssl.stack.workflows.commons.MessageBuilder;
 import de.rub.nds.ssl.stack.workflows.commons.ObservableBridge;
-import de.rub.nds.tinytlssocket.TLSServer;
-import java.io.InputStream;
 import java.net.SocketException;
-import java.security.KeyStore;
 import java.security.PublicKey;
 import java.security.Security;
 import java.security.interfaces.RSAPublicKey;
@@ -35,42 +32,31 @@ import org.bouncycastle.jce.provider.BouncyCastleProvider;
 /**
  *
  * @author Sebastian Schinzel
+ * @author Juraj Somorovsky
  */
 public class DetermineOracleType extends ASSLServerOracle {
 
+    private static final String HOST = "127.0.0.1";
+    private static final int PORT = 51624;
     /**
      * Log4j logger initialization.
      */
-    private static Logger logger = Logger.getRootLogger();
-    private Cipher cipher;
-    private TLSServer sslServer;
+    static Logger logger = Logger.getRootLogger();
+    Cipher cipher;
     /**
      * Test Server Thread.
      */
-    private Thread sslServerThread;
     private String host;
     private int port;
-    /**
-     * Enable debug mode.
-     */
-    private static final boolean DEBUG = true;
-    /**
-     * Server key store.
-     */
-    private static final String PATH_TO_JKS = "server.jks";
-    /**
-     * Pass word for server key store.
-     */
-    private static final String JKS_PASSWORD = "password";
     /**
      * Protocol short name.
      */
     private String protocolShortName = "TLS";
     private static byte[] currentPKCS = null;
     /**
-     * Plain PKCS message
+     * Plain PKCS message 1024 bit
      */
-    private static final byte[] validPKCS = new byte[]{
+    private static byte[] validPKCS1024 = new byte[]{
         (byte) 0x00, (byte) 0x02, (byte) 0xf5, (byte) 0xa7, (byte) 0x9f,
         (byte) 0xcd, (byte) 0xb1, (byte) 0x27, (byte) 0xf9, (byte) 0x39,
         (byte) 0x15, (byte) 0x21, (byte) 0x49, (byte) 0x71, (byte) 0x65,
@@ -87,7 +73,39 @@ public class DetermineOracleType extends ASSLServerOracle {
         (byte) 0xcb, (byte) 0x4b, (byte) 0x27, (byte) 0x21, (byte) 0x5f,
         (byte) 0x69, (byte) 0xf5, (byte) 0x67, (byte) 0x5d, (byte) 0xab,
         (byte) 0x9b, (byte) 0xf5,
-        // for 2048 bits uncomment
+        (byte) 0x39, (byte) 0x1b,
+        (byte) 0x00, // <-- NULL byte at pos 77 (+130)
+        (byte) 0x03, (byte) 0x01,
+        (byte) 0x06, (byte) 0x26, (byte) 0xa6, (byte) 0x40, (byte) 0x57,
+        (byte) 0x4b, (byte) 0x50, (byte) 0xd6, (byte) 0xa3, (byte) 0xd0,
+        (byte) 0x8a, (byte) 0x70, (byte) 0x16, (byte) 0x0a, (byte) 0x0d,
+        (byte) 0xaf, (byte) 0x33, (byte) 0x2a, (byte) 0x7f, (byte) 0x9b,
+        (byte) 0xc8, (byte) 0x65, (byte) 0xa7, (byte) 0xb5, (byte) 0x54,
+        (byte) 0xe7, (byte) 0x48, (byte) 0x9f, (byte) 0x57, (byte) 0xda,
+        (byte) 0xc9, (byte) 0xbf, (byte) 0x34, (byte) 0x8b, (byte) 0x8d,
+        (byte) 0xd4, (byte) 0x84, (byte) 0xed, (byte) 0xc9, (byte) 0x63,
+        (byte) 0x2b, (byte) 0x16, (byte) 0x6f, (byte) 0x2c, (byte) 0x38,
+        (byte) 0x40};
+    /**
+     * Plain PKCS message, 2048 bit
+     */
+    private static byte[] validPKCS2048 = new byte[]{
+        (byte) 0x00, (byte) 0x02, (byte) 0xf5, (byte) 0xa7, (byte) 0x9f,
+        (byte) 0xcd, (byte) 0xb1, (byte) 0x27, (byte) 0xf9, (byte) 0x39,
+        (byte) 0x15, (byte) 0x21, (byte) 0x49, (byte) 0x71, (byte) 0x65,
+        (byte) 0x97, (byte) 0x33, (byte) 0x99, (byte) 0x6d, (byte) 0x9b,
+        (byte) 0xcd, (byte) 0x6d, (byte) 0x4b, (byte) 0xe3, (byte) 0xf5,
+        (byte) 0xfd, (byte) 0xb5, (byte) 0x71, (byte) 0xd5, (byte) 0x69,
+        (byte) 0x71, (byte) 0x91, (byte) 0xb9, (byte) 0x39, (byte) 0xc9,
+        (byte) 0x6d, (byte) 0xf5, (byte) 0x59, (byte) 0xf1, (byte) 0xb9,
+        (byte) 0x97, (byte) 0xb7, (byte) 0x6b, (byte) 0xff, (byte) 0x33,
+        (byte) 0xd1, (byte) 0x9b, (byte) 0x85, (byte) 0x13, (byte) 0xd5,
+        (byte) 0x09, (byte) 0xb5, (byte) 0x33, (byte) 0xc9, (byte) 0x2d,
+        (byte) 0xcf, (byte) 0xff, (byte) 0x53, (byte) 0xd7, (byte) 0xed,
+        (byte) 0xd5, (byte) 0x1d, (byte) 0x45, (byte) 0x4d, (byte) 0xc9,
+        (byte) 0xcb, (byte) 0x4b, (byte) 0x27, (byte) 0x21, (byte) 0x5f,
+        (byte) 0x69, (byte) 0xf5, (byte) 0x67, (byte) 0x5d, (byte) 0xab,
+        (byte) 0x9b, (byte) 0xf5,
                 (byte) 0xc3, (byte) 0xc3, (byte) 0xaf,
                 (byte) 0x7f, (byte) 0x6d, (byte) 0xa1, (byte) 0xe5, (byte) 0xfd,
                 (byte) 0x3d, (byte) 0x93, (byte) 0xbb, (byte) 0x29, (byte) 0x11,
@@ -128,7 +146,8 @@ public class DetermineOracleType extends ASSLServerOracle {
         (byte) 0x2b, (byte) 0x16, (byte) 0x6f, (byte) 0x2c, (byte) 0x38,
         (byte) 0x40};
     // 128 (256) bytes total
-    private static final int posOfTerminatingNullByte = validPKCS.length - 49;
+    private byte[] validPKCS;
+    private int posOfTerminatingNullByte;
 
     public DetermineOracleType(String serverAddress, int serverPort) throws SocketException {
         super(serverAddress, serverPort);
@@ -252,73 +271,54 @@ public class DetermineOracleType extends ASSLServerOracle {
     private void go() {
 
         try {
-//            ESupportedSockets socket = ESupportedSockets.TimingSocket;
-//            String keyName = "2048_rsa";
-//            ClassLoader classLoader = DetermineOracleType.class.getClassLoader();
-//            InputStream stream = classLoader.getResourceAsStream("2048.jks");
-//            
-//            KeyStore ks = KeyStore.getInstance("JKS");
-//            ks.load(stream, "password".toCharArray());
-//            
-//            PublicKey pubKey = ks.getCertificate(keyName).getPublicKey();
-            // PrivateKey privateKey = (PrivateKey) ks.getKey(keyName, "password".toCharArray());
-
             ESupportedSockets socket = ESupportedSockets.StandardSocket;
             PublicKey pubKey = fetchServerPublicKey(host, port);
-            System.out.println("===> Key Size: "
-                    + ((RSAPublicKey) pubKey).getModulus().bitLength());
+            int bitLength = ((RSAPublicKey) pubKey).getModulus().bitLength();
+            System.out.println("===> Key Size: " + bitLength);
             cipher = Cipher.getInstance("RSA/None/NoPadding");
             cipher.init(Cipher.ENCRYPT_MODE, pubKey);
-
-//            System.setProperty("javax.net.debug", "ssl");
-//            sslServer = new TLSServer(ks, JKS_PASSWORD, protocolShortName, port, DEBUG);
-//            sslServerThread = new Thread(sslServer);
-//            sslServerThread.start();
-//            Thread.sleep(2000);
+            
+            if(bitLength >1024) {
+                validPKCS = validPKCS2048.clone();
+            } else {
+                validPKCS = validPKCS1024.clone();
+            }
+            posOfTerminatingNullByte = validPKCS.length - 49;
 
             System.out.println("#################### Sending a PERFECT PMS");
             currentPKCS = validPKCS;
             byte[] result = cipher.doFinal(currentPKCS);
             executeWorkflow(result, socket);
-//            Thread.sleep(2000);
 
             System.out.println("#################### Sending a PMS with wrong FIRST byte");
             currentPKCS = getPMS_WrongFirstByte();
             result = cipher.doFinal(currentPKCS);
             executeWorkflow(result, socket);
-//            Thread.sleep(2000);
 
             System.out.println("#################### Sending a PMS with wrong SECOND byte");
             currentPKCS = getPMS_WrongSecondByte();
             result = cipher.doFinal(currentPKCS);
             executeWorkflow(result, socket);
-//            Thread.sleep(2000);
 
             System.out.println("#################### Sending a PMS with NULL byte in Padding");
             currentPKCS = getPMS_NullByteInPadding();
             result = cipher.doFinal(currentPKCS);
             executeWorkflow(result, socket);
-//            Thread.sleep(2000);
 
             System.out.println("#################### Sending a PMS with no NULL byte before PMS");
             currentPKCS = getPMS_NoNullByte();
             result = cipher.doFinal(currentPKCS);
             executeWorkflow(result, socket);
-//            Thread.sleep(2000);
 
             System.out.println("#################### Sending a PMS with a NULL byte at position 3");
             currentPKCS = getPMS_NullByteAtPos2();
             result = cipher.doFinal(currentPKCS);
             executeWorkflow(result, socket);
-//            Thread.sleep(2000);
 
             System.out.println("#################### Sending a PMS with a NULL byte at position 9");
             currentPKCS = getPMS_NullByteAtPos9();
             result = cipher.doFinal(currentPKCS);
             executeWorkflow(result, socket);
-//            Thread.sleep(2000);
-
-//            sslServer.shutdown();
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -327,8 +327,7 @@ public class DetermineOracleType extends ASSLServerOracle {
 
     public static void main(String[] args) throws SocketException {
         System.out.println("staring....");
-        DetermineOracleType dot = new DetermineOracleType("127.0.0.1", 51625);
-//        DetermineOracleType dot = new DetermineOracleType("134.147.198.51", 9090);
+        DetermineOracleType dot = new DetermineOracleType(HOST, PORT);
         dot.go();
     }
 }
