@@ -36,8 +36,8 @@ import org.bouncycastle.jce.provider.BouncyCastleProvider;
  */
 public class DetermineOracleType extends ASSLServerOracle {
 
-    private static final String HOST = "127.0.0.1";
-    private static final int PORT = 51624;
+    private static String HOST = "127.0.0.1";
+    private static int PORT = 51624;
     /**
      * Log4j logger initialization.
      */
@@ -326,6 +326,10 @@ public class DetermineOracleType extends ASSLServerOracle {
     }
 
     public static void main(String[] args) throws SocketException {
+        if(args.length == 2) {
+            HOST = args[0];
+            PORT = Integer.parseInt(args[1]);
+        }
         System.out.println("staring....");
         DetermineOracleType dot = new DetermineOracleType(HOST, PORT);
         dot.go();

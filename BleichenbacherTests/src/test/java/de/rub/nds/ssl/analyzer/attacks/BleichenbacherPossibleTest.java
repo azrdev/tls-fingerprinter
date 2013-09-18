@@ -113,7 +113,7 @@ public class BleichenbacherPossibleTest {
         return result;
     }
 
-    @Test(enabled = true, priority = 2)
+    @Test(enabled = false, priority = 2)
     public void sslTriggerOracleTest() throws SocketException,
             OracleException {
         JSSE16Oracle jsseOracle = new JSSE16Oracle(HOST, PORT);
@@ -143,7 +143,7 @@ public class BleichenbacherPossibleTest {
         System.out.println("counter: " + counter);
     }
     
-    @Test(enabled = true, priority = 2)
+    @Test(enabled = false, priority = 2)
     public void sslSingleRequest() throws SocketException,
             OracleException {
         JSSE16Oracle jsseOracle = new JSSE16Oracle(HOST, PORT);

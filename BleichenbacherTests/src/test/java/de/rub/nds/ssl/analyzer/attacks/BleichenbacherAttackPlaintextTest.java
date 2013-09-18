@@ -124,7 +124,7 @@ public class BleichenbacherAttackPlaintextTest {
         (byte) 0x2b, (byte) 0x16, (byte) 0x6f, (byte) 0x2c, (byte) 0x38,
         (byte) 0x40};
 
-    @Test(enabled = true)
+    @Test(enabled = false)
     public final void testBleichenbacherAttack()
             throws Exception {
 
@@ -340,7 +340,7 @@ public class BleichenbacherAttackPlaintextTest {
         logger.warn("Max:       " + queriesBardou.get(iterations - 1));
     }
 
-    @Test(enabled = true)
+    @Test(enabled = false)
     public final void testBleichenbacherAttackStaticKey()
             throws Exception {
         Security.addProvider(new BouncyCastleProvider());
@@ -357,7 +357,7 @@ public class BleichenbacherAttackPlaintextTest {
         attacker.attack();
     }
 
-    @Test(enabled = true)
+    @Test(enabled = false)
     public final void testFindGoodKey()
             throws Exception {
         Security.addProvider(new BouncyCastleProvider());

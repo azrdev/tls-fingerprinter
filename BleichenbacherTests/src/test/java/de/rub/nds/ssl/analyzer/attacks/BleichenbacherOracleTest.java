@@ -92,7 +92,7 @@ public class BleichenbacherOracleTest {
         Assert.assertFalse(oracle.checkPKCSConformity(msg));
     }
 
-    @Test(enabled = true)
+    @Test(enabled = false)
     public final void testGnuTLSOracle() throws Exception {
 
         KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("RSA");
