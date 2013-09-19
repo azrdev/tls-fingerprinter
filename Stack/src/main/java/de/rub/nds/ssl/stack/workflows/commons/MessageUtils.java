@@ -3,7 +3,6 @@ package de.rub.nds.ssl.stack.workflows.commons;
 import de.rub.nds.ssl.stack.Utility;
 import de.rub.nds.ssl.stack.protocols.commons.ECipherSuite;
 import de.rub.nds.ssl.stack.protocols.commons.SecurityParameters;
-import de.rub.nds.ssl.stack.protocols.handshake.AHandshakeRecord;
 import de.rub.nds.ssl.stack.protocols.handshake.ClientHello;
 import java.io.IOException;
 import java.io.InputStream;
