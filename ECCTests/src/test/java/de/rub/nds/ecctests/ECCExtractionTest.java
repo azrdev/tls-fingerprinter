@@ -1,4 +1,4 @@
-package de.rub.nds.ssl.stack.tests;
+package de.rub.nds.ecctests;
 
 import de.rub.nds.ssl.stack.protocols.commons.ECipherSuite;
 import de.rub.nds.ssl.stack.protocols.commons.EProtocolVersion;

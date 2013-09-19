@@ -1,4 +1,4 @@
-package de.rub.nds.ssl.stack.tests;
+package de.rub.nds.ecctests;
 
 import de.rub.nds.ssl.stack.ECUtility;
 import de.rub.nds.ssl.stack.protocols.handshake.extensions.datatypes.EECPointFormat;
