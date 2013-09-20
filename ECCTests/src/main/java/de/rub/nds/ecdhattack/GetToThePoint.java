@@ -50,22 +50,6 @@ public final class GetToThePoint {
     private static final int BITS_TO_CHECK = 10;
     private static String KNOWN_BITS = "<1,0>;";
 
-    private static final byte[] NASTY_PUBLIC_POINT_2 = new byte[]{
-        (byte) 0x04, (byte) 0xab, (byte) 0x88, (byte) 0xac, (byte) 0x8f,
-        (byte) 0x5e, (byte) 0xa4, (byte) 0xe5, (byte) 0x33, (byte) 0xee,
-        (byte) 0x27, (byte) 0x1e, (byte) 0xda, (byte) 0xf4, (byte) 0x3f,
-        (byte) 0xc2, (byte) 0xe3, (byte) 0x26, (byte) 0x0c, (byte) 0xf0,
-        (byte) 0xce, (byte) 0x96, (byte) 0x88, (byte) 0x70, (byte) 0x19,
-        (byte) 0xd0, (byte) 0x6e, (byte) 0xb2, (byte) 0x0e, (byte) 0x1d,
-        (byte) 0xe0, (byte) 0x10, (byte) 0x62, (byte) 0x00, (byte) 0x00,
-        (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00,
-        (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00,
-        (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00,
-        (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00,
-        (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00,
-        (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x01
-    };
-    
     public void launchAttack() throws SocketException, IOException,
             InterruptedException {
         MagmaUtilities magma = new MagmaUtilities(DEFAULT_CODE_PATH,
