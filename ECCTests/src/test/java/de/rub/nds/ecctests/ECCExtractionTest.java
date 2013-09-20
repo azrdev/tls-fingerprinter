@@ -197,10 +197,10 @@ public class ECCExtractionTest implements Observer {
                     ClientKeyExchange cke = new ClientKeyExchange(
                             EProtocolVersion.TLS_1_0,
                             EKeyExchangeAlgorithm.EC_DIFFIE_HELLMAN);
-//                    byte[] tmp = VALID_PUBLIC_POINT_2;
-                    byte[] tmp = NASTY_PUBLIC_POINT_2;
+                    byte[] tmp = VALID_PUBLIC_POINT_2;
+//                    byte[] tmp = NASTY_PUBLIC_POINT_2;
                     // destroy the point
-//                    tmp[tmp.length - 6] = 17;                 
+                    tmp[tmp.length - 6] = 17;                 
 
                     ClientECDHPublic keyMaterial = new ClientECDHPublic();
                     ECPoint newPoint = new ECPoint();
