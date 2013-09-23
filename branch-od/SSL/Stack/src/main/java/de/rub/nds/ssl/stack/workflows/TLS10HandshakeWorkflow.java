@@ -60,6 +60,7 @@ public final class TLS10HandshakeWorkflow extends AWorkflow {
     private boolean enterApplicationPhase = false;
     private boolean runApplicationPhase = false;
     private ArrayList<byte[]> responses = null;
+    private MessageBuilder msgBuilder = null;
 
     /**
      * Define the workflow states.
@@ -147,6 +148,7 @@ public final class TLS10HandshakeWorkflow extends AWorkflow {
      */
     @Override
     public void start() {
+        msgBuilder = new MessageBuilder();
         try {
             logger.debug(">>> Start TLS handshake");
             setMainThread(Thread.currentThread());
@@ -155,7 +157,6 @@ public final class TLS10HandshakeWorkflow extends AWorkflow {
             respThread.start();
             ARecordFrame record;
             MessageContainer trace;
-            MessageBuilder msgBuilder = new MessageBuilder();
             try {
                 hashBuilder = new HandshakeHashBuilder();
             } catch (NoSuchAlgorithmException ex) {
@@ -272,7 +273,7 @@ public final class TLS10HandshakeWorkflow extends AWorkflow {
             
             if(enterApplicationPhase){
                 logger.debug(">>> Enter application phase");
-                switchToState(trace, EStates.APPLICATION);                
+                switchToState(trace, EStates.APPLICATION);
                 while(runApplicationPhase){
                     switchToState(trace, EStates.APPLICATION_PING);
                 }
@@ -304,6 +305,21 @@ public final class TLS10HandshakeWorkflow extends AWorkflow {
         result.addAll(responses);
         responses.clear();
         return result;
+    }
+    
+    /**
+     * Add a message to received messages
+     */
+    
+    public void addMessage(byte[] msg){
+        responses.add(msg);
+    }
+    
+    /**
+     * Get message builder
+     */
+    public MessageBuilder getMessageBuilder(){
+        return msgBuilder;
     }
 
     /**
@@ -399,12 +415,11 @@ public final class TLS10HandshakeWorkflow extends AWorkflow {
     public void applicationSend(final byte[] message) throws IllegalStateException{
         if(runApplicationPhase){
             MessageContainer trace = new MessageContainer();
-            MessageBuilder builder = new MessageBuilder();
-            TLSPlaintext plain = builder.createApplication(protocolVersion, message);
+            TLSPlaintext plain = msgBuilder.createApplication(protocolVersion, message);
             //logger.debug("Plain: " + Utility.bytesToHex();
             logger.debug("Client plain vars: " + plain.toString());
             logger.debug("Client plain payload: " + Utility.bytesToHex(plain.getPayload()));
-            TLSCiphertext c = builder.encryptRecord(protocolVersion, plain, EContentType.APPLICATION);
+            TLSCiphertext c = msgBuilder.encryptRecord(protocolVersion, plain, EContentType.APPLICATION);
             //c.encode(false);
             logger.debug("Client cipher vars: " + c.toString());
             logger.debug("Client cipher value: "+ Utility.bytesToHex(c.getPayload()));
@@ -527,42 +542,21 @@ public final class TLS10HandshakeWorkflow extends AWorkflow {
      */
     @Override
     public void update(final Observable o, final Object arg) {
-        MessageBuilder builder = new MessageBuilder();
         MessageContainer response = null;
         AResponseFetcher fetcher = null;
         if (o instanceof AResponseFetcher) {
             fetcher = (AResponseFetcher) o;
             response = (MessageContainer) arg;
         }
-        
+        logger.debug("Something received");
         //fetch the input bytes
-        TLSResponse tlsResponse = new TLSResponse(response.
-                getCurrentRecordBytes(), this);
-        if(runApplicationPhase){
-            logger.debug("Server cipher vars: " + tlsResponse.toString());
-            logger.debug("Server cipher value: " + Utility.bytesToHex(tlsResponse.getPayload()));
-            TLSCiphertext c = new TLSCiphertext(tlsResponse.response, true);
-            TLSPlaintext p = builder.decryptRecord(c);
-            p.encode(false);
-            if(p.getPayload().length > 0)
-                responses.add(p.getPayload().clone());
-            logger.debug("Server plain vars: " + p.toString());
-            logger.debug("Server plain data: " + Utility.bytesToHex(p.getPayload()));
-            logger.debug("Server plain data fragment: " + Utility.bytesToHex(p.getFragment()));
-            byte[] hex = p.getPayload().clone();
-            StringBuilder sb = new StringBuilder();
-            for(int i = 0; i < hex.length; i++)
-                sb.append((char)hex[i]);            
-            logger.debug("Server message: " + sb.toString());
-            
-        }else{
-            tlsResponse.handleResponse(response);
-            if (getCurrentState() == EStates.ALERT.getID()) {
-                logger.debug("### Connection reset due to FATAL_ALERT.");
-                fetcher.stopFetching();
-                closeSocket();
-                return;
-            }
+        TLSResponse tlsResponse = new TLSResponse(response.getCurrentRecordBytes(), this);
+        tlsResponse.handleResponse(response);
+        if (getCurrentState() == EStates.ALERT.getID()) {
+            logger.debug("### Connection reset due to FATAL_ALERT.");
+            fetcher.stopFetching();
+            closeSocket();
+            return;
         }
         //hash current record
         updateHash(hashBuilder, response.getCurrentRecordBytes());

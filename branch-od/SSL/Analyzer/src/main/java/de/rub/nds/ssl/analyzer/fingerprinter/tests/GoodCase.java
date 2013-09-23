@@ -2,12 +2,15 @@ package de.rub.nds.ssl.analyzer.fingerprinter.tests;
 
 import de.rub.nds.ssl.analyzer.TestResult;
 import de.rub.nds.ssl.analyzer.executor.EFingerprintTests;
+import de.rub.nds.ssl.stack.Utility;
 import de.rub.nds.ssl.stack.protocols.commons.ECipherSuite;
 import de.rub.nds.ssl.stack.protocols.commons.EContentType;
 import de.rub.nds.ssl.stack.protocols.handshake.ClientHello;
 import de.rub.nds.ssl.stack.protocols.handshake.ApplicationRecord;
 import de.rub.nds.ssl.stack.protocols.handshake.datatypes.CipherSuites;
 import de.rub.nds.ssl.stack.protocols.handshake.datatypes.RandomValue;
+import de.rub.nds.ssl.stack.protocols.msgs.TLSCiphertext;
+import de.rub.nds.ssl.stack.protocols.msgs.TLSPlaintext;
 import de.rub.nds.ssl.stack.trace.MessageContainer;
 import de.rub.nds.ssl.stack.workflows.TLS10HandshakeWorkflow;
 import de.rub.nds.ssl.stack.workflows.TLS10HandshakeWorkflow.EStates;
@@ -94,31 +97,17 @@ public final class GoodCase extends AGenericFingerprintTest implements Observer 
             trace.setCurrentRecord(clientHello);
         }
        
-        if(states == EStates.APPLICATION){
-            /*
-            MessageBuilder builder = new MessageBuilder();
-            CipherSuites suites = new CipherSuites();
-            RandomValue random = new RandomValue();
-            suites.setSuites(this.suite);
-            ClientHello clientHello = builder.createClientHello(protocolVersion.
-                    getId(),
-                    random.encode(false),
-                    suites.encode(false), new byte[]{0x00});
-            trace = new MessageContainer();
-            trace.setCurrentRecord(clientHello);
-            trace.prepare();
-            try{
-                workflow.send(trace);
-            }catch(IOException e){
-            }*/
-        }
         if(states == EStates.APPLICATION_PING){
             ArrayList<byte[]> tmpMsgs = workflow.getMessages();
             if(tmpMsgs != null){
                 messages.addAll(tmpMsgs);
                 //workflow.applicationSend(new byte[]{13, 37});
-                if(messages.size() == 1)
+                if(messages.size() == 1){
+                    //String s = "bla";
+                    //workflow.applicationSend(s.getBytes());
                     workflow.endApplicationPhase();
+                }
+                    
             }
                 
         }

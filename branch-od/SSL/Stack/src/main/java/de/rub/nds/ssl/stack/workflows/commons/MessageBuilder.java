@@ -38,13 +38,23 @@ public class MessageBuilder {
      * Log4j logger.
      */
     private static Logger logger = Logger.getRootLogger();
+    private GenericBlockCipher blockCipher = null;
+    private int decs = 0;
 
     /**
      * Empty public constructor.
      */
     public MessageBuilder() {
     }
-
+    
+    /**
+     * Create instance of BlockCipher or return it
+     */
+    private GenericBlockCipher getBlockCipher(){
+        if(blockCipher == null)
+            blockCipher = new GenericBlockCipher();
+        return blockCipher;
+    }
     /**
      * Builds a ClientHello message on the byte layer
      *
@@ -247,27 +257,23 @@ public class MessageBuilder {
         return rec;
     }
 
-    public final TLSPlaintext decryptRecord(
-            final ARecordFrame record) {
+    public final TLSPlaintext decryptRecord(final ARecordFrame record) {
+        logger.debug("Decryptions: " + (++decs));
         SecurityParameters param = SecurityParameters.getInstance();
         //create the key material
         KeyMaterial keyMat = new KeyMaterial();
         //decrypt message
         String cipherName = param.getBulkCipherAlgorithm().toString();
         String macName = param.getMacAlgorithm().toString();
-        SecretKey macKey = new SecretKeySpec(keyMat.getServerMACSecret(),
-                macName);
+        SecretKey macKey = new SecretKeySpec(keyMat.getServerMACSecret(), macName);
         SecretKey symmKey = new SecretKeySpec(keyMat.getServerKey(), cipherName);
         byte[] plainBytes;
         TLSPlaintext rec = null;
         if (param.getCipherType() == ECipherType.BLOCK) {
-            logger.debug("Encoded payload: " + Utility.bytesToHex(record.getPayload()));
-            //GenericBlockCipher blockCipher = new GenericBlockCipher(record.getPayload());
-            GenericBlockCipher blockCipher = new GenericBlockCipher(record);
+            GenericBlockCipher blockCipher = getBlockCipher();
+            blockCipher.setPlainRecord(record);
             blockCipher.decode(record.getPayload(), false);
-            plainBytes = blockCipher.decryptData(symmKey, cipherName,
-                    keyMat.getServerIV());
-            logger.debug("Decoded payload: " + Utility.bytesToHex(plainBytes));
+            plainBytes = blockCipher.decryptData(symmKey, cipherName, keyMat.getServerIV());
             // check padding (padding = padding bytes + padding length)
             int paddingLength = plainBytes[plainBytes.length - 1];
             for (int i = 0; i < paddingLength + 1; i++) {
@@ -285,15 +291,12 @@ public class MessageBuilder {
                     System.arraycopy(plainBytes,
                             plainBytes.length - 1 - paddingLength, padding, 0,
                             padding.length);
-            logger.debug("Padding: " + Utility.bytesToHex(padding));
             // TODO add MAC check
             blockCipher.computePayloadMAC(macKey, macName);
-            logger.debug("MAC: " + Utility.bytesToHex(blockCipher.getMAC()));
             // remove padding
             byte[] tmp = new byte[plainBytes.length - paddingLength - 1];
             System.arraycopy(plainBytes, 0, tmp, 0, tmp.length);
             plainBytes = tmp;
-            logger.debug("Padding removed: " + Utility.bytesToHex(plainBytes));
             // remove MAC
             int macLength = 0;
             switch (param.getMacAlgorithm()) {
@@ -307,7 +310,6 @@ public class MessageBuilder {
             tmp = new byte[plainBytes.length - macLength];
             System.arraycopy(plainBytes, 0, tmp, 0, tmp.length);
             plainBytes = tmp;
-            logger.debug("MAC removed: " + Utility.bytesToHex(plainBytes));
             rec = new TLSPlaintext(plainBytes, false);
         } else if (param.getCipherType() == ECipherType.STREAM) {
             GenericStreamCipher streamCipher = new GenericStreamCipher(record);

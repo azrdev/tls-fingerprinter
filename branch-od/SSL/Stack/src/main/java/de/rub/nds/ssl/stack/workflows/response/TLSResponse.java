@@ -1,5 +1,6 @@
 package de.rub.nds.ssl.stack.workflows.response;
 
+import de.rub.nds.ssl.stack.Utility;
 import de.rub.nds.ssl.stack.protocols.ARecordFrame;
 import de.rub.nds.ssl.stack.protocols.alert.Alert;
 import de.rub.nds.ssl.stack.protocols.alert.datatypes.EAlertLevel;
@@ -105,19 +106,14 @@ public final class TLSResponse extends ARecordFrame implements Observer {
                      * Since it is not possible to send CCS and Finished in a
                      * handhsake enumeration it is safe to distinguish this way
                      */
-                    TLSCiphertext ciphertext = new TLSCiphertext(response,
-                            true);
-
-                    trace.setCurrentRecord(ciphertext);
-                    trace.setPreviousState(EStates.getStateById(workflow.
-                            getCurrentState()));
+                    TLSCiphertext ciphertext = new TLSCiphertext(response, true);
+                    TLSPlaintext plaintext = workflow.getMessageBuilder().decryptRecord(ciphertext);
+                    logger.debug("FIN: " + Utility.bytesToHex(plaintext.getPayload()));
+                    trace.setCurrentRecord(plaintext);
+                    trace.setPreviousState(EStates.getStateById(workflow.getCurrentState()));
                     workflow.nextStateAndNotify(trace);
-                    trace.setState(EStates.getStateById(
-                            workflow.getCurrentState()));
+                    trace.setState(EStates.getStateById(workflow.getCurrentState()));
                     workflow.addToTraceList(trace);
-
-                    MessageBuilder builder = new MessageBuilder();
-                    TLSPlaintext plaintext = builder.decryptRecord(ciphertext);
                     setTrace(trace);
                     msgObserve.addObserver(this);
 //// TODO: WTF is this???
@@ -134,6 +130,20 @@ public final class TLSResponse extends ARecordFrame implements Observer {
                             getKeyExchangeAlgorithm());
                     msgObserve.deleteObservers();
                 }
+                break;
+            case APPLICATION:
+                TLSCiphertext c = new TLSCiphertext(response, true);
+                TLSPlaintext p = workflow.getMessageBuilder().decryptRecord(c);
+                p.encode(false);
+                if(p.getPayload().length > 0){
+                    workflow.addMessage(p.getPayload().clone());
+                }else
+                    logger.debug("Empty message in application phase received.");
+                byte[] hex = p.getPayload().clone();
+                StringBuilder sb = new StringBuilder();
+                for(int i = 0; i < hex.length; i++)
+                    sb.append((char)hex[i]);            
+                logger.debug("Server message: " + sb.toString());
                 break;
             default:
                 break;

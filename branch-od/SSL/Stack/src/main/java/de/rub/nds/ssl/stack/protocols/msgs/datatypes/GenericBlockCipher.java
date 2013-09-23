@@ -1,10 +1,8 @@
 package de.rub.nds.ssl.stack.protocols.msgs.datatypes;
 
-import de.rub.nds.ssl.stack.Utility;
 import de.rub.nds.ssl.stack.crypto.MACComputation;
 import de.rub.nds.ssl.stack.protocols.ARecordFrame;
 import de.rub.nds.ssl.stack.protocols.commons.APubliclySerializable;
-import de.rub.nds.ssl.stack.protocols.commons.EContentType;
 import java.security.AlgorithmParameters;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
@@ -12,7 +10,6 @@ import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidParameterSpecException;
 import javax.crypto.*;
 import javax.crypto.spec.IvParameterSpec;
-import org.apache.log4j.Logger;
 
 /**
  * Block cipher encryption and MAC computation.
@@ -47,7 +44,19 @@ public class GenericBlockCipher extends APubliclySerializable implements
      * Padding for block cipher encryption.
      */
     private byte[] padding;
-
+    /**
+     * Block cipher object for continous decryption
+     */
+    private Cipher decBlockCipher = null;
+    /**
+     * Block cipher object for continous encryption
+     */
+    private Cipher encBlockCipher = null;
+    /**
+     * Initialize a GenericBlockCipher as defined in RFC2246.
+     */
+    public GenericBlockCipher(){
+    }
     /**
      * Initialize a GenericBlockCipher as defined in RFC2246.
      *
@@ -63,9 +72,9 @@ public class GenericBlockCipher extends APubliclySerializable implements
      * @param frame Non-encrypted record frame
      */
     public GenericBlockCipher(final ARecordFrame frame) {
-        this.plainRecord = frame;
+        setPlainRecord(frame);
     }
-
+    
     /**
      * Concatenate data and MAC, add padding and encrypt data.
      *
@@ -75,25 +84,17 @@ public class GenericBlockCipher extends APubliclySerializable implements
      */
     public final void encryptData(final SecretKey key,
             String cipherName, final byte[] iv) {
-        Cipher blockCipher = null;
         int blockSize = 0;
         try {
-            blockCipher = Cipher.getInstance(cipherName + "/CBC/NoPadding");
-            AlgorithmParameters params =
-                    AlgorithmParameters.getInstance(cipherName);
-            IvParameterSpec iVector = new IvParameterSpec(iv);
-            params.init(iVector);
-            blockCipher.init(Cipher.ENCRYPT_MODE, key, params);
-            blockSize = blockCipher.getBlockSize();
-        } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
-        } catch (NoSuchPaddingException e) {
-            e.printStackTrace();
-        } catch (InvalidParameterSpecException e) {
-            e.printStackTrace();
-        } catch (InvalidKeyException e) {
-            e.printStackTrace();
-        } catch (InvalidAlgorithmParameterException e) {
+            if(encBlockCipher == null){
+                encBlockCipher = Cipher.getInstance(cipherName + "/CBC/NoPadding");
+                AlgorithmParameters params = AlgorithmParameters.getInstance(cipherName);
+                IvParameterSpec iVector = new IvParameterSpec(iv);
+                params.init(iVector);
+                encBlockCipher.init(Cipher.ENCRYPT_MODE, key, params);
+            }
+            blockSize = encBlockCipher.getBlockSize();
+        } catch (NoSuchAlgorithmException | NoSuchPaddingException | InvalidParameterSpecException | InvalidKeyException | InvalidAlgorithmParameterException e) {
             e.printStackTrace();
         }
         //concatenate data and MAC
@@ -121,16 +122,11 @@ public class GenericBlockCipher extends APubliclySerializable implements
         // 4. add padding length
         System.arraycopy(paddedDataLength, 0, tmp, pointer,
                 paddedDataLength.length);
-        Logger.getRootLogger().debug(Utility.bytesToHex(tmp));
         //encrypt the data
-        if (blockCipher != null) {
-            try {
-                encryptedData = blockCipher.doFinal(tmp);
-            } catch (IllegalBlockSizeException e) {
-                e.printStackTrace();
-            } catch (BadPaddingException e) {
-                e.printStackTrace();
-            }
+        try {
+            encryptedData = encBlockCipher.doFinal(tmp);
+        } catch (IllegalBlockSizeException | BadPaddingException e) {
+            e.printStackTrace();
         }
     }
 
@@ -144,29 +140,17 @@ public class GenericBlockCipher extends APubliclySerializable implements
      */
     public final byte[] decryptData(final SecretKey key,
             final String cipherName, final byte[] iv) {
-        Cipher blockCipher;
         try {
-            blockCipher = Cipher.getInstance(cipherName + "/CBC/NoPadding");
-            AlgorithmParameters params =
-                    AlgorithmParameters.getInstance(cipherName);
-            IvParameterSpec iVector = new IvParameterSpec(iv);
-            params.init(iVector);
-            blockCipher.init(Cipher.DECRYPT_MODE, key, params);
+            if(decBlockCipher == null){
+                decBlockCipher = Cipher.getInstance(cipherName + "/CBC/NoPadding");
+                AlgorithmParameters params = AlgorithmParameters.getInstance(cipherName);
+                IvParameterSpec iVector = new IvParameterSpec(iv);
+                params.init(iVector);
+                decBlockCipher.init(Cipher.DECRYPT_MODE, key, params);
+            }
             //first decrypt the data
-            this.cleartext = blockCipher.doFinal(this.encryptedData);
-        } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
-        } catch (NoSuchPaddingException e) {
-            e.printStackTrace();
-        } catch (IllegalBlockSizeException e) {
-            e.printStackTrace();
-        } catch (BadPaddingException e) {
-            e.printStackTrace();
-        } catch (InvalidKeyException e) {
-            e.printStackTrace();
-        } catch (InvalidAlgorithmParameterException e) {
-            e.printStackTrace();
-        } catch (InvalidParameterSpecException e) {
+            this.cleartext = decBlockCipher.update(this.encryptedData);
+        } catch (NoSuchAlgorithmException | NoSuchPaddingException | InvalidKeyException | InvalidAlgorithmParameterException | InvalidParameterSpecException e) {
             e.printStackTrace();
         }
         return cleartext.clone();
@@ -270,7 +254,6 @@ public class GenericBlockCipher extends APubliclySerializable implements
         byte[] protocolVersion =
                 this.plainRecord.getProtocolVersion().getId();
         byte contentType = this.plainRecord.getContentType().getId();
-        Logger.getRootLogger().debug("(" + payload.length + ")" + Utility.bytesToHex(payload));
         byte[] payloadLength;
         payloadLength = super.buildLength(payload.length, 2);
         MACComputation comp = new MACComputation(key, macName);
@@ -297,7 +280,13 @@ public class GenericBlockCipher extends APubliclySerializable implements
         System.arraycopy(mac, 0, tmp, pointer, mac.length);
         return tmp;
     }
-
+    
+    /**
+     * Set plain record
+     */
+    public final void setPlainRecord(final ARecordFrame frame){
+        this.plainRecord = frame;
+    }
     /**
      * Set padding bytes of a block.
      *
