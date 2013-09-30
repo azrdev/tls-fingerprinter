@@ -370,7 +370,7 @@ public class CommandLineTimingOracleWithoutPrivateKey extends AOracle {
                  * Kill the measurement with an exit code !=0 so that the caller
                  * knows that something went wrong
                  */
-                //System.exit(1);
+                System.exit(1);
             }
 
         } else {
@@ -402,9 +402,6 @@ public class CommandLineTimingOracleWithoutPrivateKey extends AOracle {
         System.out.println("    " + round + ": Ground truth: " + groundTruth
                 + ", timingoracle: " + result);
         
-        
-        result = groundTruth;
-
         return result;
     }
 
