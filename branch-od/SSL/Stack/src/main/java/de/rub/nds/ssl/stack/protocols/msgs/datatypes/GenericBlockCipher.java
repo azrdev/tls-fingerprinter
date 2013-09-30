@@ -1,5 +1,6 @@
 package de.rub.nds.ssl.stack.protocols.msgs.datatypes;
 
+import de.rub.nds.ssl.stack.Utility;
 import de.rub.nds.ssl.stack.crypto.MACComputation;
 import de.rub.nds.ssl.stack.protocols.ARecordFrame;
 import de.rub.nds.ssl.stack.protocols.commons.APubliclySerializable;
@@ -53,6 +54,14 @@ public class GenericBlockCipher extends APubliclySerializable implements
      */
     private Cipher encBlockCipher = null;
     /**
+     * Object for continous MAC computation for decryption
+     */
+    private MACComputation decMacComputation = null;
+    /**
+     * Object for continous MAC computation for encryption
+     */
+    private MACComputation encMacComputation = null;    
+    /**
      * Initialize a GenericBlockCipher as defined in RFC2246.
      */
     public GenericBlockCipher(){
@@ -82,8 +91,7 @@ public class GenericBlockCipher extends APubliclySerializable implements
      * @param cipherName Name of the symmetric cipher
      * @param iv Initialization vector for ciphertext computation
      */
-    public final void encryptData(final SecretKey key,
-            String cipherName, final byte[] iv) {
+    public final void encryptData(final SecretKey key, String cipherName, final byte[] iv) {
         int blockSize = 0;
         try {
             if(encBlockCipher == null){
@@ -102,16 +110,13 @@ public class GenericBlockCipher extends APubliclySerializable implements
         int payloadLength = this.plainRecord.getPayload().length;
         // padding precomputation
         // padding length + 1 since we add the paddingLength field
-        this.createPadding(payloadLength
-                + 1 + macData.length, blockSize);
+        this.createPadding(payloadLength + 1 + macData.length, blockSize);
         byte[] paddedData = getPadding();
         byte[] paddedDataLength = new byte[]{(byte) (paddedData.length)};
 
-        byte[] tmp = new byte[payloadLength + macData.length
-                + paddedData.length + paddedDataLength.length];
+        byte[] tmp = new byte[payloadLength + macData.length + paddedData.length + paddedDataLength.length];
         // 1. add payload
-        System.arraycopy(this.plainRecord.getPayload(),
-                0, tmp, pointer, payloadLength);
+        System.arraycopy(this.plainRecord.getPayload(), 0, tmp, pointer, payloadLength);
         pointer += payloadLength;
         // 2. add MAC
         System.arraycopy(macData, 0, tmp, pointer, macData.length);
@@ -120,14 +125,9 @@ public class GenericBlockCipher extends APubliclySerializable implements
         System.arraycopy(paddedData, 0, tmp, pointer, paddedData.length);
         pointer += paddedData.length;
         // 4. add padding length
-        System.arraycopy(paddedDataLength, 0, tmp, pointer,
-                paddedDataLength.length);
+        System.arraycopy(paddedDataLength, 0, tmp, pointer, paddedDataLength.length);
         //encrypt the data
-        try {
-            encryptedData = encBlockCipher.doFinal(tmp);
-        } catch (IllegalBlockSizeException | BadPaddingException e) {
-            e.printStackTrace();
-        }
+        encryptedData = encBlockCipher.update(tmp);
     }
 
     /**
@@ -244,21 +244,27 @@ public class GenericBlockCipher extends APubliclySerializable implements
      * @param key Secret key for MAC computation
      * @param macName MAC algorithm
      */
-    public final void computePayloadMAC(final SecretKey key,
-            final String macName) {
+    public final void computePayloadMAC(final SecretKey key, final String macName, boolean encryption) {
         if(this.plainRecord == null){
             this.macData = new byte[0];
             return;
         }
         byte[] payload = this.plainRecord.getPayload();
-        byte[] protocolVersion =
-                this.plainRecord.getProtocolVersion().getId();
+        byte[] protocolVersion = this.plainRecord.getProtocolVersion().getId();
         byte contentType = this.plainRecord.getContentType().getId();
         byte[] payloadLength;
         payloadLength = super.buildLength(payload.length, 2);
-        MACComputation comp = new MACComputation(key, macName);
-        this.macData = comp.computeMAC(protocolVersion,
-                contentType, payloadLength, payload);
+        MACComputation comp;
+        if(encryption == true){
+            if(encMacComputation == null)
+                encMacComputation = new MACComputation(key, macName);
+            comp = encMacComputation;
+        }else{
+            if(decMacComputation == null)
+                decMacComputation = new MACComputation(key, macName);
+            comp = decMacComputation;        
+        }
+        this.macData = comp.computeMAC(protocolVersion, contentType, payloadLength, payload);
     }
 
     /**

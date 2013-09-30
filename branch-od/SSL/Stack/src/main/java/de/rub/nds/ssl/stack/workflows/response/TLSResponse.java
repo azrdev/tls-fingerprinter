@@ -108,7 +108,6 @@ public final class TLSResponse extends ARecordFrame implements Observer {
                      */
                     TLSCiphertext ciphertext = new TLSCiphertext(response, true);
                     TLSPlaintext plaintext = workflow.getMessageBuilder().decryptRecord(ciphertext);
-                    logger.debug("FIN: " + Utility.bytesToHex(plaintext.getPayload()));
                     trace.setCurrentRecord(plaintext);
                     trace.setPreviousState(EStates.getStateById(workflow.getCurrentState()));
                     workflow.nextStateAndNotify(trace);

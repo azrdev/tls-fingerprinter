@@ -111,7 +111,7 @@ public final class FINHandshakeHeader extends AGenericFingerprintTest
                     EContentType.HANDSHAKE);
             GenericBlockCipher blockCipher = new GenericBlockCipher(
                     finished);
-            blockCipher.computePayloadMAC(macKey, macName);
+            blockCipher.computePayloadMAC(macKey, macName, false);
 
             if (payload != null) {
                 try {

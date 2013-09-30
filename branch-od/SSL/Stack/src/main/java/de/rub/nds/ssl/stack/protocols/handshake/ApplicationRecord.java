@@ -3,13 +3,6 @@ package de.rub.nds.ssl.stack.protocols.handshake;
 import de.rub.nds.ssl.stack.protocols.ARecordFrame;
 import de.rub.nds.ssl.stack.protocols.commons.EContentType;
 import de.rub.nds.ssl.stack.protocols.commons.EProtocolVersion;
-import de.rub.nds.ssl.stack.crypto.MACComputation;
-import de.rub.nds.ssl.stack.protocols.commons.SecurityParameters;
-import de.rub.nds.ssl.stack.workflows.commons.KeyMaterial;
-import javax.crypto.SecretKey;
-import javax.crypto.spec.SecretKeySpec;
-import org.apache.log4j.Logger;
-import de.rub.nds.ssl.stack.Utility;
 
 /**
  * Defines all Application Messages of SSL/TLS

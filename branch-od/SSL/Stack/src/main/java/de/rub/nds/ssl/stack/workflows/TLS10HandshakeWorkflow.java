@@ -416,17 +416,8 @@ public final class TLS10HandshakeWorkflow extends AWorkflow {
         if(runApplicationPhase){
             MessageContainer trace = new MessageContainer();
             TLSPlaintext plain = msgBuilder.createApplication(protocolVersion, message);
-            //logger.debug("Plain: " + Utility.bytesToHex();
-            logger.debug("Client plain vars: " + plain.toString());
-            logger.debug("Client plain payload: " + Utility.bytesToHex(plain.getPayload()));
             TLSCiphertext c = msgBuilder.encryptRecord(protocolVersion, plain, EContentType.APPLICATION);
-            //c.encode(false);
-            logger.debug("Client cipher vars: " + c.toString());
-            logger.debug("Client cipher value: "+ Utility.bytesToHex(c.getPayload()));
             c.encode(true);
-            //logger.debug("Cipher vars: " + c.toString());
-            //logger.debug("Cipher payload: "+ Utility.bytesToHex(c.getPayload()));
-            //logger.debug("Test: " + builder.decryptRecord(c).toString());
             setRecordTrace(trace, c);
             trace.prepare();
             try{
@@ -548,7 +539,6 @@ public final class TLS10HandshakeWorkflow extends AWorkflow {
             fetcher = (AResponseFetcher) o;
             response = (MessageContainer) arg;
         }
-        logger.debug("Something received");
         //fetch the input bytes
         TLSResponse tlsResponse = new TLSResponse(response.getCurrentRecordBytes(), this);
         tlsResponse.handleResponse(response);

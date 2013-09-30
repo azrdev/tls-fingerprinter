@@ -194,7 +194,7 @@ public class Vaudenay implements Observer {
                             EContentType.HANDSHAKE);
                     GenericBlockCipher blockCipher = new GenericBlockCipher(
                             finished);
-                    blockCipher.computePayloadMAC(macKey, macName);
+                    blockCipher.computePayloadMAC(macKey, macName, false);
 
                     if (data != null) {
                         try {
