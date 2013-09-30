@@ -54,10 +54,12 @@ public abstract class AOracle {
      * 0x00 and the 0x00 byte has to be set on a correct position
      * 
      * XMLENC checks if the key has a correct length (16, 24, or 32 bytes)
+     * 
+     * BigIP checks only the second byte 0x02 (the first 0x00 byte is not checked at all)
      */
     public enum OracleType {
 
-        TTT, TFT, FTT, FFT, FFF, JSSE, XMLENC, GNU_TLS
+        TTT, TFT, FTT, FFT, FFF, JSSE, XMLENC, GNU_TLS, BigIP
     }
 
     /**

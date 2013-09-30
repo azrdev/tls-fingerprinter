@@ -22,6 +22,11 @@ public abstract class ATestOracle extends AOracle {
         
         boolean conform = false;
         byte[] tmpMsg = msg;
+        
+        // BigIP checks only the second byte
+        if(oracleType == OracleType.BigIP && tmpMsg[1] == 0x02) {
+            conform = true;
+        }
 
         if (tmpMsg[0] == 0x00) {
             byte[] tmp = new byte[tmpMsg.length - 1];
@@ -32,6 +37,7 @@ public abstract class ATestOracle extends AOracle {
         if (tmpMsg[0] == 0x02 && tmpMsg.length == (blockSize - 1)) {
             switch (oracleType) {
                 case TTT:
+                case BigIP:
                     conform = true;
                     break;
 
