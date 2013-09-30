@@ -29,6 +29,11 @@ public class PKCS15Toolkit {
         boolean conform = false;
         byte[] tmpMsg = decryptedPKCS;
         
+        // BigIP checks only the second byte
+        if(oracleType == OracleType.BigIP && tmpMsg[1] == 0x02) {
+            conform = true;
+        }
+        
         if (tmpMsg[0] == 0x00) {
             byte[] tmp = new byte[tmpMsg.length - 1];
             System.arraycopy(tmpMsg, 1, tmp, 0, tmp.length);
@@ -39,6 +44,7 @@ public class PKCS15Toolkit {
 //            System.out.println("    CASE X starting with 00 02");
             switch (oracleType) {
                 case TTT:
+                case BigIP:
                     conform = true;
                     break;
 

@@ -17,5 +17,5 @@ public enum OracleType {
      * FFF checks 0x00 0x02 on the beginning, the first 8 bytes cannot include
      * 0x00 and the 0x00 byte has to be set on a correct position
      */
-    TTT, TFT, FTT, FFT, FFF
+    TTT, TFT, FTT, FFT, FFF, BigIP
 }
