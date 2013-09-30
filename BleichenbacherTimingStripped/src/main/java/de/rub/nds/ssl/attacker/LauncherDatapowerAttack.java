@@ -158,7 +158,7 @@ public final class LauncherDatapowerAttack {
         oracle.setCase2PMS(encCase2);
         oracle.setCase3PMS(encInvalidPMS);
         // Warmup SSL caches
-//        oracle.warmup();
+        oracle.warmup();
 
         // train oracle
         // oracle.trainOracle();
