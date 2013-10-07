@@ -77,9 +77,8 @@ public final class Reporter {
         }
 
         tmpScore = scoreCounter.getNoHitCounter();
-        logger.info(String.format("%6s %% ( %2d / %2d ) same behaviour "
-                + "as: %s", twoDForm.format((double) tmpScore
-                / (double) totalScore * 100), tmpScore, totalScore,
-                "Unknown implementation"));
+        logger.info(String.format("%6s %% ( %2d / %2d ) is unknown "
+                + "behaviour.", twoDForm.format((double) tmpScore
+                / (double) totalScore * 100), tmpScore, totalScore));
     }
 }
