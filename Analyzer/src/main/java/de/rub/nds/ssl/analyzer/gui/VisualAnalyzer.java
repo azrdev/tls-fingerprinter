@@ -10,6 +10,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
@@ -27,6 +28,9 @@ import org.apache.log4j.PropertyConfigurator;
  */
 public class VisualAnalyzer extends javax.swing.JFrame {
 
+    private static final String PROPERTIES_FILE = "logging.properties";
+    private static final String LINE_SEPARATOR = System.getProperty(
+            "line.separator");
     private ScannerConfigurationData scannerConfigurationData;
     private DefaultComboBoxModel fuzzerConfigurationData;
     /**
@@ -340,7 +344,7 @@ public class VisualAnalyzer extends javax.swing.JFrame {
     private void createFingerprintButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_createFingerprintButtonActionPerformed
         String[] targets = getTargets();
         ETLSImplementation implementation =
-        (ETLSImplementation) fuzzerConfigurationData.getSelectedItem();
+                (ETLSImplementation) fuzzerConfigurationData.getSelectedItem();
         try {
             Launcher.startFuzzing(targets, implementation);
         } catch (ExecutionException e) {
@@ -373,7 +377,7 @@ public class VisualAnalyzer extends javax.swing.JFrame {
     }
 
     private String[] getTargets() {
-        String lineSeparator = System.getProperty("line.separator");
+        String lineSeparator = LINE_SEPARATOR;
         String[] targets = targetListTextArea.getText().split(lineSeparator);
 
         return targets;
@@ -410,7 +414,8 @@ public class VisualAnalyzer extends javax.swing.JFrame {
                     log(java.util.logging.Level.SEVERE, null, ex);
         }
         //</editor-fold>
-        PropertyConfigurator.configure("logging.properties");
+        URL propertiesFile = VisualAnalyzer.class.getResource(PROPERTIES_FILE);
+        PropertyConfigurator.configure(propertiesFile);
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
             @Override

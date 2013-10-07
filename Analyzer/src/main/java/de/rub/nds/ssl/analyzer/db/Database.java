@@ -1,5 +1,6 @@
 package de.rub.nds.ssl.analyzer.db;
 
+import java.net.URL;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -23,11 +24,17 @@ public final class Database {
      * Instance of Database.
      */
     private static volatile Database db;
-    
+    private static final String DATABASE_NAME = "Fingerprint";
+    private static String DATABASE_PATH;
+
     /**
      * Connect to database.
      */
     private Database() {
+        URL database = Database.class.getResource(DATABASE_NAME);
+        // replace the jar file separator and root reference
+        DATABASE_PATH = '(' + database.getFile().replace("!/", ")");
+        DATABASE_PATH = DATABASE_PATH.replace("file:", "");
     }
 
     /**
@@ -47,8 +54,8 @@ public final class Database {
      */
     public void shutdownDB() {
         try {
-            DriverManager.getConnection("jdbc:derby:Fingerprint;"
-                    + "create=false;user=tester;password=ssltest;shutdown=true");
+            DriverManager.getConnection("jdbc:derby:jar:" + DATABASE_PATH 
+                    + ";create=false;user=tester;password=ssltest;shutdown=true");
         } catch (SQLException e) {
             // silently ignore the hassle
         }
@@ -67,8 +74,8 @@ public final class Database {
          */
         try {
             Class.forName("org.apache.derby.jdbc.EmbeddedDriver");
-            conn = DriverManager.getConnection("jdbc:derby:Fingerprint;"
-                    + "create=false;user=tester;password=ssltest");
+            conn = DriverManager.getConnection("jdbc:derby:jar:" + DATABASE_PATH 
+                    + ";create=false;user=tester;password=ssltest");
         } catch (ClassNotFoundException e) {
             logger.error("DB driver instantiation failed.", e);
         } catch (SQLException e) {
@@ -125,8 +132,9 @@ public final class Database {
             // prepared.closeOnCompletion();
             Connection connection = prepared.getConnection();
             prepared.close();
-            if(connection != null && !connection.isClosed())
+            if (connection != null && !connection.isClosed()) {
                 closeConnection(connection);
+            }
         } catch (SQLException e) {
             logger.error("Database error.", e);
         }
