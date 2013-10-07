@@ -23,8 +23,8 @@ public final class Reporter {
     }
 
     /**
-     * Compresses multiple score counter of different AnalyzerResult 
-     * arrays to a single ScoreCounter.
+     * Compresses multiple score counter of different AnalyzerResult arrays to a
+     * single ScoreCounter.
      *
      * @param results Multiple AnalyzerResults containing ScoreCounters
      * @return Combined ScoreCounter
@@ -48,6 +48,7 @@ public final class Reporter {
 
     /**
      * Generates a summarizing report of all AnalyzerResults.
+     *
      * @param results Multiple AnalyzerResults containing ScoreCounters
      * @param logger Logger to be used for report output
      */
@@ -55,27 +56,30 @@ public final class Reporter {
             final Logger logger) {
         logger.info("########################################################"
                 + "################");
-        logger.info("Final analyzer Results");
+        logger.info("Final Analyzer Results");
         logger.info("########################################################"
                 + "################");
         // sum up the results
         ScoreCounter scoreCounter = compress(results);
 //        int totalScore = scoreCounter.getTotalCounter();
         int totalScore = results.length;
-        
+
         // output results
         int tmpScore;
-        DecimalFormat twoDForm = new DecimalFormat("###.##");
+        DecimalFormat twoDForm = new DecimalFormat("#00.00");
         for (ETLSImplementation impl : ETLSImplementation.values()) {
             tmpScore = scoreCounter.getScore(impl);
-            logger.info(impl.name() + ": " + tmpScore + " - " + Double.valueOf(
-                twoDForm.format((double) tmpScore / (double) totalScore * 100))
-                    + "% Probability");
+
+            logger.info(String.format("%6s %% ( %2d / %2d ) same behaviour "
+                    + "as: %s", twoDForm.format((double) tmpScore
+                    / (double) totalScore * 100), tmpScore, totalScore,
+                    impl.name()));
         }
 
         tmpScore = scoreCounter.getNoHitCounter();
-        logger.info("No hit" + ": " + tmpScore + " - " + Double.valueOf(
-                twoDForm.format((double) tmpScore / (double) totalScore * 100))
-                + "% Probability");
+        logger.info(String.format("%6s %% ( %2d / %2d ) same behaviour "
+                + "as: %s", twoDForm.format((double) tmpScore
+                / (double) totalScore * 100), tmpScore, totalScore,
+                "Unknown implementation"));
     }
 }
