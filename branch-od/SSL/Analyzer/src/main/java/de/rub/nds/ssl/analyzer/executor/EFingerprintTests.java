@@ -18,6 +18,7 @@ import de.rub.nds.ssl.analyzer.fingerprinter.tests.FIN;
 import de.rub.nds.ssl.analyzer.fingerprinter.tests.FINHandshakeHeader;
 import de.rub.nds.ssl.analyzer.fingerprinter.tests.FINRecordHeader;
 import de.rub.nds.ssl.analyzer.fingerprinter.tests.GoodCase;
+import de.rub.nds.ssl.analyzer.fingerprinter.tests.Renegotiation;
 
 /**
  * Listing of all available Fingerprinting tests.
@@ -56,7 +57,9 @@ public enum EFingerprintTests {
     HANDSHAKE_ENUM("Handshake Enumeration Test",
     CheckEnumeration.class, TestHashAnalyzer.class),
     BLEICHENBACHER_POSSIBLE("Bleichenbacher Vulnerability Test",
-    BleichenbacherPossible.class, TestHashAnalyzer.class);
+    BleichenbacherPossible.class, TestHashAnalyzer.class),
+    TLS_RENEGOTIATION("TLS Renegotiation Test",
+    Renegotiation.class, TestHashAnalyzer.class);
 //    EXTENSIONS("Supported extensions test",
 //    CheckExtensions.class, TestHashAnalyzer.class);
     /**

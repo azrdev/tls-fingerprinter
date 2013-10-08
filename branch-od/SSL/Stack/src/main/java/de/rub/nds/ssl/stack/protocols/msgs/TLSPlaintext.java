@@ -69,6 +69,16 @@ public class TLSPlaintext extends ARecordFrame {
         System.arraycopy(payloadCopy, 0, tmpBytes, 0, tmpBytes.length);
         setFragment(tmpBytes);
     }
+    
+    /**
+     * change content type for application phase messages
+     * 
+     * @param contentType 
+     */
+    
+    public void setCType(EContentType contentType){
+        super.setContentType(contentType);
+    }
 
     /**
      * Set the data fragment of this record.

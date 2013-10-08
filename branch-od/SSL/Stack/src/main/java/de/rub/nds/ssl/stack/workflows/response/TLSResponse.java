@@ -82,8 +82,19 @@ public final class TLSResponse extends ARecordFrame implements Observer {
                 workflow.addToTraceList(trace);
                 break;
             case ALERT:
+                Alert alert = null;
+                if(workflow.isEncrypted()){
+                    TLSCiphertext c = new TLSCiphertext(response, true);
+                    TLSPlaintext p = workflow.getMessageBuilder().decryptRecord(c);
+                    p.encode(false);
+                    logger.debug("Encrypted alert: " + Utility.bytesToHex(p.getPayload()));
+                    alert = new Alert(p.getPayload(), false);
+                }
+                else{
+                    alert = new Alert(response, true);
+                }
+                    
                 logger.debug("Alert message received");
-                Alert alert = new Alert(response, true);
                 logger.debug("Alert level: " + alert.getAlertLevel().name());
                 logger.debug("Alert message: " + alert.getAlertDescription().
                         name());
@@ -135,7 +146,7 @@ public final class TLSResponse extends ARecordFrame implements Observer {
                 TLSPlaintext p = workflow.getMessageBuilder().decryptRecord(c);
                 p.encode(false);
                 if(p.getPayload().length > 0){
-                    workflow.addMessage(p.getPayload().clone());
+                    workflow.addMessage(p);
                 }else
                     logger.debug("Empty message in application phase received.");
                 byte[] hex = p.getPayload().clone();

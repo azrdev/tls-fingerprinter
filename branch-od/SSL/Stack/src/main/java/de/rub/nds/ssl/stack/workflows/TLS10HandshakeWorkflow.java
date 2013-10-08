@@ -59,7 +59,7 @@ public final class TLS10HandshakeWorkflow extends AWorkflow {
     private AResponseFetcher fetcher = null;
     private boolean enterApplicationPhase = false;
     private boolean runApplicationPhase = false;
-    private ArrayList<byte[]> responses = null;
+    private ArrayList<ARecordFrame> responses = null;
     private MessageBuilder msgBuilder = null;
 
     /**
@@ -83,8 +83,7 @@ public final class TLS10HandshakeWorkflow extends AWorkflow {
         SERVER_FINISHED,
         ALERT,
         APPLICATION,
-        APPLICATION_PING,
-        APPLICATION_SERVER_MESSAGE;
+        APPLICATION_PING;
 
         @Override
         public int getID() {
@@ -109,7 +108,7 @@ public final class TLS10HandshakeWorkflow extends AWorkflow {
         super(workflowStates);
         
         this.enterApplicationPhase = enterApplicationPhase;
-        responses = new ArrayList<byte[]>();
+        responses = new ArrayList<ARecordFrame>();
         
         switch (socketType) {
             case StandardSocket:
@@ -275,7 +274,18 @@ public final class TLS10HandshakeWorkflow extends AWorkflow {
                 logger.debug(">>> Enter application phase");
                 switchToState(trace, EStates.APPLICATION);
                 while(runApplicationPhase){
-                    switchToState(trace, EStates.APPLICATION_PING);
+                    // TODO - due to timing issues in case of server alert if no renegotiation is allowed
+                    try{
+                        sleep(200);
+                    }
+                    catch(Exception e){
+                    }
+                    if((EStates.getStateById(getCurrentState()).equals(EStates.APPLICATION)) || (EStates.getStateById(getCurrentState()).equals(EStates.APPLICATION_PING))){
+                        switchToState(trace, EStates.APPLICATION_PING);
+                    }
+                    else{
+                        endApplicationPhase();
+                    }
                 }
             }
             logger.debug("<<< Application phase finished");
@@ -298,10 +308,10 @@ public final class TLS10HandshakeWorkflow extends AWorkflow {
      * Get current messages
      */
     
-    public ArrayList<byte[]> getMessages(){
+    public ArrayList<ARecordFrame> getMessages(){
         if((responses == null) || responses.size() == 0)
             return null;
-        ArrayList<byte[]> result = new ArrayList<byte[]>(responses.size());
+        ArrayList<ARecordFrame> result = new ArrayList<ARecordFrame>(responses.size());
         result.addAll(responses);
         responses.clear();
         return result;
@@ -311,7 +321,7 @@ public final class TLS10HandshakeWorkflow extends AWorkflow {
      * Add a message to received messages
      */
     
-    public void addMessage(byte[] msg){
+    public void addMessage(ARecordFrame msg){
         responses.add(msg);
     }
     
@@ -413,10 +423,22 @@ public final class TLS10HandshakeWorkflow extends AWorkflow {
     *
     */
     public void applicationSend(final byte[] message) throws IllegalStateException{
+        TLSPlaintext plain = msgBuilder.createApplication(protocolVersion, message);
+        plain.setCType(EContentType.APPLICATION);
+        applicationSend(plain);
+    }
+    
+    /**
+     * Prepare and send records in application phase
+     * 
+     * @param plain
+     * @throws IllegalStateException 
+     */
+    
+    public void applicationSend(ARecordFrame plain) throws IllegalStateException{
         if(runApplicationPhase){
             MessageContainer trace = new MessageContainer();
-            TLSPlaintext plain = msgBuilder.createApplication(protocolVersion, message);
-            TLSCiphertext c = msgBuilder.encryptRecord(protocolVersion, plain, EContentType.APPLICATION);
+            TLSCiphertext c = msgBuilder.encryptRecord(protocolVersion, plain, plain.getContentType());
             c.encode(true);
             setRecordTrace(trace, c);
             trace.prepare();
@@ -426,7 +448,7 @@ public final class TLS10HandshakeWorkflow extends AWorkflow {
                 //TODO
             }
         }else
-            throw new IllegalStateException("Workflow is currently not in the application phase.");
+            throw new IllegalStateException("Workflow is currently not in the application phase.");        
     }
     
     /**

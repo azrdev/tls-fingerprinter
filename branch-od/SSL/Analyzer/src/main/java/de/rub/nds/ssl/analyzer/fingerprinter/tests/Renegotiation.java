@@ -23,31 +23,32 @@ import java.util.Observer;
  * @author Eugen Weiss - eugen.weiss@ruhr-uni-bochum.de
  * @version 0.1 Jun 30, 2012
  */
-public final class GoodCase extends AGenericFingerprintTest implements Observer {
+public final class Renegotiation extends AGenericFingerprintTest implements Observer {
 
     /**
      * Cipher suite.
      */
     private ECipherSuite[] suite;
-    private int blub = 0;
     
-    private ArrayList<byte[]> messages;
+    private ArrayList<ARecordFrame> msgBuffer;
+    
+    private int state = 0;
 
     private TestResult executeHandshake(final String desc,
             final ECipherSuite[] suite) throws SocketException {
-        messages = new ArrayList<byte[]>();
+        msgBuffer = new ArrayList<ARecordFrame>();
         logger.info("++++Start Test No." + counter + "(" + desc + ")++++");
         workflow = new TLS10HandshakeWorkflow(true);
         workflow.connectToTestServer(getTargetHost(), getTargetPort());
         logger.info("Test Server: " + getTargetHost() + ":" + getTargetPort());
-        workflow.addObserver(this, EStates.CLIENT_HELLO);
+        workflow.addObserver(this, EStates.ALERT);
         workflow.addObserver(this, EStates.APPLICATION);
         workflow.addObserver(this, EStates.APPLICATION_PING);
         this.suite = suite;
         
 
         //set the test headerParameters
-        headerParameters.setIdentifier(EFingerprintTests.GOOD);
+        headerParameters.setIdentifier(EFingerprintTests.TLS_RENEGOTIATION);
         headerParameters.setDescription(desc);
 
         try {
@@ -72,36 +73,55 @@ public final class GoodCase extends AGenericFingerprintTest implements Observer 
      */
     @Override
     public void update(final Observable o, final Object arg) {
-        MessageContainer trace = null;
+        ARecordFrame record;
+        MessageBuilder msgBuilder = workflow.getMessageBuilder();
         EStates states = null;
         ObservableBridge obs;
-        if (o instanceof ObservableBridge) {
+        if(o instanceof ObservableBridge) {
             obs = (ObservableBridge) o;
             states = (EStates) obs.getState();
-            trace = (MessageContainer) arg;
+//            trace = (MessageContainer) arg;
         }
-        if (states == EStates.CLIENT_HELLO) {
-            MessageBuilder builder = new MessageBuilder();
-            CipherSuites suites = new CipherSuites();
-            RandomValue random = new RandomValue();
-            suites.setSuites(this.suite);
-            ClientHello clientHello = builder.createClientHello(protocolVersion.
-                    getId(),
-                    random.encode(false),
-                    suites.encode(false), new byte[]{0x00});
-            trace.setCurrentRecord(clientHello);
+        if(states == EStates.ALERT){
+            logger.debug("No renegotiation possible.");
+            workflow.endApplicationPhase();
         }
        
         if(states == EStates.APPLICATION_PING){
-            ArrayList<ARecordFrame> tmpMsgs = workflow.getMessages();
-            if(tmpMsgs != null){
-                //messages.addAll(tmpMsgs);
-                String s = "Hello Server";
-                workflow.applicationSend(s.getBytes());
-                workflow.endApplicationPhase();                    
+            ArrayList<ARecordFrame> messages = workflow.getMessages();
+            if (messages != null){
+                workflow.endApplicationPhase();
             }
-                
+            switch(EStates.getStateById(state)){
+                case SERVER_HELLO:
+                case SERVER_CERTIFICATE:
+                case SERVER_KEY_EXCHANGE:
+                case SERVER_CERTIFICATE_REQUEST:
+                case SERVER_HELLO_DONE:
+                    //ArrayList<ARecordFrame> messages = workflow.getMessages();
+                    if (messages != null){
+                        //for(ARecordFrame msg: messages)
+                    }
+                    break;
+                case CLIENT_CERTIFICATE:
+                case CLIENT_KEY_EXCHANGE:
+                case CLIENT_CERTIFICATE_VERIFY:
+                case CLIENT_CHANGE_CIPHER_SPEC:
+                case CLIENT_FINISHED:
+                case SERVER_CHANGE_CIPHER_SPEC:
+                case SERVER_FINISHED:
+
+            }
         }
+        
+        if(states == EStates.APPLICATION){
+            record = msgBuilder.createClientHello(protocolVersion);
+            utils.setClientRandom((ClientHello) record);
+            workflow.applicationSend(record);
+            logger.debug("R - client hello sent");
+            state++;
+        }
+
     }
 
     /**

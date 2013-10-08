@@ -107,7 +107,7 @@
                           <Component id="attackTargetsButton" pref="207" max="32767" attributes="0"/>
                           <Component id="scanTargetsButton" pref="207" max="32767" attributes="0"/>
                           <Component id="uncheckTestsButton" alignment="0" max="32767" attributes="0"/>
-                          <Component id="applicationButton" alignment="0" max="32767" attributes="0"/>
+                          <Component id="renegotiationButton" alignment="0" max="32767" attributes="0"/>
                       </Group>
                   </Group>
                   <Component id="targetListLabel" min="-2" max="-2" attributes="0"/>
@@ -130,7 +130,7 @@
                       <EmptySpace max="-2" attributes="0"/>
                       <Component id="uncheckTestsButton" min="-2" max="-2" attributes="0"/>
                       <EmptySpace max="32767" attributes="0"/>
-                      <Component id="applicationButton" min="-2" max="-2" attributes="0"/>
+                      <Component id="renegotiationButton" min="-2" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
                       <Component id="openListButton" min="-2" max="-2" attributes="0"/>
                   </Group>
@@ -443,12 +443,12 @@
         <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="uncheckTestsButtonActionPerformed"/>
       </Events>
     </Component>
-    <Component class="javax.swing.JButton" name="applicationButton">
+    <Component class="javax.swing.JButton" name="renegotiationButton">
       <Properties>
-        <Property name="text" type="java.lang.String" value="Sinnloser Button"/>
+        <Property name="text" type="java.lang.String" value="Uncheck tests except renegotiation"/>
       </Properties>
       <Events>
-        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="applicationButtonActionPerformed"/>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="renegotiationButtonActionPerformed"/>
       </Events>
     </Component>
   </SubComponents>
