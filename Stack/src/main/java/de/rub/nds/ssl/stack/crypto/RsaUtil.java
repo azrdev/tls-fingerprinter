@@ -1,4 +1,4 @@
-package de.rub.nds.ssl.stack.protocols.msgs.datatypes;
+package de.rub.nds.ssl.stack.crypto;
 
 import java.math.BigInteger;
 import java.security.interfaces.RSAPublicKey;

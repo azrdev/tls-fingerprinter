@@ -44,7 +44,7 @@ public abstract class AResponseFetcher extends Observable implements Runnable {
     /**
      * Checks if fetching bytes should be continued.
      */
-    public boolean continueFetching() {
+    public boolean isContinueFetching() {
         return this.fetchBytes;
     }
     

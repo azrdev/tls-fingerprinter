@@ -1,5 +1,6 @@
 package de.rub.nds.ssl.stack.protocols.msgs.datatypes;
 
+import de.rub.nds.ssl.stack.crypto.RsaUtil;
 import de.rub.nds.ssl.stack.protocols.commons.SecurityParameters;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;

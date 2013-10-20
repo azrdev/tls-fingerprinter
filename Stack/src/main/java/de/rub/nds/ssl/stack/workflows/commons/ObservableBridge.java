@@ -14,28 +14,28 @@ public final class ObservableBridge extends Observable {
     /**
      * Associated state of this bridge.
      */
-    private WorkflowState state;
+    private IWorkflowState state;
 
     /**
      * Creates a new bridge and associates it with the handled state.
      *
      * @param handeledState State to be associated with this bridge.
      */
-    public ObservableBridge(final WorkflowState handeledState) {
+    public ObservableBridge(final IWorkflowState handeledState) {
         this.state = handeledState;
     }
 
     /**
-     * Getter for the associated state.
+     * Get the associated state.
      *
      * @return State associated with this bridge.
      */
-    public WorkflowState getState() {
+    public IWorkflowState getState() {
         return this.state;
     }
 
     /**
-     * Setter for the changed flag.
+     * Set the changed flag.
      */
     public void setChangedFlag() {
         setChanged();

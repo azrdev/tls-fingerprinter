@@ -13,7 +13,7 @@ import de.rub.nds.ssl.stack.workflows.commons.ESupportedSockets;
 import de.rub.nds.ssl.stack.workflows.commons.HandshakeHashBuilder;
 import de.rub.nds.ssl.stack.workflows.commons.MessageBuilder;
 import de.rub.nds.ssl.stack.workflows.commons.MessageUtils;
-import de.rub.nds.ssl.stack.workflows.commons.WorkflowState;
+import de.rub.nds.ssl.stack.workflows.commons.IWorkflowState;
 import de.rub.nds.ssl.stack.workflows.response.TLSResponse;
 import de.rub.nds.ssl.stack.workflows.response.fecther.AResponseFetcher;
 import de.rub.nds.ssl.stack.workflows.response.fecther.StandardFetcher;
@@ -56,7 +56,7 @@ public final class TLS10HandshakeWorkflow extends AWorkflow {
     /**
      * Define the workflow states.
      */
-    public enum EStates implements WorkflowState {
+    public enum EStates implements IWorkflowState {
 
     // TODO add JavaDoc
         CLIENT_HELLO,
@@ -92,7 +92,7 @@ public final class TLS10HandshakeWorkflow extends AWorkflow {
      * @param workflowStates The SSL handshake states
      * @param socketType Socket type to be used
      */
-    public TLS10HandshakeWorkflow(final WorkflowState[] workflowStates,
+    public TLS10HandshakeWorkflow(final IWorkflowState[] workflowStates,
             final ESupportedSockets socketType) throws SocketException {
         super(workflowStates);
 

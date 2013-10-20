@@ -3,7 +3,7 @@ package de.rub.nds.ssl.stack.workflows;
 import de.rub.nds.ssl.stack.protocols.ARecordFrame;
 import de.rub.nds.ssl.stack.trace.MessageContainer;
 import de.rub.nds.ssl.stack.workflows.commons.ObservableBridge;
-import de.rub.nds.ssl.stack.workflows.commons.WorkflowState;
+import de.rub.nds.ssl.stack.workflows.commons.IWorkflowState;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -50,7 +50,7 @@ public abstract class AWorkflow implements Observer {
      *
      * @param workflowStates States of this workflow
      */
-    public AWorkflow(final WorkflowState[] workflowStates) {
+    public AWorkflow(final IWorkflowState[] workflowStates) {
         if (workflowStates != null) {
             states = new ObservableBridge[workflowStates.length];
             for (int i = workflowStates.length - 1; i >= 0; i--) {
@@ -71,7 +71,7 @@ public abstract class AWorkflow implements Observer {
      * @param state State for which to register
      */
     public final void addObserver(final Observer observer,
-            final WorkflowState state) {
+            final IWorkflowState state) {
         states[state.getID()].addObserver(observer);
     }
 
@@ -82,7 +82,7 @@ public abstract class AWorkflow implements Observer {
      * @param state State for which to unregister
      */
     public final void deleteObserver(final Observer observer,
-            final WorkflowState state) {
+            final IWorkflowState state) {
         states[state.getID()].deleteObserver(observer);
     }
 
@@ -91,7 +91,7 @@ public abstract class AWorkflow implements Observer {
      *
      * @param state State for which to unregister
      */
-    public final void deleteObservers(final WorkflowState state) {
+    public final void deleteObservers(final IWorkflowState state) {
         states[state.getID()].deleteObservers();
     }
 
@@ -101,7 +101,7 @@ public abstract class AWorkflow implements Observer {
      * @param state State for which to count
      * @return Number of observers for this specific state
      */
-    public final int countObservers(final WorkflowState state) {
+    public final int countObservers(final IWorkflowState state) {
         return states[state.getID()].countObservers();
     }
 
@@ -111,23 +111,23 @@ public abstract class AWorkflow implements Observer {
      * @param state State to test for changes
      * @return True if the changed flag if set for this state.
      */
-    public final boolean hasChanged(final WorkflowState state) {
+    public final boolean hasChanged(final IWorkflowState state) {
         return states[state.getID()].hasChanged();
     }
 
     /**
-     * Notify changes to the the observers and deliver the trace object.
+     * Notify observers and deliver the trace object.
      *
      * @param trace MessageContainer trace
      * @param state State for which this notification is valid
      */
     public final void notifyObservers(final MessageContainer trace,
-            final WorkflowState state) {
+            final IWorkflowState state) {
         states[state.getID()].notifyObservers(trace);
     }
 
     /**
-     * Notify changes to the the observers of the current state and deliver the
+     * Notify observers of the current state and deliver the
      * trace object.
      *
      * @param trace MessageContainer trace
@@ -154,7 +154,7 @@ public abstract class AWorkflow implements Observer {
      *
      * @return New current state
      */
-    public final WorkflowState nextState() {
+    public final IWorkflowState nextState() {
         this.currentState++;
 
         // sanity check
@@ -187,7 +187,7 @@ public abstract class AWorkflow implements Observer {
      *
      * @return New current state
      */
-    public final WorkflowState previousState() {
+    public final IWorkflowState previousState() {
         this.currentState--;
 
         // sanity check
@@ -208,13 +208,13 @@ public abstract class AWorkflow implements Observer {
      * @param state The new state
      */
     public final void switchToState(final MessageContainer trace,
-            final WorkflowState state) {
+            final IWorkflowState state) {
         setCurrentState(state.getID());
         notifyCurrentObservers(trace);
     }
 
     /**
-     * Get the current state in the handshake.
+     * Get the current state of the handshake.
      *
      * @return Current handshake state
      */
@@ -223,7 +223,7 @@ public abstract class AWorkflow implements Observer {
     }
 
     /**
-     * Set the current state in the handshake.
+     * Set the current state of the handshake.
      *
      * @param state Current handshake state
      */

@@ -6,10 +6,10 @@ package de.rub.nds.ssl.stack.workflows.commons;
  * @author Christopher Meyer - christopher.meyer@rub.de
  * @version 0.1 Apr 11, 2012
  */
-public interface WorkflowState {
+public interface IWorkflowState {
 
     /**
-     * Getter for enum ID.
+     * Get the ID of this state.
      *
      * @return ID of the associated state.
      */

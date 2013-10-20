@@ -4,7 +4,7 @@ import de.rub.nds.ssl.stack.protocols.ARecordFrame;
 import de.rub.nds.ssl.stack.workflows.TLS10HandshakeWorkflow.EStates;
 
 /**
- * MessageContainer information about the SSL handshake processing.
+ * MessageContainer information about the handshake processing.
  *
  * @author Eugen Weiss - eugen.weiss@ruhr-uni-bochum.de
  * @author Christopher Meyer - christopher.meyer@ruhr-uni-bochum.de
@@ -13,7 +13,7 @@ import de.rub.nds.ssl.stack.workflows.TLS10HandshakeWorkflow.EStates;
 public final class MessageContainer {
 
     /**
-     * Newly constructed SSL record.
+     * Newly constructed record.
      */
     private ARecordFrame currentRecord = null;
     /**
@@ -21,7 +21,7 @@ public final class MessageContainer {
      */
     private byte[] currentRecordBytes = null;
     /**
-     * Original SSL record before manipulation.
+     * Original record before manipulation.
      */
     private ARecordFrame oldRecord = null;
     /**
@@ -73,9 +73,9 @@ public final class MessageContainer {
     /**
      * Public constructor of a MessageContainer object.
      *
-     * @param state State of the SSL stack
-     * @param currentRecord Newly constructed SSL record
-     * @param oldRecord Original SSL record before manipulation
+     * @param state State of the stack
+     * @param currentRecord Newly constructed record
+     * @param oldRecord Original record before manipulation
      * @param isContinued Handshake enumeration was used for this record
      */
     public MessageContainer(EStates state, final ARecordFrame currentRecord,
@@ -89,9 +89,9 @@ public final class MessageContainer {
     /**
      * Public constructor of a MessageContainer object.
      *
-     * @param state State of the SSL stack
-     * @param currentRecord Newly constructed SSL record
-     * @param oldRecord Original SSL record before manipulation
+     * @param state State of the stack
+     * @param currentRecord Newly constructed record
+     * @param oldRecord Original record before manipulation
      * @param isContinued Handshake enumeration was used for this record
      * @param timestamp Timestamp
      */
@@ -106,9 +106,9 @@ public final class MessageContainer {
     }
 
     /**
-     * Get the current state in handshake.
+     * Get the current state.
      *
-     * @return Current state in handshake
+     * @return Current state.
      */
     public EStates getState() {
         return this.state;
@@ -117,16 +117,16 @@ public final class MessageContainer {
     /**
      * Set the current state.
      *
-     * @param state Current state in handshake.
+     * @param state Current state.
      */
     public void setState(EStates state) {
         this.state = state;
     }
 
     /**
-     * Get the previous state in handshake.
+     * Get the previous state.
      *
-     * @return Previous state in handshake
+     * @return Previous state.
      */
     public EStates getPreviousState() {
         return this.previousState;
@@ -135,14 +135,14 @@ public final class MessageContainer {
     /**
      * Set the previous state.
      *
-     * @param state Previous state in handshake.
+     * @param state Previous state.
      */
     public void setPreviousState(EStates state) {
         this.previousState = state;
     }
 
     /**
-     * Get the newly constructed SSL record.
+     * Get the current record.
      *
      * @return Current record
      */
@@ -151,7 +151,7 @@ public final class MessageContainer {
     }
 
     /**
-     * Set the newly constructed SSL record.
+     * Set the current  record.
      *
      * @param currentRecord Current record
      */
@@ -185,7 +185,7 @@ public final class MessageContainer {
     }
 
     /**
-     * Get original SSL record before manipulation.
+     * Get original record before manipulation.
      *
      * @return Old record
      */
@@ -194,7 +194,7 @@ public final class MessageContainer {
     }
 
     /**
-     * Set original SSL record before manipulation.
+     * Set original record before manipulation.
      *
      * @param oldRecord Old record
      */
@@ -203,7 +203,7 @@ public final class MessageContainer {
     }
 
     /**
-     * Shows if handshake enumeration was used for present record.
+     * Does this message belong to a multi message record.
      *
      * @return true if handshake enumeration was used for this record
      */
@@ -212,7 +212,7 @@ public final class MessageContainer {
     }
 
     /**
-     * Set present record as handshake enumerated message.
+     * Set if this message belongs to a multi message record.
      *
      * @param isContinued true if handshake enumeration was used for this record
      * / false if not
@@ -231,7 +231,7 @@ public final class MessageContainer {
     }
 
     /**
-     * Set the time .
+     * Set the timestamp.
      *
      * @param timestamp Time
      */
@@ -240,8 +240,8 @@ public final class MessageContainer {
     }
 
     /**
-     * Prepares the message. Checks if the message was already encoded and if
-     * not encodes it.
+     * Prepares the message (sets the encoded representation).
+     * Checks if the message was already encoded and if not encodes it.
      */
     public void prepare() {
         byte[] msg;
