@@ -107,7 +107,7 @@ public abstract class ARecordFrame extends APubliclySerializable {
     }
 
     /**
-     * @{inheritDoc}
+     * @inheritDoc
      *
      * ARecordFrame representation 1 byte Content type 2 bytes Protocol version
      * 2 + x bytes Payload
@@ -147,7 +147,7 @@ public abstract class ARecordFrame extends APubliclySerializable {
     }
 
     /**
-     * @{inheritDoc}
+     * @inheritDoc
      *
      * Method parameter will be ignored - no support for chained decoding
      */
