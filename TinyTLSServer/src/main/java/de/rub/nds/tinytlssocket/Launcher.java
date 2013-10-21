@@ -3,7 +3,7 @@ package de.rub.nds.tinytlssocket;
 import java.security.Provider;
 import java.security.Provider.Service;
 import java.security.Security;
-import sun.security.ec.SunEC;
+//import sun.security.ec.SunEC;
 
 /**
  * Server launcher.
@@ -22,11 +22,11 @@ public class Launcher {
      */
     public static void main(String[] args) throws Exception {
         final TLSServer serverThread;
-        Provider sunEC = new SunEC();
-        Security.addProvider(sunEC);
-        for(Service service : sunEC.getServices()) {
-            System.out.println(service.getAlgorithm());
-        }
+//        Provider sunEC = new SunEC();
+//        Security.addProvider(sunEC);
+//        for(Service service : sunEC.getServices()) {
+//            System.out.println(service.getAlgorithm());
+//        }
 //args = new String[]{"/mnt/dataEnc/repos/repos_misc/cmeyer/code/FixedDHCertificates/FixedECDH.jks", "ecdh", "TLS", "51707", "true"};        
         if (args.length != 5) {
             System.out.println("Invalid number of arguments!\n"
