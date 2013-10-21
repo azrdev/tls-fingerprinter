@@ -51,7 +51,7 @@ public class TimingFetcher extends AResponseFetcher {
         }
         DataInputStream dis = new DataInputStream(in);
         MessageContainer response;
-        while (continueFetching()) {
+        while (isContinueFetching()) {
             try {
                 ts.setSoTimeout(10000);
                 dis.readFully(header);
