@@ -276,21 +276,21 @@ public enum ECipherSuite {
     TLS_ECDHE_PSK_WITH_ARIA_128_CBC_SHA256(new byte[]{(byte) 0xC0, (byte) 0x70}),
     TLS_ECDHE_PSK_WITH_ARIA_256_CBC_SHA384(new byte[]{(byte) 0xC0, (byte) 0x71}),
     TLS_ECDHE_ECDSA_WITH_CAMELLIA_128_CBC_SHA256(new byte[]{(byte) 0xC0,
-(byte) 0x72}),
+        (byte) 0x72}),
     TLS_ECDHE_ECDSA_WITH_CAMELLIA_256_CBC_SHA384(new byte[]{(byte) 0xC0,
-(byte) 0x73}),
+        (byte) 0x73}),
     TLS_ECDH_ECDSA_WITH_CAMELLIA_128_CBC_SHA256(new byte[]{(byte) 0xC0,
-(byte) 0x74}),
+        (byte) 0x74}),
     TLS_ECDH_ECDSA_WITH_CAMELLIA_256_CBC_SHA384(new byte[]{(byte) 0xC0,
-(byte) 0x75}),
+        (byte) 0x75}),
     TLS_ECDHE_RSA_WITH_CAMELLIA_128_CBC_SHA256(new byte[]{(byte) 0xC0,
-(byte) 0x76}),
+        (byte) 0x76}),
     TLS_ECDHE_RSA_WITH_CAMELLIA_256_CBC_SHA384(new byte[]{(byte) 0xC0,
-(byte) 0x77}),
+        (byte) 0x77}),
     TLS_ECDH_RSA_WITH_CAMELLIA_128_CBC_SHA256(new byte[]{(byte) 0xC0,
-(byte) 0x78}),
+        (byte) 0x78}),
     TLS_ECDH_RSA_WITH_CAMELLIA_256_CBC_SHA384(new byte[]{(byte) 0xC0,
-(byte) 0x79}),
+        (byte) 0x79}),
     TLS_RSA_WITH_CAMELLIA_128_GCM_SHA256(new byte[]{(byte) 0xC0, (byte) 0x7A}),
     TLS_RSA_WITH_CAMELLIA_256_GCM_SHA384(new byte[]{(byte) 0xC0, (byte) 0x7B}),
     TLS_DHE_RSA_WITH_CAMELLIA_128_GCM_SHA256(
@@ -310,21 +310,21 @@ public enum ECipherSuite {
     TLS_DH_anon_WITH_CAMELLIA_256_GCM_SHA384(
     new byte[]{(byte) 0xC0, (byte) 0x85}),
     TLS_ECDHE_ECDSA_WITH_CAMELLIA_128_GCM_SHA256(new byte[]{(byte) 0xC0,
-(byte) 0x86}),
+        (byte) 0x86}),
     TLS_ECDHE_ECDSA_WITH_CAMELLIA_256_GCM_SHA384(new byte[]{(byte) 0xC0,
-(byte) 0x87}),
+        (byte) 0x87}),
     TLS_ECDH_ECDSA_WITH_CAMELLIA_128_GCM_SHA256(new byte[]{(byte) 0xC0,
-(byte) 0x88}),
+        (byte) 0x88}),
     TLS_ECDH_ECDSA_WITH_CAMELLIA_256_GCM_SHA384(new byte[]{(byte) 0xC0,
-(byte) 0x89}),
+        (byte) 0x89}),
     TLS_ECDHE_RSA_WITH_CAMELLIA_128_GCM_SHA256(new byte[]{(byte) 0xC0,
-(byte) 0x8A}),
+        (byte) 0x8A}),
     TLS_ECDHE_RSA_WITH_CAMELLIA_256_GCM_SHA384(new byte[]{(byte) 0xC0,
-(byte) 0x8B}),
+        (byte) 0x8B}),
     TLS_ECDH_RSA_WITH_CAMELLIA_128_GCM_SHA256(new byte[]{(byte) 0xC0,
-(byte) 0x8C}),
+        (byte) 0x8C}),
     TLS_ECDH_RSA_WITH_CAMELLIA_256_GCM_SHA384(new byte[]{(byte) 0xC0,
-(byte) 0x8D}),
+        (byte) 0x8D}),
     TLS_PSK_WITH_CAMELLIA_128_GCM_SHA256(new byte[]{(byte) 0xC0, (byte) 0x8E}),
     TLS_PSK_WITH_CAMELLIA_256_GCM_SHA384(new byte[]{(byte) 0xC0, (byte) 0x8F}),
     TLS_DHE_PSK_WITH_CAMELLIA_128_GCM_SHA256(
@@ -346,11 +346,10 @@ public enum ECipherSuite {
     TLS_RSA_PSK_WITH_CAMELLIA_256_CBC_SHA384(
     new byte[]{(byte) 0xC0, (byte) 0x99}),
     TLS_ECDHE_PSK_WITH_CAMELLIA_128_CBC_SHA256(new byte[]{(byte) 0xC0,
-(byte) 0x9A}),
+        (byte) 0x9A}),
     TLS_ECDHE_PSK_WITH_CAMELLIA_256_CBC_SHA384(new byte[]{(byte) 0xC0,
-(byte) 0x9B}),
-	SSL_RSA_FIPS_WITH_3DES_EDE_CBC_SHA(new byte[]{(byte) 0xfe, (byte)0xff}),
-	;
+        (byte) 0x9B}),
+    SSL_RSA_FIPS_WITH_3DES_EDE_CBC_SHA(new byte[]{(byte) 0xfe, (byte) 0xff}),;
     /**
      * * Length of the cipher suite id: 2 Bytes.
      */
@@ -363,7 +362,7 @@ public enum ECipherSuite {
         byte[] id;
         for (ECipherSuite tmp : ECipherSuite.values()) {
             id = tmp.getId();
-            ID_MAP.put((id[0]&0xff) << 8 | (id[1] & 0xff), tmp);
+            ID_MAP.put((id[0] & 0xff) << 8 | (id[1] & 0xff), tmp);
         }
     }
 
@@ -388,189 +387,190 @@ public enum ECipherSuite {
 
         return tmp;
     }
-    
+
     public EKeyExchangeAlgorithm getKeyExchangeAlgorithm() {
-    	if (this.isRsa()) {
-    		return EKeyExchangeAlgorithm.RSA;
-    	} else if (this.isDhe()) {
-    		return EKeyExchangeAlgorithm.DIFFIE_HELLMAN;
-    	} else if (this.isEcdhe()) {
-    		return EKeyExchangeAlgorithm.EC_DIFFIE_HELLMAN;
-    	} else {
-    		throw new IllegalArgumentException("sorry, key exchange type is not supported: " + this);
-    	}
+        if (this.isRsa()) {
+            return EKeyExchangeAlgorithm.RSA;
+        } else if (this.isDhe()) {
+            return EKeyExchangeAlgorithm.DIFFIE_HELLMAN;
+        } else if (this.isEcdhe()) {
+            return EKeyExchangeAlgorithm.EC_DIFFIE_HELLMAN;
+        } else {
+            throw new IllegalArgumentException(
+                    "sorry, key exchange type is not supported: " + this);
+        }
     }
-    
+
     public boolean isEcdhe() {
-    	switch (this) {
-    	case TLS_ECDHE_ECDSA_WITH_3DES_EDE_CBC_SHA:
-    	case TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA:
-    	case TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA256:
-    	case TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256:
-    	case TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA:
-    	case TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA384:
-    	case TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384:
-    	case TLS_ECDHE_ECDSA_WITH_ARIA_128_CBC_SHA256:
-    	case TLS_ECDHE_ECDSA_WITH_ARIA_128_GCM_SHA256:
-    	case TLS_ECDHE_ECDSA_WITH_ARIA_256_CBC_SHA384:
-    	case TLS_ECDHE_ECDSA_WITH_ARIA_256_GCM_SHA384:
-    	case TLS_ECDHE_ECDSA_WITH_CAMELLIA_128_CBC_SHA256:
-    	case TLS_ECDHE_ECDSA_WITH_CAMELLIA_128_GCM_SHA256:
-    	case TLS_ECDHE_ECDSA_WITH_CAMELLIA_256_CBC_SHA384:
-    	case TLS_ECDHE_ECDSA_WITH_CAMELLIA_256_GCM_SHA384:
-    	case TLS_ECDHE_ECDSA_WITH_NULL_SHA:
-    	case TLS_ECDHE_ECDSA_WITH_RC4_128_SHA:
-    	case TLS_ECDHE_PSK_WITH_3DES_EDE_CBC_SHA:
-    	case TLS_ECDHE_PSK_WITH_AES_128_CBC_SHA:
-    	case TLS_ECDHE_PSK_WITH_AES_128_CBC_SHA256:
-    	case TLS_ECDHE_PSK_WITH_AES_256_CBC_SHA:
-    	case TLS_ECDHE_PSK_WITH_AES_256_CBC_SHA384:
-    	case TLS_ECDHE_PSK_WITH_ARIA_128_CBC_SHA256:
-    	case TLS_ECDHE_PSK_WITH_ARIA_256_CBC_SHA384:
-    	case TLS_ECDHE_PSK_WITH_CAMELLIA_128_CBC_SHA256:
-    	case TLS_ECDHE_PSK_WITH_CAMELLIA_256_CBC_SHA384:
-    	case TLS_ECDHE_PSK_WITH_NULL_SHA:
-    	case TLS_ECDHE_PSK_WITH_NULL_SHA256:
-    	case TLS_ECDHE_PSK_WITH_NULL_SHA384:
-    	case TLS_ECDHE_PSK_WITH_RC4_128_SHA:
-    	case TLS_ECDHE_RSA_WITH_3DES_EDE_CBC_SHA:
-    	case TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA:
-    	case TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256:
-    	case TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256:
-    	case TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA:
-    	case TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384:
-    	case TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384:
-    	case TLS_ECDHE_RSA_WITH_ARIA_128_CBC_SHA256:
-    	case TLS_ECDHE_RSA_WITH_ARIA_128_GCM_SHA256:
-    	case TLS_ECDHE_RSA_WITH_ARIA_256_CBC_SHA384:
-    	case TLS_ECDHE_RSA_WITH_ARIA_256_GCM_SHA384:
-    	case TLS_ECDHE_RSA_WITH_CAMELLIA_128_CBC_SHA256:
-    	case TLS_ECDHE_RSA_WITH_CAMELLIA_128_GCM_SHA256:
-    	case TLS_ECDHE_RSA_WITH_CAMELLIA_256_CBC_SHA384:
-    	case TLS_ECDHE_RSA_WITH_CAMELLIA_256_GCM_SHA384:
-    	case TLS_ECDHE_RSA_WITH_NULL_SHA:
-    	case TLS_ECDHE_RSA_WITH_RC4_128_SHA:
-    		return true;
-    	}
-    	return false;
+        switch (this) {
+            case TLS_ECDHE_ECDSA_WITH_3DES_EDE_CBC_SHA:
+            case TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA:
+            case TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA256:
+            case TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256:
+            case TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA:
+            case TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA384:
+            case TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384:
+            case TLS_ECDHE_ECDSA_WITH_ARIA_128_CBC_SHA256:
+            case TLS_ECDHE_ECDSA_WITH_ARIA_128_GCM_SHA256:
+            case TLS_ECDHE_ECDSA_WITH_ARIA_256_CBC_SHA384:
+            case TLS_ECDHE_ECDSA_WITH_ARIA_256_GCM_SHA384:
+            case TLS_ECDHE_ECDSA_WITH_CAMELLIA_128_CBC_SHA256:
+            case TLS_ECDHE_ECDSA_WITH_CAMELLIA_128_GCM_SHA256:
+            case TLS_ECDHE_ECDSA_WITH_CAMELLIA_256_CBC_SHA384:
+            case TLS_ECDHE_ECDSA_WITH_CAMELLIA_256_GCM_SHA384:
+            case TLS_ECDHE_ECDSA_WITH_NULL_SHA:
+            case TLS_ECDHE_ECDSA_WITH_RC4_128_SHA:
+            case TLS_ECDHE_PSK_WITH_3DES_EDE_CBC_SHA:
+            case TLS_ECDHE_PSK_WITH_AES_128_CBC_SHA:
+            case TLS_ECDHE_PSK_WITH_AES_128_CBC_SHA256:
+            case TLS_ECDHE_PSK_WITH_AES_256_CBC_SHA:
+            case TLS_ECDHE_PSK_WITH_AES_256_CBC_SHA384:
+            case TLS_ECDHE_PSK_WITH_ARIA_128_CBC_SHA256:
+            case TLS_ECDHE_PSK_WITH_ARIA_256_CBC_SHA384:
+            case TLS_ECDHE_PSK_WITH_CAMELLIA_128_CBC_SHA256:
+            case TLS_ECDHE_PSK_WITH_CAMELLIA_256_CBC_SHA384:
+            case TLS_ECDHE_PSK_WITH_NULL_SHA:
+            case TLS_ECDHE_PSK_WITH_NULL_SHA256:
+            case TLS_ECDHE_PSK_WITH_NULL_SHA384:
+            case TLS_ECDHE_PSK_WITH_RC4_128_SHA:
+            case TLS_ECDHE_RSA_WITH_3DES_EDE_CBC_SHA:
+            case TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA:
+            case TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256:
+            case TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256:
+            case TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA:
+            case TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384:
+            case TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384:
+            case TLS_ECDHE_RSA_WITH_ARIA_128_CBC_SHA256:
+            case TLS_ECDHE_RSA_WITH_ARIA_128_GCM_SHA256:
+            case TLS_ECDHE_RSA_WITH_ARIA_256_CBC_SHA384:
+            case TLS_ECDHE_RSA_WITH_ARIA_256_GCM_SHA384:
+            case TLS_ECDHE_RSA_WITH_CAMELLIA_128_CBC_SHA256:
+            case TLS_ECDHE_RSA_WITH_CAMELLIA_128_GCM_SHA256:
+            case TLS_ECDHE_RSA_WITH_CAMELLIA_256_CBC_SHA384:
+            case TLS_ECDHE_RSA_WITH_CAMELLIA_256_GCM_SHA384:
+            case TLS_ECDHE_RSA_WITH_NULL_SHA:
+            case TLS_ECDHE_RSA_WITH_RC4_128_SHA:
+                return true;
+        }
+        return false;
     }
-    
+
     public boolean isRsa() {
-    	switch (this) {
-    	case TLS_RSA_EXPORT_WITH_DES40_CBC_SHA:
-    	case TLS_RSA_EXPORT_WITH_RC2_CBC_40_MD5:
-    	case TLS_RSA_EXPORT_WITH_RC4_40_MD5:
-    	case TLS_RSA_PSK_WITH_3DES_EDE_CBC_SHA:
-    	case TLS_RSA_PSK_WITH_AES_128_CBC_SHA:
-    	case TLS_RSA_PSK_WITH_AES_128_CBC_SHA256:
-    	case TLS_RSA_PSK_WITH_AES_128_GCM_SHA256:
-    	case TLS_RSA_PSK_WITH_AES_256_CBC_SHA:
-    	case TLS_RSA_PSK_WITH_AES_256_CBC_SHA384:
-    	case TLS_RSA_PSK_WITH_AES_256_GCM_SHA384:
-    	case TLS_RSA_PSK_WITH_ARIA_128_CBC_SHA256:
-    	case TLS_RSA_PSK_WITH_ARIA_128_GCM_SHA256:
-    	case TLS_RSA_PSK_WITH_ARIA_256_CBC_SHA384:
-    	case TLS_RSA_PSK_WITH_ARIA_256_GCM_SHA384:
-    	case TLS_RSA_PSK_WITH_CAMELLIA_128_CBC_SHA256:
-    	case TLS_RSA_PSK_WITH_CAMELLIA_128_GCM_SHA256:
-    	case TLS_RSA_PSK_WITH_CAMELLIA_256_CBC_SHA384:
-    	case TLS_RSA_PSK_WITH_CAMELLIA_256_GCM_SHA384:
-    	case TLS_RSA_PSK_WITH_NULL_SHA:
-    	case TLS_RSA_PSK_WITH_NULL_SHA256:
-    	case TLS_RSA_PSK_WITH_NULL_SHA384:
-    	case TLS_RSA_PSK_WITH_RC4_128_SHA:
-    	case TLS_RSA_WITH_3DES_EDE_CBC_SHA:
-    	case TLS_RSA_WITH_AES_128_CBC_SHA:
-    	case TLS_RSA_WITH_AES_128_GCM_SHA256:
-    	case TLS_RSA_WITH_AES_256_CBC_SHA:
-    	case TLS_RSA_WITH_AES_256_GCM_SHA384:
-    	case TLS_RSA_WITH_ARIA_128_CBC_SHA256:
-    	case TLS_RSA_WITH_ARIA_128_GCM_SHA256:
-    	case TLS_RSA_WITH_ARIA_256_CBC_SHA384:
-    	case TLS_RSA_WITH_ARIA_256_GCM_SHA384:
-    	case TLS_RSA_WITH_CAMELLIA_128_CBC_SHA:
-    	case TLS_RSA_WITH_CAMELLIA_128_CBC_SHA256:
-    	case TLS_RSA_WITH_CAMELLIA_128_GCM_SHA256:
-    	case TLS_RSA_WITH_CAMELLIA_256_CBC_SHA:
-    	case TLS_RSA_WITH_CAMELLIA_256_CBC_SHA256:
-    	case TLS_RSA_WITH_CAMELLIA_256_GCM_SHA384:
-    	case TLS_RSA_WITH_DES_CBC_SHA:
-    	case TLS_RSA_WITH_IDEA_CBC_SHA:
-    	case TLS_RSA_WITH_NULL_MD5:
-    	case TLS_RSA_WITH_NULL_SHA:
-    	case TLS_RSA_WITH_RC4_128_MD5:
-    	case TLS_RSA_WITH_RC4_128_SHA:
-    	case TLS_RSA_WITH_SEED_CBC_SHA:
-    		return true;
-    	}
-    	return false;
+        switch (this) {
+            case TLS_RSA_EXPORT_WITH_DES40_CBC_SHA:
+            case TLS_RSA_EXPORT_WITH_RC2_CBC_40_MD5:
+            case TLS_RSA_EXPORT_WITH_RC4_40_MD5:
+            case TLS_RSA_PSK_WITH_3DES_EDE_CBC_SHA:
+            case TLS_RSA_PSK_WITH_AES_128_CBC_SHA:
+            case TLS_RSA_PSK_WITH_AES_128_CBC_SHA256:
+            case TLS_RSA_PSK_WITH_AES_128_GCM_SHA256:
+            case TLS_RSA_PSK_WITH_AES_256_CBC_SHA:
+            case TLS_RSA_PSK_WITH_AES_256_CBC_SHA384:
+            case TLS_RSA_PSK_WITH_AES_256_GCM_SHA384:
+            case TLS_RSA_PSK_WITH_ARIA_128_CBC_SHA256:
+            case TLS_RSA_PSK_WITH_ARIA_128_GCM_SHA256:
+            case TLS_RSA_PSK_WITH_ARIA_256_CBC_SHA384:
+            case TLS_RSA_PSK_WITH_ARIA_256_GCM_SHA384:
+            case TLS_RSA_PSK_WITH_CAMELLIA_128_CBC_SHA256:
+            case TLS_RSA_PSK_WITH_CAMELLIA_128_GCM_SHA256:
+            case TLS_RSA_PSK_WITH_CAMELLIA_256_CBC_SHA384:
+            case TLS_RSA_PSK_WITH_CAMELLIA_256_GCM_SHA384:
+            case TLS_RSA_PSK_WITH_NULL_SHA:
+            case TLS_RSA_PSK_WITH_NULL_SHA256:
+            case TLS_RSA_PSK_WITH_NULL_SHA384:
+            case TLS_RSA_PSK_WITH_RC4_128_SHA:
+            case TLS_RSA_WITH_3DES_EDE_CBC_SHA:
+            case TLS_RSA_WITH_AES_128_CBC_SHA:
+            case TLS_RSA_WITH_AES_128_GCM_SHA256:
+            case TLS_RSA_WITH_AES_256_CBC_SHA:
+            case TLS_RSA_WITH_AES_256_GCM_SHA384:
+            case TLS_RSA_WITH_ARIA_128_CBC_SHA256:
+            case TLS_RSA_WITH_ARIA_128_GCM_SHA256:
+            case TLS_RSA_WITH_ARIA_256_CBC_SHA384:
+            case TLS_RSA_WITH_ARIA_256_GCM_SHA384:
+            case TLS_RSA_WITH_CAMELLIA_128_CBC_SHA:
+            case TLS_RSA_WITH_CAMELLIA_128_CBC_SHA256:
+            case TLS_RSA_WITH_CAMELLIA_128_GCM_SHA256:
+            case TLS_RSA_WITH_CAMELLIA_256_CBC_SHA:
+            case TLS_RSA_WITH_CAMELLIA_256_CBC_SHA256:
+            case TLS_RSA_WITH_CAMELLIA_256_GCM_SHA384:
+            case TLS_RSA_WITH_DES_CBC_SHA:
+            case TLS_RSA_WITH_IDEA_CBC_SHA:
+            case TLS_RSA_WITH_NULL_MD5:
+            case TLS_RSA_WITH_NULL_SHA:
+            case TLS_RSA_WITH_RC4_128_MD5:
+            case TLS_RSA_WITH_RC4_128_SHA:
+            case TLS_RSA_WITH_SEED_CBC_SHA:
+                return true;
+        }
+        return false;
     }
-    
+
     public boolean isDhe() {
-    	switch(this) {
-    	case TLS_DHE_DSS_EXPORT_WITH_DES40_CBC_SHA:
-    	case TLS_DHE_DSS_WITH_3DES_EDE_CBC_SHA:
-    	case TLS_DHE_DSS_WITH_AES_128_CBC_SHA:
-    	case TLS_DHE_DSS_WITH_AES_128_CBC_SHA256:
-    	case TLS_DHE_DSS_WITH_AES_128_GCM_SHA256:
-    	case TLS_DHE_DSS_WITH_AES_256_CBC_SHA:
-    	case TLS_DHE_DSS_WITH_AES_256_CBC_SHA256:
-    	case TLS_DHE_DSS_WITH_AES_256_GCM_SHA384:
-    	case TLS_DHE_DSS_WITH_ARIA_128_CBC_SHA256:
-    	case TLS_DHE_DSS_WITH_ARIA_128_GCM_SHA256:
-    	case TLS_DHE_DSS_WITH_ARIA_256_CBC_SHA384:
-    	case TLS_DHE_DSS_WITH_ARIA_256_GCM_SHA384:
-    	case TLS_DHE_DSS_WITH_CAMELLIA_128_CBC_SHA:
-    	case TLS_DHE_DSS_WITH_CAMELLIA_128_CBC_SHA256:
-    	case TLS_DHE_DSS_WITH_CAMELLIA_128_GCM_SHA256:
-    	case TLS_DHE_DSS_WITH_CAMELLIA_256_CBC_SHA:
-    	case TLS_DHE_DSS_WITH_CAMELLIA_256_CBC_SHA256:
-    	case TLS_DHE_DSS_WITH_CAMELLIA_256_GCM_SHA384:
-    	case TLS_DHE_DSS_WITH_DES_CBC_SHA:
-    	case TLS_DHE_DSS_WITH_RC4_128_SHA:
-    	case TLS_DHE_DSS_WITH_SEED_CBC_SHA:
-    	case TLS_DHE_PSK_WITH_3DES_EDE_CBC_SHA:
-    	case TLS_DHE_PSK_WITH_AES_128_CBC_SHA:
-    	case TLS_DHE_PSK_WITH_AES_128_CBC_SHA256:
-    	case TLS_DHE_PSK_WITH_AES_128_GCM_SHA256:
-    	case TLS_DHE_PSK_WITH_AES_256_CBC_SHA:
-    	case TLS_DHE_PSK_WITH_AES_256_CBC_SHA384:
-    	case TLS_DHE_PSK_WITH_AES_256_GCM_SHA384:
-    	case TLS_DHE_PSK_WITH_ARIA_128_CBC_SHA256:
-    	case TLS_DHE_PSK_WITH_ARIA_128_GCM_SHA256:
-    	case TLS_DHE_PSK_WITH_ARIA_256_CBC_SHA384:
-    	case TLS_DHE_PSK_WITH_ARIA_256_GCM_SHA384:
-    	case TLS_DHE_PSK_WITH_CAMELLIA_128_CBC_SHA256:
-    	case TLS_DHE_PSK_WITH_CAMELLIA_128_GCM_SHA256:
-    	case TLS_DHE_PSK_WITH_CAMELLIA_256_CBC_SHA384:
-    	case TLS_DHE_PSK_WITH_CAMELLIA_256_GCM_SHA384:
-    	case TLS_DHE_PSK_WITH_NULL_SHA:
-    	case TLS_DHE_PSK_WITH_NULL_SHA256:
-    	case TLS_DHE_PSK_WITH_NULL_SHA384:
-    	case TLS_DHE_PSK_WITH_RC4_128_SHA:
-    	case TLS_DHE_RSA_EXPORT_WITH_DES40_CBC_SHA:
-    	case TLS_DHE_RSA_WITH_3DES_EDE_CBC_SHA:
-    	case TLS_DHE_RSA_WITH_AES_128_CBC_SHA:
-    	case TLS_DHE_RSA_WITH_AES_128_CBC_SHA256:
-    	case TLS_DHE_RSA_WITH_AES_128_GCM_SHA256:
-    	case TLS_DHE_RSA_WITH_AES_256_CBC_SHA:
-    	case TLS_DHE_RSA_WITH_AES_256_CBC_SHA256:
-    	case TLS_DHE_RSA_WITH_AES_256_GCM_SHA384:
-    	case TLS_DHE_RSA_WITH_ARIA_128_CBC_SHA256:
-    	case TLS_DHE_RSA_WITH_ARIA_128_GCM_SHA256:
-    	case TLS_DHE_RSA_WITH_ARIA_256_CBC_SHA384:
-    	case TLS_DHE_RSA_WITH_ARIA_256_GCM_SHA384:
-    	case TLS_DHE_RSA_WITH_CAMELLIA_128_CBC_SHA:
-    	case TLS_DHE_RSA_WITH_CAMELLIA_128_CBC_SHA256:
-    	case TLS_DHE_RSA_WITH_CAMELLIA_128_GCM_SHA256:
-    	case TLS_DHE_RSA_WITH_CAMELLIA_256_CBC_SHA:
-    	case TLS_DHE_RSA_WITH_CAMELLIA_256_CBC_SHA256:
-    	case TLS_DHE_RSA_WITH_CAMELLIA_256_GCM_SHA384:
-    	case TLS_DHE_RSA_WITH_DES_CBC_SHA:
-    	case TLS_DHE_RSA_WITH_SEED_CBC_SHA:
-    		return true;
-    	}
-    	return false;
+        switch (this) {
+            case TLS_DHE_DSS_EXPORT_WITH_DES40_CBC_SHA:
+            case TLS_DHE_DSS_WITH_3DES_EDE_CBC_SHA:
+            case TLS_DHE_DSS_WITH_AES_128_CBC_SHA:
+            case TLS_DHE_DSS_WITH_AES_128_CBC_SHA256:
+            case TLS_DHE_DSS_WITH_AES_128_GCM_SHA256:
+            case TLS_DHE_DSS_WITH_AES_256_CBC_SHA:
+            case TLS_DHE_DSS_WITH_AES_256_CBC_SHA256:
+            case TLS_DHE_DSS_WITH_AES_256_GCM_SHA384:
+            case TLS_DHE_DSS_WITH_ARIA_128_CBC_SHA256:
+            case TLS_DHE_DSS_WITH_ARIA_128_GCM_SHA256:
+            case TLS_DHE_DSS_WITH_ARIA_256_CBC_SHA384:
+            case TLS_DHE_DSS_WITH_ARIA_256_GCM_SHA384:
+            case TLS_DHE_DSS_WITH_CAMELLIA_128_CBC_SHA:
+            case TLS_DHE_DSS_WITH_CAMELLIA_128_CBC_SHA256:
+            case TLS_DHE_DSS_WITH_CAMELLIA_128_GCM_SHA256:
+            case TLS_DHE_DSS_WITH_CAMELLIA_256_CBC_SHA:
+            case TLS_DHE_DSS_WITH_CAMELLIA_256_CBC_SHA256:
+            case TLS_DHE_DSS_WITH_CAMELLIA_256_GCM_SHA384:
+            case TLS_DHE_DSS_WITH_DES_CBC_SHA:
+            case TLS_DHE_DSS_WITH_RC4_128_SHA:
+            case TLS_DHE_DSS_WITH_SEED_CBC_SHA:
+            case TLS_DHE_PSK_WITH_3DES_EDE_CBC_SHA:
+            case TLS_DHE_PSK_WITH_AES_128_CBC_SHA:
+            case TLS_DHE_PSK_WITH_AES_128_CBC_SHA256:
+            case TLS_DHE_PSK_WITH_AES_128_GCM_SHA256:
+            case TLS_DHE_PSK_WITH_AES_256_CBC_SHA:
+            case TLS_DHE_PSK_WITH_AES_256_CBC_SHA384:
+            case TLS_DHE_PSK_WITH_AES_256_GCM_SHA384:
+            case TLS_DHE_PSK_WITH_ARIA_128_CBC_SHA256:
+            case TLS_DHE_PSK_WITH_ARIA_128_GCM_SHA256:
+            case TLS_DHE_PSK_WITH_ARIA_256_CBC_SHA384:
+            case TLS_DHE_PSK_WITH_ARIA_256_GCM_SHA384:
+            case TLS_DHE_PSK_WITH_CAMELLIA_128_CBC_SHA256:
+            case TLS_DHE_PSK_WITH_CAMELLIA_128_GCM_SHA256:
+            case TLS_DHE_PSK_WITH_CAMELLIA_256_CBC_SHA384:
+            case TLS_DHE_PSK_WITH_CAMELLIA_256_GCM_SHA384:
+            case TLS_DHE_PSK_WITH_NULL_SHA:
+            case TLS_DHE_PSK_WITH_NULL_SHA256:
+            case TLS_DHE_PSK_WITH_NULL_SHA384:
+            case TLS_DHE_PSK_WITH_RC4_128_SHA:
+            case TLS_DHE_RSA_EXPORT_WITH_DES40_CBC_SHA:
+            case TLS_DHE_RSA_WITH_3DES_EDE_CBC_SHA:
+            case TLS_DHE_RSA_WITH_AES_128_CBC_SHA:
+            case TLS_DHE_RSA_WITH_AES_128_CBC_SHA256:
+            case TLS_DHE_RSA_WITH_AES_128_GCM_SHA256:
+            case TLS_DHE_RSA_WITH_AES_256_CBC_SHA:
+            case TLS_DHE_RSA_WITH_AES_256_CBC_SHA256:
+            case TLS_DHE_RSA_WITH_AES_256_GCM_SHA384:
+            case TLS_DHE_RSA_WITH_ARIA_128_CBC_SHA256:
+            case TLS_DHE_RSA_WITH_ARIA_128_GCM_SHA256:
+            case TLS_DHE_RSA_WITH_ARIA_256_CBC_SHA384:
+            case TLS_DHE_RSA_WITH_ARIA_256_GCM_SHA384:
+            case TLS_DHE_RSA_WITH_CAMELLIA_128_CBC_SHA:
+            case TLS_DHE_RSA_WITH_CAMELLIA_128_CBC_SHA256:
+            case TLS_DHE_RSA_WITH_CAMELLIA_128_GCM_SHA256:
+            case TLS_DHE_RSA_WITH_CAMELLIA_256_CBC_SHA:
+            case TLS_DHE_RSA_WITH_CAMELLIA_256_CBC_SHA256:
+            case TLS_DHE_RSA_WITH_CAMELLIA_256_GCM_SHA384:
+            case TLS_DHE_RSA_WITH_DES_CBC_SHA:
+            case TLS_DHE_RSA_WITH_SEED_CBC_SHA:
+                return true;
+        }
+        return false;
     }
 
     /**
@@ -587,10 +587,11 @@ public enum ECipherSuite {
                     "ID must not be null and have a length of exactly "
                     + LENGTH_ENCODED + " bytes.");
         }
-        cipherSuite = ((id[0]&0xff) << Utility.BITS_IN_BYTE) | (id[1] & 0xff);
+        cipherSuite = ((id[0] & 0xff) << Utility.BITS_IN_BYTE) | (id[1] & 0xff);
 
         if (!ID_MAP.containsKey(cipherSuite)) {
-            throw new IllegalArgumentException("No such cipher suite: " + Integer.toHexString(cipherSuite));
+            throw new IllegalArgumentException(
+                    "No such cipher suite: " + Integer.toHexString(cipherSuite));
         }
 
         return ID_MAP.get(cipherSuite);
