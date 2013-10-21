@@ -401,176 +401,31 @@ public enum ECipherSuite {
         }
     }
 
+    /**
+     * Is this cipher suite a ECDHE suite?
+     *
+     * @return True if it is, false otherwise.
+     */
     public boolean isEcdhe() {
-        switch (this) {
-            case TLS_ECDHE_ECDSA_WITH_3DES_EDE_CBC_SHA:
-            case TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA:
-            case TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA256:
-            case TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256:
-            case TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA:
-            case TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA384:
-            case TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384:
-            case TLS_ECDHE_ECDSA_WITH_ARIA_128_CBC_SHA256:
-            case TLS_ECDHE_ECDSA_WITH_ARIA_128_GCM_SHA256:
-            case TLS_ECDHE_ECDSA_WITH_ARIA_256_CBC_SHA384:
-            case TLS_ECDHE_ECDSA_WITH_ARIA_256_GCM_SHA384:
-            case TLS_ECDHE_ECDSA_WITH_CAMELLIA_128_CBC_SHA256:
-            case TLS_ECDHE_ECDSA_WITH_CAMELLIA_128_GCM_SHA256:
-            case TLS_ECDHE_ECDSA_WITH_CAMELLIA_256_CBC_SHA384:
-            case TLS_ECDHE_ECDSA_WITH_CAMELLIA_256_GCM_SHA384:
-            case TLS_ECDHE_ECDSA_WITH_NULL_SHA:
-            case TLS_ECDHE_ECDSA_WITH_RC4_128_SHA:
-            case TLS_ECDHE_PSK_WITH_3DES_EDE_CBC_SHA:
-            case TLS_ECDHE_PSK_WITH_AES_128_CBC_SHA:
-            case TLS_ECDHE_PSK_WITH_AES_128_CBC_SHA256:
-            case TLS_ECDHE_PSK_WITH_AES_256_CBC_SHA:
-            case TLS_ECDHE_PSK_WITH_AES_256_CBC_SHA384:
-            case TLS_ECDHE_PSK_WITH_ARIA_128_CBC_SHA256:
-            case TLS_ECDHE_PSK_WITH_ARIA_256_CBC_SHA384:
-            case TLS_ECDHE_PSK_WITH_CAMELLIA_128_CBC_SHA256:
-            case TLS_ECDHE_PSK_WITH_CAMELLIA_256_CBC_SHA384:
-            case TLS_ECDHE_PSK_WITH_NULL_SHA:
-            case TLS_ECDHE_PSK_WITH_NULL_SHA256:
-            case TLS_ECDHE_PSK_WITH_NULL_SHA384:
-            case TLS_ECDHE_PSK_WITH_RC4_128_SHA:
-            case TLS_ECDHE_RSA_WITH_3DES_EDE_CBC_SHA:
-            case TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA:
-            case TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256:
-            case TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256:
-            case TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA:
-            case TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384:
-            case TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384:
-            case TLS_ECDHE_RSA_WITH_ARIA_128_CBC_SHA256:
-            case TLS_ECDHE_RSA_WITH_ARIA_128_GCM_SHA256:
-            case TLS_ECDHE_RSA_WITH_ARIA_256_CBC_SHA384:
-            case TLS_ECDHE_RSA_WITH_ARIA_256_GCM_SHA384:
-            case TLS_ECDHE_RSA_WITH_CAMELLIA_128_CBC_SHA256:
-            case TLS_ECDHE_RSA_WITH_CAMELLIA_128_GCM_SHA256:
-            case TLS_ECDHE_RSA_WITH_CAMELLIA_256_CBC_SHA384:
-            case TLS_ECDHE_RSA_WITH_CAMELLIA_256_GCM_SHA384:
-            case TLS_ECDHE_RSA_WITH_NULL_SHA:
-            case TLS_ECDHE_RSA_WITH_RC4_128_SHA:
-                return true;
-        }
-        return false;
+        return this.name().contains("ECDHE");
     }
 
+    /**
+     * Is this cipher suite an RSA suite?
+     *
+     * @return True if it is, false otherwise.
+     */
     public boolean isRsa() {
-        switch (this) {
-            case TLS_RSA_EXPORT_WITH_DES40_CBC_SHA:
-            case TLS_RSA_EXPORT_WITH_RC2_CBC_40_MD5:
-            case TLS_RSA_EXPORT_WITH_RC4_40_MD5:
-            case TLS_RSA_PSK_WITH_3DES_EDE_CBC_SHA:
-            case TLS_RSA_PSK_WITH_AES_128_CBC_SHA:
-            case TLS_RSA_PSK_WITH_AES_128_CBC_SHA256:
-            case TLS_RSA_PSK_WITH_AES_128_GCM_SHA256:
-            case TLS_RSA_PSK_WITH_AES_256_CBC_SHA:
-            case TLS_RSA_PSK_WITH_AES_256_CBC_SHA384:
-            case TLS_RSA_PSK_WITH_AES_256_GCM_SHA384:
-            case TLS_RSA_PSK_WITH_ARIA_128_CBC_SHA256:
-            case TLS_RSA_PSK_WITH_ARIA_128_GCM_SHA256:
-            case TLS_RSA_PSK_WITH_ARIA_256_CBC_SHA384:
-            case TLS_RSA_PSK_WITH_ARIA_256_GCM_SHA384:
-            case TLS_RSA_PSK_WITH_CAMELLIA_128_CBC_SHA256:
-            case TLS_RSA_PSK_WITH_CAMELLIA_128_GCM_SHA256:
-            case TLS_RSA_PSK_WITH_CAMELLIA_256_CBC_SHA384:
-            case TLS_RSA_PSK_WITH_CAMELLIA_256_GCM_SHA384:
-            case TLS_RSA_PSK_WITH_NULL_SHA:
-            case TLS_RSA_PSK_WITH_NULL_SHA256:
-            case TLS_RSA_PSK_WITH_NULL_SHA384:
-            case TLS_RSA_PSK_WITH_RC4_128_SHA:
-            case TLS_RSA_WITH_3DES_EDE_CBC_SHA:
-            case TLS_RSA_WITH_AES_128_CBC_SHA:
-            case TLS_RSA_WITH_AES_128_GCM_SHA256:
-            case TLS_RSA_WITH_AES_256_CBC_SHA:
-            case TLS_RSA_WITH_AES_256_GCM_SHA384:
-            case TLS_RSA_WITH_ARIA_128_CBC_SHA256:
-            case TLS_RSA_WITH_ARIA_128_GCM_SHA256:
-            case TLS_RSA_WITH_ARIA_256_CBC_SHA384:
-            case TLS_RSA_WITH_ARIA_256_GCM_SHA384:
-            case TLS_RSA_WITH_CAMELLIA_128_CBC_SHA:
-            case TLS_RSA_WITH_CAMELLIA_128_CBC_SHA256:
-            case TLS_RSA_WITH_CAMELLIA_128_GCM_SHA256:
-            case TLS_RSA_WITH_CAMELLIA_256_CBC_SHA:
-            case TLS_RSA_WITH_CAMELLIA_256_CBC_SHA256:
-            case TLS_RSA_WITH_CAMELLIA_256_GCM_SHA384:
-            case TLS_RSA_WITH_DES_CBC_SHA:
-            case TLS_RSA_WITH_IDEA_CBC_SHA:
-            case TLS_RSA_WITH_NULL_MD5:
-            case TLS_RSA_WITH_NULL_SHA:
-            case TLS_RSA_WITH_RC4_128_MD5:
-            case TLS_RSA_WITH_RC4_128_SHA:
-            case TLS_RSA_WITH_SEED_CBC_SHA:
-                return true;
-        }
-        return false;
+        return this.name().contains("RSA");
     }
 
+    /**
+     * Is this cipher suite a DHE suite?
+     *
+     * @return True if it is, false otherwise.
+     */
     public boolean isDhe() {
-        switch (this) {
-            case TLS_DHE_DSS_EXPORT_WITH_DES40_CBC_SHA:
-            case TLS_DHE_DSS_WITH_3DES_EDE_CBC_SHA:
-            case TLS_DHE_DSS_WITH_AES_128_CBC_SHA:
-            case TLS_DHE_DSS_WITH_AES_128_CBC_SHA256:
-            case TLS_DHE_DSS_WITH_AES_128_GCM_SHA256:
-            case TLS_DHE_DSS_WITH_AES_256_CBC_SHA:
-            case TLS_DHE_DSS_WITH_AES_256_CBC_SHA256:
-            case TLS_DHE_DSS_WITH_AES_256_GCM_SHA384:
-            case TLS_DHE_DSS_WITH_ARIA_128_CBC_SHA256:
-            case TLS_DHE_DSS_WITH_ARIA_128_GCM_SHA256:
-            case TLS_DHE_DSS_WITH_ARIA_256_CBC_SHA384:
-            case TLS_DHE_DSS_WITH_ARIA_256_GCM_SHA384:
-            case TLS_DHE_DSS_WITH_CAMELLIA_128_CBC_SHA:
-            case TLS_DHE_DSS_WITH_CAMELLIA_128_CBC_SHA256:
-            case TLS_DHE_DSS_WITH_CAMELLIA_128_GCM_SHA256:
-            case TLS_DHE_DSS_WITH_CAMELLIA_256_CBC_SHA:
-            case TLS_DHE_DSS_WITH_CAMELLIA_256_CBC_SHA256:
-            case TLS_DHE_DSS_WITH_CAMELLIA_256_GCM_SHA384:
-            case TLS_DHE_DSS_WITH_DES_CBC_SHA:
-            case TLS_DHE_DSS_WITH_RC4_128_SHA:
-            case TLS_DHE_DSS_WITH_SEED_CBC_SHA:
-            case TLS_DHE_PSK_WITH_3DES_EDE_CBC_SHA:
-            case TLS_DHE_PSK_WITH_AES_128_CBC_SHA:
-            case TLS_DHE_PSK_WITH_AES_128_CBC_SHA256:
-            case TLS_DHE_PSK_WITH_AES_128_GCM_SHA256:
-            case TLS_DHE_PSK_WITH_AES_256_CBC_SHA:
-            case TLS_DHE_PSK_WITH_AES_256_CBC_SHA384:
-            case TLS_DHE_PSK_WITH_AES_256_GCM_SHA384:
-            case TLS_DHE_PSK_WITH_ARIA_128_CBC_SHA256:
-            case TLS_DHE_PSK_WITH_ARIA_128_GCM_SHA256:
-            case TLS_DHE_PSK_WITH_ARIA_256_CBC_SHA384:
-            case TLS_DHE_PSK_WITH_ARIA_256_GCM_SHA384:
-            case TLS_DHE_PSK_WITH_CAMELLIA_128_CBC_SHA256:
-            case TLS_DHE_PSK_WITH_CAMELLIA_128_GCM_SHA256:
-            case TLS_DHE_PSK_WITH_CAMELLIA_256_CBC_SHA384:
-            case TLS_DHE_PSK_WITH_CAMELLIA_256_GCM_SHA384:
-            case TLS_DHE_PSK_WITH_NULL_SHA:
-            case TLS_DHE_PSK_WITH_NULL_SHA256:
-            case TLS_DHE_PSK_WITH_NULL_SHA384:
-            case TLS_DHE_PSK_WITH_RC4_128_SHA:
-            case TLS_DHE_RSA_EXPORT_WITH_DES40_CBC_SHA:
-            case TLS_DHE_RSA_WITH_3DES_EDE_CBC_SHA:
-            case TLS_DHE_RSA_WITH_AES_128_CBC_SHA:
-            case TLS_DHE_RSA_WITH_AES_128_CBC_SHA256:
-            case TLS_DHE_RSA_WITH_AES_128_GCM_SHA256:
-            case TLS_DHE_RSA_WITH_AES_256_CBC_SHA:
-            case TLS_DHE_RSA_WITH_AES_256_CBC_SHA256:
-            case TLS_DHE_RSA_WITH_AES_256_GCM_SHA384:
-            case TLS_DHE_RSA_WITH_ARIA_128_CBC_SHA256:
-            case TLS_DHE_RSA_WITH_ARIA_128_GCM_SHA256:
-            case TLS_DHE_RSA_WITH_ARIA_256_CBC_SHA384:
-            case TLS_DHE_RSA_WITH_ARIA_256_GCM_SHA384:
-            case TLS_DHE_RSA_WITH_CAMELLIA_128_CBC_SHA:
-            case TLS_DHE_RSA_WITH_CAMELLIA_128_CBC_SHA256:
-            case TLS_DHE_RSA_WITH_CAMELLIA_128_GCM_SHA256:
-            case TLS_DHE_RSA_WITH_CAMELLIA_256_CBC_SHA:
-            case TLS_DHE_RSA_WITH_CAMELLIA_256_CBC_SHA256:
-            case TLS_DHE_RSA_WITH_CAMELLIA_256_GCM_SHA384:
-            case TLS_DHE_RSA_WITH_DES_CBC_SHA:
-            case TLS_DHE_RSA_WITH_SEED_CBC_SHA:
-                return true;
-        }
-        return false;
+        return this.name().contains("DHE") && !this.name().contains("ECDHE");
     }
 
     /**
