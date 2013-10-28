@@ -15,6 +15,7 @@
         <module>TinyTLSServer</module>
         <module>BleichenbacherTests</module>
     <module>BleichenbacherTimingStripped</module>
+    <module>ECCTests</module>
   </modules>
     
     <build>

@@ -4,32 +4,10 @@ import de.rub.nds.ecdhattack.utilities.MagmaUtilities;
 import de.rub.nds.ecdhattack.utilities.NastyPoint;
 import de.rub.nds.ecdhattack.utilities.TLSConnector;
 import de.rub.nds.ssl.stack.ECUtility;
-import de.rub.nds.ssl.stack.protocols.alert.Alert;
-import de.rub.nds.ssl.stack.protocols.alert.datatypes.EAlertDescription;
-import de.rub.nds.ssl.stack.protocols.commons.ECipherSuite;
-import de.rub.nds.ssl.stack.protocols.commons.EProtocolVersion;
-import de.rub.nds.ssl.stack.protocols.handshake.ClientHello;
-import de.rub.nds.ssl.stack.protocols.handshake.ClientKeyExchange;
-import de.rub.nds.ssl.stack.protocols.handshake.datatypes.CipherSuites;
-import de.rub.nds.ssl.stack.protocols.handshake.datatypes.EKeyExchangeAlgorithm;
-import de.rub.nds.ssl.stack.protocols.handshake.datatypes.Extensions;
-import de.rub.nds.ssl.stack.protocols.handshake.extensions.EllipticCurves;
-import de.rub.nds.ssl.stack.protocols.handshake.extensions.SupportedPointFormats;
-import de.rub.nds.ssl.stack.protocols.handshake.extensions.datatypes.ClientECDHPublic;
-import de.rub.nds.ssl.stack.protocols.handshake.extensions.datatypes.ECPoint;
 import de.rub.nds.ssl.stack.protocols.handshake.extensions.datatypes.EECPointFormat;
-import de.rub.nds.ssl.stack.protocols.handshake.extensions.datatypes.ENamedCurve;
-import de.rub.nds.ssl.stack.trace.MessageContainer;
-import de.rub.nds.ssl.stack.workflows.TLS10HandshakeWorkflow;
-import static de.rub.nds.ssl.stack.workflows.TLS10HandshakeWorkflow.EStates.CLIENT_HELLO;
-import static de.rub.nds.ssl.stack.workflows.TLS10HandshakeWorkflow.EStates.CLIENT_KEY_EXCHANGE;
-import de.rub.nds.ssl.stack.workflows.commons.ObservableBridge;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.math.BigInteger;
 import java.net.SocketException;
-import java.util.Observable;
-import java.util.Observer;
 
 /**
  * ECC DH Attack Entry Point.

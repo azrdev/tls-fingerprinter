@@ -1,5 +1,6 @@
 package de.rub.nds.ssl.analyzer.vnl;
 
+import de.rub.nds.ssl.stack.Utility;
 import de.rub.nds.ssl.stack.protocols.ARecordFrame;
 import de.rub.nds.ssl.stack.protocols.alert.Alert;
 import de.rub.nds.ssl.stack.protocols.commons.EContentType;
@@ -116,7 +117,7 @@ public abstract class ACaptureConverter {
             final int offset) {
         int pointer = 0;
         //Determine the length of the frame
-        int length = (bytes[3 + offset] & 0xff) << 8
+        int length = (bytes[3 + offset] & 0xff) << Utility.BITS_IN_BYTE
                 | (bytes[4 + offset] & 0xff);
         byte[] record = new byte[ARecordFrame.LENGTH_MINIMUM_ENCODED + length];
         // copy header
