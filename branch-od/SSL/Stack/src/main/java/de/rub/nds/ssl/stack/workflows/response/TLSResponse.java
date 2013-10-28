@@ -59,7 +59,7 @@ public final class TLSResponse extends ARecordFrame implements Observer {
         this.response = new byte[response.length];
         System.arraycopy(response, 0, this.response, 0, this.response.length);
     }
-
+        
     /**
      * Extracts the TLS record messages for the response bytes.
      *
@@ -68,6 +68,7 @@ public final class TLSResponse extends ARecordFrame implements Observer {
     public final void handleResponse(final MessageContainer trace) {
         MessageObservable msgObserve = MessageObservable.getInstance();
         EContentType contentType = getContentType();
+        logger.debug("Message from server received: " + Utility.bytesToHex(response));
         switch (contentType) {
             case CHANGE_CIPHER_SPEC:
                 logger.debug("Change Cipher Spec message received");
@@ -142,6 +143,7 @@ public final class TLSResponse extends ARecordFrame implements Observer {
                 }
                 break;
             case APPLICATION:
+                logger.debug("Encrypted server message: " + Utility.bytesToHex(response));
                 TLSCiphertext c = new TLSCiphertext(response, true);
                 TLSPlaintext p = workflow.getMessageBuilder().decryptRecord(c);
                 p.encode(false);

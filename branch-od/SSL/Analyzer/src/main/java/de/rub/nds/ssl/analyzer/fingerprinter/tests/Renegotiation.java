@@ -115,11 +115,17 @@ public final class Renegotiation extends AGenericFingerprintTest implements Obse
         }
         
         if(states == EStates.APPLICATION){
+            /*
             record = msgBuilder.createClientHello(protocolVersion);
             utils.setClientRandom((ClientHello) record);
             workflow.applicationSend(record);
             logger.debug("R - client hello sent");
-            state++;
+            state++;*/
+            
+            String test = "test";
+            record = msgBuilder.createApplication(protocolVersion, test.getBytes());
+            workflow.applicationSend(record);
+            
         }
 
     }

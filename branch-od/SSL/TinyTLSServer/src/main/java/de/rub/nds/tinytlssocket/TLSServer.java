@@ -118,7 +118,6 @@ public final class TLSServer extends Thread {
                 "SunX509");
         keyManagerFactory.init(keyStore, password.toCharArray());
         KeyManager[] keyManagers = keyManagerFactory.getKeyManagers();
-
         TrustManagerFactory trustManagerFactory =
                 TrustManagerFactory.getInstance("SunX509");
         trustManagerFactory.init(keyStore);
@@ -144,8 +143,7 @@ public final class TLSServer extends Thread {
                     TLSPlaintext applicationResponse = new TLSPlaintext(
                             EProtocolVersion.TLS_1_0);
                     applicationResponse.setFragment(MESSAGE);
-                    socket.getOutputStream().write(
-                            applicationResponse.encode(false));
+                    socket.getOutputStream().write(applicationResponse.encode(false));
                 } catch (SocketTimeoutException e) {
                     // ignore - it will fill your logs!
                     //logger.debug(e);
@@ -185,6 +183,8 @@ public final class TLSServer extends Thread {
                 });
         result.setSoTimeout(TIMEOUT);
         result.setReuseAddress(true);
+        result.setNeedClientAuth(false);
+        
         logger.info("|| presetup successful");
 
         return result;
