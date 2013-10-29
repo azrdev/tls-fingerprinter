@@ -92,13 +92,13 @@ public abstract class Launcher {
         // invoke components
         List<TestResult[]> results;
         for (String tmpTarget : targets) {
-            if (checkConnection(tmpTarget)) {
+//            if (checkConnection(tmpTarget)) {
                 results = invokeExecutor(EFingerprintTests.values(), tmpTarget);
                 invokeFuzzer(results, implementation);
-            } else {
-                logger.info("No connection to target: "
-                        + tmpTarget + " possible.");
-            }
+//            } else {
+//                logger.info("No connection to target: "
+//                        + tmpTarget + " possible.");
+//            }
         }
     }
 
@@ -114,6 +114,11 @@ public abstract class Launcher {
         URL url;
         HttpsURLConnection connection = null;
         try {
+            /*
+             * NOTE: It is very likely that HttpsURLConnection responds with an
+             * unknown_certificate SSL/TLS alert, because it is not guaranteed
+             * that the Root CA of the remote peer is in our trusted key store.
+             */
             url = new URL(target);
             connection = (HttpsURLConnection) url.openConnection();
             connection.connect();
