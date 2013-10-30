@@ -37,15 +37,19 @@ public class CommandLineTimingOracle extends AOracle {
     /**
      * The timing boundary between PKCS-valid and PKCS-invalid timings (in clock ticks)
      */
-    private static final int TIMING_BOUNDARY = -11000;
+    private static final int TIMING_BOUNDARY = -10000;
     /**
      * Given a timing measurement > TIMING_BOUNDARY, we repeat the measurement
      * with the same ciphertext. We'll keep repeating the measurement as long
      * as the timings t are
      * TIMING_BOUNDARY - TIMING_SIGNIFICANCE_THRESHOLD < t < TIMING_BOUNDARY + TIMING_SIGNIFICANCE_THRESHOLD
      */
-    private static final int TIMING_SIGNIFICANCE_THRESHOLD = 3000;
-    
+    private static final int TIMING_SIGNIFICANCE_THRESHOLD = 6000;
+    /**
+     * How many times should a candidate be verified. A factor of 5 and a 
+     * MEASUREMENT_AMOUNT of 150 means that it performs 750 measurements (5*150).
+     */
+    private static final int REPEAT_FACTOR = 5;
     /**
      * Amount of training measurements per Oracle request.
      */
@@ -229,7 +233,7 @@ public class CommandLineTimingOracle extends AOracle {
                 /*
                  * The timing is within the "no man's land". Repeat it.
                  */
-                return isValidPKCS(testPMS, 10);
+                return isValidPKCS(testPMS, REPEAT_FACTOR);
             }
                
         }
