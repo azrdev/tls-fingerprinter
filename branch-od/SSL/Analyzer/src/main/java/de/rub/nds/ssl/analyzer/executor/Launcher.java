@@ -8,14 +8,16 @@ import de.rub.nds.ssl.analyzer.fingerprinter.FingerprintFuzzer;
 import de.rub.nds.ssl.analyzer.fingerprinter.IFingerprinter;
 import java.io.IOException;
 import java.net.ConnectException;
+import java.net.Socket;
 import java.net.URL;
-import java.net.URLConnection;
+import java.net.URLConnection;  
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import javax.net.SocketFactory;
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLSocket;
 import org.apache.log4j.Logger;
@@ -103,7 +105,7 @@ public abstract class Launcher {
     }
 
     /**
-     * Checks if the target si reachable.
+     * Checks if the target is reachable.
      *
      * @param target Target to check
      * @return True if the target is reachable
@@ -112,11 +114,19 @@ public abstract class Launcher {
         boolean result = false;
 
         URL url;
-        HttpsURLConnection connection = null;
+        Socket socket = null;
         try {
+            /*
+             * NOTE: 
+             * This will just "ping" the socket if it is available - no SSL/TLS
+             * magic should be performed at this point! Thus, getting a
+             * handshake_failure altert from the remote peer is very likely and
+             * can safely be ignored.
+             */
             url = new URL(target);
-            connection = (HttpsURLConnection) url.openConnection();
-            connection.connect();
+            SocketFactory factory =
+                    SocketFactory.getDefault();
+            socket = factory.createSocket(url.getHost(), url.getPort());
             result = true;
         } catch (ConnectException e) {
             result = false;
@@ -124,8 +134,12 @@ public abstract class Launcher {
             // multiple scenarios lead to this eception - to be safe set true
             result = true;
         } finally {
-            if (connection != null) {
-                connection.disconnect();
+            if (socket != null) {
+                try {
+                    socket.close();
+                } catch (IOException ex) {
+                    // ignore
+                }
             }
         }
 

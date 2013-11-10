@@ -88,21 +88,28 @@ public final class Renegotiation extends AGenericFingerprintTest implements Obse
         }
        
         if(states == EStates.APPLICATION_PING){
-            ArrayList<ARecordFrame> messages = workflow.getMessages();
-            if (messages != null){
-                workflow.endApplicationPhase();
-            }
+            //ArrayList<ARecordFrame> messages = workflow.getMessages();
             switch(EStates.getStateById(state)){
+                case CLIENT_HELLO:
+                    record = msgBuilder.createClientHello(protocolVersion);
+                    utils.setClientRandom((ClientHello) record);
+                    workflow.applicationSend(record);
+                    logger.debug("R - Client hello sent");
+                    state++;
+                    break;
                 case SERVER_HELLO:
                 case SERVER_CERTIFICATE:
                 case SERVER_KEY_EXCHANGE:
                 case SERVER_CERTIFICATE_REQUEST:
                 case SERVER_HELLO_DONE:
+                    if(workflow.getCurrentState() == EStates.SERVER_HELLO_DONE.getID())                       
+                        state += 5;
                     //ArrayList<ARecordFrame> messages = workflow.getMessages();
-                    if (messages != null){
+                    
+                    //if (messages != null){
                         //for(ARecordFrame msg: messages)
-                    }
-                    break;
+                    //}
+                    //break;
                 case CLIENT_CERTIFICATE:
                 case CLIENT_KEY_EXCHANGE:
                 case CLIENT_CERTIFICATE_VERIFY:
@@ -110,22 +117,17 @@ public final class Renegotiation extends AGenericFingerprintTest implements Obse
                 case CLIENT_FINISHED:
                 case SERVER_CHANGE_CIPHER_SPEC:
                 case SERVER_FINISHED:
-
+                    workflow.endApplicationPhase();
+                    break;
             }
         }
         
         if(states == EStates.APPLICATION){
             /*
-            record = msgBuilder.createClientHello(protocolVersion);
-            utils.setClientRandom((ClientHello) record);
-            workflow.applicationSend(record);
-            logger.debug("R - client hello sent");
-            state++;*/
-            
-            String test = "test";
-            record = msgBuilder.createApplication(protocolVersion, test.getBytes());
-            workflow.applicationSend(record);
-            
+            String msg = "M0";
+            workflow.applicationSend(msg.getBytes());
+            logger.debug("Application data sent");
+            */ 
         }
 
     }
