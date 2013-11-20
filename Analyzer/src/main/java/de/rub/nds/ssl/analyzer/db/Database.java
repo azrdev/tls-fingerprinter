@@ -32,15 +32,14 @@ public final class Database {
      */
     private Database() {
         URL database = Database.class.getResource(DATABASE_NAME);
-
-        // check if running in a jar
+       DATABASE_PATH = database.getFile();
+        
+        // check if running in a jar and adjust path if necessary
         if (database.getProtocol().equals("jar")) {
             // replace the jar file separator and root reference
-            DATABASE_PATH = "jar:(" + database.getFile().replace("!/", ")");
+            DATABASE_PATH = "jar:(" + DATABASE_PATH.replace("!/", ")");
             DATABASE_PATH = DATABASE_PATH.replace("file:", "");
-        } else {
-            DATABASE_PATH = database.getFile();
-        }
+        } 
     }
 
     /**
