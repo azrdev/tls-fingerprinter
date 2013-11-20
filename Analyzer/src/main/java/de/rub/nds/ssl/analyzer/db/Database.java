@@ -32,9 +32,15 @@ public final class Database {
      */
     private Database() {
         URL database = Database.class.getResource(DATABASE_NAME);
-        // replace the jar file separator and root reference
-        DATABASE_PATH = '(' + database.getFile().replace("!/", ")");
-        DATABASE_PATH = DATABASE_PATH.replace("file:", "");
+
+        // check if running in a jar
+        if (database.getProtocol().equals("jar")) {
+            // replace the jar file separator and root reference
+            DATABASE_PATH = "jar:(" + database.getFile().replace("!/", ")");
+            DATABASE_PATH = DATABASE_PATH.replace("file:", "");
+        } else {
+            DATABASE_PATH = database.getFile();
+        }
     }
 
     /**
@@ -54,7 +60,7 @@ public final class Database {
      */
     public void shutdownDB() {
         try {
-            DriverManager.getConnection("jdbc:derby:jar:" + DATABASE_PATH 
+            DriverManager.getConnection("jdbc:derby:" + DATABASE_PATH
                     + ";create=false;user=tester;password=ssltest;shutdown=true");
         } catch (SQLException e) {
             // silently ignore the hassle
@@ -74,7 +80,7 @@ public final class Database {
          */
         try {
             Class.forName("org.apache.derby.jdbc.EmbeddedDriver");
-            conn = DriverManager.getConnection("jdbc:derby:jar:" + DATABASE_PATH 
+            conn = DriverManager.getConnection("jdbc:derby:" + DATABASE_PATH
                     + ";create=false;user=tester;password=ssltest");
         } catch (ClassNotFoundException e) {
             logger.error("DB driver instantiation failed.", e);
