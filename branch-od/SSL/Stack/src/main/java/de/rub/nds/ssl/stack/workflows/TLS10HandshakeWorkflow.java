@@ -305,6 +305,14 @@ public final class TLS10HandshakeWorkflow extends AWorkflow {
     }
     
     /**
+     * Is workflow in application phase?
+     */
+    
+    public boolean inApplicationPhase(){
+        return enterApplicationPhase && runApplicationPhase;
+    }
+    
+    /**
      * Get current messages
      */
     

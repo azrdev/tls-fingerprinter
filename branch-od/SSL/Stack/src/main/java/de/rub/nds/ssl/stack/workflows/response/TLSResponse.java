@@ -69,6 +69,9 @@ public final class TLSResponse extends ARecordFrame implements Observer {
         MessageObservable msgObserve = MessageObservable.getInstance();
         EContentType contentType = getContentType();
         logger.debug("Message from server received: " + Utility.bytesToHex(response));
+        // Disable response handling for messages sent in application phase, even if they use handshake headers.
+        if(workflow.inApplicationPhase())
+            contentType = EContentType.APPLICATION;
         switch (contentType) {
             case CHANGE_CIPHER_SPEC:
                 logger.debug("Change Cipher Spec message received");
