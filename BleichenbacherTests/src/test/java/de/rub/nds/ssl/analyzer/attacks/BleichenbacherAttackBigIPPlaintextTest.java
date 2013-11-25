@@ -2,12 +2,17 @@ package de.rub.nds.ssl.analyzer.attacks;
 
 import de.rub.nds.ssl.analyzer.attacker.Bleichenbacher;
 import de.rub.nds.ssl.analyzer.attacker.BleichenbacherBigIP;
+import de.rub.nds.ssl.analyzer.attacker.BleichenbacherCrypto12;
 import de.rub.nds.ssl.analyzer.attacker.bleichenbacher.oracles.AOracle;
 import de.rub.nds.ssl.analyzer.attacker.bleichenbacher.oracles.ATestOracle;
 import de.rub.nds.ssl.analyzer.attacker.bleichenbacher.oracles.StdPlainOracle;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
+import java.security.SecureRandom;
 import java.security.Security;
+import java.util.Collections;
+import java.util.LinkedList;
+import javax.crypto.Cipher;
 import org.apache.log4j.Logger;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.testng.annotations.Test;
@@ -21,36 +26,35 @@ public class BleichenbacherAttackBigIPPlaintextTest {
     /**
      * Initialize the log4j logger.
      */
-    static Logger logger = Logger.getLogger(BleichenbacherAttackBigIPPlaintextTest.class);
+    static Logger logger = Logger.getRootLogger();
     /**
      * Plain PKCS 1024 bit
      */
     private static final byte[] plainPKCS1024 = new byte[]{
-        (byte) 2, (byte) 113, (byte) 89, (byte) -75, (byte) 59, (byte) -45, 
-        (byte) 27, (byte) -61, (byte) -9, (byte) -21, (byte) 27, (byte) -1, 
-        (byte) -5, (byte) 121, (byte) 93, (byte) -51, (byte) -43, (byte) 95, 
-        (byte) 37, (byte) -7, (byte) 75, (byte) -109, (byte) 97, (byte) -29, 
-        (byte) -53, (byte) -29, (byte) 105, (byte) -13, (byte) -9, (byte) 37, 
-        (byte) 39, (byte) 87, (byte) -73, (byte) 113, (byte) -105, (byte) -21, 
-        (byte) -29, (byte) 125, (byte) 11, (byte) -123, (byte) 15, (byte) 61, 
+        (byte) 2, (byte) 113, (byte) 89, (byte) -75, (byte) 59, (byte) -45,
+        (byte) 27, (byte) -61, (byte) -9, (byte) -21, (byte) 27, (byte) -1,
+        (byte) -5, (byte) 121, (byte) 93, (byte) -51, (byte) -43, (byte) 95,
+        (byte) 37, (byte) -7, (byte) 75, (byte) -109, (byte) 97, (byte) -29,
+        (byte) -53, (byte) -29, (byte) 105, (byte) -13, (byte) -9, (byte) 37,
+        (byte) 39, (byte) 87, (byte) -73, (byte) 113, (byte) -105, (byte) -21,
+        (byte) -29, (byte) 125, (byte) 11, (byte) -123, (byte) 15, (byte) 61,
         (byte) -93, (byte) -87, (byte) 117, (byte) 111, (byte) 109, (byte) 111,
         (byte) 89, (byte) 79, (byte) 49, (byte) 9, (byte) 47, (byte) 51,
-        (byte) -47, (byte) -33, (byte) 63, (byte) 91, (byte) 117, (byte) 49, 
-        (byte) -23, (byte) -73, (byte) -51, (byte) -31, (byte) -71, (byte) 51, 
-        (byte) -59, (byte) 59, (byte) -41, (byte) -11, (byte) -65, (byte) 7, 
-        (byte) 61, (byte) 73, (byte) 65, (byte) -69, (byte) -73, (byte) -121, 
-        (byte) 0, (byte) 3, (byte) 1, (byte) -127, (byte) -85, (byte) -25, 
-        (byte) 13, (byte) -57, (byte) -89, (byte) -91, (byte) 89, (byte) 15, 
-        (byte) -89, (byte) 109, (byte) -83, (byte) 15, (byte) -87, (byte) 37, 
+        (byte) -47, (byte) -33, (byte) 63, (byte) 91, (byte) 117, (byte) 49,
+        (byte) -23, (byte) -73, (byte) -51, (byte) -31, (byte) -71, (byte) 51,
+        (byte) -59, (byte) 59, (byte) -41, (byte) -11, (byte) -65, (byte) 7,
+        (byte) 61, (byte) 73, (byte) 65, (byte) -69, (byte) -73, (byte) -121,
+        (byte) 0, (byte) 3, (byte) 1, (byte) -127, (byte) -85, (byte) -25,
+        (byte) 13, (byte) -57, (byte) -89, (byte) -91, (byte) 89, (byte) 15,
+        (byte) -89, (byte) 109, (byte) -83, (byte) 15, (byte) -87, (byte) 37,
         (byte) -105, (byte) -65, (byte) -123, (byte) 71, (byte) 11, (byte) -51,
         (byte) -101, (byte) 33, (byte) 27, (byte) 29, (byte) 123, (byte) -19,
-        (byte) -41, (byte) -15, (byte) 29, (byte) 23, (byte) 103, (byte) 79, 
-        (byte) 7, (byte) -109, (byte) 77, (byte) -115, (byte) -19, (byte) 57, 
-        (byte) 109, (byte) 51, (byte) 21, (byte) 29, (byte) 111, (byte) -11, 
+        (byte) -41, (byte) -15, (byte) 29, (byte) 23, (byte) 103, (byte) 79,
+        (byte) 7, (byte) -109, (byte) 77, (byte) -115, (byte) -19, (byte) 57,
+        (byte) 109, (byte) 51, (byte) 21, (byte) 29, (byte) 111, (byte) -11,
         (byte) -109};
-    
     private static final byte[] plainPKCS2048 = new byte[]{
-        (byte) 0x00, (byte) 0x02, (byte) 0xf5, (byte) 0xa7, (byte) 0x9f,
+        (byte) 0x00, (byte) 0x02, (byte) 0x05, (byte) 0xa7, (byte) 0x9f,
         (byte) 0xcd, (byte) 0xb1, (byte) 0x27, (byte) 0xf9, (byte) 0x39,
         (byte) 0x15, (byte) 0x21, (byte) 0x49, (byte) 0x71, (byte) 0x65,
         (byte) 0x97, (byte) 0x33, (byte) 0x99, (byte) 0x6d, (byte) 0x9b,
@@ -94,7 +98,7 @@ public class BleichenbacherAttackBigIPPlaintextTest {
         (byte) 0xef, (byte) 0xd3, (byte) 0x4b, (byte) 0x27, (byte) 0x1f,
         (byte) 0x1f, (byte) 0x27, (byte) 0x9f, (byte) 0x5d, (byte) 0x0,
         (byte) 0x39, (byte) 0x1b,
-        (byte) 0x01, 
+        (byte) 0x01,
         (byte) 0x03, (byte) 0x01,
         (byte) 0x06, (byte) 0x26, (byte) 0xa6, (byte) 0x40, (byte) 0x57,
         (byte) 0x4b, (byte) 0x50, (byte) 0xd6, (byte) 0xa3, (byte) 0xd0,
@@ -126,4 +130,93 @@ public class BleichenbacherAttackBigIPPlaintextTest {
         attacker.attack();
     }
 
+    /**
+     * Last Result:
+     *
+     * WARN [main] 25 Nov 2013 15:40:58,571 - Bleichenbacher
+     *
+     * WARN [main] 25 Nov 2013 15:40:58,572 - Queries total: 49558159
+     *
+     * WARN [main] 25 Nov 2013 15:40:58,572 - Mean: 99116
+     *
+     * WARN [main] 25 Nov 2013 15:40:58,572 - Median: 4734
+     *
+     * WARN [main] 25 Nov 2013 15:40:58,573 - Min: 3784
+     *
+     * WARN [main] 25 Nov 2013 15:40:58,573 - Max: 1189896
+     *
+     * WARN [main] 25 Nov 2013 15:40:58,573 - Badly computed: 45
+     * (the 45 ciphertexts are badly computed. Their interval computation
+     * was imprecise and should be done better...however, who cares...)
+     *
+     */
+    @Test(enabled = false)
+    public final void testBleichenbacherAttackPerformance()
+            throws Exception {
+        Security.addProvider(new BouncyCastleProvider());
+        KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("RSA");
+        keyPairGenerator.initialize(2048);
+
+        logger.warn("starting attacks");
+
+        int iterations = 500;
+        int badlyComputed = 0;
+        LinkedList<Long> queriesBleichenbacher = new LinkedList<Long>();
+
+        for (int i = 0; i < iterations; i++) {
+            logger.warn("iter " + i);
+            KeyPair keyPair = keyPairGenerator.genKeyPair();
+
+            SecureRandom sr = new SecureRandom();
+            byte[] plainBytes = new byte[48];
+            sr.nextBytes(plainBytes);
+            byte[] cipherBytes;
+
+            Cipher cipher = Cipher.getInstance("RSA/None/PKCS1Padding");
+            cipher.init(Cipher.ENCRYPT_MODE, keyPair.getPublic());
+            cipherBytes = cipher.doFinal(plainBytes);
+
+            cipher = Cipher.getInstance("RSA/None/NoPadding");
+            cipher.init(Cipher.DECRYPT_MODE, keyPair.getPrivate());
+            byte[] message = cipher.doFinal(cipherBytes);
+
+            AOracle oracle = new StdPlainOracle(keyPair.getPublic(),
+                    ATestOracle.OracleType.BigIP, cipher.getBlockSize());
+
+            BleichenbacherBigIP attacker = new BleichenbacherBigIP(
+                    message, oracle, true);
+            try {
+                attacker.attack();
+                queriesBleichenbacher.add(oracle.getNumberOfQueries());
+            } catch (RuntimeException e) {
+                queriesBleichenbacher.add((long) 1000000);
+                badlyComputed++;
+            }
+            System.out.println("Queries " + i + " : " + oracle.
+                    getNumberOfQueries());
+        }
+        Collections.sort(queriesBleichenbacher);
+
+        logger.info("---------------------");
+        long queries;
+
+        logger.warn("Bleichenbacher");
+        queries = sumList(queriesBleichenbacher);
+        logger.warn("Queries total: " + queries);
+        logger.warn("Mean: " + (queries / iterations));
+        logger.warn("Median: " + queriesBleichenbacher.get(iterations / 2));
+        logger.warn("Min: " + queriesBleichenbacher.get(0));
+        logger.warn("Max:       " + queriesBleichenbacher.get(iterations - 1));
+        logger.warn("Badly computed (my implementation is not perfect and in case"
+                + " there are more intervals for a solution, the algorithm "
+                + " computes a wrong interval): " + badlyComputed);
+    }
+
+    private static long sumList(LinkedList<Long> list) {
+        long ret = 0;
+        for (Long l : list) {
+            ret += l;
+        }
+        return ret;
+    }
 }
