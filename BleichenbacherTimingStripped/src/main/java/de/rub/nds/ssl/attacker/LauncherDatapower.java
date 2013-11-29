@@ -48,7 +48,7 @@ public final class LauncherDatapower {
      * Plain PKCS message
      */
     private static final byte[] validSSL = new byte[]{
-        (byte) 0x00, (byte) 0x02, (byte) 0xf5, (byte) 0xa7, (byte) 0x9f,
+        (byte) 0x00, (byte) 0x02, (byte) 0x05, (byte) 0xa7, (byte) 0x9f,
         (byte) 0xcd, (byte) 0xb1, (byte) 0x27, (byte) 0xf9, (byte) 0x39,
         (byte) 0x15, (byte) 0x21, (byte) 0x49, (byte) 0x71, (byte) 0x65,
         (byte) 0x97, (byte) 0x33, (byte) 0x99, (byte) 0x6d, (byte) 0x9b,
@@ -109,7 +109,7 @@ public final class LauncherDatapower {
      *
      */
     private static final byte[] validPKCS = new byte[]{
-        (byte) 0x00, (byte) 0x02, (byte) 0xf5, (byte) 0xa7, (byte) 0x9f,
+        (byte) 0x00, (byte) 0x02, (byte) 0x05, (byte) 0xa7, (byte) 0x9f,
         (byte) 0xcd, (byte) 0xb1, (byte) 0x27, (byte) 0xf9, (byte) 0x39,
         (byte) 0x15, (byte) 0x21, (byte) 0x49, (byte) 0x71, (byte) 0x65,
         (byte) 0x97, (byte) 0x33, (byte) 0x99, (byte) 0x6d, (byte) 0x9b,

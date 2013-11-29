@@ -49,7 +49,7 @@ public final class LauncherOpenSSL {
         (byte) 0xba, (byte) 0xbe, (byte) 0xc0, (byte) 0xff, (byte) 0xee,
         (byte) 0xba, (byte) 0xbe,
         (byte) 0x00, 
-        (byte) 0x03, (byte) 0x02, // TLS 1.2 = 03 03, TLS 1.1 = 03 02, TLS 1.0 = 03 01
+        (byte) 0x03, (byte) 0x01, // TLS 1.2 = 03 03, TLS 1.1 = 03 02, TLS 1.0 = 03 01
         (byte) 0x01, (byte) 0x02, (byte) 0x03, (byte) 0x04, (byte) 0x05,
         (byte) 0x06, (byte) 0x07, (byte) 0x08, (byte) 0x09, (byte) 0x0a,
         (byte) 0x0b, (byte) 0x0c, (byte) 0x0d, (byte) 0x0e, (byte) 0x0f,
@@ -131,9 +131,9 @@ public final class LauncherOpenSSL {
         // pre setup
         Security.addProvider(new BouncyCastleProvider());
 
-        String keyName = properties.getProperty("keyName");
-        char[] keyPassword = properties.getProperty("password").toCharArray();
-        KeyStore keyStore = loadKeyStore(properties.getProperty("keyStorePath"),
+        String keyName = "1024_rsa";
+        char[] keyPassword = "password".toCharArray();
+        KeyStore keyStore = loadKeyStore("1024.jks",
                 keyPassword);
 
         RSAPrivateKey privateKey =
@@ -157,7 +157,8 @@ public final class LauncherOpenSSL {
         
         //  encrypt invalid PMS
         byte[] plainInvalidPKCS_Case_3 = PLAIN_VALID_PKCS_CASE_1.clone();
-        plainInvalidPKCS_Case_3[1] = 0x8;
+        plainInvalidPKCS_Case_3[plainInvalidPKCS_Case_3.length-47] = 0x8;
+        System.out.println(Utility.bytesToHex(plainInvalidPKCS_Case_3));
         byte[] encInvalidPMS = cipher.doFinal(plainInvalidPKCS_Case_3);
 
         // prepare the timing oracle
@@ -167,7 +168,7 @@ public final class LauncherOpenSSL {
 
         // setup PMSs
         oracle.setCase1PMS(encValidPMS);
-        oracle.setCase2PMS(encCase2);
+        oracle.setCase2PMS(encValidPMS);
         oracle.setCase3PMS(encInvalidPMS);
         // Warmup SSL caches
         oracle.warmup();

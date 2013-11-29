@@ -41,7 +41,7 @@ public class CommandLineTimingOracleWithoutPrivateKey extends AOracle {
      * The timing boundary between PKCS-valid and PKCS-invalid timings (in clock
      * ticks)
      */
-    private static final int TIMING_BOUNDARY = +15000;
+    private static final int TIMING_BOUNDARY = +22000;
     /**
      * Given a timing measurement > TIMING_BOUNDARY, we repeat the measurement
      * with the same ciphertext. We'll keep repeating the measurement as long as
@@ -313,27 +313,28 @@ public class CommandLineTimingOracleWithoutPrivateKey extends AOracle {
 
         round += 1;
 
+        System.out.println("");
+        System.out.println("################### New Measurement #########################");
+
         //if(round % 1000 == 0) {
         //    System.out.print("\r--> round " + round);
         //}
 
-        System.out.println("");
-        System.out.println("################### New Measurement #########################");
-
+        numberOfQueries++;
         groundTruth = cheat(attacker.getSi());
         
-        if( (round < 85) ) {
+//        if( (round < 1000) ) {
         // TODO: Ooooh jeeeee!
-            return groundTruth;
+//            return groundTruth;
         //    return false;
-        } else if(round > 95 && round < 260) {
-            return groundTruth;
-        } else if(round > 270 && round < 430) {
-            return groundTruth;
-        } 
-
-        numberOfQueries++;
-
+//        } else if(round > 92 && round < 261) {
+//            return groundTruth;
+//        } else if(round > 264 && round < 434) {
+//            return groundTruth;
+//        } else if(round > 437 && round < 607) {
+//            return groundTruth;
+//        } 
+        
         if ((round % 20) == 0) {
             System.out.println("###########################");
             System.out.println("# groundTruth_timingOracle");
