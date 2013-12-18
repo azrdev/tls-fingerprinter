@@ -304,6 +304,7 @@ public class MessageBuilder {
             System.arraycopy(plainBytes, 0, tmp, 0, tmp.length);
             plainBytes = tmp;
             rec = new TLSPlaintext(plainBytes, false);
+            rec.setCType(record.getContentType());
         } else if (param.getCipherType() == ECipherType.STREAM) {
             GenericStreamCipher streamCipher = new GenericStreamCipher(record);
             streamCipher.computePayloadMAC(macKey, macName);

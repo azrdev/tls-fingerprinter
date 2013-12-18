@@ -271,6 +271,21 @@ public abstract class ARecordFrame extends APubliclySerializable {
 
         return tmp;
     }
+    
+    /**
+    * Get the entire message including the global header.
+    *
+    * @return The entire message including the global header of this record frame.
+    */
+    public byte[] getBytes(){
+        byte[] tmp = new byte[payload.length + 5];
+        tmp[0] = contentType.getId();
+        System.arraycopy(getProtocolVersion().getId(), 0, tmp, 1, 2);       
+        tmp[3] = (byte)((payload.length >> 8) & 0xFF);
+        tmp[4] = (byte)(payload.length & 0xFF);
+        System.arraycopy(payload, 0, tmp, 5, payload.length);
+        return tmp;
+    }    
 
     /**
      * Set the payload of this record frame.

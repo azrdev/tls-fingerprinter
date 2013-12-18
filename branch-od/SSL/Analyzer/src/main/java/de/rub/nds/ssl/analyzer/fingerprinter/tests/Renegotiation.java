@@ -5,6 +5,7 @@ import de.rub.nds.ssl.analyzer.executor.EFingerprintTests;
 import de.rub.nds.ssl.stack.Utility;
 import de.rub.nds.ssl.stack.protocols.ARecordFrame;
 import de.rub.nds.ssl.stack.protocols.commons.ECipherSuite;
+import de.rub.nds.ssl.stack.protocols.commons.EConnectionEnd;
 import de.rub.nds.ssl.stack.protocols.commons.KeyExchangeParams;
 import de.rub.nds.ssl.stack.protocols.handshake.AHandshakeRecord;
 import de.rub.nds.ssl.stack.protocols.handshake.Certificate;
@@ -15,11 +16,14 @@ import de.rub.nds.ssl.stack.protocols.handshake.ServerHello;
 import de.rub.nds.ssl.stack.protocols.handshake.ServerHelloDone;
 import de.rub.nds.ssl.stack.protocols.handshake.ServerKeyExchange;
 import de.rub.nds.ssl.stack.protocols.handshake.datatypes.CipherSuites;
+import de.rub.nds.ssl.stack.protocols.handshake.datatypes.EKeyExchangeAlgorithm;
+import de.rub.nds.ssl.stack.protocols.handshake.datatypes.MasterSecret;
 import de.rub.nds.ssl.stack.protocols.handshake.datatypes.RandomValue;
 import de.rub.nds.ssl.stack.protocols.msgs.ChangeCipherSpec;
 import de.rub.nds.ssl.stack.trace.MessageContainer;
 import de.rub.nds.ssl.stack.workflows.TLS10HandshakeWorkflow;
 import de.rub.nds.ssl.stack.workflows.TLS10HandshakeWorkflow.EStates;
+import de.rub.nds.ssl.stack.workflows.commons.HandshakeHashBuilder;
 import de.rub.nds.ssl.stack.workflows.commons.MessageBuilder;
 import de.rub.nds.ssl.stack.workflows.commons.ObservableBridge;
 import de.rub.nds.ssl.stack.workflows.response.CertificateHandler;
@@ -27,6 +31,8 @@ import de.rub.nds.ssl.stack.workflows.response.IHandshakeStates;
 import de.rub.nds.ssl.stack.workflows.response.ServerHelloHandler;
 import de.rub.nds.ssl.stack.workflows.response.ServerKeyExchangeHandler;
 import java.net.SocketException;
+import java.security.DigestException;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Observable;
 import java.util.Observer;
@@ -49,11 +55,18 @@ public final class Renegotiation extends AGenericFingerprintTest implements Obse
     private int state = 0;
     
     private ArrayList<AHandshakeRecord> records;
+    
+    private HandshakeHashBuilder hashBuilder;
 
     private TestResult executeHandshake(final String desc,
             final ECipherSuite[] suite) throws SocketException {
         records = new ArrayList<AHandshakeRecord>();
         msgBuffer = new ArrayList<ARecordFrame>();
+        try {
+            hashBuilder = new HandshakeHashBuilder();
+        } catch (NoSuchAlgorithmException ex) {
+            ex.printStackTrace();
+        }
         logger.info("++++Start Test No." + counter + "(" + desc + ")++++");
         workflow = new TLS10HandshakeWorkflow(true);
         workflow.connectToTestServer(getTargetHost(), getTargetPort());
@@ -62,7 +75,6 @@ public final class Renegotiation extends AGenericFingerprintTest implements Obse
         workflow.addObserver(this, EStates.APPLICATION);
         workflow.addObserver(this, EStates.APPLICATION_PING);
         this.suite = suite;
-        
 
         //set the test headerParameters
         headerParameters.setIdentifier(EFingerprintTests.TLS_RENEGOTIATION);
@@ -111,6 +123,7 @@ public final class Renegotiation extends AGenericFingerprintTest implements Obse
                     record = msgBuilder.createClientHello(protocolVersion);
                     utils.setClientRandom((ClientHello) record);
                     workflow.applicationSend(record);
+                    workflow.updateHash(hashBuilder, record.getBytes());
                     logger.debug("R - Client hello sent");
                     state++;
                     break;
@@ -122,8 +135,9 @@ public final class Renegotiation extends AGenericFingerprintTest implements Obse
                     boolean shdreceived = false;
                     ArrayList<ARecordFrame> messages = workflow.getMessages();
                     if ((messages != null) && (messages.size() > 0)){
-                        logger.debug("Test: " + Utility.bytesToHex(messages.get(0).getPayload()));
-                        HandshakeEnumeration hse = new HandshakeEnumeration(messages.get(0).getPayload(), true, KeyExchangeParams.getInstance().getKeyExchangeAlgorithm());
+                        byte[] message = messages.get(0).getBytes();
+                        logger.debug("Test: " + Utility.bytesToHex(message));
+                        HandshakeEnumeration hse = new HandshakeEnumeration(message, true, KeyExchangeParams.getInstance().getKeyExchangeAlgorithm());
                         IHandshakeStates hsstate;
                         for(AHandshakeRecord a : hse.getMessages()){
                             records.add(a);
@@ -149,16 +163,29 @@ public final class Renegotiation extends AGenericFingerprintTest implements Obse
                 case CLIENT_CERTIFICATE_VERIFY:
                     record = msgBuilder.createClientKeyExchange(protocolVersion, workflow);
                     workflow.applicationSend(record);
+                    workflow.updateHash(hashBuilder, record.getBytes());
                     logger.debug("R - Client Key Exchange sent");
                     state += 3;
                     break;
                 case CLIENT_CHANGE_CIPHER_SPEC:
+                    workflow.resetMessageBuilder(); //todo
                     record = new ChangeCipherSpec(protocolVersion);
                     workflow.applicationSend(record);
                     logger.debug("R - Client Change Chipher Spec sent");
                     state++;
                     break;
                 case CLIENT_FINISHED:
+                    MasterSecret masterSec = msgBuilder.createMasterSecret(workflow);
+                    try {
+                        workflow.setHash(hashBuilder.getHandshakeMsgsHashes());
+                    } catch (DigestException e) {
+                        e.printStackTrace();
+                    }
+                    record = msgBuilder.createFinished(protocolVersion, EConnectionEnd.CLIENT, workflow.getHash(), masterSec);
+                    workflow.applicationSend(record);
+                    logger.debug("R - Finished message sent");
+                    state++;
+                    break;
                 case SERVER_CHANGE_CIPHER_SPEC:
                 case SERVER_FINISHED:
                     workflow.endApplicationPhase();

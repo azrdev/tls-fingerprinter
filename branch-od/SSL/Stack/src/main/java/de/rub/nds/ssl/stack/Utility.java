@@ -48,6 +48,10 @@ public final class Utility {
 
         return builder.toString();
     }
+    
+    public static String bytesToHex(final byte bytes){
+        return bytesToHex(new byte[]{bytes});
+    }
 
 //    public static String bytesToHex(byte[] array) {
 //        StringBuilder sb = new StringBuilder(200);

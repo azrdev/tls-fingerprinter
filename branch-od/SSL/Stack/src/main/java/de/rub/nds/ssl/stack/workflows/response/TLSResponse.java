@@ -148,7 +148,12 @@ public final class TLSResponse extends ARecordFrame implements Observer {
             case APPLICATION:
                 logger.debug("Encrypted server message: " + Utility.bytesToHex(response));
                 TLSCiphertext c = new TLSCiphertext(response, true);
+                logger.debug("Cipher content type: " + Utility.bytesToHex(c.getContentType().getId()));
                 TLSPlaintext p = workflow.getMessageBuilder().decryptRecord(c);
+                logger.debug("Plaintext fragment: " + Utility.bytesToHex(p.getFragment()));
+                logger.debug("Plaintext protocol version: " + Utility.bytesToHex(p.getProtocolVersion().getId()));
+                logger.debug("Plaintext content type: " + Utility.bytesToHex(new byte[]{p.getContentType().getId()}));
+                logger.debug("Plaintext bytes: " + Utility.bytesToHex(p.getBytes()));
                 p.encode(false);
                 if(p.getPayload().length > 0){
                     workflow.addMessage(p);

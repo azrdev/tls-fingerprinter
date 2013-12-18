@@ -339,6 +339,13 @@ public final class TLS10HandshakeWorkflow extends AWorkflow {
     public MessageBuilder getMessageBuilder(){
         return msgBuilder;
     }
+    
+    /**
+     * Reset message builder
+     */
+    public void resetMessageBuilder(){
+        msgBuilder = new MessageBuilder();
+    }
 
     /**
      * Poll the current state each 100 millis if the passed state is reached
@@ -482,6 +489,13 @@ public final class TLS10HandshakeWorkflow extends AWorkflow {
      */
     public byte[] getHash() {
         return this.handshakeHashes.clone();
+    }
+    
+    /**
+    * Set the handshake messages hash.
+    */
+    public void setHash(final byte[] hashes){
+        handshakeHashes = hashes;
     }
 
     /**
