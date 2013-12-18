@@ -27,7 +27,7 @@ public final class CheckEnumeration extends AGenericFingerprintTest {
 
         //set the test headerParameters
         HandshakeParams handshakeParams = new HandshakeParams();
-        handshakeParams.setIdentifier(EFingerprintTests.GOOD);
+//        handshakeParams.setIdentifier(EFingerprintTests.GOOD);
         handshakeParams.setDescription(desc);
 
         try {

@@ -228,6 +228,8 @@ public class MessageBuilder {
         SecurityParameters param = SecurityParameters.getInstance();
         //create the key material
         KeyMaterial keyMat = new KeyMaterial();
+        //logger.debug("Client key: " + Utility.bytesToHex(keyMat.getClientKey()));
+        //logger.debug("Client MAC Secret: " + Utility.bytesToHex(keyMat.getClientMACSecret()));
         //encrypt message
         String cipherName = param.getBulkCipherAlgorithm().toString();
         String macName = param.getMacAlgorithm().toString();

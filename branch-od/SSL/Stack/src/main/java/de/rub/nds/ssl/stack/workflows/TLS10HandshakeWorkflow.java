@@ -432,38 +432,41 @@ public final class TLS10HandshakeWorkflow extends AWorkflow {
             logger.debug("Message in hex: " + Utility.bytesToHex(msg));
         }
     }
-
+ 
     /**
-    * Prepare and send message in application phase
-    *
-    */
-    public void applicationSend(final byte[] message) throws IllegalStateException{
-        TLSPlaintext plain = msgBuilder.createApplication(protocolVersion, message);
-        plain.setCType(EContentType.APPLICATION);
-        applicationSend(plain);
-    }
-    
-    /**
-     * Prepare and send records in application phase
+     * Prepare and send records in application phase 
      * 
      * @param plain
      * @throws IllegalStateException 
      */
     
-    public void applicationSend(ARecordFrame plain) throws IllegalStateException{
-        if(runApplicationPhase){
+    public void applicationSendPlain(ARecordFrame plain) throws IllegalStateException{
+        logger.debug("Aufruf");
+        if(!runApplicationPhase){
+            throw new IllegalStateException("Workflow is currently not in the application phase.");
+        }else{
             MessageContainer trace = new MessageContainer();
-            TLSCiphertext c = msgBuilder.encryptRecord(protocolVersion, plain, plain.getContentType());
-            c.encode(true);
-            setRecordTrace(trace, c);
+            setRecordTrace(trace, plain);
             trace.prepare();
             try{
                 send(trace);
             }catch(IOException e){
                 //TODO
             }
-        }else
-            throw new IllegalStateException("Workflow is currently not in the application phase.");        
+        }
+    }
+    
+    /**
+     * Prepare, encrypt and send records in application phase 
+     * 
+     * @param plain
+     * @throws IllegalStateException 
+     */
+    
+    public void applicationSendEncrypted(ARecordFrame plain) throws IllegalStateException{
+        TLSCiphertext c = msgBuilder.encryptRecord(protocolVersion, plain, plain.getContentType());
+        c.encode(true);
+        applicationSendPlain(c);
     }
     
     /**

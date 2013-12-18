@@ -1,8 +1,10 @@
 package de.rub.nds.ssl.stack.workflows.commons;
 
+import de.rub.nds.ssl.stack.Utility;
 import de.rub.nds.ssl.stack.protocols.commons.EBulkCipherAlgorithm;
 import de.rub.nds.ssl.stack.protocols.commons.PseudoRandomFunction;
 import de.rub.nds.ssl.stack.protocols.commons.SecurityParameters;
+import org.apache.log4j.Logger;
 import java.security.InvalidKeyException;
 
 /**
@@ -12,6 +14,8 @@ import java.security.InvalidKeyException;
  * @version 0.1 Apr 13, 2012
  */
 public class KeyMaterial {
+    
+    private static Logger logger = Logger.getRootLogger();
 
     /**
      * Client-side MAC secret.
@@ -69,6 +73,12 @@ public class KeyMaterial {
         } catch (InvalidKeyException e) {
             e.printStackTrace();
         }
+        logger.debug("Client MAC Secret: " + Utility.bytesToHex(clientMACSecret));
+        logger.debug("Server MAC Secret: " + Utility.bytesToHex(serverMACSecret));
+        logger.debug("Client Key:        " + Utility.bytesToHex(clientKey));
+        logger.debug("Server Key:        " + Utility.bytesToHex(serverKey));
+        logger.debug("Client IV:         " + Utility.bytesToHex(clientIV));
+        logger.debug("Server IV:         " + Utility.bytesToHex(serverIV));
     }
 
     /**

@@ -34,8 +34,10 @@ import java.net.SocketException;
 import java.security.DigestException;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.Observable;
 import java.util.Observer;
+import java.util.Queue;
 
 /**
  * Execute the handshake with valid headerParameters.
@@ -53,14 +55,14 @@ public final class Renegotiation extends AGenericFingerprintTest implements Obse
     private ArrayList<ARecordFrame> msgBuffer;
     
     private int state = 0;
-    
-    private ArrayList<AHandshakeRecord> records;
-    
+     
     private HandshakeHashBuilder hashBuilder;
+    
+    private LinkedList<AHandshakeRecord> records;
 
     private TestResult executeHandshake(final String desc,
             final ECipherSuite[] suite) throws SocketException {
-        records = new ArrayList<AHandshakeRecord>();
+        records = new LinkedList<AHandshakeRecord>();
         msgBuffer = new ArrayList<ARecordFrame>();
         try {
             hashBuilder = new HandshakeHashBuilder();
@@ -122,7 +124,7 @@ public final class Renegotiation extends AGenericFingerprintTest implements Obse
                 case CLIENT_HELLO:
                     record = msgBuilder.createClientHello(protocolVersion);
                     utils.setClientRandom((ClientHello) record);
-                    workflow.applicationSend(record);
+                    workflow.applicationSendEncrypted(record);
                     workflow.updateHash(hashBuilder, record.getBytes());
                     logger.debug("R - Client hello sent");
                     state++;
@@ -138,19 +140,10 @@ public final class Renegotiation extends AGenericFingerprintTest implements Obse
                         byte[] message = messages.get(0).getBytes();
                         logger.debug("Test: " + Utility.bytesToHex(message));
                         HandshakeEnumeration hse = new HandshakeEnumeration(message, true, KeyExchangeParams.getInstance().getKeyExchangeAlgorithm());
-                        IHandshakeStates hsstate;
-                        for(AHandshakeRecord a : hse.getMessages()){
-                            records.add(a);
-                            if(a instanceof ServerHello){
-                                hsstate = new ServerHelloHandler();
-                                hsstate.handleResponse(a);
-                            }else if(a instanceof Certificate){
-                                hsstate = new CertificateHandler();
-                                hsstate.handleResponse(a);
-                            }else if(a instanceof ServerKeyExchange){
-                                hsstate = new ServerKeyExchangeHandler();
-                                hsstate.handleResponse(a);
-                            }else if(a instanceof ServerHelloDone){
+                        IHandshakeStates hsstate = null;
+                        for(AHandshakeRecord r : hse.getMessages()){
+                            records.addLast(r);
+                            if(r instanceof ServerHelloDone){
                                 shdreceived = true;
                             }
                         }
@@ -162,16 +155,30 @@ public final class Renegotiation extends AGenericFingerprintTest implements Obse
                 case CLIENT_KEY_EXCHANGE:
                 case CLIENT_CERTIFICATE_VERIFY:
                     record = msgBuilder.createClientKeyExchange(protocolVersion, workflow);
-                    workflow.applicationSend(record);
+                    workflow.applicationSendEncrypted(record);
                     workflow.updateHash(hashBuilder, record.getBytes());
                     logger.debug("R - Client Key Exchange sent");
                     state += 3;
                     break;
                 case CLIENT_CHANGE_CIPHER_SPEC:
-                    workflow.resetMessageBuilder(); //todo
                     record = new ChangeCipherSpec(protocolVersion);
-                    workflow.applicationSend(record);
+                    workflow.applicationSendEncrypted(record);
                     logger.debug("R - Client Change Chipher Spec sent");
+                    workflow.resetMessageBuilder();
+                    IHandshakeStates hsstate = null;
+                    while(!records.isEmpty()){
+                        AHandshakeRecord r = records.pollFirst();
+                        if(r instanceof ServerHello){
+                            hsstate = new ServerHelloHandler();
+                            hsstate.handleResponse(r);
+                        }else if(r instanceof Certificate){                           
+                            hsstate = new CertificateHandler();
+                            hsstate.handleResponse(r);
+                        }else if(r instanceof ServerKeyExchange){
+                            hsstate = new ServerKeyExchangeHandler();
+                            hsstate.handleResponse(r);
+                        }
+                    }
                     state++;
                     break;
                 case CLIENT_FINISHED:
@@ -182,7 +189,7 @@ public final class Renegotiation extends AGenericFingerprintTest implements Obse
                         e.printStackTrace();
                     }
                     record = msgBuilder.createFinished(protocolVersion, EConnectionEnd.CLIENT, workflow.getHash(), masterSec);
-                    workflow.applicationSend(record);
+                    workflow.applicationSendEncrypted(record);
                     logger.debug("R - Finished message sent");
                     state++;
                     break;

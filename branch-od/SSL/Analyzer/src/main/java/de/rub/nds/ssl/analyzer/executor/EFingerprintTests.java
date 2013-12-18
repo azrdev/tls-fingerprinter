@@ -17,7 +17,7 @@ import de.rub.nds.ssl.analyzer.fingerprinter.tests.CheckExtensions;
 import de.rub.nds.ssl.analyzer.fingerprinter.tests.FIN;
 import de.rub.nds.ssl.analyzer.fingerprinter.tests.FINHandshakeHeader;
 import de.rub.nds.ssl.analyzer.fingerprinter.tests.FINRecordHeader;
-import de.rub.nds.ssl.analyzer.fingerprinter.tests.GoodCase;
+//import de.rub.nds.ssl.analyzer.fingerprinter.tests.GoodCase;
 import de.rub.nds.ssl.analyzer.fingerprinter.tests.Renegotiation;
 
 /**
@@ -52,8 +52,8 @@ public enum EFingerprintTests {
     FINHandshakeHeader.class, TestHashAnalyzer.class),
     FIN_RH("Finished Message Record Header Test",
     FINRecordHeader.class, TestHashAnalyzer.class),
-    GOOD("Good Case - Clean Run Test",
-    GoodCase.class, TestHashAnalyzer.class),
+//    GOOD("Good Case - Clean Run Test",
+//    GoodCase.class, TestHashAnalyzer.class),
     HANDSHAKE_ENUM("Handshake Enumeration Test",
     CheckEnumeration.class, TestHashAnalyzer.class),
     BLEICHENBACHER_POSSIBLE("Bleichenbacher Vulnerability Test",
