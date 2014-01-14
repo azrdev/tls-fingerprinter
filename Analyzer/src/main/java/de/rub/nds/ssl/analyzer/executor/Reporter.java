@@ -70,8 +70,8 @@ public final class Reporter {
         for (ETLSImplementation impl : ETLSImplementation.values()) {
             tmpScore = scoreCounter.getScore(impl);
 
-            logger.info(String.format("%6s %% ( %2d / %2d ) same behaviour "
-                    + "as: %s", twoDForm.format((double) tmpScore
+            logger.info(String.format("%6s %% ( %2d / %2d ) match "
+                    + "with: %s", twoDForm.format((double) tmpScore
                     / (double) totalScore * 100), tmpScore, totalScore,
                     impl.name()));
         }
