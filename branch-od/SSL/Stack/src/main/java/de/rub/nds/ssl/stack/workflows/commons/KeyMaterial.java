@@ -73,12 +73,6 @@ public class KeyMaterial {
         } catch (InvalidKeyException e) {
             e.printStackTrace();
         }
-        logger.debug("Client MAC Secret: " + Utility.bytesToHex(clientMACSecret));
-        logger.debug("Server MAC Secret: " + Utility.bytesToHex(serverMACSecret));
-        logger.debug("Client Key:        " + Utility.bytesToHex(clientKey));
-        logger.debug("Server Key:        " + Utility.bytesToHex(serverKey));
-        logger.debug("Client IV:         " + Utility.bytesToHex(clientIV));
-        logger.debug("Server IV:         " + Utility.bytesToHex(serverIV));
     }
 
     /**

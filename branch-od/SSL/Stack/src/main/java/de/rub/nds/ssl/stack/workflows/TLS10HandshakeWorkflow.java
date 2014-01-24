@@ -441,7 +441,6 @@ public final class TLS10HandshakeWorkflow extends AWorkflow {
      */
     
     public void applicationSendPlain(ARecordFrame plain) throws IllegalStateException{
-        logger.debug("Aufruf");
         if(!runApplicationPhase){
             throw new IllegalStateException("Workflow is currently not in the application phase.");
         }else{
@@ -463,7 +462,9 @@ public final class TLS10HandshakeWorkflow extends AWorkflow {
      * @throws IllegalStateException 
      */
     
-    public void applicationSendEncrypted(ARecordFrame plain) throws IllegalStateException{
+    public void applicationSendEncrypted(ARecordFrame plain, boolean hashMessage) throws IllegalStateException{
+        if(hashMessage == true)
+            updateHash(hashBuilder, plain.getBytes());
         TLSCiphertext c = msgBuilder.encryptRecord(protocolVersion, plain, plain.getContentType());
         c.encode(true);
         applicationSendPlain(c);
@@ -483,6 +484,13 @@ public final class TLS10HandshakeWorkflow extends AWorkflow {
      */
     public void setPreMasterSecret(final PreMasterSecret pms) {
         this.pms = pms;
+    }
+    
+    /**
+     * Get the hash builder
+     */
+    public HandshakeHashBuilder getHashBuilder(){
+        return this.hashBuilder;
     }
 
     /**
@@ -596,7 +604,9 @@ public final class TLS10HandshakeWorkflow extends AWorkflow {
             return;
         }
         //hash current record
-        updateHash(hashBuilder, response.getCurrentRecordBytes());
+        if(!runApplicationPhase){
+            updateHash(hashBuilder, response.getCurrentRecordBytes());
+        }
         Thread.currentThread().interrupt();
     }
 }

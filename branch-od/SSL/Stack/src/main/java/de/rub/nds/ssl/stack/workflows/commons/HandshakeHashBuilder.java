@@ -56,4 +56,9 @@ public class HandshakeHashBuilder {
         sha1.digest(handshakeHashes, md5Length, sha1Length);
         return handshakeHashes;
     }
+    
+    public final void reset(){
+        md5.reset();
+        sha1.reset();
+    }
 }

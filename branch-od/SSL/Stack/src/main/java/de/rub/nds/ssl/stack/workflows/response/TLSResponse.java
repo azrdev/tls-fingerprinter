@@ -146,24 +146,27 @@ public final class TLSResponse extends ARecordFrame implements Observer {
                 }
                 break;
             case APPLICATION:
-                logger.debug("Encrypted server message: " + Utility.bytesToHex(response));
                 TLSCiphertext c = new TLSCiphertext(response, true);
-                logger.debug("Cipher content type: " + Utility.bytesToHex(c.getContentType().getId()));
-                TLSPlaintext p = workflow.getMessageBuilder().decryptRecord(c);
-                logger.debug("Plaintext fragment: " + Utility.bytesToHex(p.getFragment()));
-                logger.debug("Plaintext protocol version: " + Utility.bytesToHex(p.getProtocolVersion().getId()));
-                logger.debug("Plaintext content type: " + Utility.bytesToHex(new byte[]{p.getContentType().getId()}));
-                logger.debug("Plaintext bytes: " + Utility.bytesToHex(p.getBytes()));
+                TLSPlaintext p;
+                try{
+                    p = workflow.getMessageBuilder().decryptRecord(c);                    
+                }catch(Exception e){
+                    workflow.addMessage(c);
+                    return;
+                }
                 p.encode(false);
                 if(p.getPayload().length > 0){
+                    workflow.updateHash(workflow.getHashBuilder(), p.getBytes());
                     workflow.addMessage(p);
                 }else
                     logger.debug("Empty message in application phase received.");
+                /*
                 byte[] hex = p.getPayload().clone();
                 StringBuilder sb = new StringBuilder();
                 for(int i = 0; i < hex.length; i++)
                     sb.append((char)hex[i]);            
                 logger.debug("Server message: " + sb.toString());
+                */
                 break;
             default:
                 break;
