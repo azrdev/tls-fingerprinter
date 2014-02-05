@@ -15,7 +15,6 @@ import de.rub.nds.ssl.stack.protocols.msgs.TLSPlaintext;
 import de.rub.nds.ssl.stack.trace.MessageContainer;
 import de.rub.nds.ssl.stack.workflows.TLS10HandshakeWorkflow;
 import de.rub.nds.ssl.stack.workflows.TLS10HandshakeWorkflow.EStates;
-import de.rub.nds.ssl.stack.workflows.commons.MessageBuilder;
 import java.util.Observable;
 import java.util.Observer;
 import org.apache.log4j.Logger;
@@ -24,7 +23,10 @@ import org.apache.log4j.Logger;
  * A response during the TLS protocol processing.
  *
  * @author Eugen Weiss - eugen.weiss@ruhr-uni-bochum.de
- * @version 0.1 Apr 15, 2012
+ * @author Oliver Domke - oliver.domke@ruhr-uni-bochum.de
+ * @version 0.2
+ * 
+ * Feb 05, 2014
  */
 public final class TLSResponse extends ARecordFrame implements Observer {
 // TODO: Ugly and confusing class! Needs to be corrected!

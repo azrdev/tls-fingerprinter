@@ -10,9 +10,10 @@ import de.rub.nds.ssl.stack.protocols.commons.EProtocolVersion;
  * Record Layer for the SSL/TLS Protocol
  *
  * @author Christopher Meyer - christopher.meyer@rub.de
- * @version 0.1
+ * @author Oliver Domke - oliver.domke@ruhr-uni-bochum.de
+ * @version 0.2
  *
- * Nov 14, 2011
+ * Feb 05, 2014
  */
 public abstract class ARecordFrame extends APubliclySerializable {
 

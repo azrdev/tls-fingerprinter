@@ -13,7 +13,6 @@ import de.rub.nds.ssl.analyzer.fingerprinter.tests.CKE;
 import de.rub.nds.ssl.analyzer.fingerprinter.tests.CKEHandshakeHeader;
 import de.rub.nds.ssl.analyzer.fingerprinter.tests.CKERecordHeader;
 import de.rub.nds.ssl.analyzer.fingerprinter.tests.CheckEnumeration;
-import de.rub.nds.ssl.analyzer.fingerprinter.tests.CheckExtensions;
 import de.rub.nds.ssl.analyzer.fingerprinter.tests.FIN;
 import de.rub.nds.ssl.analyzer.fingerprinter.tests.FINHandshakeHeader;
 import de.rub.nds.ssl.analyzer.fingerprinter.tests.FINRecordHeader;
@@ -24,9 +23,10 @@ import de.rub.nds.ssl.analyzer.fingerprinter.tests.Renegotiation;
  * Listing of all available Fingerprinting tests.
  *
  * @author Christopher Meyer - christopher.meyer@rub.de
- * @version 0.1
+ * @author Oliver Domke - oliver.domke@ruhr-uni-bochum.de
+ * @version 0.2
  *
- * Jan 13, 2013
+ * Feb 05, 2014
  */
 public enum EFingerprintTests {
 

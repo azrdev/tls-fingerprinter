@@ -16,7 +16,10 @@ import javax.crypto.spec.IvParameterSpec;
  * Block cipher encryption and MAC computation.
  *
  * @author Eugen Weiss - eugen.weiss@ruhr-uni-bochum.de
- * @version 0.1 Apr 21, 2012
+ * @author Oliver Domke - oliver.domke@ruhr-uni-bochum.de
+ * @version 0.2
+ * 
+ * Feb 05, 2014
  */
 public class GenericBlockCipher extends APubliclySerializable implements
         IGenericCipher {

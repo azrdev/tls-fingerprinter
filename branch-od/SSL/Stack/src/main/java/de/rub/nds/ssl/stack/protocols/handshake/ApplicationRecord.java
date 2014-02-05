@@ -7,10 +7,10 @@ import de.rub.nds.ssl.stack.protocols.commons.EProtocolVersion;
 /**
  * Defines all Application Messages of SSL/TLS
  *
- * @author Oliver Domke - oliver.domke@rub.de
+ * @author Oliver Domke - oliver.domke@ruhr-uni-bochum.de
  * @version 0.1
  *
- * Aug 15, 2013
+ * Feb 05, 2014
  */
 public class ApplicationRecord extends ARecordFrame {
 

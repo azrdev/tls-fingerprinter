@@ -1,6 +1,5 @@
 package de.rub.nds.ssl.stack.crypto;
 
-import de.rub.nds.ssl.stack.Utility;
 import java.nio.ByteBuffer;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
@@ -12,8 +11,10 @@ import org.apache.log4j.Logger;
  * MAC computation of the record payloads.
  *
  * @author Eugen Weiss - eugen.weiss@ruhr-uni-bochum.de
+ * @author Oliver Domke - oliver.domke@ruhr-uni-bochum.de
+ * @version 0.2
  *
- * Mar 22, 2012
+ * Feb 05, 2014
  */
 public class MACComputation {
 
@@ -28,7 +29,7 @@ public class MACComputation {
     /**
      * Sequence number.
      */
-    private int seqNum = 0;
+    private long seqNum = 0;
     /**
      * Initialize MAC with its properties.
      *
@@ -94,7 +95,7 @@ public class MACComputation {
     }
     
     private byte[] getSequenceNumber(){
-        return ByteBuffer.allocate(8).putInt(4, seqNum).array();
+        return ByteBuffer.allocate(8).putLong(seqNum).array();
     }
 
     public void decreaseSequenceNumber(){

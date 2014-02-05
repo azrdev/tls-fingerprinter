@@ -6,13 +6,11 @@ import de.rub.nds.ssl.stack.protocols.ARecordFrame;
 import de.rub.nds.ssl.stack.protocols.commons.EConnectionEnd;
 import de.rub.nds.ssl.stack.protocols.commons.EContentType;
 import de.rub.nds.ssl.stack.protocols.commons.EProtocolVersion;
-import de.rub.nds.ssl.stack.protocols.handshake.ApplicationRecord;
 import de.rub.nds.ssl.stack.protocols.handshake.ClientHello;
 import de.rub.nds.ssl.stack.protocols.handshake.datatypes.MasterSecret;
 import de.rub.nds.ssl.stack.protocols.handshake.datatypes.PreMasterSecret;
 import de.rub.nds.ssl.stack.protocols.msgs.ChangeCipherSpec;
 import de.rub.nds.ssl.stack.protocols.msgs.TLSCiphertext;
-import de.rub.nds.ssl.stack.protocols.msgs.TLSPlaintext;
 import de.rub.nds.ssl.stack.trace.MessageContainer;
 import de.rub.nds.ssl.stack.workflows.commons.ESupportedSockets;
 import de.rub.nds.ssl.stack.workflows.commons.HandshakeHashBuilder;
@@ -40,7 +38,10 @@ import org.apache.log4j.Logger;
  *
  * @author Eugen Weiss - eugen.weiss@ruhr-uni-bochum.de
  * @author Christopher Meyer - christopher.meyer@rub.de
- * @version 0.1 Apr 13, 2012
+ * @author Oliver Domke - oliver.domke@ruhr-uni-bochum.de
+ * @version 0.2
+ * 
+ * Feb 05, 2014
  */
 public final class TLS10HandshakeWorkflow extends AWorkflow {
 

@@ -19,7 +19,16 @@ import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
 import org.apache.log4j.Logger;
 
-public class GoodTLSServer extends Thread{
+/**
+ * Unsafe Renegotiation TLS Test Server
+ *
+ * @author Oliver Domke - oliver.domke@ruhr-uni-bochum.de
+ * @version 0.1
+ * 
+ * Feb 05, 2014
+ */
+
+public class UnsafeRenegotiationTestTLSServer extends Thread{
 
     private volatile boolean running;
     
@@ -35,7 +44,9 @@ public class GoodTLSServer extends Thread{
     public final SecureRandom rng;
     public KeyStore keyStore;
     
-    public GoodTLSServer(InetAddress sA, int sP, String serverKeyStoreName, String serverPasswd){
+    public UnsafeRenegotiationTestTLSServer(InetAddress sA, int sP, String serverKeyStoreName, String serverPasswd){
+        System.setProperty("sun.security.ssl.allowUnsafeRenegotiation", "true");
+                
         serverAddr = sA;
         serverPort = sP;
         keyStoreName = serverKeyStoreName;

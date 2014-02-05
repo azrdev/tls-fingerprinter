@@ -32,10 +32,12 @@ import java.util.Observable;
 import java.util.Observer;
 
 /**
- * Execute the handshake with valid headerParameters.
+ * Execute renegotiation test
  *
- * @author Eugen Weiss - eugen.weiss@ruhr-uni-bochum.de
- * @version 0.1 Jun 30, 2012
+ * @author Oliver Domke - oliver.domke@ruhr-uni-bochum.de
+ * @version 0.1
+ * 
+ * Feb 05, 2014
  */
 public final class Renegotiation extends AGenericFingerprintTest implements Observer {
 
@@ -179,6 +181,13 @@ public final class Renegotiation extends AGenericFingerprintTest implements Obse
                     state++;
                     break;
                 case SERVER_CHANGE_CIPHER_SPEC:
+                    messages = workflow.getMessages();
+                    if ((messages != null) && (messages.size() > 0)){
+                        byte[] message = messages.get(0).getBytes();
+                        if(message[0] == EContentType.CHANGE_CIPHER_SPEC.getId())
+                            state++;
+                    }
+                    break;
                 case SERVER_FINISHED:
                     messages = workflow.getMessages();
                     if ((messages != null) && (messages.size() > 0)){
@@ -186,18 +195,27 @@ public final class Renegotiation extends AGenericFingerprintTest implements Obse
                         if(message[0] == EContentType.HANDSHAKE.getId()){
                             String txt = "test";
                             workflow.applicationSendEncrypted(msgBuilder.createApplication(protocolVersion, txt.getBytes()), false);
-                            logger.debug("Renegotiation possible.");
+                            printResult(true);
                             workflow.endApplicationPhase();
                         }
                     }
                     break;
                 case ALERT:
-                    logger.debug("Renegotiation not possible.");
+                    printResult(false);
                     workflow.endApplicationPhase();
                     break;
             }
         }
 
+    }
+    
+    /**
+     * print result
+     */
+    public void printResult(boolean works){
+        logger.info("########################################################################\n"
+        + "Renegotiation " + ((!works) ? "not " : "") + "possible!\n" +
+        "########################################################################");
     }
 
     /**

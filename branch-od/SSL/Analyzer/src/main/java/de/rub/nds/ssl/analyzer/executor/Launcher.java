@@ -10,7 +10,6 @@ import java.io.IOException;
 import java.net.ConnectException;
 import java.net.Socket;
 import java.net.URL;
-import java.net.URLConnection;  
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
@@ -18,17 +17,16 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import javax.net.SocketFactory;
-import javax.net.ssl.HttpsURLConnection;
-import javax.net.ssl.SSLSocket;
 import org.apache.log4j.Logger;
 
 /**
  * Launcher service.
  *
  * @author Christopher Meyer - christopher.meyer@rub.de
- * @version 0.1
+ * @author Oliver Domke - oliver.domke@ruhr-uni-bochum.de
+ * @version 0.2
  *
- * Jan 16, 2013
+ * Feb 05, 2014
  */
 public abstract class Launcher {
 
