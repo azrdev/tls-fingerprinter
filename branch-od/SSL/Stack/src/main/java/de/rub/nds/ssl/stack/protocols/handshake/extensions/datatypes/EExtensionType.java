@@ -9,10 +9,9 @@ import java.util.Map;
  * http://www.iana.org/assignments/tls-extensiontype-values/tls-extensiontype-values.xml)
  *
  * @author Christopher Meyer - christopher.meyer@rub.de
- * @author Oliver Domke - oliver.domke@ruhr-uni-bochum.de
- * @version 0.2
+ * @version 0.1
  *
- * Feb 05, 2014
+ * Feb 04, 2013
  */
 public enum EExtensionType{
 

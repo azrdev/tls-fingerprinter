@@ -314,15 +314,27 @@ public final class TLS10HandshakeWorkflow extends AWorkflow {
     }
     
     /**
-     * Get current messages
+     * Get current messages and remove them from the list
      */
     
     public ArrayList<ARecordFrame> getMessages(){
-        if((responses == null) || responses.size() == 0)
+        if((responses == null) || (responses.size() == 0))
             return null;
         ArrayList<ARecordFrame> result = new ArrayList<ARecordFrame>(responses.size());
         result.addAll(responses);
         responses.clear();
+        return result;
+    }
+    
+    /**
+     * Get first message from message list and remove it from the list
+     */
+    
+    public ARecordFrame getFirstMessage(){
+        if((responses == null) || responses.size() == 0)
+            return null;
+        ARecordFrame result = responses.get(0);
+        responses.remove(0);
         return result;
     }
     

@@ -19,8 +19,11 @@ public class Launcher {
      * @param args key store path, password, protocol version, port
      */
     public static void main(String[] args) throws Exception {
-        if((args.length == 1) && (args[0].trim().equalsIgnoreCase("LocalRenegotiation"))){
-            final UnsafeRenegotiationTestTLSServer serverThread = new UnsafeRenegotiationTestTLSServer(InetAddress.getLocalHost(), 8000, "keystore.jks", "server");
+        //Key store path, Password, Port, Allow unsecure renegotiation
+        if(args.length == 4){
+            int port = Integer.parseInt(args[2]);
+            boolean allowUnsafeRenegoriation = args[3].trim().equalsIgnoreCase("true");
+            final UnsafeRenegotiationTestTLSServer serverThread = new UnsafeRenegotiationTestTLSServer(InetAddress.getLocalHost(), port, args[0], args[1], allowUnsafeRenegoriation);
             Runtime.getRuntime().addShutdownHook(new Thread() {
                 @Override
                 public void run() {
@@ -48,7 +51,7 @@ public class Launcher {
         }else{
             System.out.println("Invalid number of arguments!\n"
                     + "Usage: java -jar TinyTLSServer.jar Key store path, Password, Protocol version, Port, Debug mode enabled\n"
-                    + "Usage: java -jar TinyTLSServer.jar LocalRenegotiation"
+                    + "Usage: java -jar TinyTLSServer.jar Key store path, Password, Port, Allow unsecure renegotiation"
             );
         }
     }

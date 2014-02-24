@@ -122,14 +122,17 @@ public final class Renegotiation extends AGenericFingerprintTest implements Obse
                 case SERVER_CERTIFICATE_REQUEST:
                 case SERVER_HELLO_DONE:
                     boolean shdreceived = false;
-                    ArrayList<ARecordFrame> messages = workflow.getMessages();
-                    if ((messages != null) && (messages.size() > 0)){
-                        byte[] message = messages.get(0).getBytes();
-                        if(message[0] == EContentType.ALERT.getId()){
+                    ARecordFrame message = workflow.getFirstMessage();
+                    if(message != null){
+                        //Ignore possible welcome messages.
+                        if(message.getBytes()[0] == EContentType.APPLICATION.getId())
+                            return;
+
+                        if(message.getBytes()[0] == EContentType.ALERT.getId()){
                             state = EStates.ALERT.getID();
                             return;
                         }
-                        HandshakeEnumeration hse = new HandshakeEnumeration(message, true, KeyExchangeParams.getInstance().getKeyExchangeAlgorithm());
+                        HandshakeEnumeration hse = new HandshakeEnumeration(message.getBytes(), true, KeyExchangeParams.getInstance().getKeyExchangeAlgorithm());
                         IHandshakeStates hsstate = null;
                         for(AHandshakeRecord r : hse.getMessages()){
                             records.addLast(r);
@@ -181,18 +184,16 @@ public final class Renegotiation extends AGenericFingerprintTest implements Obse
                     state++;
                     break;
                 case SERVER_CHANGE_CIPHER_SPEC:
-                    messages = workflow.getMessages();
-                    if ((messages != null) && (messages.size() > 0)){
-                        byte[] message = messages.get(0).getBytes();
-                        if(message[0] == EContentType.CHANGE_CIPHER_SPEC.getId())
+                    message = workflow.getFirstMessage();
+                    if (message != null){
+                        if(message.getBytes()[0] == EContentType.CHANGE_CIPHER_SPEC.getId())
                             state++;
                     }
                     break;
                 case SERVER_FINISHED:
-                    messages = workflow.getMessages();
-                    if ((messages != null) && (messages.size() > 0)){
-                        byte[] message = messages.get(0).getBytes();
-                        if(message[0] == EContentType.HANDSHAKE.getId()){
+                    message = workflow.getFirstMessage();
+                    if (message != null){
+                        if(message.getBytes()[0] == EContentType.HANDSHAKE.getId()){
                             String txt = "test";
                             workflow.applicationSendEncrypted(msgBuilder.createApplication(protocolVersion, txt.getBytes()), false);
                             printResult(true);

@@ -10,15 +10,10 @@ import java.security.InvalidKeyException;
  * Creation of the key material for message security.
  *
  * @author Eugen Weiss - eugen.weiss@ruhr-uni-bochum.de
- * @author Oliver Domke - oliver.domke@ruhr-uni-bochum.de
- * @version 0.2
- * 
- * Feb 05, 2014
+ * @version 0.1 Apr 13, 2012 
  */
 public class KeyMaterial {
     
-    private static Logger logger = Logger.getRootLogger();
-
     /**
      * Client-side MAC secret.
      */

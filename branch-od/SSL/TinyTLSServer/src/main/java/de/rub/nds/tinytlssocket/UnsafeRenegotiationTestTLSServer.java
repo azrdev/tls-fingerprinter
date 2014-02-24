@@ -44,8 +44,9 @@ public class UnsafeRenegotiationTestTLSServer extends Thread{
     public final SecureRandom rng;
     public KeyStore keyStore;
     
-    public UnsafeRenegotiationTestTLSServer(InetAddress sA, int sP, String serverKeyStoreName, String serverPasswd){
-        System.setProperty("sun.security.ssl.allowUnsafeRenegotiation", "true");
+    public UnsafeRenegotiationTestTLSServer(InetAddress sA, int sP, String serverKeyStoreName, String serverPasswd, boolean allowUnsafeRenegotiation){
+        if(allowUnsafeRenegotiation)
+            System.setProperty("sun.security.ssl.allowUnsafeRenegotiation", "true");
                 
         serverAddr = sA;
         serverPort = sP;
@@ -96,7 +97,6 @@ public class UnsafeRenegotiationTestTLSServer extends Thread{
             serverSocket = (SSLServerSocket)ssf.createServerSocket(serverPort);
             serverSocket.setEnabledCipherSuites(new String[]{"TLS_RSA_WITH_AES_128_CBC_SHA"});
             serverSocket.setReuseAddress(true);
-            //serverSocket.bind(new InetSocketAddress(serverAddr, serverPort), 128);
         }catch(IOException e){
             e.printStackTrace();
             try{

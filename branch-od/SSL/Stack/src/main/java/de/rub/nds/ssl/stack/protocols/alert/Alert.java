@@ -131,9 +131,6 @@ public class Alert extends ARecordFrame {
      */
     public final void setAlertDescription(final byte description) {
         this.desc = EAlertDescription.getAlertDescription(description);
-        // to make sure renegotiation tests can react to alertcode 100 (level: warning),
-        // it is changed to fatal level
-        this.level = EAlertLevel.FATAL;
     }
 
     /**
