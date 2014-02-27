@@ -2,7 +2,6 @@ package de.rub.nds.ssl.analyzer.fingerprinter.tests;
 
 import de.rub.nds.ssl.analyzer.TestResult;
 import de.rub.nds.ssl.analyzer.executor.EFingerprintTests;
-import de.rub.nds.ssl.stack.protocols.ARecordFrame;
 import de.rub.nds.ssl.stack.protocols.commons.ECipherSuite;
 import de.rub.nds.ssl.stack.protocols.handshake.ClientHello;
 import de.rub.nds.ssl.stack.protocols.handshake.datatypes.CipherSuites;
@@ -13,7 +12,6 @@ import de.rub.nds.ssl.stack.workflows.TLS10HandshakeWorkflow.EStates;
 import de.rub.nds.ssl.stack.workflows.commons.MessageBuilder;
 import de.rub.nds.ssl.stack.workflows.commons.ObservableBridge;
 import java.net.SocketException;
-import java.util.ArrayList;
 import java.util.Observable;
 import java.util.Observer;
 
@@ -29,22 +27,15 @@ public final class GoodCase extends AGenericFingerprintTest implements Observer 
      * Cipher suite.
      */
     private ECipherSuite[] suite;
-    private int blub = 0;
-    
-    private ArrayList<byte[]> messages;
 
     private TestResult executeHandshake(final String desc,
             final ECipherSuite[] suite) throws SocketException {
-        messages = new ArrayList<byte[]>();
         logger.info("++++Start Test No." + counter + "(" + desc + ")++++");
-        workflow = new TLS10HandshakeWorkflow(true);
+        workflow = new TLS10HandshakeWorkflow();
         workflow.connectToTestServer(getTargetHost(), getTargetPort());
         logger.info("Test Server: " + getTargetHost() + ":" + getTargetPort());
         workflow.addObserver(this, EStates.CLIENT_HELLO);
-        workflow.addObserver(this, EStates.APPLICATION);
-        workflow.addObserver(this, EStates.APPLICATION_PING);
         this.suite = suite;
-        
 
         //set the test headerParameters
         headerParameters.setIdentifier(EFingerprintTests.GOOD);
@@ -91,17 +82,7 @@ public final class GoodCase extends AGenericFingerprintTest implements Observer 
                     suites.encode(false), new byte[]{0x00});
             trace.setCurrentRecord(clientHello);
         }
-       
-        if(states == EStates.APPLICATION_PING){
-            ArrayList<ARecordFrame> tmpMsgs = workflow.getMessages();
-            if(tmpMsgs != null){
-                //messages.addAll(tmpMsgs);
-                String s = "Hello Server";
-                workflow.applicationSend(s.getBytes());
-                workflow.endApplicationPhase();                    
-            }
-                
-        }
+
     }
 
     /**
