@@ -288,8 +288,8 @@ public final class TLS10HandshakeWorkflow extends AWorkflow {
                         endApplicationPhase();
                     }
                 }
-            }
-            logger.debug("<<< Application phase finished");
+                logger.debug("<<< Application phase finished");
+            }            
             fetcher.stopFetching();
         } catch (IOException e) {
             logger.debug("### Connection reset by peer.");
