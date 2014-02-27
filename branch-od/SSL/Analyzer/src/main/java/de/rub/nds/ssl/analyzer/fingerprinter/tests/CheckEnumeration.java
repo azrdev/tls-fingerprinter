@@ -20,14 +20,14 @@ public final class CheckEnumeration extends AGenericFingerprintTest {
         String desc = "Check Handshake Enum";
 
         logger.info("++++Start Test No." + counter + "(" + desc + ")++++");
-        workflow = new TLS10HandshakeWorkflow(false);
+        workflow = new TLS10HandshakeWorkflow();
         //connect to test server
         workflow.connectToTestServer(getTargetHost(), getTargetPort());
         logger.info("Test Server: " + getTargetHost() + ":" + getTargetPort());
 
         //set the test headerParameters
         HandshakeParams handshakeParams = new HandshakeParams();
-//        handshakeParams.setIdentifier(EFingerprintTests.GOOD);
+        handshakeParams.setIdentifier(EFingerprintTests.GOOD);
         handshakeParams.setDescription(desc);
 
         try {
