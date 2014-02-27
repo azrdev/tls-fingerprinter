@@ -58,6 +58,7 @@ public final class CKEHandshakeHeader extends AGenericFingerprintTest implements
     @Override
     public void update(final Observable o, final Object arg) {
         MessageBuilder msgBuilder = new MessageBuilder();
+        //MessageBuilder msgBuilder = workflow.getMessageBuilder();
         MessageContainer trace = null;
         EStates states = null;
         ObservableBridge obs;

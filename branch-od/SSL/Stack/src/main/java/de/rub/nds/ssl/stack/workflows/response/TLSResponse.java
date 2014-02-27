@@ -90,11 +90,15 @@ public final class TLSResponse extends ARecordFrame implements Observer {
             case ALERT:
                 Alert alert = null;
                 if(workflow.isEncrypted()){
-                    TLSCiphertext c = new TLSCiphertext(response, true);
-                    TLSPlaintext p = workflow.getMessageBuilder().decryptRecord(c);
-                    p.encode(false);
-                    logger.debug("Encrypted alert: " + Utility.bytesToHex(p.getPayload()));
-                    alert = new Alert(p.getPayload(), false);
+                     try{
+                        TLSCiphertext c = new TLSCiphertext(response, true);
+                        TLSPlaintext p = workflow.getMessageBuilder().decryptRecord(c);
+                        p.encode(false);
+                        logger.debug("Encrypted alert: " + Utility.bytesToHex(p.getPayload()));
+                        alert = new Alert(p.getPayload(), false);
+                    }catch(Exception e){
+                        alert = new Alert(response, true);
+                    }
                 }
                 else{
                     alert = new Alert(response, true);

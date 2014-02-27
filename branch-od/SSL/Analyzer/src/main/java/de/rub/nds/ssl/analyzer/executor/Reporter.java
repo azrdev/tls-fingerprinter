@@ -4,6 +4,7 @@ import de.rub.nds.ssl.analyzer.AnalyzerResult;
 import de.rub.nds.ssl.analyzer.fingerprinter.ETLSImplementation;
 import de.rub.nds.ssl.analyzer.fingerprinter.ScoreCounter;
 import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
 import org.apache.log4j.Logger;
 
 /**
@@ -65,7 +66,9 @@ public final class Reporter {
         
         // output results
         int tmpScore;
-        DecimalFormat twoDForm = new DecimalFormat("###.##");
+        DecimalFormatSymbols symbols = DecimalFormatSymbols.getInstance();
+        symbols.setDecimalSeparator('.');
+        DecimalFormat twoDForm = new DecimalFormat("###.##", symbols);
         for (ETLSImplementation impl : ETLSImplementation.values()) {
             tmpScore = scoreCounter.getScore(impl);
             logger.info(impl.name() + ": " + tmpScore + " - " + Double.valueOf(

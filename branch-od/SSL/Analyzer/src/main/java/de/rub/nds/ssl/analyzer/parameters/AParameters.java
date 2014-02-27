@@ -2,6 +2,7 @@ package de.rub.nds.ssl.analyzer.parameters;
 
 import de.rub.nds.ssl.analyzer.executor.EFingerprintTests;
 import java.security.MessageDigest;
+import org.apache.log4j.Logger;
 
 /**
  * Test Parameters for fingerprint analysis.
