@@ -4,7 +4,9 @@ import de.rub.nds.ssl.stack.protocols.commons.ECipherSuite;
 import de.rub.nds.ssl.stack.protocols.commons.EProtocolVersion;
 import de.rub.nds.ssl.stack.protocols.handshake.ClientHello;
 import de.rub.nds.ssl.stack.protocols.handshake.datatypes.Extensions;
+import de.rub.nds.ssl.stack.protocols.handshake.extensions.AExtension;
 import de.rub.nds.ssl.stack.protocols.handshake.extensions.datatypes.EExtensionType;
+
 import java.util.Arrays;
 
 public class ClientHelloFingerprint {
@@ -12,7 +14,7 @@ public class ClientHelloFingerprint {
     private EProtocolVersion msgProtocolVersion;
     private ECipherSuite[] cipherSuites;
     private byte[] compressionMethod;
-    private EExtensionType[] extensions;
+    private AExtension[] extensions;
 
     public ClientHelloFingerprint(ClientHello hello) {
         this.msgProtocolVersion = hello.getMessageProtocolVersion();
