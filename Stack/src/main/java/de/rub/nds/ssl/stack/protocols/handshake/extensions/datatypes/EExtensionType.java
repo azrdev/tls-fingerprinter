@@ -113,7 +113,7 @@ public enum EExtensionType {
         byte[] id;
         for (EExtensionType tmp : EExtensionType.values()) {
             id = tmp.getId();
-            ID_MAP.put(id[0] << Utility.BITS_IN_BYTE | id[1] & 0xff, tmp);
+            ID_MAP.put((id[0]&0xff) << Utility.BITS_IN_BYTE | id[1] & 0xff, tmp);
         }
     }
 
@@ -164,10 +164,10 @@ public enum EExtensionType {
                     + LENGTH_ENCODED + " bytes.");
         }
 
-        extension = id[0] << Utility.BITS_IN_BYTE | id[1] & 0xff;
+        extension = (id[0]&0xff) << Utility.BITS_IN_BYTE | id[1] & 0xff;
 
         if (!ID_MAP.containsKey(extension)) {
-            throw new IllegalArgumentException("No such extension.");
+            throw new IllegalArgumentException("No such extension: " + extension);
         }
 
         return ID_MAP.get(extension);
