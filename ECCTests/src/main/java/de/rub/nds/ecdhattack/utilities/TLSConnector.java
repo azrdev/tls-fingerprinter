@@ -48,7 +48,7 @@ public class TLSConnector implements Observer {
             throws SocketException, InterruptedException {
         nastyPoint = passedNastyPoint;
 
-        TLS10HandshakeWorkflow workflow = new TLS10HandshakeWorkflow();
+        TLS10HandshakeWorkflow workflow = new TLS10HandshakeWorkflow(false);
         workflow.connectToTestServer(host, port);
         workflow.addObserver(this,
                 TLS10HandshakeWorkflow.EStates.CLIENT_HELLO);

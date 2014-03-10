@@ -83,7 +83,6 @@ public class VisualAnalyzer extends javax.swing.JFrame {
         attackTargetsButton = new javax.swing.JButton();
         targetListLabel = new javax.swing.JLabel();
         uncheckTestsButton = new javax.swing.JButton();
-        renegotiationButton = new javax.swing.JButton();
 
         errorDialog.setMinimumSize(new java.awt.Dimension(300, 120));
         errorDialog.setModal(true);
@@ -259,13 +258,6 @@ public class VisualAnalyzer extends javax.swing.JFrame {
             }
         });
 
-        renegotiationButton.setText("Uncheck tests except renegotiation");
-        renegotiationButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                renegotiationButtonActionPerformed(evt);
-            }
-        });
-
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -282,8 +274,7 @@ public class VisualAnalyzer extends javax.swing.JFrame {
                             .addComponent(openListButton, javax.swing.GroupLayout.DEFAULT_SIZE, 207, Short.MAX_VALUE)
                             .addComponent(attackTargetsButton, javax.swing.GroupLayout.DEFAULT_SIZE, 207, Short.MAX_VALUE)
                             .addComponent(scanTargetsButton, javax.swing.GroupLayout.DEFAULT_SIZE, 207, Short.MAX_VALUE)
-                            .addComponent(uncheckTestsButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(renegotiationButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                            .addComponent(uncheckTestsButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
                     .addComponent(targetListLabel))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
@@ -293,19 +284,17 @@ public class VisualAnalyzer extends javax.swing.JFrame {
                 .addContainerGap()
                 .addComponent(targetListLabel)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(attackTargetsButton)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(scanTargetsButton)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(uncheckTestsButton)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(renegotiationButton)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(openListButton))
                     .addComponent(targetListScrollPane, javax.swing.GroupLayout.PREFERRED_SIZE, 135, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGap(10, 10, 10)
                 .addComponent(tabbedPane, javax.swing.GroupLayout.PREFERRED_SIZE, 262, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 99, Short.MAX_VALUE)
                 .addComponent(progressBar, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
@@ -383,13 +372,6 @@ public class VisualAnalyzer extends javax.swing.JFrame {
             x.setValueAt(false, i, 1);
         x.fireTableDataChanged();
     }//GEN-LAST:event_uncheckTestsButtonActionPerformed
-
-    private void renegotiationButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_renegotiationButtonActionPerformed
-        ScannerConfigurationData x = (ScannerConfigurationData)scannerConfigurationTable.getModel();
-        for(int i = 0; i < x.getRowCount()-1; i++)
-            x.setValueAt(false, i, 1);
-        x.fireTableDataChanged();
-    }//GEN-LAST:event_renegotiationButtonActionPerformed
 
     private void createErrorDialog(final String title, final String message) {
         errorDialog.setTitle(title);
@@ -489,7 +471,6 @@ public class VisualAnalyzer extends javax.swing.JFrame {
     private javax.swing.JPanel outputPanel;
     private javax.swing.JTextArea outputTextArea;
     private javax.swing.JProgressBar progressBar;
-    private javax.swing.JButton renegotiationButton;
     private javax.swing.JButton scanTargetsButton;
     private javax.swing.JPanel scannerConfiguration;
     private javax.swing.JTable scannerConfigurationTable;

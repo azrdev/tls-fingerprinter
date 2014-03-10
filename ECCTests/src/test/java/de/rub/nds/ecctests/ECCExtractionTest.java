@@ -133,7 +133,7 @@ public class ECCExtractionTest implements Observer {
 //            System.out.println(provider);
 //        }
 
-        workflow = new TLS10HandshakeWorkflow();
+        workflow = new TLS10HandshakeWorkflow(false);
         workflow.connectToTestServer(HOST, PORT);
         workflow.addObserver(this, EStates.CLIENT_HELLO);
         workflow.addObserver(this, EStates.CLIENT_KEY_EXCHANGE);
