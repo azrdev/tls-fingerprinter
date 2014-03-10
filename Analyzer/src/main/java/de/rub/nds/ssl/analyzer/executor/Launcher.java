@@ -23,9 +23,10 @@ import org.apache.log4j.Logger;
  * Launcher service.
  *
  * @author Christopher Meyer - christopher.meyer@rub.de
- * @version 0.1
+ * @author Oliver Domke - oliver.domke@ruhr-uni-bochum.de
+ * @version 0.2
  *
- * Jan 16, 2013
+ * Feb 05, 2014
  */
 public abstract class Launcher {
 

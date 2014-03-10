@@ -15,7 +15,6 @@ import de.rub.nds.ssl.stack.protocols.msgs.TLSPlaintext;
 import de.rub.nds.ssl.stack.trace.MessageContainer;
 import de.rub.nds.ssl.stack.workflows.TLS10HandshakeWorkflow;
 import de.rub.nds.ssl.stack.workflows.TLS10HandshakeWorkflow.EStates;
-import de.rub.nds.ssl.stack.workflows.commons.MessageBuilder;
 import java.util.Observable;
 import java.util.Observer;
 import org.apache.log4j.Logger;
@@ -24,7 +23,10 @@ import org.apache.log4j.Logger;
  * A response during the TLS protocol processing.
  *
  * @author Eugen Weiss - eugen.weiss@ruhr-uni-bochum.de
- * @version 0.1 Apr 15, 2012
+ * @author Oliver Domke - oliver.domke@ruhr-uni-bochum.de
+ * @version 0.2
+ * 
+ * Feb 05, 2014
  */
 public final class TLSResponse extends ARecordFrame implements Observer {
 // TODO: Ugly and confusing class! Needs to be corrected!
@@ -40,7 +42,7 @@ public final class TLSResponse extends ARecordFrame implements Observer {
     /**
      * Response bytes.
      */
-    private byte[] response;
+    public byte[] response;
     /**
      * Log4j logger.
      */
@@ -59,7 +61,7 @@ public final class TLSResponse extends ARecordFrame implements Observer {
         this.response = new byte[response.length];
         System.arraycopy(response, 0, this.response, 0, this.response.length);
     }
-
+        
     /**
      * Extracts the TLS record messages for the response bytes.
      *
@@ -68,6 +70,10 @@ public final class TLSResponse extends ARecordFrame implements Observer {
     public final void handleResponse(final MessageContainer trace) {
         MessageObservable msgObserve = MessageObservable.getInstance();
         EContentType contentType = getContentType();
+        logger.debug("Message from server received: " + Utility.bytesToHex(response));
+        // Disable response handling for messages sent in application phase, even if they use handshake headers.
+        if(workflow.inApplicationPhase())
+            contentType = EContentType.APPLICATION;
         switch (contentType) {
             case CHANGE_CIPHER_SPEC:
                 logger.debug("Change Cipher Spec message received");
@@ -82,8 +88,23 @@ public final class TLSResponse extends ARecordFrame implements Observer {
                 workflow.addToTraceList(trace);
                 break;
             case ALERT:
+                Alert alert = null;
+                if(workflow.isEncrypted()){
+                     try{
+                        TLSCiphertext c = new TLSCiphertext(response, true);
+                        TLSPlaintext p = workflow.getMessageBuilder().decryptRecord(c);
+                        p.encode(false);
+                        logger.debug("Encrypted alert: " + Utility.bytesToHex(p.getPayload()));
+                        alert = new Alert(p.getPayload(), false);
+                    }catch(Exception e){
+                        alert = new Alert(response, true);
+                    }
+                }
+                else{
+                    alert = new Alert(response, true);
+                }
+                    
                 logger.debug("Alert message received");
-                Alert alert = new Alert(response, true);
                 logger.debug("Alert level: " + alert.getAlertLevel().name());
                 logger.debug("Alert message: " + alert.getAlertDescription().
                         name());
@@ -106,23 +127,17 @@ public final class TLSResponse extends ARecordFrame implements Observer {
                      * Since it is not possible to send CCS and Finished in a
                      * handhsake enumeration it is safe to distinguish this way
                      */
-                    TLSCiphertext ciphertext = new TLSCiphertext(response,
-                            true);
-
-                    trace.setCurrentRecord(ciphertext);
-                    trace.setPreviousState(EStates.getStateById(workflow.
-                            getCurrentState()));
+                    TLSCiphertext ciphertext = new TLSCiphertext(response, true);
+                    TLSPlaintext plaintext = workflow.getMessageBuilder().decryptRecord(ciphertext);
+                    trace.setCurrentRecord(plaintext);
+                    trace.setPreviousState(EStates.getStateById(workflow.getCurrentState()));
                     workflow.nextStateAndNotify(trace);
-                    trace.setState(EStates.getStateById(
-                            workflow.getCurrentState()));
+                    trace.setState(EStates.getStateById(workflow.getCurrentState()));
                     /*
                      * Don't add to trace list, will be done by the update 
                      * method below triggerd by HandshakeEnumeration decoding.
                      */
 //                    workflow.addToTraceList(trace);
-
-                    MessageBuilder builder = new MessageBuilder();
-                    TLSPlaintext plaintext = builder.decryptRecord(ciphertext);
                     setTrace(trace);
                     msgObserve.addObserver(this);
 //// TODO: WTF is this???
@@ -139,6 +154,29 @@ public final class TLSResponse extends ARecordFrame implements Observer {
                             getKeyExchangeAlgorithm());
                     msgObserve.deleteObservers();
                 }
+                break;
+            case APPLICATION:
+                TLSCiphertext c = new TLSCiphertext(response, true);
+                TLSPlaintext p;
+                try{
+                    p = workflow.getMessageBuilder().decryptRecord(c);                    
+                }catch(Exception e){
+                    workflow.addMessage(c);
+                    return;
+                }
+                p.encode(false);
+                if(p.getPayload().length > 0){
+                    workflow.updateHash(workflow.getHashBuilder(), p.getBytes());
+                    workflow.addMessage(p);
+                }else
+                    logger.debug("Empty message in application phase received.");
+                /*
+                byte[] hex = p.getPayload().clone();
+                StringBuilder sb = new StringBuilder();
+                for(int i = 0; i < hex.length; i++)
+                    sb.append((char)hex[i]);            
+                logger.debug("Server message: " + sb.toString());
+                */
                 break;
             default:
                 break;

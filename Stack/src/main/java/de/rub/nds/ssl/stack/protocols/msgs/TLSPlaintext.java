@@ -8,7 +8,10 @@ import de.rub.nds.ssl.stack.protocols.commons.EProtocolVersion;
  * TLSPlaintext message as defined in Chapter 6.2.1 of RFC 2246.
  *
  * @author Eugen Weiss - eugen.weiss@ruhr-uni-bochum.de
- * @version 0.1 May 07, 2012
+ * @author Oliver Domke - oliver.domke@ruhr-uni-bochum.de
+ * @version 0.2
+ * 
+ * Feb 05, 2014
  */
 public class TLSPlaintext extends ARecordFrame {
 
@@ -68,6 +71,16 @@ public class TLSPlaintext extends ARecordFrame {
         tmpBytes = new byte[payloadCopy.length];
         System.arraycopy(payloadCopy, 0, tmpBytes, 0, tmpBytes.length);
         setFragment(tmpBytes);
+    }
+    
+    /**
+     * change content type for application phase messages
+     * 
+     * @param contentType 
+     */
+    
+    public void setCType(EContentType contentType){
+        super.setContentType(contentType);
     }
 
     /**

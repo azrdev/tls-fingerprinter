@@ -9,7 +9,10 @@ import java.security.NoSuchAlgorithmException;
  * Hash computation of the handshake messages.
  *
  * @author Eugen Weiss - eugen.weiss@ruhr-uni-bochum.de
- * @version 0.1 Mar 15, 2012
+ * @author Oliver Domke - oliver.domke@ruhr-uni-bochum.de
+ * @version 0.2
+ * 
+ * Feb 05, 2014
  */
 public class HandshakeHashBuilder {
 
@@ -56,5 +59,10 @@ public class HandshakeHashBuilder {
         md5.digest(handshakeHashes, 0, md5Length);
         sha1.digest(handshakeHashes, md5Length, sha1Length);
         return handshakeHashes;
+    }
+    
+    public final void reset(){
+        md5.reset();
+        sha1.reset();
     }
 }

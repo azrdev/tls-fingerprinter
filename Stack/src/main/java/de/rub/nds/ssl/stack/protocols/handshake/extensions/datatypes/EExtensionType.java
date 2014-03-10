@@ -13,9 +13,9 @@ import java.util.Map;
  * @author Christopher Meyer - christopher.meyer@rub.de
  * @version 0.1
  *
- * Feb 4, 2013
+ * Feb 04, 2013
  */
-public enum EExtensionType {
+public enum EExtensionType{
 
     /**
      * Server Name (RFC6066).
@@ -89,7 +89,7 @@ public enum EExtensionType {
      * Renegotiation info (RFC5746).
      */
     RENEGOTIATION_INFO(new byte[]{(byte) ((byte) 255 & 0xFF), 0x01}, null);
-    
+   
     /**
      * Length of the extension id: 2 Bytes.
      */

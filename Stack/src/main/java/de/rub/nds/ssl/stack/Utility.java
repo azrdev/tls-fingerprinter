@@ -5,9 +5,10 @@ package de.rub.nds.ssl.stack;
  *
  * @author Christopher Meyer - christopher.meyer@rub.de
  * @author Juraj Somorovsky - juraj.somorovsky@rub.de
- * @version 0.1
+ * @author Oliver Domke - oliver.domke@ruhr-uni-bochum.de
+ * @version 0.2
  *
- * Dec 20, 2011
+ * Feb 05, 2014
  */
 public final class Utility {
 
@@ -47,6 +48,10 @@ public final class Utility {
         }
 
         return builder.toString();
+    }
+    
+    public static String bytesToHex(final byte bytes){
+        return bytesToHex(new byte[]{bytes});
     }
 
 //    public static String bytesToHex(byte[] array) {

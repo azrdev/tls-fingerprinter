@@ -16,7 +16,10 @@ import javax.crypto.spec.IvParameterSpec;
  * Block cipher encryption and MAC computation.
  *
  * @author Eugen Weiss - eugen.weiss@ruhr-uni-bochum.de
- * @version 0.1 Apr 21, 2012
+ * @author Oliver Domke - oliver.domke@ruhr-uni-bochum.de
+ * @version 0.2
+ * 
+ * Feb 05, 2014
  */
 public class GenericBlockCipher extends APubliclySerializable implements
         IGenericCipher {
@@ -45,7 +48,27 @@ public class GenericBlockCipher extends APubliclySerializable implements
      * Padding for block cipher encryption.
      */
     private byte[] padding;
-
+    /**
+     * Block cipher object for continous decryption
+     */
+    private Cipher decBlockCipher = null;
+    /**
+     * Block cipher object for continous encryption
+     */
+    private Cipher encBlockCipher = null;
+    /**
+     * Object for continous MAC computation for decryption
+     */
+    private MACComputation decMacComputation = null;
+    /**
+     * Object for continous MAC computation for encryption
+     */
+    private MACComputation encMacComputation = null;    
+    /**
+     * Initialize a GenericBlockCipher as defined in RFC2246.
+     */
+    public GenericBlockCipher(){
+    }
     /**
      * Initialize a GenericBlockCipher as defined in RFC2246.
      *
@@ -61,9 +84,9 @@ public class GenericBlockCipher extends APubliclySerializable implements
      * @param frame Non-encrypted record frame
      */
     public GenericBlockCipher(final ARecordFrame frame) {
-        this.plainRecord = frame;
+        setPlainRecord(frame);
     }
-
+    
     /**
      * Concatenate data and MAC, add padding and encrypt data.
      *
@@ -71,27 +94,18 @@ public class GenericBlockCipher extends APubliclySerializable implements
      * @param cipherName Name of the symmetric cipher
      * @param iv Initialization vector for ciphertext computation
      */
-    public final void encryptData(final SecretKey key,
-            String cipherName, final byte[] iv) {
-        Cipher blockCipher = null;
+    public final void encryptData(final SecretKey key, String cipherName, final byte[] iv) {
         int blockSize = 0;
         try {
-            blockCipher = Cipher.getInstance(cipherName + "/CBC/NoPadding");
-            AlgorithmParameters params =
-                    AlgorithmParameters.getInstance(cipherName);
-            IvParameterSpec iVector = new IvParameterSpec(iv);
-            params.init(iVector);
-            blockCipher.init(Cipher.ENCRYPT_MODE, key, params);
-            blockSize = blockCipher.getBlockSize();
-        } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
-        } catch (NoSuchPaddingException e) {
-            e.printStackTrace();
-        } catch (InvalidParameterSpecException e) {
-            e.printStackTrace();
-        } catch (InvalidKeyException e) {
-            e.printStackTrace();
-        } catch (InvalidAlgorithmParameterException e) {
+            if(encBlockCipher == null){
+                encBlockCipher = Cipher.getInstance(cipherName + "/CBC/NoPadding");
+                AlgorithmParameters params = AlgorithmParameters.getInstance(cipherName);
+                IvParameterSpec iVector = new IvParameterSpec(iv);
+                params.init(iVector);
+                encBlockCipher.init(Cipher.ENCRYPT_MODE, key, params);
+            }
+            blockSize = encBlockCipher.getBlockSize();
+        } catch (NoSuchAlgorithmException | NoSuchPaddingException | InvalidParameterSpecException | InvalidKeyException | InvalidAlgorithmParameterException e) {
             e.printStackTrace();
         }
         //concatenate data and MAC
@@ -99,16 +113,13 @@ public class GenericBlockCipher extends APubliclySerializable implements
         int payloadLength = this.plainRecord.getPayload().length;
         // padding precomputation
         // padding length + 1 since we add the paddingLength field
-        this.createPadding(payloadLength
-                + 1 + macData.length, blockSize);
+        this.createPadding(payloadLength + 1 + macData.length, blockSize);
         byte[] paddedData = getPadding();
         byte[] paddedDataLength = new byte[]{(byte) (paddedData.length)};
 
-        byte[] tmp = new byte[payloadLength + macData.length
-                + paddedData.length + paddedDataLength.length];
+        byte[] tmp = new byte[payloadLength + macData.length + paddedData.length + paddedDataLength.length];
         // 1. add payload
-        System.arraycopy(this.plainRecord.getPayload(),
-                0, tmp, pointer, payloadLength);
+        System.arraycopy(this.plainRecord.getPayload(), 0, tmp, pointer, payloadLength);
         pointer += payloadLength;
         // 2. add MAC
         System.arraycopy(macData, 0, tmp, pointer, macData.length);
@@ -117,19 +128,9 @@ public class GenericBlockCipher extends APubliclySerializable implements
         System.arraycopy(paddedData, 0, tmp, pointer, paddedData.length);
         pointer += paddedData.length;
         // 4. add padding length
-        System.arraycopy(paddedDataLength, 0, tmp, pointer,
-                paddedDataLength.length);
-        
+        System.arraycopy(paddedDataLength, 0, tmp, pointer, paddedDataLength.length);
         //encrypt the data
-        if (blockCipher != null) {
-            try {
-                encryptedData = blockCipher.doFinal(tmp);
-            } catch (IllegalBlockSizeException e) {
-                e.printStackTrace();
-            } catch (BadPaddingException e) {
-                e.printStackTrace();
-            }
-        }
+        encryptedData = encBlockCipher.update(tmp);
     }
 
     /**
@@ -142,29 +143,17 @@ public class GenericBlockCipher extends APubliclySerializable implements
      */
     public final byte[] decryptData(final SecretKey key,
             final String cipherName, final byte[] iv) {
-        Cipher blockCipher;
         try {
-            blockCipher = Cipher.getInstance(cipherName + "/CBC/NoPadding");
-            AlgorithmParameters params =
-                    AlgorithmParameters.getInstance(cipherName);
-            IvParameterSpec iVector = new IvParameterSpec(iv);
-            params.init(iVector);
-            blockCipher.init(Cipher.DECRYPT_MODE, key, params);
+            if(decBlockCipher == null){
+                decBlockCipher = Cipher.getInstance(cipherName + "/CBC/NoPadding");
+                AlgorithmParameters params = AlgorithmParameters.getInstance(cipherName);
+                IvParameterSpec iVector = new IvParameterSpec(iv);
+                params.init(iVector);
+                decBlockCipher.init(Cipher.DECRYPT_MODE, key, params);
+            }
             //first decrypt the data
-            this.cleartext = blockCipher.doFinal(this.encryptedData);
-        } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
-        } catch (NoSuchPaddingException e) {
-            e.printStackTrace();
-        } catch (IllegalBlockSizeException e) {
-            e.printStackTrace();
-        } catch (BadPaddingException e) {
-            e.printStackTrace();
-        } catch (InvalidKeyException e) {
-            e.printStackTrace();
-        } catch (InvalidAlgorithmParameterException e) {
-            e.printStackTrace();
-        } catch (InvalidParameterSpecException e) {
+            this.cleartext = decBlockCipher.update(this.encryptedData);
+        } catch (NoSuchAlgorithmException | NoSuchPaddingException | InvalidKeyException | InvalidAlgorithmParameterException | InvalidParameterSpecException e) {
             e.printStackTrace();
         }
         return cleartext.clone();
@@ -258,16 +247,27 @@ public class GenericBlockCipher extends APubliclySerializable implements
      * @param key Secret key for MAC computation
      * @param macName MAC algorithm
      */
-    public final void computePayloadMAC(final SecretKey key,
-            final String macName) {
+    public final void computePayloadMAC(final SecretKey key, final String macName, boolean encryption) {
+        if(this.plainRecord == null){
+            this.macData = new byte[0];
+            return;
+        }
         byte[] payload = this.plainRecord.getPayload();
-        byte[] protocolVersion =
-                this.plainRecord.getProtocolVersion().getId();
+        byte[] protocolVersion = this.plainRecord.getProtocolVersion().getId();
         byte contentType = this.plainRecord.getContentType().getId();
-        byte[] payloadLength = super.buildLength(payload.length, 2);
-        MACComputation comp = new MACComputation(key, macName);
-        this.macData = comp.computeMAC(protocolVersion,
-                contentType, payloadLength, payload);
+        byte[] payloadLength;
+        payloadLength = super.buildLength(payload.length, 2);
+        MACComputation comp;
+        if(encryption == true){
+            if(encMacComputation == null)
+                encMacComputation = new MACComputation(key, macName);
+            comp = encMacComputation;
+        }else{
+            if(decMacComputation == null)
+                decMacComputation = new MACComputation(key, macName);
+            comp = decMacComputation;        
+        }
+        this.macData = comp.computeMAC(protocolVersion, contentType, payloadLength, payload);
     }
 
     /**
@@ -289,7 +289,13 @@ public class GenericBlockCipher extends APubliclySerializable implements
         System.arraycopy(mac, 0, tmp, pointer, mac.length);
         return tmp;
     }
-
+    
+    /**
+     * Set plain record
+     */
+    public final void setPlainRecord(final ARecordFrame frame){
+        this.plainRecord = frame;
+    }
     /**
      * Set padding bytes of a block.
      *

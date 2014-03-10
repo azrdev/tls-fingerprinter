@@ -71,7 +71,7 @@ public final class BleichenbacherPossible extends AGenericFingerprintTest
             final MessageUtils.POSITIONS position, final Integer anyPosition)
             throws IOException {
         logger.info("++++Start Test No." + counter + "(" + desc + ")++++");
-        workflow = new TLS10HandshakeWorkflow();
+        workflow = new TLS10HandshakeWorkflow(false);
 
         //connect to test server
         workflow.connectToTestServer(getTargetHost(), getTargetPort());
@@ -118,7 +118,7 @@ public final class BleichenbacherPossible extends AGenericFingerprintTest
     private TestResult fingerprintBleichenbacherPossible(final String desc,
             final byte[] customMessage) throws IOException {
         logger.info("++++Start Test No." + counter + "(" + desc + ")++++");
-        workflow = new TLS10HandshakeWorkflow();
+        workflow = new TLS10HandshakeWorkflow(false);
 
         //connect to test server
         workflow.connectToTestServer(getTargetHost(), getTargetPort());

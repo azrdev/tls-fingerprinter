@@ -102,10 +102,12 @@
                   <Group type="102" attributes="0">
                       <Component id="targetListScrollPane" min="-2" pref="284" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
-                      <Group type="103" groupAlignment="0" attributes="0">
-                          <Component id="openListButton" min="-2" pref="207" max="-2" attributes="0"/>
-                          <Component id="attackTargetsButton" min="-2" pref="207" max="-2" attributes="0"/>
-                          <Component id="scanTargetsButton" min="-2" pref="207" max="-2" attributes="0"/>
+                      <Group type="103" groupAlignment="0" max="-2" attributes="0">
+                          <Component id="openListButton" pref="207" max="32767" attributes="0"/>
+                          <Component id="attackTargetsButton" pref="207" max="32767" attributes="0"/>
+                          <Component id="scanTargetsButton" pref="207" max="32767" attributes="0"/>
+                          <Component id="uncheckTestsButton" alignment="0" max="32767" attributes="0"/>
+                          <Component id="renegotiationButton" alignment="0" max="32767" attributes="0"/>
                       </Group>
                   </Group>
                   <Component id="targetListLabel" min="-2" max="-2" attributes="0"/>
@@ -125,14 +127,18 @@
                       <Component id="attackTargetsButton" min="-2" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
                       <Component id="scanTargetsButton" min="-2" max="-2" attributes="0"/>
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Component id="uncheckTestsButton" min="-2" max="-2" attributes="0"/>
                       <EmptySpace max="32767" attributes="0"/>
+                      <Component id="renegotiationButton" min="-2" max="-2" attributes="0"/>
+                      <EmptySpace max="-2" attributes="0"/>
                       <Component id="openListButton" min="-2" max="-2" attributes="0"/>
                   </Group>
                   <Component id="targetListScrollPane" min="-2" pref="135" max="-2" attributes="0"/>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
               <Component id="tabbedPane" min="-2" pref="262" max="-2" attributes="0"/>
-              <EmptySpace max="32767" attributes="0"/>
+              <EmptySpace pref="99" max="32767" attributes="0"/>
               <Component id="progressBar" min="-2" max="-2" attributes="0"/>
           </Group>
       </Group>
@@ -172,7 +178,7 @@
             <DimensionLayout dim="1">
               <Group type="103" groupAlignment="0" attributes="0">
                   <Group type="102" alignment="1" attributes="0">
-                      <EmptySpace min="0" pref="12" max="32767" attributes="0"/>
+                      <EmptySpace min="0" pref="11" max="32767" attributes="0"/>
                       <Component id="jScrollPane1" min="-2" pref="221" max="-2" attributes="0"/>
                   </Group>
               </Group>
@@ -225,7 +231,7 @@
                           <Group type="102" alignment="0" attributes="0">
                               <Component id="fuzzingLabel" min="-2" max="-2" attributes="0"/>
                               <EmptySpace max="-2" attributes="0"/>
-                              <Component id="jComboBox1" pref="561" max="32767" attributes="0"/>
+                              <Component id="jComboBox1" pref="627" max="32767" attributes="0"/>
                           </Group>
                           <Group type="102" alignment="1" attributes="0">
                               <EmptySpace min="0" pref="0" max="32767" attributes="0"/>
@@ -246,7 +252,7 @@
                       </Group>
                       <EmptySpace type="unrelated" max="-2" attributes="0"/>
                       <Component id="createFingerprintButton" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace pref="160" max="32767" attributes="0"/>
+                      <EmptySpace pref="167" max="32767" attributes="0"/>
                   </Group>
               </Group>
             </DimensionLayout>
@@ -297,7 +303,7 @@
               <Group type="103" groupAlignment="0" attributes="0">
                   <Group type="102" alignment="1" attributes="0">
                       <EmptySpace max="-2" attributes="0"/>
-                      <Component id="jScrollPane3" pref="209" max="32767" attributes="0"/>
+                      <Component id="jScrollPane3" pref="210" max="32767" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
                   </Group>
               </Group>
@@ -344,7 +350,7 @@
           <Properties>
             <Property name="columns" type="int" value="20"/>
             <Property name="rows" type="int" value="5"/>
-            <Property name="text" type="java.lang.String" value="https://134.147.198.93:53098"/>
+            <Property name="text" type="java.lang.String" value="https://127.0.0.1:8000"/>
             <Property name="toolTipText" type="java.lang.String" value="[ PROTOCOL:// IP or DOMAIN (: PORT) ] - single line per target"/>
           </Properties>
         </Component>
@@ -371,6 +377,22 @@
       <Properties>
         <Property name="text" type="java.lang.String" value="Please select target(s)"/>
       </Properties>
+    </Component>
+    <Component class="javax.swing.JButton" name="uncheckTestsButton">
+      <Properties>
+        <Property name="text" type="java.lang.String" value="Uncheck tests"/>
+      </Properties>
+      <Events>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="uncheckTestsButtonActionPerformed"/>
+      </Events>
+    </Component>
+    <Component class="javax.swing.JButton" name="renegotiationButton">
+      <Properties>
+        <Property name="text" type="java.lang.String" value="Uncheck tests except renegotiation"/>
+      </Properties>
+      <Events>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="renegotiationButtonActionPerformed"/>
+      </Events>
     </Component>
   </SubComponents>
 </Form>

@@ -10,9 +10,10 @@ import de.rub.nds.ssl.stack.protocols.commons.EProtocolVersion;
  * Record Layer for the SSL/TLS Protocol
  *
  * @author Christopher Meyer - christopher.meyer@rub.de
- * @version 0.1
+ * @author Oliver Domke - oliver.domke@ruhr-uni-bochum.de
+ * @version 0.2
  *
- * Nov 14, 2011
+ * Feb 05, 2014
  */
 public abstract class ARecordFrame extends APubliclySerializable {
 
@@ -271,6 +272,21 @@ public abstract class ARecordFrame extends APubliclySerializable {
 
         return tmp;
     }
+    
+    /**
+    * Get the entire message including the global header.
+    *
+    * @return The entire message including the global header of this record frame.
+    */
+    public byte[] getBytes(){
+        byte[] tmp = new byte[payload.length + 5];
+        tmp[0] = contentType.getId();
+        System.arraycopy(getProtocolVersion().getId(), 0, tmp, 1, 2);       
+        tmp[3] = (byte)((payload.length >> 8) & 0xFF);
+        tmp[4] = (byte)(payload.length & 0xFF);
+        System.arraycopy(payload, 0, tmp, 5, payload.length);
+        return tmp;
+    }    
 
     /**
      * Set the payload of this record frame.

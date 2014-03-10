@@ -38,7 +38,7 @@ public final class FIN extends AGenericFingerprintTest implements Observer {
             final boolean changePadLength)
             throws SocketException {
         logger.info("++++Start Test No." + counter + "(" + desc + ")++++");
-        workflow = new TLS10HandshakeWorkflow();
+        workflow = new TLS10HandshakeWorkflow(false);
         //connect to test server
         workflow.connectToTestServer(getTargetHost(), getTargetPort());
         logger.info("Test Server: " + getTargetHost() + ":" + getTargetPort());
@@ -125,7 +125,7 @@ public final class FIN extends AGenericFingerprintTest implements Observer {
                     EContentType.HANDSHAKE);
             GenericBlockCipher blockCipher = new GenericBlockCipher(
                     finished);
-            blockCipher.computePayloadMAC(macKey, macName);
+            blockCipher.computePayloadMAC(macKey, macName, false);
 
             if (data != null) {
                 try {

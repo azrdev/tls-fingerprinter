@@ -23,7 +23,7 @@ public final class CCS extends AGenericFingerprintTest implements Observer {
     private TestResult fingerprintChangeCipherSpec(final String desc,
             final byte[] payload) throws SocketException, MalformedURLException {
         logger.info("++++Start Test No." + counter + "(" + desc + ")++++");
-        workflow = new TLS10HandshakeWorkflow();
+        workflow = new TLS10HandshakeWorkflow(false);
 
         //connect to test server
         workflow.connectToTestServer(getTargetHost(), getTargetPort());

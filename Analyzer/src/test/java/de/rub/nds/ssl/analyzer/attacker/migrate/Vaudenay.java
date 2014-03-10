@@ -105,7 +105,7 @@ public class Vaudenay implements Observer {
             boolean destroyHash, boolean destroyVerify, boolean changePadLength)
             throws SocketException {
         logger.info("++++ Start Test No." + this.counter + " (" + desc + ") ++++");
-        workflow = new TLS10HandshakeWorkflow();
+        workflow = new TLS10HandshakeWorkflow(false);
         workflow.connectToTestServer(HOST, PORT);
         workflow.addObserver(this, EStates.CLIENT_HELLO);
         workflow.addObserver(this, EStates.CLIENT_FINISHED);
@@ -194,7 +194,7 @@ public class Vaudenay implements Observer {
                             EContentType.HANDSHAKE);
                     GenericBlockCipher blockCipher = new GenericBlockCipher(
                             finished);
-                    blockCipher.computePayloadMAC(macKey, macName);
+                    blockCipher.computePayloadMAC(macKey, macName, false);
 
                     if (data != null) {
                         try {

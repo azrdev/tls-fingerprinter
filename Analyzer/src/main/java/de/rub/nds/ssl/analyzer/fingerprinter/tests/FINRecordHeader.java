@@ -3,6 +3,7 @@ package de.rub.nds.ssl.analyzer.fingerprinter.tests;
 import de.rub.nds.ssl.analyzer.TestResult;
 import de.rub.nds.ssl.analyzer.executor.EFingerprintTests;
 import de.rub.nds.ssl.stack.protocols.commons.EConnectionEnd;
+import de.rub.nds.ssl.stack.protocols.commons.EContentType;
 import de.rub.nds.ssl.stack.protocols.handshake.Finished;
 import de.rub.nds.ssl.stack.protocols.handshake.datatypes.MasterSecret;
 import de.rub.nds.ssl.stack.protocols.msgs.TLSCiphertext;
@@ -29,7 +30,7 @@ public final class FINRecordHeader extends AGenericFingerprintTest
             final byte[] msgType, final byte[] protocolVersion,
             final byte[] recordLength) throws SocketException {
         logger.info("++++Start Test No." + counter + "(" + desc + ")++++");
-        workflow = new TLS10HandshakeWorkflow();
+        workflow = new TLS10HandshakeWorkflow(false);
         //connect to test server
         workflow.connectToTestServer(getTargetHost(), getTargetPort());
         logger.info("Test Server: " + getTargetHost() + ":" + getTargetPort());
@@ -81,7 +82,7 @@ public final class FINRecordHeader extends AGenericFingerprintTest
                     protocolVersion, EConnectionEnd.CLIENT, workflow.getHash(),
                     master);
             TLSCiphertext rec = msgBuilder.encryptRecord(protocolVersion,
-                    finished);
+                    finished, EContentType.HANDSHAKE);
             byte[] payload = rec.encode(true);
             //change msgType of the message
             if (headerParameters.getMsgType() != null) {

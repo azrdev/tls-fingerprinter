@@ -3,16 +3,17 @@ package de.rub.nds.ssl.stack.workflows.commons;
 import de.rub.nds.ssl.stack.protocols.commons.EBulkCipherAlgorithm;
 import de.rub.nds.ssl.stack.protocols.commons.PseudoRandomFunction;
 import de.rub.nds.ssl.stack.protocols.commons.SecurityParameters;
+import org.apache.log4j.Logger;
 import java.security.InvalidKeyException;
 
 /**
  * Creation of the key material for message security.
  *
  * @author Eugen Weiss - eugen.weiss@ruhr-uni-bochum.de
- * @version 0.1 Apr 13, 2012
+ * @version 0.1 Apr 13, 2012 
  */
 public class KeyMaterial {
-
+    
     /**
      * Client-side MAC secret.
      */

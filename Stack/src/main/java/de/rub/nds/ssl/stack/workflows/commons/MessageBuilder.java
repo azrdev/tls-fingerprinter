@@ -9,7 +9,6 @@ import de.rub.nds.ssl.stack.protocols.handshake.Finished;
 import de.rub.nds.ssl.stack.protocols.handshake.datatypes.*;
 import de.rub.nds.ssl.stack.protocols.handshake.extensions.datatypes.ClientECDHPublic;
 import de.rub.nds.ssl.stack.protocols.handshake.extensions.datatypes.ECParameters;
-import de.rub.nds.ssl.stack.protocols.handshake.extensions.datatypes.ECPoint;
 import de.rub.nds.ssl.stack.protocols.msgs.TLSCiphertext;
 import de.rub.nds.ssl.stack.protocols.msgs.TLSPlaintext;
 import de.rub.nds.ssl.stack.protocols.msgs.datatypes.GenericBlockCipher;
@@ -28,8 +27,10 @@ import org.apache.log4j.Logger;
  *
  * @author Eugen Weiss - eugen.weiss@ruhr-uni-bochum.de
  * @author Christopher Meyer - christopher.meyer@ruhr-uni-bochum.de
- *
- * @version 0.1 Apr 04, 2012
+ * @author Oliver Domke - oliver.domke@ruhr-uni-bochum.de
+ * @version 0.2
+ * 
+ * Feb 05, 2014
  */
 public class MessageBuilder {
 
@@ -37,13 +38,22 @@ public class MessageBuilder {
      * Log4j logger.
      */
     private static Logger logger = Logger.getRootLogger();
+    private GenericBlockCipher blockCipher = null;
 
     /**
      * Empty public constructor.
      */
     public MessageBuilder() {
     }
-
+    
+    /**
+     * Create instance of BlockCipher or return it
+     */
+    private GenericBlockCipher getBlockCipher(){
+        if(blockCipher == null)
+            blockCipher = new GenericBlockCipher();
+        return blockCipher;
+    }
     /**
      * Builds a ClientHello message on the byte layer
      *
@@ -195,6 +205,19 @@ public class MessageBuilder {
 
         return finished;
     }
+    /**
+     * Create Application message
+     *
+     * @return Application message
+     */
+    public final TLSPlaintext createApplication(EProtocolVersion protocol, final byte[] message){
+        TLSPlaintext plain = new TLSPlaintext(protocol);
+        plain.setFragment(message);
+        plain.encode(false);
+        return plain;
+        //ApplicationRecord application = new ApplicationRecord(protocol, message);        
+        //return application;
+    }
 
     /**
      * Encrypt a record frame depend on the cipher
@@ -203,24 +226,22 @@ public class MessageBuilder {
      * @param record Record frame
      * @return Encrypted record
      */
-    public final TLSCiphertext encryptRecord(
-            final EProtocolVersion protocolVersion,
-            final ARecordFrame record) {
+    public final TLSCiphertext encryptRecord(final EProtocolVersion protocolVersion, final ARecordFrame record, final EContentType contentType) {
         SecurityParameters param = SecurityParameters.getInstance();
         //create the key material
         KeyMaterial keyMat = new KeyMaterial();
         //encrypt message
         String cipherName = param.getBulkCipherAlgorithm().toString();
         String macName = param.getMacAlgorithm().toString();
-        SecretKey macKey = new SecretKeySpec(keyMat.getClientMACSecret(),
-                macName);
+        SecretKey macKey = new SecretKeySpec(keyMat.getClientMACSecret(), macName);
         SecretKey symmKey = new SecretKeySpec(keyMat.getClientKey(), 
                 cipherName);
-        TLSCiphertext rec = new TLSCiphertext(protocolVersion,
-                EContentType.HANDSHAKE);
+        TLSCiphertext rec = new TLSCiphertext(protocolVersion, contentType);
         if (param.getCipherType() == ECipherType.BLOCK) {
-            GenericBlockCipher blockCipher = new GenericBlockCipher(record);
-            blockCipher.computePayloadMAC(macKey, macName);
+            GenericBlockCipher blockCipher = getBlockCipher();
+            blockCipher.setPlainRecord(record);
+            //blockCipher.decode(record.getPayload(), false);
+            blockCipher.computePayloadMAC(macKey, macName, true);
             blockCipher.encryptData(symmKey, cipherName, keyMat.getClientIV());
             rec.setGenericCipher(blockCipher);
         } else if (param.getCipherType() == ECipherType.STREAM) {
@@ -233,27 +254,24 @@ public class MessageBuilder {
         return rec;
     }
 
-    public final TLSPlaintext decryptRecord(
-            final ARecordFrame record) {
+    public final TLSPlaintext decryptRecord(final ARecordFrame record) {
         SecurityParameters param = SecurityParameters.getInstance();
         //create the key material
         KeyMaterial keyMat = new KeyMaterial();
         //decrypt message
         String cipherName = param.getBulkCipherAlgorithm().toString();
         String macName = param.getMacAlgorithm().toString();
-        SecretKey macKey = new SecretKeySpec(keyMat.getServerMACSecret(),
-                macName);
+        SecretKey macKey = new SecretKeySpec(keyMat.getServerMACSecret(), macName);
         SecretKey symmKey = new SecretKeySpec(keyMat.getServerKey(), cipherName);
         byte[] plainBytes;
         TLSPlaintext rec = null;
         if (param.getCipherType() == ECipherType.BLOCK) {
-            GenericBlockCipher blockCipher =
-                    new GenericBlockCipher(record.getPayload());
-            plainBytes = blockCipher.decryptData(symmKey, cipherName,
-                    keyMat.getServerIV());
-
+            GenericBlockCipher blockCipher = getBlockCipher();
+            blockCipher.setPlainRecord(record);
+            blockCipher.decode(record.getPayload(), false);
+            plainBytes = blockCipher.decryptData(symmKey, cipherName, keyMat.getServerIV());
             // check padding (padding = padding bytes + padding length)
-            int paddingLength = plainBytes[plainBytes.length - 1];;
+            int paddingLength = plainBytes[plainBytes.length - 1];
             for (int i = 0; i < paddingLength + 1; i++) {
                 if (plainBytes[plainBytes.length - 1 - i] != paddingLength) {
                     // TODO Communicate padding error 
@@ -265,15 +283,16 @@ public class MessageBuilder {
                             + Utility.bytesToHex(padding));
                 }
             }
-
+            byte[] padding = new byte[paddingLength];
+                    System.arraycopy(plainBytes,
+                            plainBytes.length - 1 - paddingLength, padding, 0,
+                            padding.length);
             // TODO add MAC check
-//            blockCipher.computePayloadMAC(macKey, macName);
-
+            blockCipher.computePayloadMAC(macKey, macName, false);
             // remove padding
             byte[] tmp = new byte[plainBytes.length - paddingLength - 1];
             System.arraycopy(plainBytes, 0, tmp, 0, tmp.length);
             plainBytes = tmp;
-
             // remove MAC
             int macLength = 0;
             switch (param.getMacAlgorithm()) {
@@ -287,8 +306,8 @@ public class MessageBuilder {
             tmp = new byte[plainBytes.length - macLength];
             System.arraycopy(plainBytes, 0, tmp, 0, tmp.length);
             plainBytes = tmp;
-
             rec = new TLSPlaintext(plainBytes, false);
+            rec.setCType(record.getContentType());
         } else if (param.getCipherType() == ECipherType.STREAM) {
             GenericStreamCipher streamCipher = new GenericStreamCipher(record);
             streamCipher.computePayloadMAC(macKey, macName);

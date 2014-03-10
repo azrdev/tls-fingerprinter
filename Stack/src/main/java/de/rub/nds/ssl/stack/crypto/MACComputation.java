@@ -1,5 +1,6 @@
 package de.rub.nds.ssl.stack.crypto;
 
+import java.nio.ByteBuffer;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import javax.crypto.Mac;
@@ -10,8 +11,10 @@ import org.apache.log4j.Logger;
  * MAC computation of the record payloads.
  *
  * @author Eugen Weiss - eugen.weiss@ruhr-uni-bochum.de
+ * @author Oliver Domke - oliver.domke@ruhr-uni-bochum.de
+ * @version 0.2
  *
- * Mar 22, 2012
+ * Feb 05, 2014
  */
 public class MACComputation {
 
@@ -26,12 +29,7 @@ public class MACComputation {
     /**
      * Sequence number.
      */
-    private byte[] seqNum = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
-    /**
-     * Max value of a single byte.
-     */
-    private static final int BYTE_MAX = 255;
-
+    private long seqNum = 0;
     /**
      * Initialize MAC with its properties.
      *
@@ -59,21 +57,19 @@ public class MACComputation {
      * @param payload Payload of the message
      * @return MAC value
      */
-    public final byte[] computeMAC(final byte[] protocolVersion,
-            final byte contentType, final byte[] payloadLength,
-            final byte[] payload) {
+    public final byte[] computeMAC(final byte[] protocolVersion, final byte contentType, final byte[] payloadLength, final byte[] payload) {
         /*
          * concatenate sequence number, content type, protocol version, length
          * and payload
          */
-        byte[] data = new byte[seqNum.length + 1
+        byte[] data = new byte[8 + 1
                 + protocolVersion.length
                 + payloadLength.length + payload.length];
         int pointer = 0;
 
         //add sequence number
-        System.arraycopy(seqNum, 0, data, pointer, seqNum.length);
-        pointer += seqNum.length;
+        System.arraycopy(getSequenceNumber(), 0, data, pointer, 8);
+        pointer += 8;
 
         //add content type
         data[pointer] = contentType;
@@ -92,38 +88,18 @@ public class MACComputation {
         System.arraycopy(payload, 0, data, pointer, payload.length);
 
         //increment the sequence number
-        seqNum = this.incrementArray(seqNum);
+        seqNum++;
 
         //compute the MAC of the message
         return mac.doFinal(data);
     }
-
-    /**
-     * Increment a byte array by one.
-     *
-     * @param seq Byte array to increment
-     * @return Incremented byte array
-     */
-    public final byte[] incrementArray(final byte[] seq) {
-        for (int i = seq.length - 1; i >= 0; i--) {
-            Byte valueByte = seq[i];
-            Integer num = valueByte.intValue();
-            if (Integer.signum(num) == -1) {
-                num += BYTE_MAX + 1;
-            }
-            if (num < BYTE_MAX) {
-                num++;
-                seq[i] = num.byteValue();
-                break;
-            } else if (i == 0) {
-                /*
-                 * reset array and start by 0 if maximum number is reached
-                 */
-                for (int j = 0; j < seq.length; j++) {
-                    seq[j] = 0x00;
-                }
-            }
-        }
-        return seq;
+    
+    private byte[] getSequenceNumber(){
+        return ByteBuffer.allocate(8).putLong(seqNum).array();
     }
+
+    public void decreaseSequenceNumber(){
+        seqNum--;
+    }
+    
 }
