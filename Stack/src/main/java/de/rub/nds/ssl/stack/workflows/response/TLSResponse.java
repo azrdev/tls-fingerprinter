@@ -46,7 +46,7 @@ public final class TLSResponse extends ARecordFrame implements Observer {
     /**
      * Log4j logger.
      */
-    private static Logger logger = Logger.getRootLogger();
+    private static final Logger logger = Logger.getRootLogger();
 
     /**
      * Initialize a TLS response.

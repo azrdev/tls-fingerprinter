@@ -37,7 +37,7 @@ public class MessageBuilder {
     /**
      * Log4j logger.
      */
-    private static Logger logger = Logger.getRootLogger();
+    private static final Logger logger = Logger.getRootLogger();
     private GenericBlockCipher blockCipher = null;
 
     /**
@@ -57,7 +57,7 @@ public class MessageBuilder {
     /**
      * Builds a ClientHello message on the byte layer
      *
-     * @param protocolVersion SSL/TLS protocol version
+     * @param id SSL/TLS protocol version
      * @param random Random value
      * @param cipherSuites Cipher suites
      * @param compMethod Compression method

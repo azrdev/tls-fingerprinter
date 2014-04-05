@@ -21,7 +21,7 @@ public class MACComputation {
     /**
      * Log4j logger initialization.
      */
-    private static Logger logger = Logger.getRootLogger();
+    private static final Logger logger = Logger.getRootLogger();
     /**
      * Message authentication code.
      */

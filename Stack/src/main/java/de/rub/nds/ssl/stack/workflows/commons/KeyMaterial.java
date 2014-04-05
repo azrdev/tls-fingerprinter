@@ -3,7 +3,6 @@ package de.rub.nds.ssl.stack.workflows.commons;
 import de.rub.nds.ssl.stack.protocols.commons.EBulkCipherAlgorithm;
 import de.rub.nds.ssl.stack.protocols.commons.PseudoRandomFunction;
 import de.rub.nds.ssl.stack.protocols.commons.SecurityParameters;
-import org.apache.log4j.Logger;
 import java.security.InvalidKeyException;
 
 /**
@@ -50,7 +49,6 @@ public class KeyMaterial {
     /**
      * Public constructor to create the key material.
      *
-     * @param param Security parameters of the SSL session
      */
     public KeyMaterial() {
         SecurityParameters param = SecurityParameters.getInstance();
@@ -75,7 +73,6 @@ public class KeyMaterial {
     /**
      * Computation of the key material.
      *
-     * @param param Security parameters of the SSL session
      * @throws InvalidKeyException
      */
     public void createKeyMaterial() throws InvalidKeyException {

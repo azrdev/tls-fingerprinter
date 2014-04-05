@@ -54,7 +54,7 @@ public class ServerHelloHandler implements IHandshakeStates {
     /**
      * Initialize the log4j logger.
      */
-    private static Logger logger = Logger.getRootLogger();
+    private static final Logger logger = Logger.getRootLogger();
 
     /**
      * Empty constructor

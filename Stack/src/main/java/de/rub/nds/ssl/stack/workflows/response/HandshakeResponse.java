@@ -23,7 +23,7 @@ public final class HandshakeResponse {
     /**
      * Log4J logger.
      */
-    private static Logger logger = Logger.getRootLogger();
+    private static final Logger logger = Logger.getRootLogger();
 
     /**
      * Private constructor - Utility class only.
