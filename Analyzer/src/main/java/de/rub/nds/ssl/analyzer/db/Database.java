@@ -19,7 +19,7 @@ public final class Database {
     /**
      * Log4j logger initialization.
      */
-    private static Logger logger = Logger.getRootLogger();
+    private static final Logger logger = Logger.getRootLogger();
     /**
      * Instance of Database.
      */

@@ -133,7 +133,7 @@ public final class Renegotiation extends AGenericFingerprintTest implements Obse
                             return;
                         }
                         HandshakeEnumeration hse = new HandshakeEnumeration(message.getBytes(), true, KeyExchangeParams.getInstance().getKeyExchangeAlgorithm());
-                        IHandshakeStates hsstate = null;
+                        IHandshakeStates hsstate;
                         for(AHandshakeRecord r : hse.getMessages()){
                             records.addLast(r);
                             if(r instanceof ServerHello){
@@ -213,7 +213,7 @@ public final class Renegotiation extends AGenericFingerprintTest implements Obse
     /**
      * print result
      */
-    public void printResult(boolean works){
+    public void printResult(final boolean works){
         logger.info("########################################################################\n"
         + "Renegotiation " + ((!works) ? "not " : "") + "possible!\n" +
         "########################################################################");
