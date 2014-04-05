@@ -45,9 +45,10 @@ public class UnsafeRenegotiationTestTLSServer extends Thread{
     public KeyStore keyStore;
     
     public UnsafeRenegotiationTestTLSServer(InetAddress sA, int sP, String serverKeyStoreName, String serverPasswd, boolean allowUnsafeRenegotiation){
-        if(allowUnsafeRenegotiation)
+        if(allowUnsafeRenegotiation) {
             System.setProperty("sun.security.ssl.allowUnsafeRenegotiation", "true");
-                
+        }
+        
         serverAddr = sA;
         serverPort = sP;
         keyStoreName = serverKeyStoreName;
