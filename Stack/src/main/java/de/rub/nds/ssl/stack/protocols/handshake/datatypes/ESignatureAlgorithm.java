@@ -19,5 +19,9 @@ public enum ESignatureAlgorithm {
     /**
      * Anonymous.
      */
-    anon;
+    anon,
+    /**
+     * ECDSA
+     */
+    ECDSA;
 }
