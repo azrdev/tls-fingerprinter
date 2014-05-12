@@ -52,7 +52,7 @@ public class ECCExtractionTest implements Observer {
     /**
      * Test port.
      */
-    private static final int PORT = 51707;
+    private static final int PORT = 8080;
     /**
      * Valid point on secp256r1.
      */
@@ -119,6 +119,7 @@ public class ECCExtractionTest implements Observer {
         (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00,
         (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x01
     };
+    
 
     @BeforeClass
     public void setUp() {
@@ -172,7 +173,7 @@ public class ECCExtractionTest implements Observer {
 
                     CipherSuites suites = new CipherSuites();
                     suites.setSuites(new ECipherSuite[]{
-                        ECipherSuite.TLS_ECDH_RSA_WITH_AES_128_CBC_SHA
+                        ECipherSuite.TLS_ECDH_ECDSA_WITH_AES_128_CBC_SHA
                     });
                     clientHello.setCipherSuites(suites);
 
@@ -222,7 +223,7 @@ public class ECCExtractionTest implements Observer {
      */
     @BeforeClass
     public void setUpClass() {
-        PropertyConfigurator.configure("logging.properties");
+//        PropertyConfigurator.configure("logging.properties");
         logger.info("##################################");
         logger.info(this.getClass().getSimpleName());
         logger.info("##################################");

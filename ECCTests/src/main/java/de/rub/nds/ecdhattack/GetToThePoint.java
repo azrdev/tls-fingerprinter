@@ -50,7 +50,7 @@ public final class GetToThePoint {
                         point.y.toByteArray(), EECPointFormat.UNCOMPRESSED);      
 
                 // start the handshake
-                tlsConnector.launchBitExtraction(encodedNastyPoint);
+                tlsConnector.launchBitExtraction(encodedNastyPoint, encodedNastyPoint);
             }
 
             if (normalErrorDetected) {
