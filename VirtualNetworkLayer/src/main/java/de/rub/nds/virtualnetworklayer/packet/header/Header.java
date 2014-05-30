@@ -216,7 +216,7 @@ public abstract class Header implements Cloneable, StringFormattable {
     /**
      * @param previousHeaders chronological ordered list of previous headers
      * @param dataLinkType    {@link de.rub.nds.virtualnetworklayer.pcap.Pcap.DataLinkType}
-     * @return whether header follows previous header
+     * @return whether a header of this type follows previousHeaders
      */
     public abstract boolean isBound(LinkedList<Header> previousHeaders, Pcap.DataLinkType dataLinkType);
 

@@ -103,6 +103,8 @@ final public class HandshakeEnumeration extends ARecordFrame {
 
         while (payloadCopy.length >= pointer
                 + AHandshakeRecord.LENGTH_MINIMUM_ENCODED) {
+            //TODO: this duplicates AHandshakeRecord.decode()
+
             // 1. extract message type
             tmpMessageType = payloadCopy[pointer];
             pointer += EMessageType.LENGTH_ENCODED;
@@ -127,9 +129,13 @@ final public class HandshakeEnumeration extends ARecordFrame {
             pointer += tmpMessage.length;
 
             // 4. add message to message list
-            tmpHandshakeMsg = delegateDecoding(tmpMessageType, tmpMessage);
-            msgObserve.statusChanged(tmpHandshakeMsg);
-            messages.add(tmpHandshakeMsg);
+            try {
+                tmpHandshakeMsg = delegateDecoding(tmpMessageType, tmpMessage);
+                msgObserve.statusChanged(tmpHandshakeMsg);
+                messages.add(tmpHandshakeMsg);
+            } catch (IllegalArgumentException e) {
+                System.out.println("cannot decode Handshake record: " + e);
+            }
         }
     }
 
@@ -149,8 +155,8 @@ final public class HandshakeEnumeration extends ARecordFrame {
         // invoke decode
         Class<AHandshakeRecord> implClass = type.getImplementingClass();
         if (implClass == null) {
-            throw new NullPointerException("implClass == NULL: type was "
-                    + type);
+            throw new IllegalArgumentException(
+                    "No Implementation found for Handshake message type " + type);
         }
         
         try {
@@ -198,7 +204,7 @@ final public class HandshakeEnumeration extends ARecordFrame {
             // TODO why and when? (CM)
             ex.printStackTrace();
         } catch (NoSuchMethodException ex) {
-            System.err.println("Could not find a suiteable method for type "
+            System.err.println("Could not find a suitable method for type "
                     + type + " and class " + implClass.getCanonicalName());
             ex.printStackTrace();
         }

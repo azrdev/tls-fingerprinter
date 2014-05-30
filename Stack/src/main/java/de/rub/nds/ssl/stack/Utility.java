@@ -47,7 +47,7 @@ public final class Utility {
             builder.append(' ');
         }
 
-        return builder.toString();
+        return builder.toString().trim();
     }
     
     public static String bytesToHex(final byte bytes){

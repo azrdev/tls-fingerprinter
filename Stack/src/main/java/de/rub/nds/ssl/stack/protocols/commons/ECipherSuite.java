@@ -13,6 +13,7 @@ import de.rub.nds.ssl.stack.protocols.handshake.datatypes.EKeyExchangeAlgorithm;
  * @version 0.1 Nov 11, 2011
  */
 public enum ECipherSuite {
+    //TODO: handle cipher suites as short instead of byte[]
 
     TLS_NULL_WITH_NULL_NULL(new byte[]{(byte) 0x00, (byte) 0x00}),
     TLS_RSA_WITH_NULL_MD5(new byte[]{(byte) 0x00, (byte) 0x01}),

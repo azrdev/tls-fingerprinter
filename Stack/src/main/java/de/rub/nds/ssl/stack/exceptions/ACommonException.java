@@ -11,6 +11,7 @@ import org.apache.log4j.lf5.LogLevel;
  * @version 0.1
  * 04.01.2011
  */
+//TODO: unused ACommonException
 public abstract class ACommonException extends Exception {
     /**
      * The message describing the exception.

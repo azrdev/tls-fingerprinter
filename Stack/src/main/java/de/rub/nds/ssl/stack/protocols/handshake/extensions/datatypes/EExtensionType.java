@@ -10,6 +10,9 @@ import java.util.Map;
  * TLS supported extensions. (data based on
  * http://www.iana.org/assignments/tls-extensiontype-values/tls-extensiontype-values.xml)
  *
+ * each value is designated the identifier (from above spec) of type byte[2],
+ * and the implementing {@link java.lang.Class}
+ *
  * @author Christopher Meyer - christopher.meyer@rub.de
  * @version 0.1
  *

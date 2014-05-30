@@ -429,7 +429,7 @@ public final class ClientHello extends AHandshakeRecord {
         setCompressionMethod(tmpBytes);
         pointer += tmpBytes.length;
 
-        // 6. check for extions
+        // 6. check for extensions
         if (payloadCopy.length > pointer) {
             // OK, extensions present
             byte[] extensionPart = new byte[payloadCopy.length - pointer];

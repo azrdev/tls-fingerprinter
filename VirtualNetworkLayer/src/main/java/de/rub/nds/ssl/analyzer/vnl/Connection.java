@@ -58,21 +58,23 @@ public class Connection {
 		return new ClientHelloFingerprint(ch);
 	}
 
-//	public String getServerHostName() {
-//		MessageContainer clientHelloMC = fl.get(0);
-//		ClientHello ch = (ClientHello) clientHelloMC.getCurrentRecord();
-//		ExtensionList el = ch.getExtensionList();
-//		if (el != null) {
-//			List<Extension> extensions = el.getExtensions();
-//			for (Extension ex : extensions) {
-//				if (ex instanceof ServerNameExtension) {
-//					ServerNameExtension sne = (ServerNameExtension) ex;
-//					return sne.getServerNames().get(0);
-//				}
-//			}
-//		}
-//		return null;
-//	}
+    /*
+  	public String getServerHostName() {
+  		MessageContainer clientHelloMC = fl.get(0);
+  		ClientHello ch = (ClientHello) clientHelloMC.getCurrentRecord();
+  		ExtensionList el = ch.getExtensionList();
+  		if (el != null) {
+  			List<Extension> extensions = el.getExtensions();
+  			for (Extension ex : extensions) {
+  				if (ex instanceof ServerNameExtension) {
+  					ServerNameExtension sne = (ServerNameExtension) ex;
+  					return sne.getServerNames().get(0);
+  				}
+  			}
+  		}
+  		return null;
+  	}
+  	*/
 
 
 

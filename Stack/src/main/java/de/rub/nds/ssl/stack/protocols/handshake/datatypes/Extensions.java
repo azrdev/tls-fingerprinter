@@ -145,8 +145,8 @@ public final class Extensions extends APubliclySerializable {
         }
 
         pointer = LENGTH_LENGTH_FIELD;
-        while (payloadCopy.length >= pointer
-                + AExtension.LENGTH_MINIMUM_ENCODED) {
+        while (payloadCopy.length >= pointer + AExtension.LENGTH_MINIMUM_ENCODED) {
+            //TODO: this duplicates AExtension.decode()
 
             // 1. extract extension type
             tmp = new byte[EExtensionType.LENGTH_ENCODED];
@@ -156,21 +156,23 @@ public final class Extensions extends APubliclySerializable {
             // 2. determine extension length
             extractedLength = extractLength(payloadCopy,
                     pointer + EExtensionType.LENGTH_ENCODED,
-                    AExtension.LENGTH_MINIMUM_ENCODED
-                    - EExtensionType.LENGTH_ENCODED);
+                    AExtension.LENGTH_MINIMUM_ENCODED - EExtensionType.LENGTH_ENCODED);
 
             // 3. extract message
             if (payloadCopy.length < pointer + extractedLength) {
-                throw new IllegalArgumentException(
-                        "Extensions payload too short.");
+                throw new IllegalArgumentException("Extensions payload too short.");
             }
             tmp = new byte[extractedLength + AExtension.LENGTH_MINIMUM_ENCODED];
             System.arraycopy(payloadCopy, pointer, tmp, 0, tmp.length);
             pointer += tmp.length;
 
             // 4. add message to message list
-            tmpExtension = delegateDecoding(extensionType, tmp);
-            extensions.add(tmpExtension);
+            try {
+                tmpExtension = delegateDecoding(extensionType, tmp);
+                extensions.add(tmpExtension);
+            } catch(IllegalArgumentException ex) {
+                System.out.println("Could not decode extension: " + ex);
+            }
         }
     }
 
@@ -188,16 +190,14 @@ public final class Extensions extends APubliclySerializable {
         // invoke decode
         Class<AExtension> implClass = type.getImplementingClass();
         if (implClass == null) {
-            throw new IllegalArgumentException(
-                    "No suitable implementing class. "
-                    + "Unsupport extension? (Type: " + type + ")");
+            throw new IllegalArgumentException("No suitable implementing class. "
+                    + "Unsupported " + type);
         }
 
         try {
             Class[] parameter = new Class[1];
             parameter[0] = byte[].class;
-            Constructor<AExtension> constructor = implClass.getConstructor(
-                    parameter);
+            Constructor<AExtension> constructor = implClass.getConstructor(parameter);
             result = constructor.newInstance(message);
 
             // set extension type
@@ -206,12 +206,15 @@ public final class Extensions extends APubliclySerializable {
                     EExtensionType.class);
             setExtensionType.setAccessible(true);
             setExtensionType.invoke(result, type);
-        } catch (InvocationTargetException | SecurityException |
-                NoSuchMethodException | InstantiationException |
-                IllegalArgumentException | IllegalAccessException ex) {
+        } catch (InvocationTargetException |
+                SecurityException |
+                NoSuchMethodException |
+                InstantiationException |
+                IllegalArgumentException |
+                IllegalAccessException ex) {
             throw new IllegalArgumentException(
                     "Problems during decoding delegation for "
-                    + type + " and class " + implClass.getCanonicalName(), ex);
+                    + type + " and class " + implClass.getCanonicalName(), ex); //XXX: hides details of ex
         }
         return result;
     }

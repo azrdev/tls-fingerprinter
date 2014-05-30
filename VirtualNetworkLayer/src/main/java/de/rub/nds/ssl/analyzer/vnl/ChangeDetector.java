@@ -39,8 +39,10 @@ public class ChangeDetector {
 	}
 	
 	public String toString() {
-		return "ChangeDetector: " + fingerprints.size() + " different fingerprints seen, " + this.changes + " changes so far.";
-	}
+		return String.format("ChangeDetector: %d different fingerprints seen, " +
+                "%d changes so far.",
+                this.changes, fingerprints.size());
+    }
 	
 	
 

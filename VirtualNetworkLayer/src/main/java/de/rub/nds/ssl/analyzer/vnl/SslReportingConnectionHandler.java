@@ -47,14 +47,16 @@ public final class SslReportingConnectionHandler extends ConnectionHandler {
     @Override
     public void newConnection(final Event event,
             final PcapConnection connection) {
-    	
-        if (event == Event.New && isSsl(connection)) {
-            // System.out.println("new connection");
-            // There is a new SSL connection
-            handleUpdate(connection);
-        } else if (event == Event.Update && isSsl(connection)) {
-            // A new frame has arrived
-            handleUpdate(connection);
+
+        if (isSsl(connection)) {
+            if (event == Event.New) {
+                // System.out.println("new connection");
+                // There is a new SSL connection
+                handleUpdate(connection);
+            } else if (event == Event.Update) {
+                // A new frame has arrived
+                handleUpdate(connection);
+            }
         }
     }
 
@@ -68,17 +70,18 @@ public final class SslReportingConnectionHandler extends ConnectionHandler {
 			try {
 				c = new Connection(connection);
 			} catch (Throwable e) {
-				// Ignore that for now
+				System.out.println("Error decoding connection: " + e);
+				e.printStackTrace();
 				return;
 			}
 			if (c.isCompleted()) {
 				reportedSessions.add(session);
 				
 				// We are interested only in those which a server host name
-//				if (c.getServerHostName() != null) {
-//					cd.reportConnection(c.getClientHelloFingerprint(), c.getServerFingerprint());
-//				}
-				// c.printReport();
+  				//if (c.getServerHostName() != null) {
+  					cd.reportConnection(c.getClientHelloFingerprint(), c.getServerFingerprint());
+  				//}
+				c.printReport();
 				/*
 				System.out.println("Found a connection to: " + c.getServerHostName());
 				System.out.println("Label was " + c.getNetworkFingerprint());

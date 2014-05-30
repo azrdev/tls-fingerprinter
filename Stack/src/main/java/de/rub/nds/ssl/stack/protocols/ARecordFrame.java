@@ -266,7 +266,7 @@ public abstract class ARecordFrame extends APubliclySerializable {
      * @return The payload of this record frame.
      */
     public byte[] getPayload() {
-        // deep copy
+        // deep copy //TODO: why a second deep copy? setPayload() already does one
         byte[] tmp = new byte[payload.length];
         System.arraycopy(payload, 0, tmp, 0, tmp.length);
 
