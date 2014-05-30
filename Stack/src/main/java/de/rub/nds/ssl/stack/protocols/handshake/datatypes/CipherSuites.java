@@ -1,5 +1,6 @@
 package de.rub.nds.ssl.stack.protocols.handshake.datatypes;
 
+import de.rub.nds.ssl.stack.exceptions.UnknownCipherSuiteException;
 import de.rub.nds.ssl.stack.protocols.commons.APubliclySerializable;
 import de.rub.nds.ssl.stack.protocols.commons.ECipherSuite;
 import java.util.Arrays;
@@ -138,8 +139,12 @@ public final class CipherSuites extends APubliclySerializable {
         ECipherSuite[] cipherSuites = new ECipherSuite[cipherSuitesCount];
         for (int j = 0, i = LENGTH_LENGTH_FIELD; j < cipherSuitesCount;
                 i += ECipherSuite.LENGTH_ENCODED, j++) {
-            cipherSuites[j] = ECipherSuite.getCipherSuite(
-                    new byte[]{tmpSuites[i], tmpSuites[i + 1]});
+            try {
+                cipherSuites[j] = ECipherSuite.getCipherSuite(
+                        new byte[]{tmpSuites[i], tmpSuites[i + 1]});
+            } catch(UnknownCipherSuiteException e) {
+                continue; //XXX
+            }
         }
         setSuites(cipherSuites);
     }

@@ -1,8 +1,10 @@
 package de.rub.nds.ssl.stack.protocols.handshake.extensions.datatypes;
 
 import de.rub.nds.ssl.stack.Utility;
+import de.rub.nds.ssl.stack.exceptions.UnknownTLSExtensionException;
 import de.rub.nds.ssl.stack.protocols.handshake.extensions.EllipticCurves;
 import de.rub.nds.ssl.stack.protocols.handshake.extensions.SupportedPointFormats;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -159,7 +161,7 @@ public enum EExtensionType{
      * @param id ID of the desired extension
      * @return Associated extension
      */
-    public static EExtensionType getExtension(final byte[] id) {
+    public static EExtensionType getExtension(final byte[] id) throws UnknownTLSExtensionException {
         final int extension;
         if (id == null || id.length != LENGTH_ENCODED) {
             throw new IllegalArgumentException(
@@ -170,7 +172,7 @@ public enum EExtensionType{
         extension = (id[0]&0xff) << Utility.BITS_IN_BYTE | id[1] & 0xff;
 
         if (!ID_MAP.containsKey(extension)) {
-            throw new IllegalArgumentException("No such extension: " + extension);
+            throw new UnknownTLSExtensionException(extension);
         }
 
         return ID_MAP.get(extension);

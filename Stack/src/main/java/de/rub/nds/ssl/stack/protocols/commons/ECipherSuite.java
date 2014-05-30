@@ -4,6 +4,7 @@ import de.rub.nds.ssl.stack.Utility;
 import java.util.HashMap;
 import java.util.Map;
 
+import de.rub.nds.ssl.stack.exceptions.UnknownCipherSuiteException;
 import de.rub.nds.ssl.stack.protocols.handshake.datatypes.EKeyExchangeAlgorithm;
 
 /**
@@ -435,7 +436,7 @@ public enum ECipherSuite {
      * @param id ID of the desired cipher suite
      * @return Associated cipher suite
      */
-    public static ECipherSuite getCipherSuite(final byte[] id) {
+    public static ECipherSuite getCipherSuite(final byte[] id) throws UnknownCipherSuiteException {
         final int cipherSuite;
 
         if (id == null || id.length != LENGTH_ENCODED) {
@@ -446,8 +447,7 @@ public enum ECipherSuite {
         cipherSuite = ((id[0] & 0xff) << Utility.BITS_IN_BYTE) | (id[1] & 0xff);
 
         if (!ID_MAP.containsKey(cipherSuite)) {
-            throw new IllegalArgumentException(
-                    "No such cipher suite: " + Integer.toHexString(cipherSuite));
+            throw new UnknownCipherSuiteException(cipherSuite);
         }
 
         return ID_MAP.get(cipherSuite);

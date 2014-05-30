@@ -435,7 +435,7 @@ public final class ClientHello extends AHandshakeRecord {
             byte[] extensionPart = new byte[payloadCopy.length - pointer];
             System.arraycopy(payloadCopy, pointer, extensionPart, 0,
                     extensionPart.length);
-            Extensions decodedExtensions = new Extensions(message);
+            Extensions decodedExtensions = new Extensions(extensionPart);
             setExtensions(decodedExtensions);
         } else {
             extensions = null;
