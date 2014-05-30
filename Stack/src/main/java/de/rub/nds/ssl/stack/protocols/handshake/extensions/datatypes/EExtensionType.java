@@ -93,7 +93,12 @@ public enum EExtensionType{
     /**
      * Renegotiation info (RFC5746).
      */
-    RENEGOTIATION_INFO(new byte[]{(byte) ((byte) 255 & 0xFF), 0x01}, null);
+    RENEGOTIATION_INFO(new byte[]{(byte) ((byte) 255 & 0xFF), 0x01}, null),
+    /**
+     * Padding (draft <http://www.iana.org/go/draft-agl-tls-padding>)
+     */
+    PADDING(new byte[]{(byte)0x00, (byte)0x15}, null);
+
    
     /**
      * Length of the extension id: 2 Bytes.

@@ -16,13 +16,19 @@ public enum EMessageType {
     HELLO_REQUEST((byte) 0x0, HelloRequest.class),
     CLIENT_HELLO((byte) 0x1, ClientHello.class),
     SERVER_HELLO((byte) 0x2, ServerHello.class),
+    HELLO_VERIFY_REQUEST((byte) 0x3, null),
+    NEW_SESSION_TICKET((byte) 0x4, null),
     CERTIFICATE((byte) 0xb, Certificate.class),
     SERVER_KEY_EXCHANGE((byte) 0xc, ServerKeyExchange.class),
     CERTIFICATE_REQUEST((byte) 0xd, null),
     SERVER_HELLO_DONE((byte) 0xe, ServerHelloDone.class),
     CERTIFICATE_VERIFY((byte) 0xf, null),
     CLIENT_KEY_EXCHANGE((byte) 0x10, ClientKeyExchange.class),
-    FINISHED((byte) 0x14, Finished.class);
+    FINISHED((byte) 0x14, Finished.class),
+    CERTIFICATE_URL((byte) 0x15, null),
+    CERTIFICATE_STATUS((byte) 0x16, null),
+    SUPPLEMENTAL_DATA((byte) 0x17, null);
+
     /**
      * Length of the message type id: 1 Byte
      */

@@ -68,7 +68,7 @@ public class TlsHeader extends Header {
         SSL3_0(3, 0),
         TLS1_0(3, 1),
         TLS1_1(3, 2),
-        TLS1_2(3, 2);
+        TLS1_2(3, 3);
 
         private int major;
         private int minor;
