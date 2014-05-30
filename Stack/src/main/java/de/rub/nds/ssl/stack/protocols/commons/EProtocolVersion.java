@@ -81,7 +81,7 @@ public enum EProtocolVersion {
      */
     public String toString() {
     	byte[] id = this.getId();
-    	return "EProtocolVersion: Major " + id[0] + " Minor " + id[1];
+    	return String.format("EProtocolVersion: %s (%s)", name(), Utility.bytesToHex(id));
     }
 
     /**

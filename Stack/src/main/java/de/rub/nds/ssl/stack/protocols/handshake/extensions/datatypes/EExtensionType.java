@@ -157,7 +157,8 @@ public enum EExtensionType{
     @Override
     public String toString() {
         byte[] id = this.getId();
-        return "EExtension: Major " + id[0] + " Minor " + id[1];
+        return String.format("EExtension: type %s (%d) %s",
+                Utility.bytesToHex(id), Utility.bytesToInt(id), name());
     }
 
     /**

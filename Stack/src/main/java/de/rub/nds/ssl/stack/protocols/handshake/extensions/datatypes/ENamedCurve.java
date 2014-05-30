@@ -92,8 +92,8 @@ public enum ENamedCurve {
     @Override
     public String toString() {
         byte[] tmpID = this.getId();
-        return "ENamedCurve: Major " + (tmpID[0] & 0xFF)
-                + " Minor " + (tmpID[1] & 0xFF);
+        return String.format("ENamedCurve: %s (%d) %s",
+                Utility.bytesToHex(tmpID), Utility.bytesToInt(tmpID), name());
     }
 
     /**
