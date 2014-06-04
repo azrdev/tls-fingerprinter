@@ -147,7 +147,7 @@ public final class ServerHello extends AHandshakeRecord {
      * @return The extensions of this message
      */
     public Extensions getExtensions() {
-        return new Extensions(extensions.encode(false));
+        return extensions;
     }
 
     /**

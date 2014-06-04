@@ -22,7 +22,6 @@ public class ServerHelloFingerprint {
 		this.sessionIDlen = sh.getSessionID().getId().length;
 		this.compressionMethod = sh.getCompressionMethod();
 		this.extensionList = sh.getExtensions();
-		
 	}
 	
 	

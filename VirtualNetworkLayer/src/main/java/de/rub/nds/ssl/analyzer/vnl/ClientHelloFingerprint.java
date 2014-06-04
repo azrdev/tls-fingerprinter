@@ -20,10 +20,7 @@ public class ClientHelloFingerprint {
         this.msgProtocolVersion = hello.getMessageProtocolVersion();
         this.cipherSuites = hello.getCipherSuites();
         this.compressionMethod = hello.getCompressionMethod();
-        Extensions tmpExtensions = hello.getExtensions();
-        if (tmpExtensions != null) {
-            this.extensions = tmpExtensions.getExtensions();
-        }
+        this.extensions = hello.getExtensions().getExtensions();
     }
 
 //    public boolean equals(Object o) {

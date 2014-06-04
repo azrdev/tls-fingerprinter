@@ -183,7 +183,7 @@ public final class ClientHello extends AHandshakeRecord {
      * @return The extensions of this message
      */
     public Extensions getExtensions() {
-        return new Extensions(extensions.encode(false));
+        return extensions;
     }
 
     /**
@@ -429,6 +429,7 @@ public final class ClientHello extends AHandshakeRecord {
         setCompressionMethod(tmpBytes);
         pointer += tmpBytes.length;
 
+
         // 6. check for extensions
         if (payloadCopy.length > pointer) {
             // OK, extensions present
@@ -438,7 +439,7 @@ public final class ClientHello extends AHandshakeRecord {
             Extensions decodedExtensions = new Extensions(extensionPart);
             setExtensions(decodedExtensions);
         } else {
-            extensions = null;
+            extensions = new Extensions();
         }
     }
 
