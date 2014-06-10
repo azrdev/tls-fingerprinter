@@ -61,7 +61,7 @@ public final class ClientKeyExchange extends AHandshakeRecord {
         super();
         this.setMessageType(EMessageType.CLIENT_KEY_EXCHANGE);
         this.keyExchangeAlgorithm =
-                EKeyExchangeAlgorithm.valueOf(exchangeAlgorithm.name());
+                EKeyExchangeAlgorithm.valueOf(exchangeAlgorithm.name()); //XXX: exchangeAlgorithm sometimes null
         this.decode(message, chained);
     }
 
@@ -213,24 +213,21 @@ public final class ClientKeyExchange extends AHandshakeRecord {
         // check size
         switch (keyExchangeAlgorithm) {
             case DIFFIE_HELLMAN:
-                if (payloadCopy.length
-                        < ClientDHPublic.LENGTH_MINIMUM_ENCODED) {
+                if (payloadCopy.length < ClientDHPublic.LENGTH_MINIMUM_ENCODED) {
                     throw new IllegalArgumentException(
                             "ClientKeyExchange message too short.");
                 }
                 exchangeKeys = new ClientDHPublic(payloadCopy);
                 break;
             case RSA:
-                if (payloadCopy.length
-                        < PreMasterSecret.LENGTH_MINIMUM_ENCODED) {
+                if (payloadCopy.length < PreMasterSecret.LENGTH_MINIMUM_ENCODED) {
                     throw new IllegalArgumentException(
                             "ClientKeyExchange message too short.");
                 }
                 exchangeKeys = new EncPreMasterSecret(payloadCopy);
                 break;
             case EC_DIFFIE_HELLMAN:
-                if (payloadCopy.length
-                        < ClientECDHPublic.LENGTH_MINIMUM_ENCODED) {
+                if (payloadCopy.length < ClientECDHPublic.LENGTH_MINIMUM_ENCODED) {
                     throw new IllegalArgumentException(
                             "ClientKeyExchange message too short.");
                 }

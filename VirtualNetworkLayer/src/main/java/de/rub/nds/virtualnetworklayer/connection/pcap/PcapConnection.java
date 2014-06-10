@@ -208,8 +208,10 @@ public class PcapConnection implements Connection {
         return trace.get(next);
     }
 
-    void updateFingerprint(Packet.Direction direction, Fingerprint print, Fingerprint.Signature signature, Label label) {
-        if (getLabel(direction, print.getId()) == null || getLabel(direction, print.getId()).compareTo(label) < 0) {
+    void updateFingerprint(Packet.Direction direction, Fingerprint print,
+                           Fingerprint.Signature signature, Label label) {
+        if (getLabel(direction, print.getId()) == null
+		        || getLabel(direction, print.getId()).compareTo(label) < 0) {
             labels[direction.ordinal()][print.getId()] = label;
             signatures[direction.ordinal()][print.getId()] = signature;
         }

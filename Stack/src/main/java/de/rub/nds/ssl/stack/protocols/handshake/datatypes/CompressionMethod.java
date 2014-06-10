@@ -11,6 +11,7 @@ import java.util.Arrays;
  *
  * Nov 15, 2011
  */
+//TODO: create interface + classes for concrete compression methods, instead of using byte[]
 public final class CompressionMethod extends APubliclySerializable {
 
     /**

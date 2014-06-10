@@ -12,7 +12,7 @@ import de.rub.nds.virtualnetworklayer.packet.Packet.Direction;
 import de.rub.nds.virtualnetworklayer.packet.PcapPacket;
 import de.rub.nds.virtualnetworklayer.packet.header.Header;
 import de.rub.nds.virtualnetworklayer.packet.header.application.TlsHeader;
-import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 public class Connection {
@@ -53,6 +53,7 @@ public class Connection {
 	}
 	
 	public ClientHelloFingerprint getClientHelloFingerprint() {
+		// the first message is always the ClientHello
 		MessageContainer clientHelloMC = fl.get(0);
 		ClientHello ch = (ClientHello) clientHelloMC.getCurrentRecord();
 		return new ClientHelloFingerprint(ch);
@@ -82,8 +83,6 @@ public class Connection {
 		return this.networkFingerprint;
 	}
 	
-
-	
 	public void printReport() {
 		if (fl != null) {
 			System.out.println("###########################################################################");
@@ -98,7 +97,7 @@ public class Connection {
 	}
 
 	private List<MessageContainer> decodeTrace() {
-		List<MessageContainer> frameList = new ArrayList<MessageContainer>();
+		List<MessageContainer> frameList = new LinkedList<>();
 		EKeyExchangeAlgorithm keyExchangeAlgorithm = null;
 	
 		boolean clientCompleted = false;
@@ -111,7 +110,8 @@ public class Connection {
 			 * System.out.println("direction " + packet.getDirection());
 			 */
 			for (Header header : packet.getHeaders()) {
-				if (header instanceof TlsHeader) {
+				if(header instanceof  TlsHeader) {
+				//XXX: if (header.getId() == TlsHeader.Id) {
 					if ((packet.getDirection() == Direction.Request && !clientCompleted)
 							|| (packet.getDirection() == Direction.Response && !serverCompleted)) {
 						// Get the raw bytes of the frame, including the header
@@ -127,13 +127,11 @@ public class Connection {
 						for (int i = 0; i < frames.length; i++) {
 							if (frames[i] == null) {
 								// Something went wrong
-								System.out
-										.println("failed to parse something: "
-												+ packet + " "
-												+ packet.getHeaders());
+								System.out.println("failed to parse something: "
+										+ packet + " "
+										+ packet.getHeaders());
 							}
-							frameList.add(new MessageContainer(frames[i],
-									packet));
+							frameList.add(new MessageContainer(frames[i], packet));
 							/*
 							 * Does this complete the unencrypted part of the handshake?
 							 */

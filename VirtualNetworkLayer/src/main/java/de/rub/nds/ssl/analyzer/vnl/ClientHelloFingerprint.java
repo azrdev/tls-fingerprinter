@@ -23,19 +23,6 @@ public class ClientHelloFingerprint {
         this.extensions = hello.getExtensions().getExtensions();
     }
 
-//    public boolean equals(Object o) {
-//    	if (o instanceof ClientHelloFingerprint) {
-//    		ClientHelloFingerprint f = (ClientHelloFingerprint) o;
-//    		return
-//        			(f.msgProtocolVersion.equals(msgProtocolVersion)) &&
-//        			(Arrays.equals(f.cipherSuites, cipherSuites)) &&
-//        			(Arrays.equals(f.compressionMethod, compressionMethod)) &&
-//        			(f.extensionList.equals(extensionList));
-//    	} else {
-//    		return super.equals(o);
-//    	}
-//    	
-//    }
     @Override
     public int hashCode() {
         final int prime = 31;
