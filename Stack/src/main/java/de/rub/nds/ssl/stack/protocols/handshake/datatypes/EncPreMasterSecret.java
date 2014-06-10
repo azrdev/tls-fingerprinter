@@ -144,26 +144,26 @@ public final class EncPreMasterSecret extends APubliclySerializable
     public void decode(final byte[] message, final boolean chained) {
         final byte[] encryptedSecret = new byte[message.length];
         byte[] tmpBytes;
-        int pointer;
+        int pointer = 0;
         int length;
 
         // deep copy
-        System.arraycopy(message, 0, encryptedSecret,
-                0, encryptedSecret.length);
+        System.arraycopy(message, 0, encryptedSecret, 0, encryptedSecret.length);
 
-        pointer = 0;
         // 1. extract length
         tmpBytes = new byte[LENGTH_BYTES];
-        System.arraycopy(encryptedSecret, pointer,
-                tmpBytes, 0, tmpBytes.length);
+        System.arraycopy(encryptedSecret, pointer, tmpBytes, 0, tmpBytes.length);
+	    length = extractLength(tmpBytes, 0, LENGTH_BYTES);
         pointer += tmpBytes.length;
 
+	    if(encryptedSecret.length < pointer + length) {
+		    throw new IllegalArgumentException(
+				    "Length of Encrypted Pre-Master Secret too small");
+	    }
         // 2. extract ciphertext
-        length = extractLength(encryptedSecret, 0, 2);
         tmpBytes = new byte[length];
         System.arraycopy(encryptedSecret, pointer, tmpBytes, 0, length);
         setEncryptedPreMasterSecret(tmpBytes);
-
     }
 
     /**
