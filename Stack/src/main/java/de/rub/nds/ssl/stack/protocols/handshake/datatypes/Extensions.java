@@ -1,5 +1,6 @@
 package de.rub.nds.ssl.stack.protocols.handshake.datatypes;
 
+import de.rub.nds.ssl.stack.Utility;
 import de.rub.nds.ssl.stack.exceptions.UnknownTLSExtensionException;
 import de.rub.nds.ssl.stack.protocols.commons.APubliclySerializable;
 import de.rub.nds.ssl.stack.protocols.handshake.extensions.AExtension;
@@ -131,10 +132,6 @@ public final class Extensions extends APubliclySerializable {
     @Override
     public void decode(final byte[] message, final boolean chained) {
         int pointer;
-        int extractedLength;
-        EExtensionType extensionType;
-        AExtension tmpExtension;
-        byte[] tmp;
 
         // deep copy
         final byte[] payloadCopy = new byte[message.length];
@@ -147,12 +144,21 @@ public final class Extensions extends APubliclySerializable {
 
         pointer = LENGTH_LENGTH_FIELD;
         while (payloadCopy.length >= pointer + AExtension.LENGTH_MINIMUM_ENCODED) {
+
             //TODO: this duplicates AExtension.decode()
+	        int extractedLength;
+	        EExtensionType extensionType = null;
+	        AExtension tmpExtension;
+	        byte[] tmp;
 
             // 1. extract extension type
             tmp = new byte[EExtensionType.LENGTH_ENCODED];
             System.arraycopy(payloadCopy, pointer, tmp, 0, tmp.length);
-            extensionType = EExtensionType.getExtension(tmp);
+	        try {
+		        extensionType = EExtensionType.getExtension(tmp);
+	        } catch (UnknownTLSExtensionException ex) {
+		        //XXX: log
+	        }
 
             // 2. determine extension length
             extractedLength = extractLength(payloadCopy,
@@ -168,6 +174,11 @@ public final class Extensions extends APubliclySerializable {
             pointer += tmp.length;
 
             // 4. add message to message list
+	        if(extensionType == null) {
+		        System.out.println(String.format("Unknown extension: %s",
+				        Utility.bytesToHex(tmp))); //XXX: logging?
+		        continue;
+	        }
             try {
                 tmpExtension = delegateDecoding(extensionType, tmp);
                 extensions.add(tmpExtension);

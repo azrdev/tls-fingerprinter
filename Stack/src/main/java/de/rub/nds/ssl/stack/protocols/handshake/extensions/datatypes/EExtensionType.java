@@ -12,8 +12,8 @@ import java.util.Map;
  * TLS supported extensions. (data based on
  * http://www.iana.org/assignments/tls-extensiontype-values/tls-extensiontype-values.xml)
  *
- * each value is designated the identifier (from above spec) of type byte[2],
- * and the implementing {@link java.lang.Class}
+ * Each value is designated the identifier (from above spec) of type byte[2],
+ * and the implementing {@link java.lang.Class}.
  *
  * @author Christopher Meyer - christopher.meyer@rub.de
  * @version 0.1
@@ -107,8 +107,8 @@ public enum EExtensionType{
     /**
      * Map of an id to the extension.
      */
-    private static final Map<Integer, EExtensionType> ID_MAP = 
-            new HashMap<>(16);
+    private static final Map<Integer, EExtensionType> ID_MAP = new HashMap<>(16);
+
     /**
      * Id of the extension.
      */
@@ -144,11 +144,7 @@ public enum EExtensionType{
      * @return Id as byte array
      */
     public byte[] getId() {
-        byte[] tmp = new byte[id.length];
-        // deep copy
-        System.arraycopy(id, 0, tmp, 0, tmp.length);
-
-        return tmp;
+	    return id;
     }
 
     /**
@@ -167,7 +163,8 @@ public enum EExtensionType{
      * @param id ID of the desired extension
      * @return Associated extension
      */
-    public static EExtensionType getExtension(final byte[] id) throws UnknownTLSExtensionException {
+    public static EExtensionType getExtension(final byte[] id)
+		    throws UnknownTLSExtensionException {
         final int extension;
         if (id == null || id.length != LENGTH_ENCODED) {
             throw new IllegalArgumentException(

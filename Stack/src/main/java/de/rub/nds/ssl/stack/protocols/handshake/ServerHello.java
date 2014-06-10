@@ -1,5 +1,6 @@
 package de.rub.nds.ssl.stack.protocols.handshake;
 
+import de.rub.nds.ssl.stack.exceptions.UnknownCipherSuiteException;
 import de.rub.nds.ssl.stack.protocols.commons.ECipherSuite;
 import de.rub.nds.ssl.stack.protocols.commons.EProtocolVersion;
 import de.rub.nds.ssl.stack.protocols.handshake.datatypes.CompressionMethod;
@@ -26,10 +27,10 @@ public final class ServerHello extends AHandshakeRecord {
             + SessionId.LENGTH_MINIMUM_ENCODED
             + ECipherSuite.LENGTH_ENCODED
             + CompressionMethod.LENGTH_MINIMUM_ENCODED;
+
     private EProtocolVersion msgProtocolVersion = getProtocolVersion();
     private RandomValue random = new RandomValue();
-    private ECipherSuite cipherSuite =
-            ECipherSuite.TLS_DH_RSA_WITH_3DES_EDE_CBC_SHA;
+    private ECipherSuite cipherSuite = ECipherSuite.TLS_DH_RSA_WITH_3DES_EDE_CBC_SHA;
     private SessionId sessionID = new SessionId();
     private CompressionMethod compressionMethod = new CompressionMethod();
     private Extensions extensions = null;
@@ -72,15 +73,13 @@ public final class ServerHello extends AHandshakeRecord {
      *
      * @param protocolVersion The protocol version to be used for this message
      */
-    public void setMessageProtocolVersion(
-            final EProtocolVersion protocolVersion) {
+    public void setMessageProtocolVersion(final EProtocolVersion protocolVersion) {
         if (protocolVersion == null) {
             throw new IllegalArgumentException(
                     "Protocol version must not be null!");
         }
 
-        this.msgProtocolVersion = EProtocolVersion.valueOf(
-                protocolVersion.name());
+        this.msgProtocolVersion = EProtocolVersion.valueOf(protocolVersion.name());
     }
 
     /**
@@ -90,8 +89,7 @@ public final class ServerHello extends AHandshakeRecord {
      * message in encoded form
      */
     public void setMessageProtocolVersion(final byte[] protocolVersion) {
-        this.msgProtocolVersion = EProtocolVersion.getProtocolVersion(
-                protocolVersion);
+        this.msgProtocolVersion = EProtocolVersion.getProtocolVersion(protocolVersion);
     }
 
     /**
@@ -224,8 +222,7 @@ public final class ServerHello extends AHandshakeRecord {
         }
 
         // deep copy
-        this.compressionMethod = new CompressionMethod(
-                compressionMethod.encode(false));
+        this.compressionMethod = new CompressionMethod(compressionMethod.encode(false));
     }
 
     /**
@@ -414,6 +411,11 @@ public final class ServerHello extends AHandshakeRecord {
      * @param suite The cipher suite to be used for this message
      */
     public void setCipherSuite(final byte[] suite) {
-        this.cipherSuite = ECipherSuite.getCipherSuite(suite);
+	    try {
+		    this.cipherSuite = ECipherSuite.getCipherSuite(suite);
+	    } catch (UnknownCipherSuiteException ex) {
+		    System.out.println(ex); //XXX: logging
+		    this.cipherSuite = null;
+	    }
     }
 }
