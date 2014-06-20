@@ -3,6 +3,7 @@ package de.rub.nds.ssl.stack.protocols.handshake.extensions.datatypes;
 import de.rub.nds.ssl.stack.Utility;
 import de.rub.nds.ssl.stack.exceptions.UnknownTLSExtensionException;
 import de.rub.nds.ssl.stack.protocols.handshake.extensions.EllipticCurves;
+import de.rub.nds.ssl.stack.protocols.handshake.extensions.ServerNameList;
 import de.rub.nds.ssl.stack.protocols.handshake.extensions.SupportedPointFormats;
 
 import java.util.HashMap;
@@ -25,7 +26,7 @@ public enum EExtensionType{
     /**
      * Server Name (RFC6066).
      */
-    SERVER_NAME(new byte[]{0x00, 0x0}, null),
+    SERVER_NAME(new byte[]{0x00, 0x00}, ServerNameList.class),
     /**
      * Max fragment length (RFC6066).
      */
@@ -86,6 +87,21 @@ public enum EExtensionType{
      * Heartbeat (RFC6520).
      */
     HEARTBEAT(new byte[]{0x00, 0x0F}, null),
+
+	/**
+	 * Status Request Version 2 (RFC6961)
+	 */
+	STATUS_REQUEST_V2(new byte[]{0x00, 0x11}, null),
+	/**
+	 * Signed Certificate Timestamp (RFC6962)
+	 */
+	SIGNED_CERTIFICATE_TIMESTAMP(new byte[]{0x00, 0x12}, null),
+
+	/**
+	 * Padding (draft <http://www.iana.org/go/draft-agl-tls-padding>)
+	 */
+	PADDING(new byte[]{0x00, 0x15}, null),
+
     /**
      * Session ticket TLS (RFC4507).
      */
@@ -93,11 +109,7 @@ public enum EExtensionType{
     /**
      * Renegotiation info (RFC5746).
      */
-    RENEGOTIATION_INFO(new byte[]{(byte) ((byte) 255 & 0xFF), 0x01}, null),
-    /**
-     * Padding (draft <http://www.iana.org/go/draft-agl-tls-padding>)
-     */
-    PADDING(new byte[]{(byte)0x00, (byte)0x15}, null);
+    RENEGOTIATION_INFO(new byte[]{(byte) 0xFF, 0x01}, null);
 
    
     /**
@@ -153,8 +165,7 @@ public enum EExtensionType{
     @Override
     public String toString() {
         byte[] id = this.getId();
-        return String.format("EExtension: type %s (%d) %s",
-                Utility.bytesToHex(id), Utility.bytesToInt(id), name());
+        return String.format("EExtension: type %s %s", Utility.bytesIdToHex(id), name());
     }
 
     /**

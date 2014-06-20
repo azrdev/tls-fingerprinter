@@ -1,5 +1,7 @@
 package de.rub.nds.ssl.stack;
 
+import static de.rub.nds.ssl.stack.Utility.bytesIdToHex;
+
 /**
  * Helper routines for common use
  *
@@ -30,6 +32,20 @@ public final class Utility {
     private Utility() {
     }
 
+	/**
+	 * Convert an identifier stored in a byte array to its hex and integer representation.
+	 * @param bytes
+	 * @return string
+	 */
+	public static String bytesIdToHex(final byte[] bytes) {
+		return String.format("0x%s (%d)",
+				bytesToHex(bytes, false), bytesToInt(bytes));
+	}
+
+	public static String bytesIdToHex(final byte b) {
+		return bytesIdToHex(new byte[]{b});
+	}
+
     /**
      * Converts a byte array into its hex string representation.
      *
@@ -37,6 +53,10 @@ public final class Utility {
      * @return Hex string of delivered byte array
      */
     public static String bytesToHex(final byte[] bytes) {
+	    return bytesToHex(bytes, true);
+    }
+
+    private static String bytesToHex(final byte[] bytes, boolean addSpaces) {
         StringBuilder builder = new StringBuilder(bytes.length * 2);
 
         for (int i = 0; i < bytes.length; i++) {
@@ -44,7 +64,8 @@ public final class Utility {
             builder.append(HEXCHARS[(bytes[i] & 0xff) >>> 4]);
             // handling the LSBs
             builder.append(HEXCHARS[bytes[i] & 0xf]);
-            builder.append(' ');
+	        if(addSpaces)
+                builder.append(' ');
         }
 
         return builder.toString().trim();

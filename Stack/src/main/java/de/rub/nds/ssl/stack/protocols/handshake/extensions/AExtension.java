@@ -14,7 +14,7 @@ public abstract class AExtension extends APubliclySerializable {
     /**
      * Length of the Extension Type field.
      */
-    private static final int LENGTH_EXTENSION_TYPE = 2;
+    private static final int LENGTH_EXTENSION_TYPE = EExtensionType.LENGTH_ENCODED;
     /**
      * Length header of extension data.
      */
@@ -91,9 +91,10 @@ public abstract class AExtension extends APubliclySerializable {
     protected final void setExtensionData(final byte[] extensionData) {
         if (extensionData != null) {
             // deep copy
-        this.extensionData = new byte[extensionData.length];
-        System.arraycopy(extensionData, 0, this.extensionData, 0, 
-                this.extensionData.length);
+	        this.extensionData = new byte[extensionData.length];
+	        System.arraycopy(extensionData, 0,
+			        this.extensionData, 0,
+	                this.extensionData.length);
         }
     }
     
@@ -157,17 +158,17 @@ public abstract class AExtension extends APubliclySerializable {
         setExtensionType(EExtensionType.getExtension(tmpBytes));
         pointer += tmpBytes.length;
 
-        // 2. extension data 
-        extractedLength =
-                extractLength(messageCopy, pointer, LENGTH_BYTES);
-        if (pointer + extractedLength + LENGTH_BYTES
-                > messageCopy.length) {
-            throw new IllegalArgumentException(
-                    "Extension data length invalid.");
+        // 2. extension data length
+        extractedLength = extractLength(messageCopy, pointer, LENGTH_BYTES);
+	    pointer += LENGTH_BYTES;
+        if (pointer + extractedLength > messageCopy.length) {
+            throw new IllegalArgumentException("Extension data length invalid.");
         }
-        pointer += LENGTH_BYTES;
+
+	    // 3. extension data
         tmpBytes = new byte[extractedLength];
         System.arraycopy(messageCopy, pointer, tmpBytes, 0, tmpBytes.length);
         setExtensionData(tmpBytes);
+	    // decoding of extension data is done by subclass, using getExtensionData()
     }
 }
