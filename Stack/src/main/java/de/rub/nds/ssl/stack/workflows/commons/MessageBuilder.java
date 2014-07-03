@@ -29,7 +29,7 @@ import org.apache.log4j.Logger;
  * @author Christopher Meyer - christopher.meyer@ruhr-uni-bochum.de
  * @author Oliver Domke - oliver.domke@ruhr-uni-bochum.de
  * @version 0.2
- * 
+ *
  * Feb 05, 2014
  */
 public class MessageBuilder {
@@ -45,15 +45,17 @@ public class MessageBuilder {
      */
     public MessageBuilder() {
     }
-    
+
     /**
      * Create instance of BlockCipher or return it
      */
-    private GenericBlockCipher getBlockCipher(){
-        if(blockCipher == null)
+    private GenericBlockCipher getBlockCipher() {
+        if (blockCipher == null) {
             blockCipher = new GenericBlockCipher();
+        }
         return blockCipher;
     }
+
     /**
      * Builds a ClientHello message on the byte layer
      *
@@ -88,7 +90,7 @@ public class MessageBuilder {
         //set the cipher suites
         CipherSuites suites = new CipherSuites();
         suites.setSuites(new ECipherSuite[]{
-            ECipherSuite.TLS_RSA_WITH_AES_128_CBC_SHA});
+                    ECipherSuite.TLS_RSA_WITH_AES_128_CBC_SHA});
         clientHello.setCipherSuites(suites);
         clientHello.encode(true);
         return clientHello;
@@ -164,7 +166,7 @@ public class MessageBuilder {
             case EC_DIFFIE_HELLMAN:
                 ClientECDHPublic clientECDHPublic = new ClientECDHPublic();
                 clientECDHPublic.setExplicitPublicValueEncoding(true);
-                ECParameters ecParameters = keyParams.getECDHParameters();
+//                ECParameters ecParameters = keyParams.getECDHParameters();
 //                BigInteger order = new BigInteger(1, ecParameters.getOrder());
 //                ECPoint genPoint = ecParameters.getBase();
 //                
@@ -205,12 +207,13 @@ public class MessageBuilder {
 
         return finished;
     }
+
     /**
      * Create Application message
      *
      * @return Application message
      */
-    public final TLSPlaintext createApplication(EProtocolVersion protocol, final byte[] message){
+    public final TLSPlaintext createApplication(EProtocolVersion protocol, final byte[] message) {
         TLSPlaintext plain = new TLSPlaintext(protocol);
         plain.setFragment(message);
         plain.encode(false);
@@ -234,7 +237,7 @@ public class MessageBuilder {
         String cipherName = param.getBulkCipherAlgorithm().toString();
         String macName = param.getMacAlgorithm().toString();
         SecretKey macKey = new SecretKeySpec(keyMat.getClientMACSecret(), macName);
-        SecretKey symmKey = new SecretKeySpec(keyMat.getClientKey(), 
+        SecretKey symmKey = new SecretKeySpec(keyMat.getClientKey(),
                 cipherName);
         TLSCiphertext rec = new TLSCiphertext(protocolVersion, contentType);
         if (param.getCipherType() == ECipherType.BLOCK) {
@@ -284,9 +287,9 @@ public class MessageBuilder {
                 }
             }
             byte[] padding = new byte[paddingLength];
-                    System.arraycopy(plainBytes,
-                            plainBytes.length - 1 - paddingLength, padding, 0,
-                            padding.length);
+            System.arraycopy(plainBytes,
+                    plainBytes.length - 1 - paddingLength, padding, 0,
+                    padding.length);
             // TODO add MAC check
             blockCipher.computePayloadMAC(macKey, macName, false);
             // remove padding
@@ -341,10 +344,18 @@ public class MessageBuilder {
                 preMasterSecret = pms.getDHKey();
                 break;
             case EC_DIFFIE_HELLMAN:
-// TODO compute pre master secret correctly       
-                preMasterSecret = new byte[48];
+// TODO compute pre master secret correctly
+                // get the x coordinate of the ecdh key
+                // this is a temporary solution to enable ecdh key exchange.
+                // in order to do a key exchange, it is necessary to manually 
+                // intercept the Client finished state and set the ecdh key
+                if (pms != null && pms.getEcdhKey() != null) {
+                    preMasterSecret = pms.getEcdhKey();
+                } else {
+                    preMasterSecret = new byte[48];
+                }
                 break;
-            default:   
+            default:
                 preMasterSecret = new byte[48];
                 break;
         }

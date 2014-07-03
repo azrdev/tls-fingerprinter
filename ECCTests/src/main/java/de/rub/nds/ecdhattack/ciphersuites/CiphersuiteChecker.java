@@ -86,10 +86,9 @@ public class CiphersuiteChecker implements Observer {
 
                     Extensions extensions = new Extensions();
                     EllipticCurves curves = new EllipticCurves();
-                    curves.setSupportedCurves(new ENamedCurve[]{
-                                ENamedCurve.SECP_256_R1, ENamedCurve.SECP_192_R1,
-                                ENamedCurve.SECP_160_R1
-                            });
+                    curves.setSupportedCurves(
+                        ENamedCurve.values()
+                            );
                     extensions.addExtension(curves);
                     SupportedPointFormats formats = new SupportedPointFormats();
                     formats.setSupportedPointFormats(new EECPointFormat[]{

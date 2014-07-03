@@ -99,22 +99,23 @@ public class TLSConnector implements Observer {
                     CipherSuites suites = new CipherSuites();
                     suites.setSuites(new ECipherSuite[]{
 //                                ECipherSuite.TLS_ECDH_ECDSA_WITH_AES_128_CBC_SHA,
-//                                ECipherSuite.TLS_ECDH_RSA_WITH_AES_256_CBC_SHA,
-//                                ECipherSuite.TLS_ECDH_RSA_WITH_AES_128_CBC_SHA,
-//                                ECipherSuite.TLS_ECDH_RSA_WITH_AES_256_CBC_SHA384,
-//                                ECipherSuite.TLS_ECDH_RSA_WITH_AES_128_CBC_SHA256,
-//                        ECipherSuite.TLS_ECDH_anon_WITH_AES_128_CBC_SHA,
-//                        ECipherSuite.TLS_ECDH_anon_WITH_AES_256_CBC_SHA,
-                        ECipherSuite.TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA,
-                        ECipherSuite.TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA,
-                        ECipherSuite.TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA
+                                //                                ECipherSuite.TLS_ECDH_ECDSA_WITH_AES_256_CBC_SHA,
+                                                                ECipherSuite.TLS_ECDH_RSA_WITH_AES_256_CBC_SHA,
+                                                                ECipherSuite.TLS_ECDH_RSA_WITH_AES_128_CBC_SHA,
+                                                                ECipherSuite.TLS_ECDH_RSA_WITH_AES_256_CBC_SHA384,
+                                                                ECipherSuite.TLS_ECDH_RSA_WITH_AES_128_CBC_SHA256,
+                                //                        ECipherSuite.TLS_ECDH_anon_WITH_AES_128_CBC_SHA,
+                                //                        ECipherSuite.TLS_ECDH_anon_WITH_AES_256_CBC_SHA,
+                                ECipherSuite.TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA,
+                                ECipherSuite.TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA,
+                                ECipherSuite.TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA
                             });
                     clientHello.setCipherSuites(suites);
 
                     Extensions extensions = new Extensions();
                     EllipticCurves curves = new EllipticCurves();
                     curves.setSupportedCurves(new ENamedCurve[]{
-                                ENamedCurve.SECP_256_R1
+                                ENamedCurve.SECP_192_R1
                             });
                     extensions.addExtension(curves);
                     SupportedPointFormats formats = new SupportedPointFormats();

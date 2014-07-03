@@ -3,8 +3,11 @@ package de.rub.nds.ssl.stack.protocols.handshake.datatypes;
 import de.rub.nds.ssl.stack.protocols.commons.APubliclySerializable;
 import de.rub.nds.ssl.stack.protocols.commons.EProtocolVersion;
 import java.math.BigInteger;
+import java.security.GeneralSecurityException;
+import java.security.PublicKey;
 import java.security.SecureRandom;
 import java.util.Arrays;
+import javax.crypto.KeyAgreement;
 
 /**
  * PreMasterSecret part - as defined in RFC-2246.
@@ -39,6 +42,10 @@ public final class PreMasterSecret extends APubliclySerializable
      * Diffie Hellman key.
      */
     private byte[] dhZ;
+    /**
+     * Elliptic Curve Diffie Hellman key
+     */
+    private byte[] ecdhKey;
 
     /**
      * Initializes a PreMasterSecret part as defined in RFC 2246.
@@ -83,6 +90,23 @@ public final class PreMasterSecret extends APubliclySerializable
     public PreMasterSecret(final byte[] message) {
         this.decode(message, false);
     }
+
+    /**
+     * TODO
+     * temporary code from sun/security/ssl/ECDHCrypt.java
+     * 
+     * @param peerPublicKey 
+     */
+//    public PreMasterSecret(PublicKey peerPublicKey) {
+//        try {
+//            KeyAgreement ka = KeyAgreement.getInstance("ECDH");
+//            ka.init(privateKey);
+//            ka.doPhase(peerPublicKey, true);
+//            this.setEcdhKey(ka.generateSecret("TlsPremasterSecret").getEncoded());
+//        } catch (GeneralSecurityException e) {
+//            throw new RuntimeException("Could not generate secret", e);
+//        }
+//    }
 
     /**
      * Get the protocol version.
@@ -166,6 +190,24 @@ public final class PreMasterSecret extends APubliclySerializable
     }
 
     /**
+     * Get generated ECDH key
+     *
+     * @return ECDH key
+     */
+    public byte[] getEcdhKey() {
+        return ecdhKey.clone();
+    }
+
+    /**
+     * Set generated ECDH key
+     *
+     * @param ecdhKey ECDH key
+     */
+    public void setEcdhKey(byte[] ecdhKey) {
+        this.ecdhKey = ecdhKey.clone();
+    }
+
+    /**
      * {@inheritDoc}
      *
      * PreMasterSecret representation 2 bytes Protocol version 48 bytes Random
@@ -210,7 +252,7 @@ public final class PreMasterSecret extends APubliclySerializable
             throw new IllegalArgumentException("PreMasterSecret too short.");
         } else if (secret.length > LENGTH_MINIMUM_ENCODED) {
             System.err.println(Arrays.toString(secret));
-            throw new IllegalArgumentException("PreMasterSecret too long: " 
+            throw new IllegalArgumentException("PreMasterSecret too long: "
                     + secret.length + " > " + LENGTH_MINIMUM_ENCODED);
         }
 

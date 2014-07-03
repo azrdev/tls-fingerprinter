@@ -14,8 +14,8 @@ import java.util.List;
  */
 public class GetServerCiphersuites {
 
-    private static final String HOST = "localhost";
-    private static final int PORT = 55443;
+    private static final String HOST = "134.147.198.51";
+    private static final int PORT = 9090;
 
     public static void main(String[] args) throws Exception {
         String host;
