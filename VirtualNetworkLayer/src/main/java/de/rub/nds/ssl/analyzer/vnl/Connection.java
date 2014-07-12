@@ -4,6 +4,10 @@ import de.rub.nds.ssl.stack.protocols.ARecordFrame;
 import de.rub.nds.ssl.stack.protocols.handshake.ClientHello;
 import de.rub.nds.ssl.stack.protocols.handshake.ServerHello;
 import de.rub.nds.ssl.stack.protocols.handshake.datatypes.EKeyExchangeAlgorithm;
+import de.rub.nds.ssl.stack.protocols.handshake.datatypes.Extensions;
+import de.rub.nds.ssl.stack.protocols.handshake.extensions.AExtension;
+import de.rub.nds.ssl.stack.protocols.handshake.extensions.ServerNameList;
+import de.rub.nds.ssl.stack.protocols.handshake.extensions.datatypes.EExtensionType;
 import de.rub.nds.ssl.stack.protocols.msgs.ChangeCipherSpec;
 import de.rub.nds.virtualnetworklayer.connection.pcap.PcapConnection;
 import de.rub.nds.virtualnetworklayer.connection.pcap.PcapTrace;
@@ -12,6 +16,7 @@ import de.rub.nds.virtualnetworklayer.packet.Packet.Direction;
 import de.rub.nds.virtualnetworklayer.packet.PcapPacket;
 import de.rub.nds.virtualnetworklayer.packet.header.Header;
 import de.rub.nds.virtualnetworklayer.packet.header.application.TlsHeader;
+
 import java.util.LinkedList;
 import java.util.List;
 
@@ -59,25 +64,20 @@ public class Connection {
 		return new ClientHelloFingerprint(ch);
 	}
 
-    /*
   	public String getServerHostName() {
+		// the first message is always the ClientHello
   		MessageContainer clientHelloMC = fl.get(0);
   		ClientHello ch = (ClientHello) clientHelloMC.getCurrentRecord();
-  		ExtensionList el = ch.getExtensionList();
-  		if (el != null) {
-  			List<Extension> extensions = el.getExtensions();
-  			for (Extension ex : extensions) {
-  				if (ex instanceof ServerNameExtension) {
-  					ServerNameExtension sne = (ServerNameExtension) ex;
-  					return sne.getServerNames().get(0);
-  				}
-  			}
-  		}
+
+  		Extensions el = ch.getExtensions();
+        for (AExtension ex : el.getExtensions()) {
+            if (ex.getExtensionType() == EExtensionType.SERVER_NAME) {
+                ServerNameList sne = (ServerNameList) ex;
+                return sne.getServerNames().get(0).toString();
+            }
+        }
   		return null;
   	}
-  	*/
-
-
 
 	public NetworkFingerprint getNetworkFingerprint() {
 		return this.networkFingerprint;
@@ -92,7 +92,6 @@ public class Connection {
 			}
 			System.out.println("end of trace");
 			System.out.println("###########################################################################");
-			
 		}
 	}
 
