@@ -26,11 +26,11 @@ public enum EContentType {
     /**
      * Application message.
      */
-    APPLICATION((byte) 0x17);
+    APPLICATION((byte) 0x17),
     /**
      * Heartbeat message (RFC6520)
      */
-    //TODO: HEARTBEAT((byte) 0x18);
+    HEARTBEAT((byte) 0x18);
 
 
     /**
