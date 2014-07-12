@@ -1,7 +1,10 @@
 package de.rub.nds.ssl.stack.protocols.commons;
 
 import de.rub.nds.ssl.stack.Utility;
+
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import de.rub.nds.ssl.stack.exceptions.UnknownCipherSuiteException;
@@ -310,12 +313,13 @@ public enum ECipherSuite {
     TLS_ECDHE_PSK_WITH_CAMELLIA_128_CBC_SHA256(new byte[]{(byte) 0xC0, (byte) 0x9A}),
     TLS_ECDHE_PSK_WITH_CAMELLIA_256_CBC_SHA384(new byte[]{(byte) 0xC0, (byte) 0x9B}),
     SSL_RSA_FIPS_WITH_3DES_EDE_CBC_SHA(new byte[]{(byte) 0xfe, (byte) 0xff}),;
+
     /**
      * * Length of the cipher suite id: 2 Bytes.
      */
     final public static int LENGTH_ENCODED = 2;
     final private static Map<Integer, ECipherSuite> ID_MAP =
-            new HashMap<Integer, ECipherSuite>(27);
+            new HashMap<>(values().length);
     final private byte[] id;
 
     static {
@@ -361,13 +365,15 @@ public enum ECipherSuite {
         }
     }
 
+	private static String NAME_PREFIX_REGEX = "\\A(SSL|TLS)_";
+
     /**
      * Is this cipher suite a ECDHE suite?
      *
      * @return True if it is, false otherwise.
      */
     public boolean isEcdhe() {
-        return this.name().contains("ECDHE");
+        return this.name().matches(NAME_PREFIX_REGEX + "ECDHE.*");
     }
 
     /**
@@ -376,7 +382,7 @@ public enum ECipherSuite {
      * @return True if it is, false otherwise.
      */
     public boolean isRsa() {
-        return this.name().contains("RSA");
+        return this.name().matches(NAME_PREFIX_REGEX + "RSA.*");
     }
 
     /**
@@ -385,7 +391,7 @@ public enum ECipherSuite {
      * @return True if it is, false otherwise.
      */
     public boolean isDhe() {
-        return this.name().contains("DHE") && !this.name().contains("ECDHE");
+        return this.name().matches(NAME_PREFIX_REGEX + "DHE.*");
     }
 
     /**
@@ -394,7 +400,8 @@ public enum ECipherSuite {
      * @param id ID of the desired cipher suite
      * @return Associated cipher suite
      */
-    public static ECipherSuite getCipherSuite(final byte[] id) throws UnknownCipherSuiteException {
+    public static ECipherSuite getCipherSuite(final byte[] id)
+		    throws UnknownCipherSuiteException {
         final int cipherSuite;
 
         if (id == null || id.length != LENGTH_ENCODED) {
