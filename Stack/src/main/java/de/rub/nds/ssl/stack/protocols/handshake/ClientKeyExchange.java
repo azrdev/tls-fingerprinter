@@ -60,8 +60,7 @@ public final class ClientKeyExchange extends AHandshakeRecord {
         // dummy call - decoding will invoke decoders of the parents if desired
         super();
         this.setMessageType(EMessageType.CLIENT_KEY_EXCHANGE);
-        this.keyExchangeAlgorithm =
-                EKeyExchangeAlgorithm.valueOf(exchangeAlgorithm.name()); //XXX: exchangeAlgorithm sometimes null
+        this.keyExchangeAlgorithm = exchangeAlgorithm;
         this.decode(message, chained);
     }
 
@@ -74,8 +73,7 @@ public final class ClientKeyExchange extends AHandshakeRecord {
     public ClientKeyExchange(final EProtocolVersion protocolVersion,
             final EKeyExchangeAlgorithm exchangeAlgorithm) {
         super(protocolVersion, EMessageType.CLIENT_KEY_EXCHANGE);
-        this.keyExchangeAlgorithm =
-                EKeyExchangeAlgorithm.valueOf(exchangeAlgorithm.name());
+        this.keyExchangeAlgorithm = exchangeAlgorithm;
     }
 
     /**
