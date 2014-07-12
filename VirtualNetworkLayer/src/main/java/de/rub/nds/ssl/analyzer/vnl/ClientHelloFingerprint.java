@@ -15,12 +15,16 @@ public class ClientHelloFingerprint {
     private ECipherSuite[] cipherSuites;
     private byte[] compressionMethod;
     private AExtension[] extensions;
+    private boolean sessionIdEmpty;
 
     public ClientHelloFingerprint(ClientHello hello) {
         this.msgProtocolVersion = hello.getMessageProtocolVersion();
         this.cipherSuites = hello.getCipherSuites();
         this.compressionMethod = hello.getCompressionMethod();
         this.extensions = hello.getExtensions().getExtensions();
+
+        //TODO: integrate into hashCode etc.
+        this.sessionIdEmpty = hello.getSessionID().isEmpty();
     }
 
     @Override

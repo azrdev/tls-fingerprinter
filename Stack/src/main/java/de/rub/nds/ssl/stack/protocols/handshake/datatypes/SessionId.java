@@ -32,6 +32,13 @@ public final class SessionId extends APubliclySerializable {
     }
 
     /**
+     * @return true iff the id is empty
+     */
+    public boolean isEmpty() {
+		return id.length == 0;
+	}
+
+    /**
      * Initializes a session id object as defined in RFC-2246. Set by default to
      * 0x0!
      */
