@@ -9,9 +9,6 @@ public class NetworkFingerprint {
 	private Fingerprint.Signature mtuFingerprint = null;
 	private Fingerprint.Signature tcpFingerprint = null;
 	
-	
-	
-	
 	public NetworkFingerprint(Fingerprint.Signature mtuFingerprint, Fingerprint.Signature tcpFingerprint) {
 		this.mtuFingerprint = mtuFingerprint;
 		this.tcpFingerprint = tcpFingerprint;
@@ -23,7 +20,6 @@ public class NetworkFingerprint {
 		if ((this.tcpFingerprint == null) || (this.mtuFingerprint == null)) {
 			throw new RuntimeException("sorry, null fields passed to constructor");
 		}
-		
 	}
 	
 	public String toString() {

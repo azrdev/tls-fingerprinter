@@ -3,7 +3,7 @@ package de.rub.nds.ssl.analyzer.vnl;
 public class ServerFingerprint {
 	private NetworkFingerprint networkFingerprint;
 	private ServerHelloFingerprint serverHelloFingerprint;
-	
+
 	public ServerFingerprint(NetworkFingerprint networkFingerprint,
 			ServerHelloFingerprint serverHelloFingerprint) {
 		this.networkFingerprint = networkFingerprint;
@@ -58,7 +58,7 @@ public class ServerFingerprint {
 		return networkFingerprint;
 	}
 	
-	public void setNetworkFingerpritn(NetworkFingerprint networkFingerprint) {
+	public void setNetworkFingerprint(NetworkFingerprint networkFingerprint) {
 		this.networkFingerprint = networkFingerprint;
 	}
 	
@@ -66,8 +66,7 @@ public class ServerFingerprint {
 		return serverHelloFingerprint;
 	}
 	
-	public void setServerHelloFingerprint(
-			ServerHelloFingerprint serverHelloFingerprint) {
+	public void setServerHelloFingerprint(ServerHelloFingerprint serverHelloFingerprint) {
 		this.serverHelloFingerprint = serverHelloFingerprint;
 	}
 	

@@ -19,5 +19,5 @@ public enum EKeyExchangeAlgorithm {
     /**
      * Diffie-Hellman elliptic curve key exchange.
      */
-    EC_DIFFIE_HELLMAN;
+    EC_DIFFIE_HELLMAN,
 }

@@ -23,18 +23,12 @@ public class ServerHelloFingerprint {
 		this.compressionMethod = sh.getCompressionMethod();
 		this.extensionList = sh.getExtensions();
 	}
-	
-	
-	
 
     @Override
 	public int hashCode() {
 		// FIXME: This can be done better.
 		return this.toString().hashCode();
 	}
-
-
-
 
 	@Override
 	public boolean equals(Object obj) {

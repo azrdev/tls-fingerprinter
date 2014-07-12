@@ -77,10 +77,9 @@ public final class SslReportingConnectionHandler extends ConnectionHandler {
 			if (c.isCompleted()) {
 				reportedSessions.add(session);
 				
-				// We are interested only in those which a server host name
-  				//if (c.getServerHostName() != null) {
+				// We are interested only in those with a server host name
+  				//if (c.getServerHostName() != null)
   					cd.reportConnection(c.getClientHelloFingerprint(), c.getServerFingerprint());
-  				//}
 				c.printReport();
 				/*
 				System.out.println("Found a connection to: " + c.getServerHostName());
