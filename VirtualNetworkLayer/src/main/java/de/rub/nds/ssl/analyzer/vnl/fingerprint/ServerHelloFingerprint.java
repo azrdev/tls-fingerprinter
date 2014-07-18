@@ -1,4 +1,4 @@
-package de.rub.nds.ssl.analyzer.vnl;
+package de.rub.nds.ssl.analyzer.vnl.fingerprint;
 
 import de.rub.nds.ssl.stack.protocols.commons.ECipherSuite;
 import de.rub.nds.ssl.stack.protocols.commons.EProtocolVersion;

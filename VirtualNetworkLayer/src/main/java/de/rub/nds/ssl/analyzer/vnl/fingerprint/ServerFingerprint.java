@@ -1,4 +1,4 @@
-package de.rub.nds.ssl.analyzer.vnl;
+package de.rub.nds.ssl.analyzer.vnl.fingerprint;
 
 public class ServerFingerprint {
 	private NetworkFingerprint networkFingerprint;
@@ -76,8 +76,8 @@ public class ServerFingerprint {
 				.getNetworkFingerprint().getTcpDifference(
 						sf.getNetworkFingerprint()),
 				ConnectionDifferenceSet.generateFromMap(this
-						.getServerHelloFingerprint().getAsMap(), sf
-						.getServerHelloFingerprint().getAsMap()));
+                        .getServerHelloFingerprint().getAsMap(), sf
+                        .getServerHelloFingerprint().getAsMap()));
 	}
 	
 	

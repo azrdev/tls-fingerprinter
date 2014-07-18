@@ -1,5 +1,9 @@
 package de.rub.nds.ssl.analyzer.vnl;
 
+import de.rub.nds.ssl.analyzer.vnl.fingerprint.ClientHelloFingerprint;
+import de.rub.nds.ssl.analyzer.vnl.fingerprint.NetworkFingerprint;
+import de.rub.nds.ssl.analyzer.vnl.fingerprint.ServerFingerprint;
+import de.rub.nds.ssl.analyzer.vnl.fingerprint.ServerHelloFingerprint;
 import de.rub.nds.ssl.stack.protocols.ARecordFrame;
 import de.rub.nds.ssl.stack.protocols.handshake.ClientHello;
 import de.rub.nds.ssl.stack.protocols.handshake.ServerHello;

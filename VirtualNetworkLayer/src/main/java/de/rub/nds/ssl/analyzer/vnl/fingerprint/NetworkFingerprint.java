@@ -1,4 +1,4 @@
-package de.rub.nds.ssl.analyzer.vnl;
+package de.rub.nds.ssl.analyzer.vnl.fingerprint;
 
 import java.util.List;
 

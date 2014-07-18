@@ -1,5 +1,8 @@
 package de.rub.nds.ssl.analyzer.vnl;
 
+import de.rub.nds.ssl.analyzer.vnl.fingerprint.ClientHelloFingerprint;
+import de.rub.nds.ssl.analyzer.vnl.fingerprint.ServerFingerprint;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
