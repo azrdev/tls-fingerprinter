@@ -107,21 +107,21 @@ public final class Extensions extends APubliclySerializable {
             pointer += tmp.length;
         }
 
-        byte[] extenionBytes = new byte[LENGTH_LENGTH_FIELD + pointer];
+        byte[] extensionBytes = new byte[LENGTH_LENGTH_FIELD + pointer];
 
         // length
         tmp = buildLength(pointer, LENGTH_LENGTH_FIELD);
         pointer = 0;
-        System.arraycopy(tmp, 0, extenionBytes, pointer, tmp.length);
+        System.arraycopy(tmp, 0, extensionBytes, pointer, tmp.length);
         pointer += tmp.length;
 
         for (byte[] tmpBytes : encodedExtensions) {
-            System.arraycopy(tmpBytes, 0, extenionBytes, pointer,
+            System.arraycopy(tmpBytes, 0, extensionBytes, pointer,
                     tmpBytes.length);
             pointer += tmpBytes.length;
         }
 
-        return extenionBytes;
+        return extensionBytes;
     }
 
     /**
@@ -157,13 +157,14 @@ public final class Extensions extends APubliclySerializable {
 	        try {
 		        extensionType = EExtensionType.getExtension(tmp);
 	        } catch (UnknownTLSExtensionException ex) {
+		        System.out.println("Unknown extension: " + Utility.bytesIdToHex(tmp));
 		        //XXX: log
 	        }
 
             // 2. determine extension length
             extractedLength = extractLength(payloadCopy,
                     pointer + EExtensionType.LENGTH_ENCODED,
-                    AExtension.LENGTH_MINIMUM_ENCODED - EExtensionType.LENGTH_ENCODED);
+                    AExtension.LENGTH_BYTES);
 
             // 3. extract message
             if (payloadCopy.length < pointer + extractedLength) {
@@ -175,8 +176,7 @@ public final class Extensions extends APubliclySerializable {
 
             // 4. add message to message list
 	        if(extensionType == null) {
-		        System.out.println(String.format("Unknown extension: %s",
-				        Utility.bytesToHex(tmp))); //XXX: logging?
+	            //XXX: logging?
 		        continue;
 	        }
             try {

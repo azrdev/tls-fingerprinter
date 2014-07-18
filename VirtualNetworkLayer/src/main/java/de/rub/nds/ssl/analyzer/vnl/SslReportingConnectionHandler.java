@@ -71,7 +71,7 @@ public final class SslReportingConnectionHandler extends ConnectionHandler {
 				c = new Connection(connection);
 			} catch (Throwable e) {
 				System.out.println("Error decoding connection: " + e);
-				e.printStackTrace();
+				//e.printStackTrace();
 				return;
 			}
 			if (c.isCompleted()) {
@@ -80,7 +80,9 @@ public final class SslReportingConnectionHandler extends ConnectionHandler {
 				// We are interested only in those with a server host name
   				//if (c.getServerHostName() != null)
   					cd.reportConnection(c.getClientHelloFingerprint(), c.getServerFingerprint());
-				c.printReport();
+
+				//c.printReport();
+
 				/*
 				System.out.println("Found a connection to: " + c.getServerHostName());
 				System.out.println("Label was " + c.getNetworkFingerprint());

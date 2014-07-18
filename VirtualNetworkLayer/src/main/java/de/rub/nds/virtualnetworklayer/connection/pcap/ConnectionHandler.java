@@ -175,11 +175,11 @@ public abstract class ConnectionHandler extends PacketHandler {
 
                     connection.updateFingerprint(packet.getDirection(), print, signature, label);
 
-                    /*if (label != null) {
+                    if (label != null) {
                         connection.updateFingerprint(packet.getDirection(), print, signature, label);
                     } else {
                         logger.info(connection + "\nunknown " + print.toString() + ":\n" + signature.toString());
-                    } */
+                    }
                 }
             }
 

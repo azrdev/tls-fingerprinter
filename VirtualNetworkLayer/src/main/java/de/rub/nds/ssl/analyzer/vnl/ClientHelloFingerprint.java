@@ -19,11 +19,15 @@ public class ClientHelloFingerprint {
 
     public ClientHelloFingerprint(ClientHello hello) {
         this.msgProtocolVersion = hello.getMessageProtocolVersion();
+
+	    //TODO: make fuzzy ?
         this.cipherSuites = hello.getCipherSuites();
         this.compressionMethod = hello.getCompressionMethod();
-        this.extensions = hello.getExtensions().getExtensions();
 
-        //TODO: integrate into hashCode etc.
+	    //FIXME
+	    this.extensions = hello.getExtensions().getExtensions();
+
+	    //TODO: integrate into hashCode etc.
         this.sessionIdEmpty = hello.getSessionID().isEmpty();
     }
 

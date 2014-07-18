@@ -108,6 +108,7 @@ public class TLSSignature extends APubliclySerializable {
             setSignatureValue(new byte[0]);
         } else {
             int pointer = 0;
+            //XXX: invalid length? -> AIOOBException
             for (int i = 0; i < MAX_COUNT_PARAM; i++) {
                 extractedLength = extractLength(paramCopy, pointer,
                         LENGTH_LENGTH_FIELD);
