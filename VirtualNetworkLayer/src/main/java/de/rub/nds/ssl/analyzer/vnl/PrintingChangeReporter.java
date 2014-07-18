@@ -9,7 +9,7 @@ public class PrintingChangeReporter implements ChangeReporter {
 			ServerFingerprint sf,
 			List<ServerFingerprint> previousResponses) {
 		System.out.println("********************************************************************");
-//		System.out.println("WARNING: Change detected for host: " + chf.getHostName());
+		System.out.println("WARNING: Change detected for host");//: " + chf.getHostName());
 		// System.out.println("ClientHelloFingerprint is: " + chf);
 		// System.out.println("New Server Response is: " + sf);
 		System.out.println("Difference to previous:");
@@ -20,4 +20,9 @@ public class PrintingChangeReporter implements ChangeReporter {
 		System.out.println("End of responses");
 	}
 
+	@Override
+	public void reportUpdate(ClientHelloFingerprint chf, ServerFingerprint sf) {
+		System.out.println(
+				String.format("Saw a ServerFingerprint (again): {%s}", sf.toString()));
+	}
 }
