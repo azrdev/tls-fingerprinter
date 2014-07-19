@@ -50,12 +50,13 @@ public class ServerHelloFingerprint {
 
 	public String toString() {
     	StringBuffer sb = new StringBuffer();
-    	sb.append("Fingerprint for ServerHello:\n");
-    	sb.append("  ProtocolVersion = " + this.msgProtocolVersion.toString() + "\n");
-    	sb.append("  CipherSuite = " + this.cipherSuite + "\n");
-    	sb.append("  CompressionMethod = " + Arrays.toString(this.compressionMethod) + "\n");
-    	sb.append("  Length of SessionID = " + this.sessionIDlen + "\n");
-    	sb.append("  Extensions = " + this.extensionList);
+    	sb.append("Fingerprint for ServerHello: {");
+    	sb.append("\n  ProtocolVersion = ").append(msgProtocolVersion.toString());
+    	sb.append("\n  CipherSuite = ").append(cipherSuite);
+    	sb.append("\n  CompressionMethod = ").append(Arrays.toString(compressionMethod));
+    	sb.append("\n  Length of SessionID = ").append(sessionIDlen);
+    	sb.append("\n  Extensions = ").append(extensionList);
+        sb.append("\n}");
     	
     	return new String(sb);
     }

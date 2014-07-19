@@ -9,6 +9,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -229,5 +230,22 @@ public final class Extensions extends APubliclySerializable {
                     + type + " and class " + implClass.getCanonicalName(), ex); //XXX: hides details of ex
         }
         return result;
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("Handshake extensions: {");
+        for(AExtension ext : extensions) {
+            sb.append("\n  ").append(ext.toString());
+        }
+        sb.append("\n}");
+
+        return sb.toString();
+    }
+
+    @Override
+    public int hashCode() {
+        return extensions.hashCode();
     }
 }

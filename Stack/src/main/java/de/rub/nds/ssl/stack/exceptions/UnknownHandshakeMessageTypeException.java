@@ -7,7 +7,7 @@ import de.rub.nds.ssl.stack.Utility;
  */
 public class UnknownHandshakeMessageTypeException extends IllegalArgumentException {
     public UnknownHandshakeMessageTypeException(byte id) {
-        super(String.format("Handshake message type with ID 0x%s (%d) not registered",
-                Utility.bytesToHex(id), 0xff & id));
+        super(String.format("Handshake message type with ID %s not registered",
+                Utility.bytesIdToHex(id)));
     }
 }
