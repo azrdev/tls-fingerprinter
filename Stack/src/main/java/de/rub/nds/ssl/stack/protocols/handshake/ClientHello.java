@@ -7,6 +7,9 @@ import de.rub.nds.ssl.stack.protocols.handshake.datatypes.CompressionMethod;
 import de.rub.nds.ssl.stack.protocols.handshake.datatypes.Extensions;
 import de.rub.nds.ssl.stack.protocols.handshake.datatypes.RandomValue;
 import de.rub.nds.ssl.stack.protocols.handshake.datatypes.SessionId;
+import de.rub.nds.ssl.stack.protocols.handshake.extensions.AExtension;
+import de.rub.nds.ssl.stack.protocols.handshake.extensions.ServerNameList;
+import de.rub.nds.ssl.stack.protocols.handshake.extensions.datatypes.EExtensionType;
 
 /**
  * Defines the ClientHello message of SSL/TLS as defined in RFC 2246.
@@ -235,8 +238,8 @@ public final class ClientHello extends AHandshakeRecord {
      *
      * @return The compression method of this message
      */
-    public byte[] getCompressionMethod() {
-        return compressionMethod.getMethods();
+    public CompressionMethod getCompressionMethod() {
+        return compressionMethod;
     }
 
     /**
@@ -246,7 +249,7 @@ public final class ClientHello extends AHandshakeRecord {
      * for this message in encoded form
      */
     public void setCompressionMethod(final byte[] compressionMethodValue) {
-        this.compressionMethod.setMethods(compressionMethodValue);
+        this.compressionMethod = new CompressionMethod(compressionMethodValue);
     }
 
     /**
@@ -486,4 +489,17 @@ public final class ClientHello extends AHandshakeRecord {
         byte[] tmp = suites.encode(false);
         this.cipherSuites = new CipherSuites(tmp);
     }
+
+    public String getHostName() {
+        if (extensions != null) {
+            for (AExtension e : extensions.getExtensions()) {
+                if (e.getExtensionType() == EExtensionType.SERVER_NAME) {
+                    ServerNameList sne = (ServerNameList) e;
+                    return sne.getServerNames().get(0).toString();
+                }
+            }
+        }
+        return null;
+    }
+
 }

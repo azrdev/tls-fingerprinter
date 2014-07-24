@@ -1,5 +1,8 @@
 package de.rub.nds.ssl.stack;
 
+import java.util.Arrays;
+import java.util.List;
+
 import static de.rub.nds.ssl.stack.Utility.bytesIdToHex;
 
 /**
@@ -153,5 +156,12 @@ public final class Utility {
         result += (toConvert[1] >> Utility.BITS_IN_BYTE);
 
         return result;
+    }
+
+    /**
+     * Copies an array and converts it to List
+     */
+    public static <T> List<T> deepCopyAsList(T[] array) {
+        return Arrays.asList(Arrays.copyOf(array, array.length));
     }
 }

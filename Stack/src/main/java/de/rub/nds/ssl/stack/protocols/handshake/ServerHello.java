@@ -2,6 +2,7 @@ package de.rub.nds.ssl.stack.protocols.handshake;
 
 import de.rub.nds.ssl.stack.exceptions.UnknownCipherSuiteException;
 import de.rub.nds.ssl.stack.protocols.commons.ECipherSuite;
+import de.rub.nds.ssl.stack.protocols.commons.ECompressionMethod;
 import de.rub.nds.ssl.stack.protocols.commons.EProtocolVersion;
 import de.rub.nds.ssl.stack.protocols.handshake.datatypes.CompressionMethod;
 import de.rub.nds.ssl.stack.protocols.handshake.datatypes.Extensions;
@@ -181,8 +182,8 @@ public final class ServerHello extends AHandshakeRecord {
      *
      * @return The compression method of this message
      */
-    public byte[] getCompressionMethod() {
-        return compressionMethod.getMethods();
+    public CompressionMethod getCompressionMethod() {
+        return compressionMethod;
     }
 
     /**
@@ -191,7 +192,7 @@ public final class ServerHello extends AHandshakeRecord {
      * @param compressionMethod The compression method object to be used for
      * this message in encoded form
      */
-    public void setCompressionMethod(final byte[] compressionMethod) {
+    public void setCompressionMethod(final ECompressionMethod[] compressionMethod) {
         this.compressionMethod.setMethods(compressionMethod);
     }
 
@@ -370,7 +371,7 @@ public final class ServerHello extends AHandshakeRecord {
         }
         tmpBytes = new byte[extractedLength];
         System.arraycopy(payloadCopy, pointer, tmpBytes, 0, tmpBytes.length);
-        setCompressionMethod(tmpBytes);
+        setCompressionMethod(new CompressionMethod(tmpBytes));
         pointer += tmpBytes.length;
 
         // 6. check for extensions

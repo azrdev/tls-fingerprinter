@@ -1,7 +1,12 @@
 package de.rub.nds.ssl.stack.protocols.handshake.datatypes;
 
+import de.rub.nds.ssl.stack.Utility;
 import de.rub.nds.ssl.stack.protocols.commons.APubliclySerializable;
+import de.rub.nds.ssl.stack.protocols.commons.ECompressionMethod;
+
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 /**
  * Compression method message part - as defined in RFC-2246.
@@ -23,20 +28,27 @@ public final class CompressionMethod extends APubliclySerializable {
      */
     public static final int LENGTH_MINIMUM_ENCODED = LENGTH_LENGTH_FIELD;
     /**
-     * Compression method.
+     * Compression methods.
      */
-    private byte[] methods = new byte[]{0x0};
+    private List<ECompressionMethod> methods = new ArrayList<>();
 
     @Override
     public String toString() {
-        return Arrays.toString(methods);
+        return methods.toString();
     }
 
     /**
-     * Initializes a compression method object as defined in RFC-2246. Set by
-     * default to 0x0!
+     * Initializes as defined in RFC 2246. By default contain only ECompressionMethod.NULL
      */
     public CompressionMethod() {
+        methods.add(ECompressionMethod.NULL);
+    }
+
+    /**
+     * Initializes with the given methods
+     */
+    public CompressionMethod(List<ECompressionMethod> methods) {
+        this.methods = new ArrayList<>(methods);
     }
 
     /**
@@ -53,12 +65,15 @@ public final class CompressionMethod extends APubliclySerializable {
      *
      * @return The compression method of this message
      */
-    public byte[] getMethods() {
-        // deep copy
-        byte[] tmp = new byte[methods.length];
-        System.arraycopy(methods, 0, tmp, 0, tmp.length);
+    public ECompressionMethod[] getMethods() {
+        return methods.toArray(new ECompressionMethod[0]);
+    }
 
-        return tmp;
+    /*
+     * @return The compression method of this message
+     */
+    public List<ECompressionMethod> getCompressionMethods() {
+        return methods;
     }
 
     /**
@@ -66,15 +81,21 @@ public final class CompressionMethod extends APubliclySerializable {
      *
      * @param methods The compression methods to be used for this message
      */
-    public final void setMethods(final byte[] methods) {
+    public final void setMethods(final ECompressionMethod[] methods) {
         if (methods == null) {
-            throw new IllegalArgumentException(
-                    "Compression methods must not be null!");
+            throw new IllegalArgumentException("Compression methods must not be null!");
         }
 
-        // deep copy
-        this.methods = new byte[methods.length];
-        System.arraycopy(methods, 0, this.methods, 0, methods.length);
+        this.methods = Utility.deepCopyAsList(methods);
+    }
+
+    /**
+     * Set the compression methods of this message.
+     *
+     * @param methods The compression methods to be used for this message
+     */
+    public final void setMethods(final List<ECompressionMethod> methods) {
+        this.methods = new ArrayList<>(methods);
     }
 
     /**
@@ -84,9 +105,15 @@ public final class CompressionMethod extends APubliclySerializable {
      */
     @Override
     public byte[] encode(final boolean chained) {
-        byte[] tmp = new byte[methods.length + LENGTH_LENGTH_FIELD];
-        tmp[0] = ((Integer) methods.length).byteValue();
-        System.arraycopy(methods, 0, tmp, LENGTH_LENGTH_FIELD, methods.length);
+        byte[] tmp = new byte[LENGTH_LENGTH_FIELD + methods.size()];
+        int index = 0;
+        tmp[0] = ((Integer) methods.size()).byteValue();
+
+        // since ECompressionMethod is not encoded as array, don't do encode() or such
+        for(ECompressionMethod method : methods) {
+            ++index;
+            tmp[index] = method.getId();
+        }
 
         return tmp;
     }
@@ -98,21 +125,29 @@ public final class CompressionMethod extends APubliclySerializable {
      */
     public void decode(final byte[] message, final boolean chained) {
         final int methodsLength;
-        final byte[] newMethods;
+        List<ECompressionMethod> newMethods;
+
         // deep copy
         final byte[] methods = new byte[message.length];
         System.arraycopy(message, 0, methods, 0, methods.length);
 
         // check size
         if (methods.length < LENGTH_MINIMUM_ENCODED) {
-            throw new IllegalArgumentException(
-                    "Compression methods record too short.");
+            throw new IllegalArgumentException("Compression methods record too short.");
         }
 
-        methodsLength = methods[0];
-        newMethods = new byte[methodsLength];
-        System.arraycopy(methods, LENGTH_LENGTH_FIELD, newMethods, 0,
-                methodsLength);
+        methodsLength = extractLength(methods, 0, LENGTH_LENGTH_FIELD);
+
+        newMethods = new ArrayList<>();
+        for(int i = LENGTH_LENGTH_FIELD; i < methods.length; ++i) {
+            ECompressionMethod method = null;
+            try {
+                method = ECompressionMethod.getCompressionMethod(methods[i]);
+            } catch(IllegalArgumentException e) {
+                System.out.println(e);
+            }
+            newMethods.add(method);
+        }
         setMethods(newMethods);
     }
 }
