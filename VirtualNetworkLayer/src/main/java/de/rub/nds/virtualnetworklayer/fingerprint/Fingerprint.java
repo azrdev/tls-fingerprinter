@@ -35,7 +35,7 @@ public abstract class Fingerprint {
     }
 
     public static class Signature {
-        private HashMap<String, Object> signs = new HashMap<String, Object>();
+        private Map<String, Object> signs = new HashMap<>();
         private EnumSet<Quirk> quirks = EnumSet.noneOf(Quirk.class);
         private boolean fuzzy = false;
         private int maximumDistance = 0;
@@ -50,7 +50,7 @@ public abstract class Fingerprint {
         }
         
         public Map<String, Object> getSigns() {
-        	return (Map<String, Object>) signs.clone();
+        	return new HashMap<>(signs);
         }
 
         protected void addQuirk(Quirk quirk) {
@@ -122,10 +122,12 @@ public abstract class Fingerprint {
             builder.append('\n');
 
             for (Map.Entry<String, Object> entry : signs.entrySet()) {
+                Object value = entry.getValue();
                 builder.append("- ");
                 builder.append(StringFormatter.firstToUppercase(entry.getKey()));
-                builder.append(": ").append(entry.getValue().toString() + " [" + entry.getValue().getClass().getCanonicalName()  + "]");
-                builder.append('\n');
+                builder.append(": ").append(value.toString());
+                builder.append(" [").append(value.getClass().getCanonicalName());
+                builder.append("]\n");
             }
 
             builder.append("- Quirks: ").append(quirks.toString());
@@ -147,7 +149,6 @@ public abstract class Fingerprint {
     protected abstract void match(Fingerprint.Signature signature, PcapPacket packet, PcapConnection connection);
 
     /**
-     * @param packet
      * @return whether fingerprint can be matched to packet
      */
     public abstract boolean isBound(PcapPacket packet);

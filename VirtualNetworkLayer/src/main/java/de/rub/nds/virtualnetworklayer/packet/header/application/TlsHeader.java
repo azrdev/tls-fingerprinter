@@ -45,7 +45,8 @@ public class TlsHeader extends Header {
         ChangeCipherSpec(20),
         Alert(21),
         Handshake(22),
-        Application(23);
+        Application(23),
+        Heartbeat(24);
 
         private int type;
 
@@ -68,7 +69,8 @@ public class TlsHeader extends Header {
         SSL3_0(3, 0),
         TLS1_0(3, 1),
         TLS1_1(3, 2),
-        TLS1_2(3, 3);
+        TLS1_2(3, 3),
+        TLS1_3(3, 4);
 
         private int major;
         private int minor;

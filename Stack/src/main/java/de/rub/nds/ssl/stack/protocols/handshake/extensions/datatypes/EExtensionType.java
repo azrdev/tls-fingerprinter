@@ -160,15 +160,6 @@ public enum EExtensionType{
     }
 
     /**
-     * Get a human readable representation.
-     */
-    @Override
-    public String toString() {
-        byte[] id = this.getId();
-        return String.format("EExtension: type %s %s", Utility.bytesIdToHex(id), name());
-    }
-
-    /**
      * Get the extension for a given id.
      *
      * @param id ID of the desired extension

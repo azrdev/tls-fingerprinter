@@ -6,7 +6,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Message types for SSL/TLS
+ * Message types for SSL/TLS handshake
  *
  * @author Christopher Meyer - christopher.meyer@rub.de
  * @version 0.1 Nov 14, 2011

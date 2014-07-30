@@ -54,9 +54,9 @@ public abstract class ConnectionHandler extends PacketHandler {
     private final static Logger logger = Logger.getLogger(ConnectionHandler.class.getName());
 
     private static Map<Fingerprint.Signature, Label>[] signatures;
-    private static List<Fingerprint> prints = new LinkedList<Fingerprint>();
+    private static List<Fingerprint> prints = new LinkedList<>();
 
-    private HashMap<SocketSession, PcapConnection> connections = new HashMap<SocketSession, PcapConnection>();
+    private Map<SocketSession, PcapConnection> connections = new HashMap<>();
     private int timeout_counter = 0;
 
     static {
@@ -72,8 +72,6 @@ public abstract class ConnectionHandler extends PacketHandler {
     /**
      * Register single signature
      *
-     * @param signature
-     * @param label
      * @throws IllegalArgumentException if signature with identical signs is already registered
      */
     public static void registerSignature(Fingerprint.Signature signature, Label label) {
@@ -118,8 +116,6 @@ public abstract class ConnectionHandler extends PacketHandler {
 
     /**
      * Register single fingerprint.
-     *
-     * @param fingerprint
      */
     public static void registerFingerprint(Fingerprint fingerprint) {
         prints.add(fingerprint);
@@ -206,7 +202,7 @@ public abstract class ConnectionHandler extends PacketHandler {
     }
 
     public List<PcapConnection> getConnections() {
-        return new LinkedList<PcapConnection>(connections.values());
+        return new LinkedList<>(connections.values());
     }
 
 
