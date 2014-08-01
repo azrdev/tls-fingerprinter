@@ -33,7 +33,7 @@ public final class ServerHello extends AHandshakeRecord {
     private RandomValue random = new RandomValue();
     private ECipherSuite cipherSuite = ECipherSuite.TLS_DH_RSA_WITH_3DES_EDE_CBC_SHA;
     private SessionId sessionID = new SessionId();
-    private CompressionMethod compressionMethod = new CompressionMethod();
+    private ECompressionMethod compressionMethod = ECompressionMethod.NULL;
     private Extensions extensions = null;
 
     /**
@@ -182,18 +182,18 @@ public final class ServerHello extends AHandshakeRecord {
      *
      * @return The compression method of this message
      */
-    public CompressionMethod getCompressionMethod() {
+    public ECompressionMethod getCompressionMethod() {
         return compressionMethod;
     }
 
     /**
      * Set the compression method of this message.
      *
-     * @param compressionMethod The compression method object to be used for
+     * @param id The compression method object to be used for
      * this message in encoded form
      */
-    public void setCompressionMethod(final ECompressionMethod[] compressionMethod) {
-        this.compressionMethod.setMethods(compressionMethod);
+    public void setCompressionMethod(byte id) {
+        this.compressionMethod = ECompressionMethod.getCompressionMethod(id);
     }
 
     /**
@@ -216,14 +216,13 @@ public final class ServerHello extends AHandshakeRecord {
      * @param compressionMethod The compression method to be used for this
      * message
      */
-    public void setCompressionMethod(final CompressionMethod compressionMethod) {
+    public void setCompressionMethod(final ECompressionMethod compressionMethod) {
         if (compressionMethod == null) {
             throw new IllegalArgumentException(
                     "Compression method must not be null!");
         }
 
-        // deep copy
-        this.compressionMethod = new CompressionMethod(compressionMethod.encode(false));
+        this.compressionMethod = compressionMethod;
     }
 
     /**
@@ -258,7 +257,6 @@ public final class ServerHello extends AHandshakeRecord {
         int pointer = 0;
         byte[] tmp;
         byte[] encSessionID = sessionID.encode(false);
-        byte[] encCompressionMethod = compressionMethod.encode(false);
         byte[] encExtenstions = new byte[0];
         if (extensions != null) {
             encExtenstions = extensions.encode(false);
@@ -269,7 +267,7 @@ public final class ServerHello extends AHandshakeRecord {
                 + RandomValue.LENGTH_ENCODED
                 + encSessionID.length
                 + ECipherSuite.LENGTH_ENCODED
-                + encCompressionMethod.length];
+                + ECompressionMethod.LENGTH_ENCODED];
 
         /*
          * Prepre ServerHello message
@@ -295,9 +293,9 @@ public final class ServerHello extends AHandshakeRecord {
         pointer += ECipherSuite.LENGTH_ENCODED;
 
         // 5. add compression method
-        System.arraycopy(encCompressionMethod, 0, serverHelloMsg, pointer,
-                encCompressionMethod.length);
-        pointer += encCompressionMethod.length;
+        System.arraycopy(compressionMethod.getId(), 0, serverHelloMsg, pointer,
+                ECompressionMethod.LENGTH_ENCODED);
+        pointer += ECompressionMethod.LENGTH_ENCODED;
 
         // 6. add extensions (if any)
         System.arraycopy(encExtenstions, 0, serverHelloMsg, pointer,
@@ -371,7 +369,7 @@ public final class ServerHello extends AHandshakeRecord {
         }
         tmpBytes = new byte[extractedLength];
         System.arraycopy(payloadCopy, pointer, tmpBytes, 0, tmpBytes.length);
-        setCompressionMethod(new CompressionMethod(tmpBytes));
+        setCompressionMethod(tmpBytes[0]);
         pointer += tmpBytes.length;
 
         // 6. check for extensions
