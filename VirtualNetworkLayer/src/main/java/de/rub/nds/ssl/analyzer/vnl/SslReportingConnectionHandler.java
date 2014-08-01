@@ -2,6 +2,10 @@ package de.rub.nds.ssl.analyzer.vnl;
 
 import java.util.HashSet;
 
+import de.rub.nds.ssl.analyzer.vnl.fingerprint.ClientHelloFingerprint;
+import de.rub.nds.ssl.analyzer.vnl.fingerprint.Fingerprint;
+import de.rub.nds.ssl.analyzer.vnl.fingerprint.ServerFingerprint;
+import de.rub.nds.ssl.analyzer.vnl.fingerprint.ServerHelloFingerprint;
 import de.rub.nds.virtualnetworklayer.connection.pcap.ConnectionHandler;
 import de.rub.nds.virtualnetworklayer.connection.pcap.PcapConnection;
 import de.rub.nds.virtualnetworklayer.p0f.P0fFile;
@@ -25,28 +29,28 @@ public final class SslReportingConnectionHandler extends ConnectionHandler {
      */
     private static final int SSL_PORT = 443;
     
-    private ChangeDetector cd = new ChangeDetector(new PrintingChangeReporter());
+    private ChangeDetector changeDetector =
+            new ChangeDetector(new PrintingChangeReporter());
+
+    private final Fingerprint clientFingerprint = new ClientHelloFingerprint();
+    private final Fingerprint serverFingerprint = new ServerHelloFingerprint();
     
     public void printStats() {
-    	System.out.println(cd.toString());
+    	System.out.println(changeDetector.toString());
     }
 
     /**
      * Check if a certain connection has source or destination port 443.
-     *
-     * @param connection
-     * @return
      */
     private static boolean isSsl(final PcapConnection connection) {
         return ((connection.getSession().getDestinationPort() == SSL_PORT)
                 || (connection.getSession().getSourcePort() == SSL_PORT));
     }
     
-    private HashSet<SocketSession> reportedSessions = new HashSet<SocketSession>();
+    private HashSet<SocketSession> reportedSessions = new HashSet<>();
 
     @Override
-    public void newConnection(final Event event,
-            final PcapConnection connection) {
+    public void newConnection(final Event event, final PcapConnection connection) {
 
         if (isSsl(connection)) {
             if (event == Event.New) {
@@ -66,7 +70,7 @@ public final class SslReportingConnectionHandler extends ConnectionHandler {
 		SocketSession session = connection.getSession();
 		if (!reportedSessions.contains(session)) {
 
-			Connection c = null;
+			Connection c;
 			try {
 				c = new Connection(connection);
 			} catch (Throwable e) {
@@ -76,10 +80,12 @@ public final class SslReportingConnectionHandler extends ConnectionHandler {
 			}
 			if (c.isCompleted()) {
 				reportedSessions.add(session);
-				
-				// We are interested only in those with a server host name
-  				//if (c.getServerHostName() != null)
-  					cd.reportConnection(c.getClientHelloFingerprint(), c.getServerFingerprint());
+
+                ServerFingerprint sf = new ServerFingerprint(
+                        c.getNetworkFingerprint(),
+                        serverFingerprint.createSignature(c));
+
+                changeDetector.reportConnection(clientFingerprint.createSignature(c), sf);
 
 				//c.printReport();
 

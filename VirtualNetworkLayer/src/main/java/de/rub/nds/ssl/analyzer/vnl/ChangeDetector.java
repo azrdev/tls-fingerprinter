@@ -1,6 +1,7 @@
 package de.rub.nds.ssl.analyzer.vnl;
 
 import de.rub.nds.ssl.analyzer.vnl.fingerprint.ClientHelloFingerprint;
+import de.rub.nds.ssl.analyzer.vnl.fingerprint.Fingerprint;
 import de.rub.nds.ssl.analyzer.vnl.fingerprint.ServerFingerprint;
 
 import java.util.ArrayList;
@@ -10,7 +11,7 @@ import java.util.Map;
 
 public class ChangeDetector {
 
-	private Map<ClientHelloFingerprint,
+	private Map<Fingerprint.Signature,
 			    List<ServerFingerprint>> fingerprints = new HashMap<>();
 	private ChangeReporter changeReporter;
 	private int changes;
@@ -20,24 +21,24 @@ public class ChangeDetector {
 		this.changes = 0;
 	}
 	
-	public void reportConnection(ClientHelloFingerprint chf, ServerFingerprint sf) {
-		if (fingerprints.containsKey(chf)) {
-			List<ServerFingerprint> previousFingerprints = fingerprints.get(chf);
+	public void reportConnection(Fingerprint.Signature cs, ServerFingerprint sf) {
+		if (fingerprints.containsKey(cs)) {
+			List<ServerFingerprint> previousFingerprints = fingerprints.get(cs);
 
 			if(previousFingerprints.contains(sf)) {
 				// We have seen this!
-				reportFingerprintUpdate(chf, sf);
+				reportFingerprintUpdate(cs, sf);
 				return;
 			}
 			// A new different fingerprint for this ClientFingerprint
-			reportFingerprintChange(chf, sf, previousFingerprints);
+			reportFingerprintChange(cs, sf, previousFingerprints);
 			previousFingerprints.add(sf);
 		} else {
 			// the ClientHelloFingerprint is not yet in fingerprints, add it
 			List<ServerFingerprint> sfs = new ArrayList<>(1);
 			sfs.add(sf);
-			reportFingerprintUpdate(chf, sf);
-			fingerprints.put(chf, sfs);
+			reportFingerprintUpdate(cs, sf);
+			fingerprints.put(cs, sfs);
 		}
 	}
 
@@ -46,20 +47,20 @@ public class ChangeDetector {
      *
      * TODO: distinguish new and updated fingerprint
 	 */
-	private void reportFingerprintUpdate(ClientHelloFingerprint chf,
+	private void reportFingerprintUpdate(Fingerprint.Signature cs,
 	                                     ServerFingerprint sf) {
-		changeReporter.reportUpdate(chf, sf);
+		changeReporter.reportUpdate(cs, sf);
 	}
 
 	/**
 	 * this chf + sf combination is new to us
-	 * @param previousFingerprints
-	 *      the ServerFingerprints we have already seen in conjunction with chf
-	 */
-	private void reportFingerprintChange(ClientHelloFingerprint chf,
+     * @param cs
+     * @param previousFingerprints
+     */
+	private void reportFingerprintChange(Fingerprint.Signature cs,
 	                                  ServerFingerprint sf,
 	                                  List<ServerFingerprint> previousFingerprints) {
-		changeReporter.reportChange(chf, sf, previousFingerprints);
+		changeReporter.reportChange(cs, sf, previousFingerprints);
 		changes++;
 	}
 	

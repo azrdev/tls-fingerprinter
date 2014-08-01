@@ -2,10 +2,10 @@ package de.rub.nds.ssl.analyzer.vnl.fingerprint;
 
 public class ServerFingerprint {
 	private NetworkFingerprint networkFingerprint;
-	private ServerHelloFingerprint serverHelloFingerprint;
+	private ServerHelloFingerprint.Signature serverHelloFingerprint;
 
 	public ServerFingerprint(NetworkFingerprint networkFingerprint,
-			ServerHelloFingerprint serverHelloFingerprint) {
+			Fingerprint.Signature serverHelloFingerprint) {
 		this.networkFingerprint = networkFingerprint;
 		this.serverHelloFingerprint = serverHelloFingerprint;
 	}
@@ -62,14 +62,16 @@ public class ServerFingerprint {
 		this.networkFingerprint = networkFingerprint;
 	}
 	
-	public ServerHelloFingerprint getServerHelloFingerprint() {
+	public ServerHelloFingerprint.Signature getServerHelloFingerprint() {
 		return serverHelloFingerprint;
 	}
 	
-	public void setServerHelloFingerprint(ServerHelloFingerprint serverHelloFingerprint) {
+	public void setServerHelloFingerprint(
+            ServerHelloFingerprint.Signature serverHelloFingerprint) {
 		this.serverHelloFingerprint = serverHelloFingerprint;
 	}
-	
+
+    /*
 	public ServerFingerprintDifference getDifference(ServerFingerprint sf) {
 		return new ServerFingerprintDifference(this.getNetworkFingerprint()
 				.getMtuDifference(sf.getNetworkFingerprint()), this
@@ -79,8 +81,5 @@ public class ServerFingerprint {
                         .getServerHelloFingerprint().getAsMap(), sf
                         .getServerHelloFingerprint().getAsMap()));
 	}
-	
-	
-	
-
+	*/
 }

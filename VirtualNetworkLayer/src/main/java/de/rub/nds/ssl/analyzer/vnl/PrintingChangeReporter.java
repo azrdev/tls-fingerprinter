@@ -1,6 +1,6 @@
 package de.rub.nds.ssl.analyzer.vnl;
 
-import de.rub.nds.ssl.analyzer.vnl.fingerprint.ClientHelloFingerprint;
+import de.rub.nds.ssl.analyzer.vnl.fingerprint.Fingerprint;
 import de.rub.nds.ssl.analyzer.vnl.fingerprint.ServerFingerprint;
 
 import java.util.List;
@@ -8,7 +8,7 @@ import java.util.List;
 public class PrintingChangeReporter implements ChangeReporter {
 
 	@Override
-	public void reportChange(ClientHelloFingerprint chf,
+	public void reportChange(Fingerprint.Signature cs,
 			ServerFingerprint sf,
 			List<ServerFingerprint> previousResponses) {
 		System.out.println("********************************************************************");
@@ -17,15 +17,17 @@ public class PrintingChangeReporter implements ChangeReporter {
 		// System.out.println("New Server Response is: " + sf);
 		System.out.println("Difference to previous:");
 		for (ServerFingerprint serverHelloFingerprint : previousResponses) {
-			System.out.println(serverHelloFingerprint.getDifference(sf));
+			//System.out.println(serverHelloFingerprint.getDifference(sf));
 			// System.out.println(serverHelloFingerprint);
 		}
 		System.out.println("End of responses");
 	}
 
 	@Override
-	public void reportUpdate(ClientHelloFingerprint chf, ServerFingerprint sf) {
-		System.out.println(
-				String.format("Saw a ServerFingerprint (again): {%s}", sf.toString()));
+	public void reportUpdate(Fingerprint.Signature clientSignature, ServerFingerprint sf) {
+		System.out.println(String.format("Saw a ServerFingerprint (again): " +
+                        "{ClientFingerprint\n%s} => {%s}",
+                clientSignature.toString(),
+                sf.toString()));
 	}
 }

@@ -45,42 +45,29 @@ public class Connection {
 		return this.fl != null;
 	}
 
-	public ServerHelloFingerprint getServerHelloFingerprint() {
-		for (MessageContainer mc : fl) {
-			ARecordFrame rf = mc.getCurrentRecord();
-			if (rf instanceof ServerHello) {
-				ServerHello sh = (ServerHello) rf;
-				return new ServerHelloFingerprint(sh);
-			}
-		}
-		// No Server Hello?
-		throw new RuntimeException("Could not find a ServerHello");
-	}
+    public ServerHello getServerHello() {
+        for (MessageContainer mc : fl) {
+            ARecordFrame rf = mc.getCurrentRecord();
+            if (rf instanceof ServerHello) {
+                return (ServerHello) rf;
+            }
+        }
+        // No Server Hello?
+        throw new RuntimeException("Could not find a ServerHello");
+    }
 	
-	public ServerFingerprint getServerFingerprint() {
-		return new ServerFingerprint(this.getNetworkFingerprint(), this.getServerHelloFingerprint());
-	}
-	
-	public ClientHelloFingerprint getClientHelloFingerprint() {
+	public ClientHello getClientHello() {
 		// the first message is always the ClientHello
 		MessageContainer clientHelloMC = fl.get(0);
-		ClientHello ch = (ClientHello) clientHelloMC.getCurrentRecord();
-		return new ClientHelloFingerprint(ch);
+		return (ClientHello) clientHelloMC.getCurrentRecord();
 	}
 
   	public String getServerHostName() {
-		// the first message is always the ClientHello
-  		MessageContainer clientHelloMC = fl.get(0);
-  		ClientHello ch = (ClientHello) clientHelloMC.getCurrentRecord();
+        ClientHello ch = getClientHello();
+        if(ch == null)
+            return null;
 
-  		Extensions el = ch.getExtensions();
-        for (AExtension ex : el.getExtensions()) {
-            if (ex.getExtensionType() == EExtensionType.SERVER_NAME) {
-                ServerNameList sne = (ServerNameList) ex;
-                return sne.getServerNames().get(0).toString();
-            }
-        }
-  		return null;
+        return ch.getHostName();
   	}
 
 	public NetworkFingerprint getNetworkFingerprint() {
