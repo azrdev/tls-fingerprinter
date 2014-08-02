@@ -175,6 +175,7 @@ public abstract class ACaptureConverter {
     public static ARecordFrame[] decodeRecordFrames(final byte[] record,
 			EKeyExchangeAlgorithm keyExchangeAlgorithm) {
         ARecordFrame[] decodedFrames = new ARecordFrame[1];
+        //TODO: if content type != HANDSHAKE, we only ever return 1 ARecordFrame
         switch (EContentType.getContentType(record[0])) {
             case CHANGE_CIPHER_SPEC:
                 decodedFrames[0] = new ChangeCipherSpec(record, true);

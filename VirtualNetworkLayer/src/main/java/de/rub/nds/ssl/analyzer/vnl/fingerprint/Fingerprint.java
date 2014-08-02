@@ -71,7 +71,7 @@ public abstract class Fingerprint {
         @Override
         public String toString() {
             StringBuilder builder = new StringBuilder();
-            builder.append("- HashCode: ").append(hashCode()).append('\n');
+            //builder.append("- HashCode: ").append(hashCode()).append('\n');
 
             for (Map.Entry<String, Object> entry : signs.entrySet()) {
                 Object value = entry.getValue();
@@ -87,6 +87,8 @@ public abstract class Fingerprint {
 
             return builder.toString();
         }
+
+        //TODO: getDifference(Signature other)
     }
 
     /**
