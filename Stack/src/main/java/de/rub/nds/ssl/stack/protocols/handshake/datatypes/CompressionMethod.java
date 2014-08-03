@@ -149,4 +149,26 @@ public final class CompressionMethod extends APubliclySerializable {
         }
         setMethods(newMethods);
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o)
+            return true;
+        if (o == null || getClass() != o.getClass())
+            return false;
+
+        CompressionMethod that = (CompressionMethod) o;
+
+        if (methods != null ?
+                !methods.equals(that.methods) :
+                that.methods != null)
+            return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        return methods != null ? methods.hashCode() : 0;
+    }
 }

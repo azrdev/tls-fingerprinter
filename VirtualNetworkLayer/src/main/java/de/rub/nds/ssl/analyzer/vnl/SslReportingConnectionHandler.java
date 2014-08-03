@@ -1,7 +1,6 @@
 package de.rub.nds.ssl.analyzer.vnl;
 
 import java.util.HashSet;
-import java.util.Map;
 
 import de.rub.nds.ssl.analyzer.vnl.fingerprint.*;
 import de.rub.nds.virtualnetworklayer.connection.pcap.ConnectionHandler;
@@ -27,14 +26,14 @@ public final class SslReportingConnectionHandler extends ConnectionHandler {
      */
     private static final int SSL_PORT = 443;
     
-    private ChangeDetector changeDetector =
-            new ChangeDetector(new PrintingChangeReporter());
+    private FingerprintListener fingerprintListener =
+            new FingerprintListener(new PrintingFingerprintReporter());
 
     private final Fingerprint clientFingerprint = new ClientHelloFingerprint();
     private final Fingerprint serverFingerprint = new ServerHelloFingerprint();
     
     public void printStats() {
-    	System.out.println(changeDetector.toString());
+    	System.out.println(fingerprintListener.toString());
     }
 
     /**
@@ -82,7 +81,7 @@ public final class SslReportingConnectionHandler extends ConnectionHandler {
                 SessionIdentifier sessionIdentifier = c.getSessionIdentifier();
                 TLSFingerprint tlsFingerprint = new TLSFingerprint(c);
 
-                changeDetector.reportConnection(sessionIdentifier, tlsFingerprint);
+                fingerprintListener.reportConnection(sessionIdentifier, tlsFingerprint);
 
 				//c.printReport();
 

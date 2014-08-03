@@ -4,22 +4,19 @@ import de.rub.nds.ssl.analyzer.vnl.fingerprint.TLSFingerprint;
 
 import java.util.List;
 
-public class PrintingChangeReporter implements ChangeReporter {
+public class PrintingFingerprintReporter implements FingerprintReporter {
 
 	@Override
 	public void reportChange(SessionIdentifier sessionIdentifier,
 			TLSFingerprint fingerprint,
 			List<TLSFingerprint> previousFingerprints) {
 		System.out.println("********************************************************************");
-		System.out.println("WARNING: Change detected for host");//: " + chf.getHostName());
-		// System.out.println("ClientHelloFingerprint is: " + chf);
-		// System.out.println("New Server Response is: " + sf);
-		System.out.println("Difference to previous:");
-		for (TLSFingerprint serverHelloFingerprint : previousFingerprints) {
-			//System.out.println(serverHelloFingerprint.getDifference(sf));
-			// System.out.println(serverHelloFingerprint);
-		}
-		System.out.println("End of responses");
+		System.out.println("WARNING: Change detected for " + sessionIdentifier);
+        for (int i = 0, ps = previousFingerprints.size(); i < ps; i++) {
+            TLSFingerprint previous = previousFingerprints.get(i);
+            System.out.println(fingerprint.difference(previous,
+                    String.format("previous #%d", i+1)));
+        }
 		System.out.println("********************************************************************");
 	}
 

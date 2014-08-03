@@ -7,14 +7,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class ChangeDetector {
+public class FingerprintListener {
 
 	private Map<SessionIdentifier, List<TLSFingerprint>> fingerprints = new HashMap<>();
-	private ChangeReporter changeReporter;
+	private FingerprintReporter fingerprintReporter;
 	private int changes;
 	
-	public ChangeDetector(ChangeReporter changeReporter) {
-		this.changeReporter = changeReporter;
+	public FingerprintListener(FingerprintReporter fingerprintReporter) {
+		this.fingerprintReporter = fingerprintReporter;
 		this.changes = 0;
 	}
 	
@@ -26,6 +26,7 @@ public class ChangeDetector {
 			if(previousFingerprints.contains(tlsFingerprint)) {
 				// We have seen this!
 				reportFingerprintUpdate(sessionIdentifier, tlsFingerprint);
+                //TODO: store seen count
 				return;
 			}
 			// A new different fingerprint for this ClientFingerprint
@@ -45,7 +46,7 @@ public class ChangeDetector {
      */
     private void reportFingerprintNew(SessionIdentifier sessionIdentifier,
             TLSFingerprint tlsFingerprint) {
-        changeReporter.reportNew(sessionIdentifier, tlsFingerprint);
+        fingerprintReporter.reportNew(sessionIdentifier, tlsFingerprint);
     }
 
 	/**
@@ -53,7 +54,7 @@ public class ChangeDetector {
 	 */
 	private void reportFingerprintUpdate(SessionIdentifier sessionIdentifier,
             TLSFingerprint tlsFingerprint) {
-		changeReporter.reportUpdate(sessionIdentifier, tlsFingerprint);
+		fingerprintReporter.reportUpdate(sessionIdentifier, tlsFingerprint);
 	}
 
 	/**
@@ -62,14 +63,14 @@ public class ChangeDetector {
 	private void reportFingerprintChange(SessionIdentifier sessionIdentifier,
             TLSFingerprint tlsFingerprint,
             List<TLSFingerprint> previousFingerprints) {
-		changeReporter.reportChange(sessionIdentifier,
+		fingerprintReporter.reportChange(sessionIdentifier,
                 tlsFingerprint,
                 previousFingerprints);
 		changes++; //TODO: detailed statistics, here or (completely) elsewhere (in reporter?)
 	}
 	
 	public String toString() {
-		return String.format("ChangeDetector: saw %d fingerprinted connections, "
+		return String.format("FingerprintListener: saw %d fingerprinted connections, "
                         + "and %d fingerprint changes.",
                         fingerprints.size(), this.changes);
     }

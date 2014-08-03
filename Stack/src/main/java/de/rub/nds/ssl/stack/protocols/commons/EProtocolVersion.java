@@ -75,7 +75,7 @@ public enum EProtocolVersion {
 
         return tmp;
     }
-    
+
     /**
      * Get a human readable representation.
      */

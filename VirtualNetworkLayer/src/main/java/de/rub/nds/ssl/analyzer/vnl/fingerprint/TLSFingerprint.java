@@ -122,4 +122,49 @@ public class TLSFingerprint {
         sb.append("\n}");
         return sb.toString();
     }
+
+    /**
+     * @return a String representation of everything that has changed w.r.t. other
+     * @param otherName text to represent other
+     */
+    public String difference(TLSFingerprint other, String otherName) {
+        StringBuilder sb = new StringBuilder(
+                getClass().getSimpleName() + " difference to " + otherName + ":\n");
+
+        Fingerprint.Signature prevChs = other.getClientHelloSignature();
+        if(clientHelloSignature == null && prevChs != null) {
+            sb.append("ClientHello only in ").append(otherName).append(": ");
+            sb.append(prevChs).append("\n");
+        } else if(clientHelloSignature != null) {
+            if(prevChs == null) {
+                sb.append("ClientHello only in current: ");
+                sb.append(clientHelloSignature).append("\n");
+            } else {
+                final String diff = clientHelloSignature
+                        .difference(prevChs, "current", otherName);
+                if(!diff.isEmpty())
+                    sb.append("ClientHello difference: {\n").append(diff).append("}\n");
+            }
+        }
+
+        Fingerprint.Signature prevShs = other.getServerHelloSignature();
+        if(serverHelloSignature == null && prevShs != null) {
+            sb.append("ServerHello only in ").append(otherName).append(": ");
+            sb.append(prevShs).append("\n");
+        } else if(serverHelloSignature != null) {
+            if(prevShs == null) {
+                sb.append("ServerHello only in current: ");
+                sb.append(serverHelloSignature).append("\n");
+            } else {
+                final String diff = serverHelloSignature
+                        .difference(prevShs, "current", otherName);
+                if(!diff.isEmpty())
+                    sb.append("ServerHello difference: {\n").append(diff).append("}\n");
+            }
+        }
+
+        //FIXME: serverTcpSignature, serverMtuSignature difference
+
+        return sb.toString();
+    }
 }
