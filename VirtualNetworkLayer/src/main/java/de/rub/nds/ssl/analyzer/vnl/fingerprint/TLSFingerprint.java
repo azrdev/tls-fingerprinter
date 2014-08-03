@@ -7,7 +7,7 @@ import de.rub.nds.virtualnetworklayer.fingerprint.TcpFingerprint;
 /**
  * Collection of Fingerprint.Signature instances
  * <p>
- * TODO: change to be Map<Type, Fingerprint.Signature> when Fingerprint classes are unified
+ * TODO: change to be Map < Type, Fingerprint.Signature > when Fingerprint classes are unified
  *
  * @author jBiegert azrdev@qrdn.de
  */
@@ -49,9 +49,8 @@ public class TLSFingerprint {
         clientHelloSignature = clientHelloFingerprint.createSignature(connection);
         serverHelloSignature = serverHelloFingerprint.createSignature(connection);
 
-        NetworkFingerprint networkFingerprint = connection.getNetworkFingerprint();
-        serverTcpSignature = networkFingerprint.getTcpFingerprint();
-        serverMtuSignature = networkFingerprint.getMtuFingerprint();
+        serverTcpSignature = connection.getServerTcpSignature();
+        serverMtuSignature = connection.getServerMtuSignature();
     }
 
     public Fingerprint.Signature getClientHelloSignature() {

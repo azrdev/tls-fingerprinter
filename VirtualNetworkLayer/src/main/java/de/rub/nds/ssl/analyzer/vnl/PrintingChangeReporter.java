@@ -1,6 +1,5 @@
 package de.rub.nds.ssl.analyzer.vnl;
 
-import de.rub.nds.ssl.analyzer.vnl.fingerprint.ServerFingerprint;
 import de.rub.nds.ssl.analyzer.vnl.fingerprint.TLSFingerprint;
 
 import java.util.List;
@@ -21,6 +20,7 @@ public class PrintingChangeReporter implements ChangeReporter {
 			// System.out.println(serverHelloFingerprint);
 		}
 		System.out.println("End of responses");
+		System.out.println("********************************************************************");
 	}
 
 	@Override

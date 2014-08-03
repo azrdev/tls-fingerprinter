@@ -1,8 +1,5 @@
 package de.rub.nds.ssl.analyzer.vnl;
 
-import de.rub.nds.ssl.analyzer.vnl.fingerprint.ClientHelloFingerprint;
-import de.rub.nds.ssl.analyzer.vnl.fingerprint.Fingerprint;
-import de.rub.nds.ssl.analyzer.vnl.fingerprint.ServerFingerprint;
 import de.rub.nds.ssl.analyzer.vnl.fingerprint.TLSFingerprint;
 
 import java.util.List;

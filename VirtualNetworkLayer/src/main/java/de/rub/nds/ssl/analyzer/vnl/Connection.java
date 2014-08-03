@@ -1,28 +1,20 @@
 package de.rub.nds.ssl.analyzer.vnl;
 
-import de.rub.nds.ssl.analyzer.vnl.fingerprint.ClientHelloFingerprint;
-import de.rub.nds.ssl.analyzer.vnl.fingerprint.NetworkFingerprint;
-import de.rub.nds.ssl.analyzer.vnl.fingerprint.ServerFingerprint;
-import de.rub.nds.ssl.analyzer.vnl.fingerprint.ServerHelloFingerprint;
 import de.rub.nds.ssl.stack.protocols.ARecordFrame;
 import de.rub.nds.ssl.stack.protocols.handshake.ClientHello;
 import de.rub.nds.ssl.stack.protocols.handshake.ServerHello;
 import de.rub.nds.ssl.stack.protocols.handshake.datatypes.EKeyExchangeAlgorithm;
-import de.rub.nds.ssl.stack.protocols.handshake.datatypes.Extensions;
-import de.rub.nds.ssl.stack.protocols.handshake.extensions.AExtension;
-import de.rub.nds.ssl.stack.protocols.handshake.extensions.ServerNameList;
-import de.rub.nds.ssl.stack.protocols.handshake.extensions.datatypes.EExtensionType;
 import de.rub.nds.ssl.stack.protocols.msgs.ChangeCipherSpec;
 import de.rub.nds.virtualnetworklayer.connection.pcap.PcapConnection;
 import de.rub.nds.virtualnetworklayer.connection.pcap.PcapTrace;
 import de.rub.nds.virtualnetworklayer.fingerprint.Fingerprint;
+import de.rub.nds.virtualnetworklayer.fingerprint.Fingerprints;
 import de.rub.nds.virtualnetworklayer.packet.Headers;
 import de.rub.nds.virtualnetworklayer.packet.Packet.Direction;
 import de.rub.nds.virtualnetworklayer.packet.PcapPacket;
 import de.rub.nds.virtualnetworklayer.packet.header.Header;
 import de.rub.nds.virtualnetworklayer.packet.header.application.TlsHeader;
 import de.rub.nds.virtualnetworklayer.packet.header.internet.Ip;
-import de.rub.nds.virtualnetworklayer.packet.header.internet.Ip4Header;
 import de.rub.nds.virtualnetworklayer.packet.header.transport.TcpHeader;
 
 import java.util.LinkedList;
@@ -31,20 +23,18 @@ import java.util.List;
 public class Connection {
 	private PcapTrace trace;
 	private List<MessageContainer> fl;
-	private List<Fingerprint.Signature> fingerprints;
-	private NetworkFingerprint networkFingerprint;
+
+    private Fingerprint.Signature serverTcpSignature;
+    private Fingerprint.Signature serverMtuSignature;
     private SessionIdentifier sessionIdentifier = new SessionIdentifier();
     private EKeyExchangeAlgorithm keyExchangeAlgorithm;
 
     public Connection(PcapConnection pcapConnection) {
 		this.trace = pcapConnection.getTrace();
-		this.fingerprints = pcapConnection.getSignatures(Direction.Response);
+        //TODO: Direction.Request  if we serve TLS
+		this.serverTcpSignature = pcapConnection.getSignature(Direction.Response, Fingerprints.Tcp);
+		this.serverMtuSignature = pcapConnection.getSignature(Direction.Response, Fingerprints.Mtu);
 		this.fl = this.decodeTrace();
-		this.networkFingerprint = new NetworkFingerprint(this.fingerprints);
-//		if ((this.fingerprints.size() != 2) || (this.fingerprints.get(0) == null)) {
-//			System.err.println("Sorry, incorrect fingerprints!");
-//		}
-		
 	}
 	
 	public boolean isCompleted() {
@@ -68,18 +58,14 @@ public class Connection {
 		return (ClientHello) clientHelloMC.getCurrentRecord();
 	}
 
-  	public String getServerHostName() {
-        ClientHello ch = getClientHello();
-        if(ch == null)
-            return null;
+    public Fingerprint.Signature getServerTcpSignature() {
+        return serverTcpSignature;
+    }
 
-        return ch.getHostName();
-  	}
+    public Fingerprint.Signature getServerMtuSignature() {
+        return serverMtuSignature;
+    }
 
-	public NetworkFingerprint getNetworkFingerprint() {
-		return this.networkFingerprint;
-	}
-	
 	public void printReport() {
 		if (fl != null) {
 			System.out.println("###########################################################################");
@@ -91,6 +77,10 @@ public class Connection {
 			System.out.println("###########################################################################");
 		}
 	}
+
+    public SessionIdentifier getSessionIdentifier() {
+        return sessionIdentifier;
+    }
 
 	private List<MessageContainer> decodeTrace() {
         //TODO: why not merge MessageContainer and ARecordFrame ?
@@ -177,8 +167,4 @@ public class Connection {
 		}
 		return null;
 	}
-
-    public SessionIdentifier getSessionIdentifier() {
-        return sessionIdentifier;
-    }
 }
