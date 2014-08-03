@@ -95,73 +95,69 @@ public class Connection {
 			 * System.out.println(packet + " " + packet.getHeaders());
 			 * System.out.println("direction " + packet.getDirection());
 			 */
-			for (Header header : packet.getHeaders()) {
-				if(header instanceof  TlsHeader) {
-				//XXX: if (header.getId() == TlsHeader.Id) {
-					if ((packet.getDirection() == Direction.Request && !clientCompleted)
-							|| (packet.getDirection() == Direction.Response && !serverCompleted)) {
-						// Get the raw bytes of the frame, including the header
-						byte[] content = header.getHeaderAndPayload();
-	
-						// Decode these bytes
-						ARecordFrame[] frames = ACaptureConverter
-								.decodeRecordFrames(content,
-                                        keyExchangeAlgorithm);
-	
-						// Convert all Frames to MessageContainer and add them to the list
-                        for (ARecordFrame frame : frames) {
-                            if (frame == null) {
-                                // Something went wrong
-                                System.out.println("failed to parse something: "
-                                        + packet + " "
-                                        + packet.getHeaders());
-                            }
-                            frameList.add(new MessageContainer(frame, packet));
-                            /*
-							 * Does this complete the unencrypted part of the handshake?
-							 */
-                            if (frame instanceof ChangeCipherSpec) {
-                                if (packet.getDirection() == Direction.Request) {
-                                    clientCompleted = true;
-                                } else {
-                                    serverCompleted = true;
-                                }
-                                if (clientCompleted && serverCompleted) {
-                                    // Both have send a ChangeCipherSpec message
-                                    return frameList;
-                                }
-                            }
-                            if (frame instanceof ClientHello) {
-                                /*
-                                 * a ClientHello will always be part of a connection, and
-                                 * contains all information we need for SessionIdentifier
-                                 */
-                                Ip ipHeader = packet.getHeader(Headers.Ip4);
-                                if (ipHeader == null)
-                                    ipHeader = packet.getHeader(Headers.Ip6);
-                                if (ipHeader == null)
-                                    sessionIdentifier.setServerIPAddress(null);
-                                else
-                                    sessionIdentifier.setServerIPAddress(ipHeader.getDestinationAddress());
+			for (Header header : packet.getHeaders(Headers.Tls)) {
+                if ((packet.getDirection() == Direction.Request && !clientCompleted)
+                        || (packet.getDirection() == Direction.Response && !serverCompleted)) {
+                    // Get the raw bytes of the frame, including the header
+                    byte[] content = header.getHeaderAndPayload();
 
-                                TcpHeader tcpHeader = packet.getHeader(Headers.Tcp);
-                                //sessionIdentifier.setClientTcpPort(tcpHeader.getSourcePort());
-                                sessionIdentifier.setServerTcpPort(tcpHeader.getDestinationPort());
+                    // Decode these bytes
+                    ARecordFrame[] frames = ACaptureConverter
+                            .decodeRecordFrames(content,
+                                    keyExchangeAlgorithm);
 
-                                ClientHello ch = (ClientHello) frame;
-                                sessionIdentifier.setServerHostName(ch.getHostName());
+                    // Convert all Frames to MessageContainer and add them to the list
+                    for (ARecordFrame frame : frames) {
+                        if (frame == null) {
+                            // Something went wrong
+                            System.out.println("failed to parse something: "
+                                    + packet + " "
+                                    + packet.getHeaders());
+                        }
+                        frameList.add(new MessageContainer(frame, packet));
+                        /*
+                         * Does this complete the unencrypted part of the handshake?
+                         */
+                        if (frame instanceof ChangeCipherSpec) {
+                            if (packet.getDirection() == Direction.Request) {
+                                clientCompleted = true;
+                            } else {
+                                serverCompleted = true;
                             }
-                            if (frame instanceof ServerHello) {
-								/*
-								 * We need to set the key exchange algorithm here.
-								 */
-                                ServerHello sh = (ServerHello) frame;
-                                keyExchangeAlgorithm = sh.getCipherSuite()
-                                        .getKeyExchangeAlgorithm();
+                            if (clientCompleted && serverCompleted) {
+                                // Both have send a ChangeCipherSpec message
+                                return frameList;
                             }
                         }
-	
-					}
+                        if (frame instanceof ClientHello) {
+                            /*
+                             * a ClientHello will always be part of a connection, and
+                             * contains all information we need for SessionIdentifier
+                             */
+                            Ip ipHeader = packet.getHeader(Headers.Ip4);
+                            if (ipHeader == null)
+                                ipHeader = packet.getHeader(Headers.Ip6);
+                            if (ipHeader == null)
+                                sessionIdentifier.setServerIPAddress(null);
+                            else
+                                sessionIdentifier.setServerIPAddress(ipHeader.getDestinationAddress());
+
+                            TcpHeader tcpHeader = packet.getHeader(Headers.Tcp);
+                            //sessionIdentifier.setClientTcpPort(tcpHeader.getSourcePort());
+                            sessionIdentifier.setServerTcpPort(tcpHeader.getDestinationPort());
+
+                            ClientHello ch = (ClientHello) frame;
+                            sessionIdentifier.setServerHostName(ch.getHostName());
+                        }
+                        if (frame instanceof ServerHello) {
+                            /*
+                             * We need to set the key exchange algorithm here.
+                             */
+                            ServerHello sh = (ServerHello) frame;
+                            keyExchangeAlgorithm = sh.getCipherSuite()
+                                    .getKeyExchangeAlgorithm();
+                        }
+                    }
 				}
 			}
 		}

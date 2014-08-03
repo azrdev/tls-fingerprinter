@@ -81,6 +81,7 @@ label = loopback
 sig   = 3924
 sig   = 16384
 sig   = 16436
+sig   = 65535
 
 ; ==================
 ; TCP SYN p0f.signature

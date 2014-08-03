@@ -143,7 +143,7 @@ public final class CipherSuites extends APubliclySerializable {
                 cipherSuites[j] = ECipherSuite.getCipherSuite(
                         new byte[]{tmpSuites[i], tmpSuites[i + 1]});
             } catch(UnknownCipherSuiteException e) {
-                continue; //XXX
+                continue; //XXX: log
             }
         }
         setSuites(cipherSuites);

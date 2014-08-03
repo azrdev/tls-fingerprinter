@@ -1,5 +1,5 @@
 package de.rub.nds.ssl.analyzer.vnl.fingerprint;
 
 public class ServerResponseFingerprint {
-    //FIXME
+    //XXX
 }
