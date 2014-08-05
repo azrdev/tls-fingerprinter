@@ -5,6 +5,8 @@ import de.rub.nds.ssl.stack.exceptions.UnknownTLSExtensionException;
 import de.rub.nds.ssl.stack.protocols.commons.APubliclySerializable;
 import de.rub.nds.ssl.stack.protocols.handshake.extensions.AExtension;
 import de.rub.nds.ssl.stack.protocols.handshake.extensions.datatypes.EExtensionType;
+import org.apache.log4j.Logger;
+
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -21,6 +23,8 @@ import java.util.List;
  * Feb 4, 2013
  */
 public final class Extensions extends APubliclySerializable {
+
+    private Logger logger = Logger.getLogger(getClass());
 
     /**
      * Length of the length field.
@@ -158,8 +162,7 @@ public final class Extensions extends APubliclySerializable {
 	        try {
 		        extensionType = EExtensionType.getExtension(tmp);
 	        } catch (UnknownTLSExtensionException ex) {
-		        System.out.println("Unknown extension: " + Utility.bytesIdToHex(tmp));
-		        //XXX: log
+		        logger.warn("Unknown extension: " + Utility.bytesIdToHex(tmp));
 	        }
 
             // 2. determine extension length
@@ -176,15 +179,11 @@ public final class Extensions extends APubliclySerializable {
             pointer += tmp.length;
 
             // 4. add message to message list
-	        if(extensionType == null) {
-	            //XXX: logging?
-		        continue;
-	        }
             try {
                 tmpExtension = delegateDecoding(extensionType, tmp);
                 extensions.add(tmpExtension);
-            } catch(IllegalArgumentException ex) {
-                System.out.println("Could not decode extension: " + ex);
+            } catch(IllegalArgumentException | NullPointerException ex) {
+                logger.warn("Could not decode extension: " + ex, ex);
             }
         }
     }

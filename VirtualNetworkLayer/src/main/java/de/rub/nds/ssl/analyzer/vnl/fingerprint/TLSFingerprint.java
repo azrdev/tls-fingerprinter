@@ -163,7 +163,7 @@ public class TLSFingerprint {
             }
         }
 
-        //FIXME: serverTcpSignature, serverMtuSignature difference
+        //XXX: serverTcpSignature, serverMtuSignature difference
 
         return sb.toString();
     }

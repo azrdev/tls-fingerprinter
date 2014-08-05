@@ -3,6 +3,7 @@ package de.rub.nds.ssl.stack.protocols.handshake.datatypes;
 import de.rub.nds.ssl.stack.Utility;
 import de.rub.nds.ssl.stack.protocols.commons.APubliclySerializable;
 import de.rub.nds.ssl.stack.protocols.commons.ECompressionMethod;
+import org.apache.log4j.Logger;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -17,6 +18,8 @@ import java.util.List;
  * Nov 15, 2011
  */
 public final class CompressionMethod extends APubliclySerializable {
+
+    private Logger logger = Logger.getLogger(getClass());
 
     /**
      * Length of the length field.
@@ -143,7 +146,7 @@ public final class CompressionMethod extends APubliclySerializable {
             try {
                 method = ECompressionMethod.getCompressionMethod(methods[i]);
             } catch(IllegalArgumentException e) {
-                System.out.println(e);
+                logger.warn(e);
             }
             newMethods.add(method);
         }

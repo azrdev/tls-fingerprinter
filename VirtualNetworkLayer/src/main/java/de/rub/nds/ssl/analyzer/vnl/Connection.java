@@ -13,14 +13,17 @@ import de.rub.nds.virtualnetworklayer.packet.Headers;
 import de.rub.nds.virtualnetworklayer.packet.Packet.Direction;
 import de.rub.nds.virtualnetworklayer.packet.PcapPacket;
 import de.rub.nds.virtualnetworklayer.packet.header.Header;
-import de.rub.nds.virtualnetworklayer.packet.header.application.TlsHeader;
 import de.rub.nds.virtualnetworklayer.packet.header.internet.Ip;
 import de.rub.nds.virtualnetworklayer.packet.header.transport.TcpHeader;
+import org.apache.log4j.Logger;
 
 import java.util.LinkedList;
 import java.util.List;
 
 public class Connection {
+
+    private Logger logger = Logger.getLogger(getClass());
+
 	private PcapTrace trace;
 	private List<MessageContainer> fl;
 
@@ -68,13 +71,13 @@ public class Connection {
 
 	public void printReport() {
 		if (fl != null) {
-			System.out.println("###########################################################################");
-			System.out.println("Full report");
+            StringBuilder sb = new StringBuilder();
+            sb.append("Full connection report: begin trace\n");
 			for (MessageContainer aRecordFrame : fl) {
-				System.out.println(aRecordFrame.getCurrentRecord());
+				sb.append(aRecordFrame.getCurrentRecord()).append("\n");
 			}
-			System.out.println("end of trace");
-			System.out.println("###########################################################################");
+			sb.append("end of trace");
+            logger.info(sb.toString());
 		}
 	}
 
@@ -92,8 +95,8 @@ public class Connection {
 		// Now, iterate over all packets and find TLS record layer frames
 		for (PcapPacket packet : trace) {
 			/*
-			 * System.out.println(packet + " " + packet.getHeaders());
-			 * System.out.println("direction " + packet.getDirection());
+			 * logger.debug(packet + " " + packet.getHeaders());
+			 * logger.debug("direction " + packet.getDirection());
 			 */
 			for (Header header : packet.getHeaders(Headers.Tls)) {
                 if ((packet.getDirection() == Direction.Request && !clientCompleted)
@@ -110,7 +113,7 @@ public class Connection {
                     for (ARecordFrame frame : frames) {
                         if (frame == null) {
                             // Something went wrong
-                            System.out.println("failed to parse something: "
+                            logger.warn("failed to parse something: "
                                     + packet + " "
                                     + packet.getHeaders());
                         }

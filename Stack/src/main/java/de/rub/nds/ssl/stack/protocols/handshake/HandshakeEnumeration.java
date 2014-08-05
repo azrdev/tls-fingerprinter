@@ -3,6 +3,8 @@ package de.rub.nds.ssl.stack.protocols.handshake;
 import de.rub.nds.ssl.stack.protocols.ARecordFrame;
 import de.rub.nds.ssl.stack.protocols.commons.EProtocolVersion;
 import de.rub.nds.ssl.stack.protocols.handshake.datatypes.EKeyExchangeAlgorithm;
+import org.apache.log4j.Logger;
+
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -18,6 +20,8 @@ import java.util.List;
  * Dec 19, 2011
  */
 final public class HandshakeEnumeration extends ARecordFrame {
+
+    private Logger logger = Logger.getLogger(getClass());
 
     /**
      * Predefined size of the messages list
@@ -134,7 +138,7 @@ final public class HandshakeEnumeration extends ARecordFrame {
                 msgObserve.statusChanged(tmpHandshakeMsg);
                 messages.add(tmpHandshakeMsg);
             } catch (IllegalArgumentException e) {
-                System.out.println("cannot decode Handshake record: " + e);
+                logger.warn("cannot decode Handshake record: " + e);
             }
         }
     }
@@ -195,16 +199,14 @@ final public class HandshakeEnumeration extends ARecordFrame {
                 setProtocolVersion.setAccessible(true);
                 setProtocolVersion.invoke(result, version);
             }
-        } catch (InstantiationException ex) {
-            ex.printStackTrace();
-        } catch (IllegalAccessException ex) {
-            ex.printStackTrace();
-        } catch (InvocationTargetException ex) {
-            // Happens with ClientKeyExchange message - 
+        } catch (InstantiationException |
+                IllegalAccessException |
+                InvocationTargetException ex) {
+            // InvocationTargetException happens with ClientKeyExchange message -
             // TODO why and when? (CM)
-            ex.printStackTrace();
+            logger.warn("could not decode handshake message " + ex, ex);
         } catch (NoSuchMethodException ex) {
-            System.err.println("Could not find a suitable method for type "
+            logger.warn("Could not find a suitable method for type "
                     + type + " and class " + implClass.getCanonicalName());
             ex.printStackTrace();
         }

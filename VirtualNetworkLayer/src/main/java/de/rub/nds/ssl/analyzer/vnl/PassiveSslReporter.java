@@ -5,6 +5,7 @@ import java.io.File;
 import de.rub.nds.virtualnetworklayer.connection.pcap.ConnectionHandler;
 import de.rub.nds.virtualnetworklayer.p0f.P0fFile;
 import de.rub.nds.virtualnetworklayer.pcap.Pcap;
+import org.apache.log4j.Logger;
 
 /**
  * Sample program, that will passively listen and report HTTPS connections.
@@ -13,9 +14,11 @@ import de.rub.nds.virtualnetworklayer.pcap.Pcap;
  *
  */
 public class PassiveSslReporter {
+
+    private Logger logger = Logger.getRootLogger();
 	
 	static {
-		ConnectionHandler.registerP0fFile(P0fFile.Embedded);;
+		ConnectionHandler.registerP0fFile(P0fFile.Embedded);
 	}
 	
 	// Our handler will report on all new packets
@@ -23,40 +26,39 @@ public class PassiveSslReporter {
 	
 	public void run(String filename) {
 		Pcap pcap = Pcap.openOffline(new File(filename));
-        System.out.println("now looping over file");
+        logger.info("now looping over file");
         pcap.loop(handler);
-        System.out.println("looping done");
+        logger.info("looping done");
 	}
 	
 	public void run() {
         //open pcap on local live device
         Pcap pcap = Pcap.openLive();
-        System.out.println("now looping over live capture");
+        logger.info("now looping over live capture");
         
         // Give control to pcap, pcap will use callbacks.
         pcap.loopAsynchronous(handler);
         
-        System.out.println("looping done");
+        logger.info("looping done");
 	}
 	
-	public void startMonitorThread() {
-		Runnable t = new Runnable() {
-			
-			@Override
-			public void run() {
-				while(true) {
-					handler.printStats();
-					try {
-						Thread.sleep(5000);
-					} catch (InterruptedException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
-				}
-				
-			}
-		};
-		(new Thread(t)).start();
+	public Thread startMonitorThread() {
+        Thread t = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                while(true) {
+                    try {
+                        handler.printStats();
+                        Thread.sleep(5000);
+                    } catch (InterruptedException e) {
+                        // nothing
+                    }
+                    handler.printStats();
+                }
+            }
+        });
+        t.start();
+        return t;
 	}
 
 	/**
@@ -65,7 +67,7 @@ public class PassiveSslReporter {
 	 */
 	public static void main(String[] args) {
 		PassiveSslReporter psr = new PassiveSslReporter();
-		psr.startMonitorThread();
+        Thread monitorThread = psr.startMonitorThread();
 		if (args.length == 0) {
 			psr.run();
 		} else {
@@ -73,7 +75,7 @@ public class PassiveSslReporter {
 				psr.run(string);
 			}
 		}
-        psr.handler.printStats();
+        monitorThread.interrupt();
 		System.exit(0);
 	}
 

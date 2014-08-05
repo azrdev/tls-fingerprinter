@@ -8,6 +8,7 @@ import de.rub.nds.ssl.stack.protocols.handshake.datatypes.CompressionMethod;
 import de.rub.nds.ssl.stack.protocols.handshake.datatypes.Extensions;
 import de.rub.nds.ssl.stack.protocols.handshake.datatypes.RandomValue;
 import de.rub.nds.ssl.stack.protocols.handshake.datatypes.SessionId;
+import org.apache.log4j.Logger;
 
 /**
  * Defines the ServerHello message of SSL/TLS as defined in RFC 2246.
@@ -18,6 +19,8 @@ import de.rub.nds.ssl.stack.protocols.handshake.datatypes.SessionId;
  * Nov 15, 2011
  */
 public final class ServerHello extends AHandshakeRecord {
+
+    private Logger logger = Logger.getLogger(getClass());
 
     /**
      * Minimum length of the encoded form
@@ -413,7 +416,7 @@ public final class ServerHello extends AHandshakeRecord {
 	    try {
 		    this.cipherSuite = ECipherSuite.getCipherSuite(suite);
 	    } catch (UnknownCipherSuiteException ex) {
-		    System.out.println(ex); //XXX: logging
+		    logger.warn(ex);
 		    this.cipherSuite = null;
 	    }
     }

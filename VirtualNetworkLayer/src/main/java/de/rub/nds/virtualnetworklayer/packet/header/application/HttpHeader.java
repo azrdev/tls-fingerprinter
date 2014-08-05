@@ -7,10 +7,10 @@ import de.rub.nds.virtualnetworklayer.packet.header.Header;
 import de.rub.nds.virtualnetworklayer.packet.header.transport.TcpHeader;
 import de.rub.nds.virtualnetworklayer.pcap.Pcap;
 import de.rub.nds.virtualnetworklayer.util.formatter.Protocol;
+import org.apache.log4j.Logger;
 
 import java.nio.charset.Charset;
 import java.util.*;
-import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -141,7 +141,7 @@ public class HttpHeader extends EncodedHeader {
         }
 
         if (headers.containsKey("Transfer-Encoding")) {
-            logger.warning("not implemented " + headers.get("Transfer-Encoding"));
+            logger.warn("not implemented " + headers.get("Transfer-Encoding"));
         }
 
         if (getDirection() == Packet.Direction.Response) {

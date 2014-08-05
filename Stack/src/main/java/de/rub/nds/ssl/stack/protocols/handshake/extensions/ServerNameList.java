@@ -4,6 +4,7 @@ import de.rub.nds.ssl.stack.protocols.handshake.extensions.datatypes.AServerName
 import de.rub.nds.ssl.stack.protocols.handshake.extensions.datatypes.EExtensionType;
 import de.rub.nds.ssl.stack.protocols.handshake.extensions.datatypes.ENameType;
 import de.rub.nds.ssl.stack.protocols.handshake.extensions.exceptions.UnknownServerNameType;
+import org.apache.log4j.Logger;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
@@ -17,6 +18,9 @@ import java.util.List;
  * @author jBiegert azrdev@qrdn.de
  */
 public final class ServerNameList extends AExtension {
+
+    private Logger logger = Logger.getLogger(getClass());
+
     /**
      * Length of the length field.
      */
@@ -143,7 +147,7 @@ public final class ServerNameList extends AExtension {
 			try {
 				serverNames.add(nameType.getInstance(nameData));
 			} catch(IllegalArgumentException | NullPointerException e) {
-				System.out.println("Could not decode Server Name: " + e); //XXX: logging?
+				logger.warn("Could not decode Server Name: " + e);
 			}
 			pointer += namePointer;
 		}

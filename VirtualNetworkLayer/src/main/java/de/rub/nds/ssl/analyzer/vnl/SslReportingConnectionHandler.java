@@ -7,6 +7,7 @@ import de.rub.nds.virtualnetworklayer.connection.pcap.ConnectionHandler;
 import de.rub.nds.virtualnetworklayer.connection.pcap.PcapConnection;
 import de.rub.nds.virtualnetworklayer.p0f.P0fFile;
 import de.rub.nds.virtualnetworklayer.packet.header.transport.SocketSession;
+import org.apache.log4j.Logger;
 
 /**
  * A connection handler, that tries to find HTTPS connections and reports the
@@ -21,6 +22,8 @@ public final class SslReportingConnectionHandler extends ConnectionHandler {
 		registerP0fFile(P0fFile.Embedded);
 	}
 
+    private Logger logger = Logger.getLogger(getClass());
+
     /**
      * Default SSL Port.
      */
@@ -28,12 +31,9 @@ public final class SslReportingConnectionHandler extends ConnectionHandler {
     
     private FingerprintListener fingerprintListener =
             new FingerprintListener(new PrintingFingerprintReporter());
-
-    private final Fingerprint clientFingerprint = new ClientHelloFingerprint();
-    private final Fingerprint serverFingerprint = new ServerHelloFingerprint();
     
     public void printStats() {
-    	System.out.println(fingerprintListener.toString());
+    	logger.info(fingerprintListener.toString());
     }
 
     /**
@@ -51,7 +51,7 @@ public final class SslReportingConnectionHandler extends ConnectionHandler {
 
         if (isSsl(connection)) {
             if (event == Event.New) {
-                // System.out.println("new connection");
+                // logger.info("new connection");
                 // There is a new SSL connection
                 handleUpdate(connection);
             } else if (event == Event.Update) {
@@ -71,8 +71,7 @@ public final class SslReportingConnectionHandler extends ConnectionHandler {
 			try {
 				c = new Connection(connection);
 			} catch (Throwable e) {
-				System.out.println("Error decoding connection: " + e);
-				//e.printStackTrace();
+				logger.warn("Error decoding connection: " + e, e);
 				return;
 			}
 			if (c.isCompleted()) {
@@ -84,13 +83,6 @@ public final class SslReportingConnectionHandler extends ConnectionHandler {
                 fingerprintListener.reportConnection(sessionIdentifier, tlsFingerprint);
 
 				//c.printReport();
-
-				/*
-				System.out.println("Found a connection to: " + c.getServerHostName());
-				System.out.println("Label was " + c.getNetworkFingerprint());
-				System.out.println("Client Hello was: " + c.getClientHelloFingerprint());
-				System.out.println("Server Hello was: " + c.getServerHelloFingerprint());
-				*/
 			}
 
 		}

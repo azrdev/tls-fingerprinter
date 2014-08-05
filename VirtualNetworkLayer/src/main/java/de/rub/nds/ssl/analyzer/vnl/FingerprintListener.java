@@ -70,7 +70,7 @@ public class FingerprintListener {
 	}
 	
 	public String toString() {
-		return String.format("FingerprintListener: saw %d fingerprinted connections, "
+		return String.format("saw %d fingerprinted connections, "
                         + "and %d fingerprint changes.",
                         fingerprints.size(), this.changes);
     }

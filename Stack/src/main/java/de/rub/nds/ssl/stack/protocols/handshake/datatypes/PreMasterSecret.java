@@ -2,6 +2,8 @@ package de.rub.nds.ssl.stack.protocols.handshake.datatypes;
 
 import de.rub.nds.ssl.stack.protocols.commons.APubliclySerializable;
 import de.rub.nds.ssl.stack.protocols.commons.EProtocolVersion;
+import org.apache.log4j.Logger;
+
 import java.math.BigInteger;
 import java.security.GeneralSecurityException;
 import java.security.PublicKey;
@@ -17,8 +19,11 @@ import javax.crypto.KeyAgreement;
  *
  * Jan 17, 2012
  */
-public final class PreMasterSecret extends APubliclySerializable
-        implements IExchangeKeys {
+public final class PreMasterSecret
+    extends APubliclySerializable
+    implements IExchangeKeys {
+
+    private Logger logger = Logger.getLogger(getClass());
 
     /**
      * Length of the random value: 46 Bytes.
@@ -251,7 +256,7 @@ public final class PreMasterSecret extends APubliclySerializable
         if (secret.length < LENGTH_MINIMUM_ENCODED) {
             throw new IllegalArgumentException("PreMasterSecret too short.");
         } else if (secret.length > LENGTH_MINIMUM_ENCODED) {
-            System.err.println(Arrays.toString(secret));
+            logger.warn(Arrays.toString(secret));
             throw new IllegalArgumentException("PreMasterSecret too long: "
                     + secret.length + " > " + LENGTH_MINIMUM_ENCODED);
         }

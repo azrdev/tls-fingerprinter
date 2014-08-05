@@ -9,6 +9,7 @@ import de.rub.nds.virtualnetworklayer.p0f.P0fFile;
 import de.rub.nds.virtualnetworklayer.packet.PacketHandler;
 import de.rub.nds.virtualnetworklayer.packet.PcapPacket;
 import de.rub.nds.virtualnetworklayer.packet.header.transport.SocketSession;
+import org.apache.log4j.Logger;
 
 import java.io.InputStream;
 import java.util.HashMap;
@@ -16,7 +17,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.logging.Logger;
 
 /**
  * This class extends {@link PacketHandler} with session and fingerprinting capabilities.
@@ -51,7 +51,7 @@ public abstract class ConnectionHandler extends PacketHandler {
         Update
     }
 
-    private final static Logger logger = Logger.getLogger(ConnectionHandler.class.getName());
+    private final static Logger logger = Logger.getLogger(ConnectionHandler.class);
 
     private static Map<Fingerprint.Signature, Label>[] signatures;
     private static List<Fingerprint> prints = new LinkedList<>();
@@ -99,7 +99,7 @@ public abstract class ConnectionHandler extends PacketHandler {
                 try {
                     registerSignature(signature, group.getLabel());
                 } catch (IllegalArgumentException e) {
-                    logger.warning(group.getLabel() + ", " + groupLine + ". " + e.getMessage());
+                    logger.warn(group.getLabel() + ", " + groupLine + ". " + e.getMessage());
                 }
 
                 groupLine++;
@@ -143,7 +143,7 @@ public abstract class ConnectionHandler extends PacketHandler {
 		}
     	int cleared = this.connections.size() - tmp.size();
     	if (cleared > 0) {
-    		// System.err.println("cleared " + cleared + " connections");
+    		logger.debug("cleared " + cleared + " connections");
     	}
     	this.connections = tmp;
     	

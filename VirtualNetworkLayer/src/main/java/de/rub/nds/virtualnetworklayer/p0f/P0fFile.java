@@ -2,13 +2,13 @@ package de.rub.nds.virtualnetworklayer.p0f;
 
 import de.rub.nds.virtualnetworklayer.fingerprint.Fingerprint;
 import de.rub.nds.virtualnetworklayer.util.IniTokenizer;
+import org.apache.log4j.Logger;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.util.*;
-import java.util.logging.Logger;
 
 /**
  * p0f.fp layout:
@@ -88,7 +88,7 @@ public class P0fFile {
             actualGroup = new Group();
             Label label = actualGroup.setLabel(property.getValue());
             if (label.isOSSpecific() && !classes.contains(label.getLabelClass())) {
-                logger.warning("label class " + label.getLabelClass() + " not registered");
+                logger.warn("label class " + label.getLabelClass() + " not registered");
             }
 
         } else if (key.equals("sig")) {

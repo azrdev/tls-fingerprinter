@@ -10,6 +10,8 @@ import de.rub.nds.ssl.stack.protocols.msgs.ChangeCipherSpec;
 import de.rub.nds.ssl.stack.protocols.msgs.TLSPlaintext;
 import de.rub.nds.virtualnetworklayer.connection.pcap.PcapTrace;
 import de.rub.nds.virtualnetworklayer.packet.PcapPacket;
+import org.apache.log4j.Logger;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -23,6 +25,8 @@ import java.util.List;
  * Oct 15, 2012
  */
 public abstract class ACaptureConverter {
+
+    private static Logger logger = Logger.getLogger(ACaptureConverter.class);
 
     /**
      * Converts a PcapTrace to a MessageContainer.
@@ -191,14 +195,14 @@ public abstract class ACaptureConverter {
                 if (decodedFrames == null
                         || decodedFrames.length < 1
                         || decodedFrames[0] == null) {
-                    System.err.println("decoding handshake messages failed! " + Arrays.toString(decodedFrames));
+                    logger.warn("decoding handshake messages failed! " + Arrays.toString(decodedFrames));
                 }
                 break;
             case APPLICATION:
                 decodedFrames[0] = new TLSPlaintext(record, true);
                 break;
             default:
-                System.err.println("default case, should not happen: "
+                logger.warn("TLS record type unknown: "
                         + EContentType.getContentType(record[0]));
                 break;
         }
