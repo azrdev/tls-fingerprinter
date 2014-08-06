@@ -51,10 +51,10 @@ public class PassiveSslReporter {
                         handler.printStats();
                         Thread.sleep(5000);
                     } catch (InterruptedException e) {
-                        // nothing
+                        break;
                     }
-                    handler.printStats();
                 }
+                handler.printStats();
             }
         });
         t.start();
