@@ -30,6 +30,11 @@ public abstract class Fingerprint {
     public static class Signature {
         private Map<String, Object> signs = new HashMap<>();
 
+        /**
+         * Add a sign "key" to this Signature
+         * @param value may be null, but must not be an array,
+         *              use {@link java.util.List} instead!
+         */
         protected void addSign(String key, Object value) {
             signs.put(key, value);
         }

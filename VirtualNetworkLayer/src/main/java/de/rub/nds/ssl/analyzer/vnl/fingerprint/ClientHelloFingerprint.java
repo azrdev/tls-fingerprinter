@@ -6,6 +6,7 @@ import de.rub.nds.ssl.stack.protocols.handshake.extensions.AExtension;
 import de.rub.nds.ssl.stack.protocols.handshake.extensions.datatypes.EExtensionType;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class ClientHelloFingerprint extends Fingerprint {
@@ -18,7 +19,8 @@ public class ClientHelloFingerprint extends Fingerprint {
 
         //TODO: make fuzzy
         signature.addSign("compression-method-list", clientHello.getCompressionMethod());
-        signature.addSign("cipher-suite-list", clientHello.getCipherSuites());
+        signature.addSign("cipher-suite-list",
+                Arrays.asList(clientHello.getCipherSuites()));
 
         AExtension[] extensions = clientHello.getExtensions().getExtensions();
 
