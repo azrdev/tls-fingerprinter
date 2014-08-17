@@ -81,69 +81,12 @@ public abstract class Fingerprint {
 
             for (Map.Entry<String, Object> entry : signs.entrySet()) {
                 Object value = entry.getValue();
-                builder.append("- ").append(entry.getKey()).append(": ");
-                builder.append(signToString(value));
+                builder.append("- ").append(entry.getKey()).append(": ").append(value);
                 builder.append(" [").append(value.getClass().getCanonicalName());
                 builder.append("]\n");
             }
 
             return builder.toString();
-        }
-
-        /**
-         * @return a String representation of all signs that are changed w.r.t. other
-         * @param name text to represent "this"
-         * @param otherName text to represent other
-         */
-        public String difference(Signature other,
-                                 final String name, final String otherName) {
-            StringBuilder sb = new StringBuilder();
-
-            Set<String> allKeys = new HashSet<>(signs.keySet());
-            allKeys.addAll(other.getSigns().keySet());
-
-            for(String key : allKeys) {
-                if(signs.containsKey(key) && other.getSigns().containsKey(key)) {
-                    final Object value = signs.get(key);
-                    final Object otherValue = other.getSigns().get(key);
-                    if(! signCompare(value, otherValue)) {
-                        sb.append("Different ").append(key).append(": ");
-                        //TODO: array diff
-                        sb.append(signToString(value)).append(" <=> ");
-                        sb.append(signToString(otherValue)).append("\n");
-                    }
-                } else if(signs.containsKey(key)) {
-                    sb.append("Only in ").append(name).append(": ");
-                    sb.append(key).append("\n");
-                } else {
-                    sb.append("Only in ").append(otherName).append(": ").append(key);
-                    sb.append("\n");
-                }
-            }
-
-            return sb.toString();
-        }
-
-        private boolean signCompare(Object value, Object otherValue) {
-            if(value == otherValue)
-                return true;
-            if(value == null || otherValue == null)
-                return false;
-            if(value instanceof Object[]) {
-                if(otherValue instanceof Object[]) {
-                    return Arrays.equals((Object[]) value, (Object[]) otherValue);
-                }
-                return false;
-            }
-            return value.equals(otherValue);
-        }
-
-        private String signToString(Object value) {
-            if(value == null)
-                return "null";
-            if(value instanceof Object[])
-                return Arrays.toString((Object[]) value);
-            return value.toString();
         }
     }
 

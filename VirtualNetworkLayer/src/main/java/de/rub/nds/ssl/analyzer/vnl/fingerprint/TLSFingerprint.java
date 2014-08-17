@@ -4,6 +4,8 @@ import de.rub.nds.ssl.analyzer.vnl.Connection;
 import de.rub.nds.virtualnetworklayer.fingerprint.MtuFingerprint;
 import de.rub.nds.virtualnetworklayer.fingerprint.TcpFingerprint;
 
+import java.util.Set;
+
 /**
  * Collection of Fingerprint.Signature instances
  * <p>
@@ -131,39 +133,30 @@ public class TLSFingerprint {
         StringBuilder sb = new StringBuilder(
                 getClass().getSimpleName() + " difference to " + otherName + ":\n");
 
-        Fingerprint.Signature prevChs = other.getClientHelloSignature();
-        if(clientHelloSignature == null && prevChs != null) {
-            sb.append("ClientHello only in ").append(otherName).append(": ");
-            sb.append(prevChs).append("\n");
-        } else if(clientHelloSignature != null) {
-            if(prevChs == null) {
-                sb.append("ClientHello only in current: ");
-                sb.append(clientHelloSignature).append("\n");
-            } else {
-                final String diff = clientHelloSignature
-                        .difference(prevChs, "current", otherName);
-                if(!diff.isEmpty())
-                    sb.append("ClientHello difference: {\n").append(diff).append("}\n");
-            }
+        Set<SignatureDifference.SignDifference> differenceSet =
+            SignatureDifference.fromGenericFingerprints(clientHelloSignature,
+                    other.getClientHelloSignature()).getDifferences();
+        for(SignatureDifference.SignDifference d : differenceSet) {
+            sb.append("ClientHello.").append(d).append("\n");
         }
 
-        Fingerprint.Signature prevShs = other.getServerHelloSignature();
-        if(serverHelloSignature == null && prevShs != null) {
-            sb.append("ServerHello only in ").append(otherName).append(": ");
-            sb.append(prevShs).append("\n");
-        } else if(serverHelloSignature != null) {
-            if(prevShs == null) {
-                sb.append("ServerHello only in current: ");
-                sb.append(serverHelloSignature).append("\n");
-            } else {
-                final String diff = serverHelloSignature
-                        .difference(prevShs, "current", otherName);
-                if(!diff.isEmpty())
-                    sb.append("ServerHello difference: {\n").append(diff).append("}\n");
-            }
+        differenceSet = SignatureDifference.fromGenericFingerprints(serverHelloSignature,
+                other.getServerHelloSignature()).getDifferences();
+        for(SignatureDifference.SignDifference d : differenceSet) {
+            sb.append("ServerHello.").append(d).append("\n");
         }
 
-        //XXX: serverTcpSignature, serverMtuSignature difference
+        differenceSet = SignatureDifference.fromVnlFingerprints(serverTcpSignature,
+                other.getServerTcpSignature()).getDifferences();
+        for(SignatureDifference.SignDifference d : differenceSet) {
+            sb.append("ServerTCP.").append(d).append("\n");
+        }
+
+        differenceSet = SignatureDifference.fromVnlFingerprints(serverMtuSignature,
+                other.getServerMtuSignature()).getDifferences();
+        for(SignatureDifference.SignDifference d : differenceSet) {
+            sb.append("ServerMTU.").append(d).append("\n");
+        }
 
         return sb.toString();
     }
