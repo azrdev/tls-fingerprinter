@@ -81,7 +81,6 @@ public class EHostName extends AServerName {
 
 		if((pointer + extractedLength) != nameBytes.length) {
 			throw new IllegalArgumentException("Wrong length of DNS hostname");
-			//XXX: log instead
 		}
 
 		//TODO: this string constructor doesn't throw on non-ascii chars, does setHostName() ?

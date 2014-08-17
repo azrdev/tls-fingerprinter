@@ -3,6 +3,8 @@ package de.rub.nds.ssl.stack.protocols.handshake.datatypes;
 import de.rub.nds.ssl.stack.exceptions.UnknownCipherSuiteException;
 import de.rub.nds.ssl.stack.protocols.commons.APubliclySerializable;
 import de.rub.nds.ssl.stack.protocols.commons.ECipherSuite;
+import org.apache.log4j.Logger;
+
 import java.util.Arrays;
 
 /**
@@ -14,6 +16,8 @@ import java.util.Arrays;
  * Nov 15, 2011
  */
 public final class CipherSuites extends APubliclySerializable {
+
+    private Logger logger = Logger.getLogger(getClass());
 
     /**
      * Length of the length field.
@@ -143,7 +147,7 @@ public final class CipherSuites extends APubliclySerializable {
                 cipherSuites[j] = ECipherSuite.getCipherSuite(
                         new byte[]{tmpSuites[i], tmpSuites[i + 1]});
             } catch(UnknownCipherSuiteException e) {
-                continue; //XXX: log
+                logger.warn(e);
             }
         }
         setSuites(cipherSuites);

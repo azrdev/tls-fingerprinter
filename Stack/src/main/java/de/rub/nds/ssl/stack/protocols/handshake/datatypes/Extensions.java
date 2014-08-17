@@ -224,9 +224,7 @@ public final class Extensions extends APubliclySerializable {
                 InstantiationException |
                 IllegalArgumentException |
                 IllegalAccessException ex) {
-            throw new IllegalArgumentException(
-                    "Problems during decoding delegation for "
-                    + type + " and class " + implClass.getCanonicalName(), ex); //XXX: hides details of ex
+            logger.warn("delegateDecoding(" + type + ") throws: " + ex, ex);
         }
         return result;
     }

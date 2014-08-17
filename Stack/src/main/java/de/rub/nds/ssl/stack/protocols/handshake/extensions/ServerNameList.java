@@ -125,7 +125,7 @@ public final class ServerNameList extends AExtension {
 			try {
 				nameType = ENameType.getNameType(rawNames[pointer]);
 			} catch (UnknownServerNameType e) {
-				//XXX: logging?
+                logger.warn(e);
 			}
 			namePointer += AServerName.LENGTH_NAME_TYPE;
 
