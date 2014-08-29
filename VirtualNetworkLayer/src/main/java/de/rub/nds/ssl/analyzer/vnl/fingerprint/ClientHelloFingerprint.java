@@ -18,7 +18,8 @@ public class ClientHelloFingerprint extends Fingerprint {
         signature.addSign("session-id-empty", clientHello.getSessionID().isEmpty());
 
         //TODO: make fuzzy
-        signature.addSign("compression-method-list", clientHello.getCompressionMethod());
+        signature.addSign("compression-method-list",
+                clientHello.getCompressionMethod().getMethods());
         signature.addSign("cipher-suite-list",
                 Arrays.asList(clientHello.getCipherSuites()));
 

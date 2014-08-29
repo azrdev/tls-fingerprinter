@@ -67,8 +67,8 @@ public final class CompressionMethod extends APubliclySerializable {
      *
      * @return The compression method of this message
      */
-    public ECompressionMethod[] getMethods() {
-        return methods.toArray(new ECompressionMethod[0]);
+    public List<ECompressionMethod> getMethods() {
+        return methods;
     }
 
     /*
