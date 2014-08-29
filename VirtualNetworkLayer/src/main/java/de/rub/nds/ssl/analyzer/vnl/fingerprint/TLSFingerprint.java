@@ -3,6 +3,7 @@ package de.rub.nds.ssl.analyzer.vnl.fingerprint;
 import de.rub.nds.ssl.analyzer.vnl.Connection;
 import de.rub.nds.virtualnetworklayer.fingerprint.MtuFingerprint;
 import de.rub.nds.virtualnetworklayer.fingerprint.TcpFingerprint;
+import org.apache.log4j.Logger;
 
 import java.util.Set;
 
@@ -14,6 +15,7 @@ import java.util.Set;
  * @author jBiegert azrdev@qrdn.de
  */
 public class TLSFingerprint {
+    private Logger logger = Logger.getLogger(getClass());
 
     // static Fingerprint instances for signature creation
 
@@ -53,6 +55,10 @@ public class TLSFingerprint {
 
         serverTcpSignature = connection.getServerTcpSignature();
         serverMtuSignature = connection.getServerMtuSignature();
+    }
+
+    public TLSFingerprint(String serialized) {
+        deserialize(serialized);
     }
 
     public Fingerprint.Signature getClientHelloSignature() {
@@ -159,5 +165,28 @@ public class TLSFingerprint {
         }
 
         return sb.toString();
+    }
+
+    public String serialize() {
+        StringBuilder sb = new StringBuilder();
+
+        if(clientHelloSignature != null) {
+            sb.append(clientHelloSignature.serialize());
+        }
+
+        if(serverHelloSignature != null) {
+            sb.append(serverHelloSignature.serialize());
+        }
+
+        sb.append("TODO-TCP:TODO-MTU");
+        //TODO: serialize serverTcpSignature, serverMtuSignature
+        logger.debug("serialization of tcp and mtu signature not implemented: " + toString());
+
+        return sb.toString();
+    }
+
+    private void deserialize(String serialized) {
+        //XXX deserialization
+        logger.debug("deserialization not implemented: " + toString());
     }
 }

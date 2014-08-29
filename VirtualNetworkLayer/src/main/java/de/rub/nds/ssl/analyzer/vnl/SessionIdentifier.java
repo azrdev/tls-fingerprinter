@@ -1,8 +1,11 @@
 package de.rub.nds.ssl.analyzer.vnl;
 
-import de.rub.nds.virtualnetworklayer.packet.header.Session;
+import com.google.common.net.InetAddresses;
+import de.rub.nds.virtualnetworklayer.util.Util;
 import de.rub.nds.virtualnetworklayer.util.formatter.IpFormatter;
 
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.Arrays;
 
 /**
@@ -32,6 +35,20 @@ public class SessionIdentifier {
         setServerTcpPort(serverTcpPort);
         this.serverIPAddress = serverIPAddress;
         this.serverHostName = serverHostName;
+    }
+
+    /**
+     * deserialize a SessionIdentifier object, see {@link SessionIdentifier#serialize()}
+     */
+    public SessionIdentifier(String serialized) {
+        String[] parts = serialized.split("|");
+
+        if(parts.length > 0)
+            serverIPAddress = Util.ipAddressFromString(parts[0]);
+        if(parts.length > 1)
+            serverTcpPort = Util.readBoundedInteger(parts[1], 0, 65536);
+        if(parts.length > 2)
+            serverHostName = parts[2];
     }
 
     @Override
@@ -70,6 +87,13 @@ public class SessionIdentifier {
     public String toString() {
         return String.format("Connection to %s port %d, server name %s",
                 IpFormatter.toString(serverIPAddress),
+                serverTcpPort,
+                serverHostName);
+    }
+
+    public String serialize() {
+        return String.format("%s|%d|%s",
+                Util.ipAddressToString(serverIPAddress),
                 serverTcpPort,
                 serverHostName);
     }

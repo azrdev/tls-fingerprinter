@@ -6,6 +6,7 @@ import de.rub.nds.ssl.stack.protocols.handshake.extensions.AExtension;
 import de.rub.nds.ssl.stack.protocols.handshake.extensions.datatypes.EExtensionType;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class ServerHelloFingerprint extends Fingerprint {
@@ -13,6 +14,16 @@ public class ServerHelloFingerprint extends Fingerprint {
     @Override
     public boolean canApply(Connection connection) {
         return connection.getServerHello() != null;
+    }
+
+    @Override
+    public List<String> serializedSigns() {
+        return Arrays.asList(
+                "version",
+                "cipher-suite",
+                "compression-method",
+                "session-id-empty",
+                "extensions-layout");
     }
 
     @Override

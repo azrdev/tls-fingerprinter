@@ -38,4 +38,14 @@ public class ClientHelloFingerprint extends Fingerprint {
     public boolean canApply(Connection connection) {
         return connection.getClientHello() != null;
     }
+
+    @Override
+    public List<String> serializedSigns() {
+        return Arrays.asList(
+                "version",
+                "session-id-empty",
+                "compression-method-list",
+                "cipher-suite-list",
+                "extensions-layout");
+    }
 }

@@ -2,21 +2,29 @@ package de.rub.nds.ssl.analyzer.vnl;
 
 import de.rub.nds.ssl.analyzer.vnl.fingerprint.TLSFingerprint;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class FingerprintListener {
 
 	private Map<SessionIdentifier, List<TLSFingerprint>> fingerprints = new HashMap<>();
-	private FingerprintReporter fingerprintReporter;
+	private Collection<FingerprintReporter> reporters = new LinkedList<>();
 	private int changes;
 	
-	public FingerprintListener(FingerprintReporter fingerprintReporter) {
-		this.fingerprintReporter = fingerprintReporter;
+	public FingerprintListener() {
 		this.changes = 0;
 	}
+
+    public boolean addFingerprintReporter(FingerprintReporter fr) {
+        return reporters.add(fr);
+    }
+
+    public boolean removeFingerprintReporter(FingerprintReporter fr) {
+        return reporters.remove(fr);
+    }
+
+    public void clearFingerprintReporters() {
+        reporters.clear();
+    }
 	
 	public void reportConnection(SessionIdentifier sessionIdentifier,
             TLSFingerprint tlsFingerprint) {
@@ -46,7 +54,9 @@ public class FingerprintListener {
      */
     private void reportFingerprintNew(SessionIdentifier sessionIdentifier,
             TLSFingerprint tlsFingerprint) {
-        fingerprintReporter.reportNew(sessionIdentifier, tlsFingerprint);
+        for(FingerprintReporter fingerprintReporter : reporters) {
+            fingerprintReporter.reportNew(sessionIdentifier, tlsFingerprint);
+        }
     }
 
 	/**
@@ -54,7 +64,9 @@ public class FingerprintListener {
 	 */
 	private void reportFingerprintUpdate(SessionIdentifier sessionIdentifier,
             TLSFingerprint tlsFingerprint) {
-		fingerprintReporter.reportUpdate(sessionIdentifier, tlsFingerprint);
+        for(FingerprintReporter fingerprintReporter : reporters) {
+            fingerprintReporter.reportUpdate(sessionIdentifier, tlsFingerprint);
+        }
 	}
 
 	/**
@@ -63,9 +75,11 @@ public class FingerprintListener {
 	private void reportFingerprintChange(SessionIdentifier sessionIdentifier,
             TLSFingerprint tlsFingerprint,
             List<TLSFingerprint> previousFingerprints) {
-		fingerprintReporter.reportChange(sessionIdentifier,
-                tlsFingerprint,
-                previousFingerprints);
+        for(FingerprintReporter fingerprintReporter : reporters) {
+            fingerprintReporter.reportChange(sessionIdentifier,
+                    tlsFingerprint,
+                    previousFingerprints);
+        }
 		changes++; //TODO: detailed statistics, here or (completely) elsewhere (in reporter?)
 	}
 	

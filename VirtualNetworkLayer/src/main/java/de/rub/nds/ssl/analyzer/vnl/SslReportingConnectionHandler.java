@@ -1,8 +1,14 @@
 package de.rub.nds.ssl.analyzer.vnl;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.HashSet;
+import java.util.Set;
 
 import de.rub.nds.ssl.analyzer.vnl.fingerprint.*;
+import de.rub.nds.ssl.analyzer.vnl.fingerprint.serialization.SavefileFingerprintReporter;
 import de.rub.nds.virtualnetworklayer.connection.pcap.ConnectionHandler;
 import de.rub.nds.virtualnetworklayer.connection.pcap.PcapConnection;
 import de.rub.nds.virtualnetworklayer.p0f.P0fFile;
@@ -14,6 +20,7 @@ import org.apache.log4j.Logger;
  * current state, whenever a new TLS record layer frame is completed.
  *
  * @author Erik Tews
+ * @author jBiegert azrdev@qrdn.de
  *
  */
 public final class SslReportingConnectionHandler extends ConnectionHandler {
@@ -22,15 +29,40 @@ public final class SslReportingConnectionHandler extends ConnectionHandler {
 		registerP0fFile(P0fFile.Embedded);
 	}
 
-    private Logger logger = Logger.getLogger(getClass());
-
+    private static final String appDataDir =
+            System.getProperty("user.home") + File.separator
+                    + ".ssl-reporter" + File.separator;
     /**
      * Default SSL Port.
      */
     private static final int SSL_PORT = 443;
-    
-    private FingerprintListener fingerprintListener =
-            new FingerprintListener(new PrintingFingerprintReporter());
+
+    private Logger logger = Logger.getLogger(getClass());
+
+    private FingerprintListener fingerprintListener;
+
+    private Set<SocketSession> reportedSessions = new HashSet<>();
+
+    public SslReportingConnectionHandler() {
+        fingerprintListener = new FingerprintListener();
+        setFingerprintReporting(true, Paths.get(appDataDir + "fingerprints"));
+    }
+
+    public void setFingerprintReporting(boolean log, Path saveToFile) {
+        fingerprintListener.clearFingerprintReporters();
+
+        if(log)
+            fingerprintListener.addFingerprintReporter(new LoggingFingerprintReporter());
+
+        if(saveToFile != null) {
+            try {
+                fingerprintListener.addFingerprintReporter(
+                        new SavefileFingerprintReporter(saveToFile));
+            } catch (IOException e) {
+                logger.info("Could not open fingerprint save file: " + e);
+            }
+        }
+    }
     
     public void printStats() {
     	logger.info(fingerprintListener.toString());
@@ -43,8 +75,6 @@ public final class SslReportingConnectionHandler extends ConnectionHandler {
         return ((connection.getSession().getDestinationPort() == SSL_PORT)
                 || (connection.getSession().getSourcePort() == SSL_PORT));
     }
-    
-    private HashSet<SocketSession> reportedSessions = new HashSet<>();
 
     @Override
     public void newConnection(final Event event, final PcapConnection connection) {
@@ -62,7 +92,6 @@ public final class SslReportingConnectionHandler extends ConnectionHandler {
     }
 
 	public void handleUpdate(final PcapConnection connection) {
-
 		// Did we handle this already?
 		SocketSession session = connection.getSession();
 		if (!reportedSessions.contains(session)) {

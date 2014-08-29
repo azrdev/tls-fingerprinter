@@ -1,8 +1,8 @@
 package de.rub.nds.ssl.analyzer.vnl.fingerprint;
 
 import de.rub.nds.ssl.analyzer.vnl.Connection;
+import de.rub.nds.ssl.analyzer.vnl.fingerprint.serialization.Serializer;
 import de.rub.nds.virtualnetworklayer.util.Util;
-import de.rub.nds.virtualnetworklayer.util.formatter.StringFormatter;
 
 import java.util.*;
 
@@ -28,7 +28,12 @@ public abstract class Fingerprint {
      * fingerprint) and associated values (specific to the endpoint).
      */
     public static class Signature {
+        private final List<String> serializedSigns;
         private Map<String, Object> signs = new HashMap<>();
+
+        private Signature(final List<String> serializedSigns) {
+            this.serializedSigns = serializedSigns;
+        }
 
         /**
          * Add a sign "key" to this Signature
@@ -88,18 +93,41 @@ public abstract class Fingerprint {
 
             return builder.toString();
         }
+
+        /**
+         * @return a re-readable String representation of this Signature. The order of
+         * signs is specified by Fingerprint.serializedSigns()
+         * <p>
+         * <b>Note:</b> The signs are delimited by ':', a trailing ':' will not be removed
+         */
+        public String serialize() {
+            StringBuilder sb = new StringBuilder();
+
+            for(String sign : serializedSigns) {
+                Object obj = getSign(sign);
+                sb.append(Serializer.serialize(obj)).append(':');
+            }
+
+            return sb.toString();
+        }
     }
 
     /**
-     * Apply this fingerprint to the connection
+     * Apply this fingerprint to the connection.
+     * <br>
+     * In case <code>apply()</code> throws, <code>return null</code>.
      *
      * @see de.rub.nds.virtualnetworklayer.fingerprint.Fingerprint#peer(de.rub.nds.virtualnetworklayer.packet.PcapPacket, de.rub.nds.virtualnetworklayer.connection.pcap.PcapConnection)
      *
      * @return a Signature comparable to others of this Fingerprint.
      */
     public final Signature createSignature(Connection connection)  {
-        Signature s = new Signature();
-        apply(s, connection);
+        Signature s = new Signature(serializedSigns());
+        try {
+            apply(s, connection);
+        } catch(RuntimeException e) {
+            return null;
+        }
 
         return s;
     }
@@ -120,6 +148,11 @@ public abstract class Fingerprint {
      * @see de.rub.nds.virtualnetworklayer.fingerprint.Fingerprint#isBound(de.rub.nds.virtualnetworklayer.packet.PcapPacket)
      */
     public abstract boolean canApply(Connection connection);
+
+    /**
+     * @return a list of signs to be included in the serialized form of Signatures.
+     */
+    public abstract List<String> serializedSigns();
 
     @Override
     public String toString() {

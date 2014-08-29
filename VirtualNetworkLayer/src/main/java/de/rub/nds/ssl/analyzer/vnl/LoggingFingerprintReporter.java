@@ -5,7 +5,7 @@ import org.apache.log4j.Logger;
 
 import java.util.List;
 
-public class PrintingFingerprintReporter implements FingerprintReporter {
+public class LoggingFingerprintReporter implements FingerprintReporter {
 
     private Logger logger = Logger.getLogger(getClass());
 

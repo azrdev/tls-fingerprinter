@@ -23,7 +23,11 @@ public class PassiveSslReporter {
 	
 	// Our handler will report on all new packets
 	private SslReportingConnectionHandler handler = new SslReportingConnectionHandler();
-	
+
+    private PassiveSslReporter() {
+        logger.info("Starting up");
+    }
+
 	public void run(String filename) {
 		Pcap pcap = Pcap.openOffline(new File(filename));
         logger.info("now looping over file");
