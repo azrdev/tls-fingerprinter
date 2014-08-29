@@ -36,6 +36,11 @@
             <artifactId>Stack</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+            <version>12.0</version>
+        </dependency>
     </dependencies>
     <build>
         <plugins>
