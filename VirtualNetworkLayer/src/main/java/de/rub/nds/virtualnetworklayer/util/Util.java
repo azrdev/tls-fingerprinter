@@ -3,11 +3,14 @@ package de.rub.nds.virtualnetworklayer.util;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.util.List;
 
+import com.google.common.net.InetAddresses;
 import de.rub.nds.virtualnetworklayer.packet.header.transport.TcpHeader;
+import de.rub.nds.virtualnetworklayer.util.formatter.IpFormatter;
 
 /**
  * Utility class
@@ -74,6 +77,14 @@ public class Util {
         clone.flip();
 
         return clone;
+    }
+
+    public static String ipAddressToString(byte[] ipAddress) {
+        return IpFormatter.toString(ipAddress);
+    }
+
+    public static byte[] ipAddressFromString(String src) {
+        return InetAddresses.forString(src).getAddress();
     }
 
     public static byte[] toAddress(InetAddress address) {

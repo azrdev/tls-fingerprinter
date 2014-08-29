@@ -59,7 +59,15 @@ public final class Utility {
 	    return bytesToHex(bytes, true);
     }
 
-    private static String bytesToHex(final byte[] bytes, boolean addSpaces) {
+    /**
+     *
+     * Converts a byte array into its hex string representation.
+     *
+     * @param bytes Bytes to convert
+     * @param addSpaces insert a space char after each 2 hex characters
+     * @return Hex string of delivered byte array
+     */
+    public static String bytesToHex(final byte[] bytes, boolean addSpaces) {
         StringBuilder builder = new StringBuilder(bytes.length * 2);
 
         for (int i = 0; i < bytes.length; i++) {
@@ -76,6 +84,10 @@ public final class Utility {
     
     public static String bytesToHex(final byte bytes){
         return bytesToHex(new byte[]{bytes});
+    }
+
+    public static String bytesToHex(final byte bytes, boolean addSpaces){
+        return bytesToHex(new byte[]{bytes}, addSpaces);
     }
 
 //    public static String bytesToHex(byte[] array) {
