@@ -1,6 +1,7 @@
 package de.rub.nds.ssl.analyzer.vnl.fingerprint;
 
 import de.rub.nds.ssl.analyzer.vnl.Connection;
+import de.rub.nds.ssl.analyzer.vnl.fingerprint.serialization.Serializer;
 import de.rub.nds.virtualnetworklayer.fingerprint.MtuFingerprint;
 import de.rub.nds.virtualnetworklayer.fingerprint.TcpFingerprint;
 import org.apache.log4j.Logger;
@@ -170,13 +171,8 @@ public class TLSFingerprint {
     public String serialize() {
         StringBuilder sb = new StringBuilder();
 
-        if(clientHelloSignature != null) {
-            sb.append(clientHelloSignature.serialize());
-        }
-
-        if(serverHelloSignature != null) {
-            sb.append(serverHelloSignature.serialize());
-        }
+        sb.append(clientHelloFingerprint.serialize(clientHelloSignature));
+        sb.append(serverHelloFingerprint.serialize(serverHelloSignature));
 
         sb.append("TODO-TCP:TODO-MTU");
         //TODO: serialize serverTcpSignature, serverMtuSignature

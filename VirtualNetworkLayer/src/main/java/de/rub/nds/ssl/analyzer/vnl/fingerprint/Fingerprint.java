@@ -93,23 +93,6 @@ public abstract class Fingerprint {
 
             return builder.toString();
         }
-
-        /**
-         * @return a re-readable String representation of this Signature. The order of
-         * signs is specified by Fingerprint.serializedSigns()
-         * <p>
-         * <b>Note:</b> The signs are delimited by ':', a trailing ':' will not be removed
-         */
-        public String serialize() {
-            StringBuilder sb = new StringBuilder();
-
-            for(String sign : serializedSigns) {
-                Object obj = getSign(sign);
-                sb.append(Serializer.serialize(obj)).append(':');
-            }
-
-            return sb.toString();
-        }
     }
 
     /**
@@ -153,6 +136,26 @@ public abstract class Fingerprint {
      * @return a list of signs to be included in the serialized form of Signatures.
      */
     public abstract List<String> serializedSigns();
+
+    /**
+     * @return a re-readable String representation of signature. The order of
+     * signs is specified by serializedSigns()
+     * <p>
+     * <b>Note:</b> The signs are delimited by ':', a trailing ':' will not be removed
+     */
+    public String serialize(Signature signature) {
+        StringBuilder sb = new StringBuilder();
+
+        for(String sign : serializedSigns()) {
+            if(signature != null) {
+                Object obj = signature.getSign(sign);
+                sb.append(Serializer.serialize(obj));
+            }
+            sb.append(':');
+        }
+
+        return sb.toString();
+    }
 
     @Override
     public String toString() {
