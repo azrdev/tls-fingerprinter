@@ -20,7 +20,7 @@ public class TimeToLive implements Fingerprint.Fuzzy<TimeToLive> {
             value = value.replace("-", "");
 
         } else if (value.contains("+")) {
-            String[] parts = value.split("+");
+            String[] parts = value.split("\\+");
             value = parts[0];
         }
 
@@ -50,5 +50,9 @@ public class TimeToLive implements Fingerprint.Fuzzy<TimeToLive> {
     @Override
     public int compareTo(TimeToLive other) {
         return Math.abs(other.initialTTL - initialTTL);
+    }
+
+    public int getInitialTTL() {
+        return initialTTL;
     }
 }

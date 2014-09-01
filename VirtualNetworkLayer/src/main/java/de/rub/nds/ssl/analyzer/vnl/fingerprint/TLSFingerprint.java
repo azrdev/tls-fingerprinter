@@ -180,11 +180,10 @@ public class TLSFingerprint {
         sb.append("\tClientHello: ").append(clientHelloSignature.serialize()).append('\n');
         sb.append("\tServerHello: ").append(serverHelloSignature.serialize()).append('\n');
 
-        sb.append("\tserverTCP: TODO\n");
-        sb.append("\tserverMTU: TODO\n");
-
-        //TODO: serialize serverTcpSignature, serverMtuSignature
-        logger.debug("serialization of tcp and mtu signature not implemented: " + toString());
+        sb.append("\tserverTCP: ").append(TCPSignature.writeToString(serverTcpSignature));
+        sb.append("\n");
+        sb.append("\tserverMTU: ").append(MTUSignature.writeToString(serverMtuSignature));
+        sb.append("\n");
 
         return sb.toString();
     }

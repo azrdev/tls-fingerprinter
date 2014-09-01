@@ -53,6 +53,10 @@ public abstract class Fingerprint {
         	return new HashMap<>(signs);
         }
 
+        public EnumSet<Quirk> getQuirks() {
+            return EnumSet.copyOf(quirks);
+        }
+
         protected void addQuirk(Quirk quirk) {
             if (!quirks.contains(quirk)) {
                 quirks.add(quirk);

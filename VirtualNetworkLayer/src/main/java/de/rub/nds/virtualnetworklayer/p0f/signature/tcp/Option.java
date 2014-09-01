@@ -44,7 +44,7 @@ public enum Option {
 
 
     public static Option read(String value) {
-        for (Option option : de.rub.nds.virtualnetworklayer.p0f.signature.tcp.Option.values()) {
+        for (Option option : values()) {
             if (value.startsWith(option.value)) {
                 if (!option.separator.isEmpty()) {
                     String[] parts = value.split('\\' + option.separator);
@@ -69,5 +69,13 @@ public enum Option {
 
     public TcpHeader.Option getMapping() {
         return mapping; //.setData(number);
+    }
+
+    public static Option getMapping(TcpHeader.Option option) {
+        for(Option o : values()) {
+            if(o.mapping == option)
+                return o;
+        }
+        return Any;
     }
 }

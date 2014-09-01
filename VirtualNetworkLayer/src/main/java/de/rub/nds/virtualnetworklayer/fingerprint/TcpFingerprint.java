@@ -34,15 +34,15 @@ public class TcpFingerprint extends IpFingerprint {
         signature.addSign("optionsLayout", optionsLayout);
         signature.hashCode = Util.enumHashCode(optionsLayout);
 
-        int maxiumSegementSize = 0;
+        int maxiumSegmentSize = 0;
 
         Header.Option option = tcpHeader.getOption(TcpHeader.Option.MaximumSegmentSize);
         if (option != null) {
-            maxiumSegementSize = option.getUShort();
+            maxiumSegmentSize = option.getUShort();
         }
 
-        signature.addSign("maximumSegmentSize", maxiumSegementSize);
-        signature.addSign("windowSize", getWindowSize(maxiumSegementSize, packet, connection));
+        signature.addSign("maximumSegmentSize", maxiumSegmentSize);
+        signature.addSign("windowSize", getWindowSize(maxiumSegmentSize, packet, connection));
 
 
         option = tcpHeader.getOption(TcpHeader.Option.WindowScale);
@@ -136,15 +136,15 @@ public class TcpFingerprint extends IpFingerprint {
      * @param connection
      * @return return window size typed with mtu or mss, otherwise normal
      */
-    private WindowSize getWindowSize(int maxiumSegementSize, PcapPacket packet, PcapConnection connection) {
+    private WindowSize getWindowSize(int maximumSegmentSize, PcapPacket packet, PcapConnection connection) {
         TcpHeader tcpHeader = packet.getHeader(TcpHeader.Id);
         WindowSize size = new WindowSize(tcpHeader.getWindowSize(), WindowSize.Type.Normal);
 
-        List<Integer> divisors = new ArrayList<Integer>();
-        divisors.add(maxiumSegementSize);
+        List<Integer> divisors = new ArrayList<>();
+        divisors.add(maximumSegmentSize);
 
         /* Some systems will sometimes subtract 12 bytes when timestamps are in use. */
-        divisors.add(maxiumSegementSize - 12);
+        divisors.add(maximumSegmentSize - 12);
 
         /* Some systems use MTU on the wrong interface, so let's check for the most
           common case. */
@@ -163,11 +163,11 @@ public class TcpFingerprint extends IpFingerprint {
         }
 
         /* Some systems use MTU instead of MSS: */
-        divisors = new ArrayList<Integer>();
+        divisors = new ArrayList<>();
         Fingerprint.Signature mtuSignature = connection.getSignature(packet.getDirection(), MtuFingerprint.Id);
         if (mtuSignature != null) {
             divisors.add((Integer) mtuSignature.getSign("mtu"));
-            divisors.add(maxiumSegementSize + packet.getHeader(Headers.Tcp).getPayloadOffset());
+            divisors.add(maximumSegmentSize + packet.getHeader(Headers.Tcp).getPayloadOffset());
             divisors.add(1500);
         }
 

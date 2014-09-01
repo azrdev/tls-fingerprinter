@@ -14,4 +14,12 @@ public class MTUSignature extends Fingerprint.Signature {
     public MTUSignature(String value) {
         addSign("mtu", Util.readBoundedInteger(value, 0, 65535));
     }
+
+    public static String writeToString(Fingerprint.Signature signature) {
+        Integer mtu = signature.getSign("mtu");
+        if(mtu != null)
+            return mtu.toString();
+
+        return "";
+    }
 }
