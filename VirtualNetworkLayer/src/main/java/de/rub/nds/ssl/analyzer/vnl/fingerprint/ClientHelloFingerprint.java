@@ -47,17 +47,36 @@ public class ClientHelloFingerprint extends Fingerprint {
     }
 
     @Override
-    public boolean canApply(Connection connection) {
-        return connection.getClientHello() != null;
-    }
+    public void deserialize(String serialized) {
+        String[] signs = serialized.split(SERIALIZATION_DELIMITER);
+        if(signs.length != 5) {
+            throw new IllegalArgumentException("Serialized form of fingerprint invalid: "
+                    + "Wrong sign count " + signs.length);
+        }
 
-    @Override
-    public List<String> serializedSigns() {
-        return Arrays.asList(
-                "version",
-                "session-id-empty",
-                "compression-method-list",
-                "cipher-suite-list",
-                "extensions-layout");
+        byte[] bytes;
+        bytes = Utility.hexToBytes(signs[0].trim());
+        addSign("version", EProtocolVersion.getProtocolVersion(bytes));
+
+        addSign("session-id-empty", signs[1].trim().equals("true"));
+
+        List<ECompressionMethod> compressionMethods = new ArrayList<>();
+        for(byte[] b : Serializer.deserializeList(signs[2].trim())) {
+            // should be only one byte, ignore others
+            compressionMethods.add(ECompressionMethod.getCompressionMethod(b[0]));
+        }
+        addSign("compression-method-list", compressionMethods);
+
+        List<ECipherSuite> cipherSuites = new ArrayList<>();
+        for(byte[] b : Serializer.deserializeList(signs[3].trim())) {
+            cipherSuites.add(ECipherSuite.getCipherSuite(b));
+        }
+        addSign("cipher-suite-list", cipherSuites);
+
+        List<EExtensionType> extensionLayout = new ArrayList<>();
+        for(byte[] b : Serializer.deserializeList(signs[4].trim())) {
+            extensionLayout.add(EExtensionType.getExtension(b));
+        }
+        addSign("extensions-layout", extensionLayout);
     }
 }

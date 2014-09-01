@@ -57,7 +57,7 @@ public class SavefileFingerprintReporter implements FingerprintReporter {
 
     private void saveFingerprint(SessionIdentifier sessionIdentifier,
                                  TLSFingerprint tlsFingerprint) {
-        writer.println(sessionIdentifier.serialize() + '\0' + tlsFingerprint.serialize());
+        writer.println(Serializer.serialize(sessionIdentifier, tlsFingerprint));
     }
 
     @Override

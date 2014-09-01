@@ -190,7 +190,30 @@ public class TLSFingerprint {
     }
 
     private void deserialize(String serialized) {
-        //XXX deserialization
-        logger.debug("deserialization not implemented: " + toString());
+        for(String signature: serialized.split("\n")) {
+            if(! signature.startsWith("\t")) {
+                logger.warn("Unknown fingerprint component: " + signature);
+                continue;
+            }
+            signature = signature.substring(1);
+
+            if(signature.startsWith(SerializationIdentifier.ClientHelloFingerprint.id)) {
+                signature = signature.substring(
+                        SerializationIdentifier.ClientHelloFingerprint.id.length());
+                clientHelloSignature = new ClientHelloFingerprint(signature);
+            } else if(signature.startsWith(SerializationIdentifier.ServerHelloFingerprint.id)) {
+                signature = signature.substring(
+                        SerializationIdentifier.ServerHelloFingerprint.id.length());
+                serverHelloSignature = new ServerHelloFingerprint(signature);
+            } else if(signature.startsWith(SerializationIdentifier.ServerTcpFingerprint.id)) {
+                signature = signature.substring(
+                        SerializationIdentifier.ServerTcpFingerprint.id.length());
+                serverTcpSignature = new TCPSignature(signature);
+            } else if(signature.startsWith(SerializationIdentifier.ServerMtuFingerprint.id)) {
+                signature = signature.substring(
+                        SerializationIdentifier.ServerMtuFingerprint.id.length());
+                serverMtuSignature = new MTUSignature(signature);
+            }
+        }
     }
 }

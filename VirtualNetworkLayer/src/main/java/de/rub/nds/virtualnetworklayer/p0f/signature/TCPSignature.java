@@ -58,7 +58,7 @@ public class TCPSignature extends Fingerprint.Signature {
 
     private List<TcpHeader.Option> optionsLayout;
 
-    public TCPSignature(String value, Module.Direction direction) {
+    private void readFromString(String value) {
         String[] parts = value.split(":");
 
         Version version = Util.readEnum(Version.class, parts[0]);
@@ -81,7 +81,14 @@ public class TCPSignature extends Fingerprint.Signature {
         if (payloadClass != PayloadClass.Any) {
             addSign("payloadClass", payloadClass);
         }
+    }
 
+    public TCPSignature(String value) {
+        readFromString(value);
+    }
+
+    public TCPSignature(String value, Module.Direction direction) {
+        readFromString(value);
         addSign("direction", direction.getMapping());
     }
 

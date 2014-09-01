@@ -1,5 +1,7 @@
 package de.rub.nds.ssl.stack;
 
+import java.lang.IllegalArgumentException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -32,7 +34,28 @@ public final class Utility {
     /**
      * Private constructor - Utility class only.
      */
-    private Utility() {
+    private Utility() {}
+
+    /**
+     * convert a hex string representation to the corresponding byte array.
+     *
+     * @throws IllegalArgumentException if the number of hex digits was uneven or hex
+     *      contained non-hex chars.
+     */
+    public static byte[] hexToBytes(final String hex)
+            throws IllegalArgumentException {
+        int len = hex.length();
+        byte[] data = new byte[len / 2];
+        for (int i = 0; i < len; i += 2) {
+            int msb = Character.digit(hex.charAt(i), 16);
+            int lsb = Character.digit(hex.charAt(i+1), 16);
+            if(msb < 0 || lsb < 0) {
+                throw new IllegalArgumentException("Illegal character in " +
+                        hex.substring(i, i + 2));
+            }
+            data[i / 2] = (byte) ((msb << 4) + lsb);
+        }
+        return data;
     }
 
 	/**

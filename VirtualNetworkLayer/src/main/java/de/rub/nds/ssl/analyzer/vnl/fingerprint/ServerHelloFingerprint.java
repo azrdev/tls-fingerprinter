@@ -40,4 +40,31 @@ public class ServerHelloFingerprint extends Fingerprint {
 
         //TODO: extensions content
     }
+
+    @Override
+    public void deserialize(String serialized) {
+        String[] signs = serialized.split(SERIALIZATION_DELIMITER);
+        if(signs.length != 5) {
+            throw new IllegalArgumentException("Serialized form of fingerprint invalid: "
+                    + "Wrong sign count " + signs.length);
+        }
+
+        byte[] bytes;
+        bytes = Utility.hexToBytes(signs[0].trim());
+        addSign("version", EProtocolVersion.getProtocolVersion(bytes));
+
+        bytes = Utility.hexToBytes(signs[1].trim());
+        addSign("cipher-suite", ECipherSuite.getCipherSuite(bytes));
+
+        bytes = Utility.hexToBytes(signs[2].trim());
+        addSign("compression-method", ECompressionMethod.getCompressionMethod(bytes[0]));
+
+        addSign("session-id-empty", signs[3].trim().equals("true"));
+
+        List<EExtensionType> extensionLayout = new ArrayList<>();
+        for(byte[] b : Serializer.deserializeList(signs[4].trim())) {
+            extensionLayout.add(EExtensionType.getExtension(b));
+        }
+        addSign("extensions-layout", extensionLayout);
+    }
 }

@@ -1,5 +1,8 @@
 package de.rub.nds.ssl.analyzer.vnl.fingerprint.serialization;
 
+import de.rub.nds.ssl.analyzer.vnl.SessionIdentifier;
+import de.rub.nds.ssl.analyzer.vnl.fingerprint.Fingerprint;
+import de.rub.nds.ssl.analyzer.vnl.fingerprint.TLSFingerprint;
 import de.rub.nds.ssl.stack.Utility;
 import de.rub.nds.ssl.stack.protocols.commons.ECipherSuite;
 import de.rub.nds.ssl.stack.protocols.commons.ECompressionMethod;
@@ -22,7 +25,7 @@ public class Serializer {
     /**
      * Build the Serialized form of a sign
      */
-    public static String serialize(Object sign) {
+    public static String serializeSign(Object sign) {
         if(sign == null)
             return "";
 
@@ -44,22 +47,38 @@ public class Serializer {
             return sign.toString();
     }
 
+    public static final String LIST_DELIMITER = ",";
+
     private static String serializeList(Collection arr) {
         StringBuilder sb = new StringBuilder();
 
         for(Object o : arr) {
             // recursive call to serialize that element
             // never put Object[] as sign value, or this will break!
-            sb.append(serialize(o)).append(',');
+            sb.append(serializeSign(o)).append(LIST_DELIMITER);
         }
         if(sb.length() > 0)
-            // delete trailing ','
-            sb.setLength(sb.length() -1);
+            // delete trailing delimiter
+            sb.setLength(sb.length() - LIST_DELIMITER.length());
 
         return sb.toString();
     }
 
     private static String serializeList(Object[] arr) {
         return serializeList(Arrays.asList(arr));
+    }
+
+    public static List<byte[]> deserializeList(String serialized) {
+        List<byte[]> bytes = new ArrayList<>(serialized.length());
+        for(String item : serialized.split(LIST_DELIMITER)) {
+            bytes.add(Utility.hexToBytes(item.trim()));
+        }
+
+        return bytes;
+    }
+
+    public static String serialize(SessionIdentifier session,
+                                   TLSFingerprint tlsFingerprint) {
+        return session.serialize() + "\n" + tlsFingerprint.serialize();
     }
 }
