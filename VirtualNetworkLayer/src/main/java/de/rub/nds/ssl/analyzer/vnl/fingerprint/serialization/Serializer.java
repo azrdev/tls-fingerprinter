@@ -6,15 +6,15 @@ import de.rub.nds.ssl.stack.protocols.commons.ECompressionMethod;
 import de.rub.nds.ssl.stack.protocols.commons.EProtocolVersion;
 import de.rub.nds.ssl.stack.protocols.handshake.extensions.datatypes.EExtensionType;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-
-import static de.rub.nds.ssl.analyzer.vnl.fingerprint.Fingerprint.Signature;
+import java.util.List;
 
 /**
- * Utility to serialize {@link Signature}s.
+ * Utility to serialize {@link Fingerprint}s.
  *
- * Add all types that may be signs and their serialization type to <code>serialize()</code>
+ * Add all types that may be signs and their serialization type to <code>serializeSign()</code>
  *
  * @author jBiegert azrdev@qrdn.de
  */

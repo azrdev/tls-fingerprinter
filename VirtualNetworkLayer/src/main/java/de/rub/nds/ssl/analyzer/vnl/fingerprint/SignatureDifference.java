@@ -26,7 +26,7 @@ public class SignatureDifference {
     }
 
     public static <T extends Fingerprint> SignatureDifference fromGenericFingerprints(
-            T.Signature left, T.Signature right) {
+            T left, T right) {
         Map<String, Object> leftSigns = null;
         Map<String, Object> rightSigns = null;
         if(left != null) leftSigns = left.getSigns();

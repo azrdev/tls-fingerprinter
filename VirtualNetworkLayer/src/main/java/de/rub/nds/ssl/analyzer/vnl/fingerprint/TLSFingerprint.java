@@ -4,14 +4,14 @@ import de.rub.nds.ssl.analyzer.vnl.Connection;
 import de.rub.nds.ssl.analyzer.vnl.fingerprint.serialization.Serializer;
 import de.rub.nds.virtualnetworklayer.fingerprint.MtuFingerprint;
 import de.rub.nds.virtualnetworklayer.fingerprint.TcpFingerprint;
+import de.rub.nds.virtualnetworklayer.p0f.signature.MTUSignature;
+import de.rub.nds.virtualnetworklayer.p0f.signature.TCPSignature;
 import org.apache.log4j.Logger;
 
 import java.util.Set;
 
 /**
- * Collection of Fingerprint.Signature instances
- * <p>
- * TODO: change to be Map < Type, Fingerprint.Signature > when Fingerprint classes are unified
+ * Collection of Fingerprint signatures identifying a TLS endpoint
  *
  * @author jBiegert azrdev@qrdn.de
  */
@@ -19,18 +19,13 @@ public class TLSFingerprint {
     private Logger logger = Logger.getLogger(getClass());
 
     // static Fingerprint instances for signature creation
-
-    private static ClientHelloFingerprint clientHelloFingerprint =
-            new ClientHelloFingerprint();
-    private static ServerHelloFingerprint serverHelloFingerprint =
-            new ServerHelloFingerprint();
     private static TcpFingerprint serverTcpFingerprint = new TcpFingerprint();
     private static MtuFingerprint serverMtuFingerprint = new MtuFingerprint();
 
     // non-static Signature instances
 
-    private Fingerprint.Signature clientHelloSignature;
-    private Fingerprint.Signature serverHelloSignature;
+    private Fingerprint clientHelloSignature;
+    private Fingerprint serverHelloSignature;
     private de.rub.nds.virtualnetworklayer.fingerprint.Fingerprint.Signature serverTcpSignature;
     private de.rub.nds.virtualnetworklayer.fingerprint.Fingerprint.Signature serverMtuSignature;
 
@@ -51,8 +46,8 @@ public class TLSFingerprint {
     */
 
     public TLSFingerprint(Connection connection) {
-        clientHelloSignature = clientHelloFingerprint.createSignature(connection);
-        serverHelloSignature = serverHelloFingerprint.createSignature(connection);
+        clientHelloSignature = new ClientHelloFingerprint(connection);
+        serverHelloSignature = new ServerHelloFingerprint(connection);
 
         serverTcpSignature = connection.getServerTcpSignature();
         serverMtuSignature = connection.getServerMtuSignature();
@@ -62,11 +57,11 @@ public class TLSFingerprint {
         deserialize(serialized);
     }
 
-    public Fingerprint.Signature getClientHelloSignature() {
+    public Fingerprint getClientHelloSignature() {
         return clientHelloSignature;
     }
 
-    public Fingerprint.Signature getServerHelloSignature() {
+    public Fingerprint getServerHelloSignature() {
         return serverHelloSignature;
     }
 
@@ -168,13 +163,26 @@ public class TLSFingerprint {
         return sb.toString();
     }
 
+    private enum SerializationIdentifier {
+        ClientHelloFingerprint("ClientHello"),
+        ServerHelloFingerprint("ServerHello"),
+        ServerTcpFingerprint("ServerTCP"),
+        ServerMtuFingerprint("ServerMTU"),
+        ;
+
+        public final String id;
+        SerializationIdentifier(String id) { this.id = id; }
+    }
+
     public String serialize() {
         StringBuilder sb = new StringBuilder();
 
-        sb.append(clientHelloFingerprint.serialize(clientHelloSignature));
-        sb.append(serverHelloFingerprint.serialize(serverHelloSignature));
+        sb.append("\tClientHello: ").append(clientHelloSignature.serialize()).append('\n');
+        sb.append("\tServerHello: ").append(serverHelloSignature.serialize()).append('\n');
 
-        sb.append("TODO-TCP:TODO-MTU");
+        sb.append("\tserverTCP: TODO\n");
+        sb.append("\tserverMTU: TODO\n");
+
         //TODO: serialize serverTcpSignature, serverMtuSignature
         logger.debug("serialization of tcp and mtu signature not implemented: " + toString());
 
