@@ -1,7 +1,6 @@
 package de.rub.nds.ssl.analyzer.vnl.fingerprint;
 
 import de.rub.nds.ssl.analyzer.vnl.Connection;
-import de.rub.nds.ssl.analyzer.vnl.fingerprint.serialization.Serializer;
 import de.rub.nds.virtualnetworklayer.fingerprint.MtuFingerprint;
 import de.rub.nds.virtualnetworklayer.fingerprint.TcpFingerprint;
 import de.rub.nds.virtualnetworklayer.p0f.signature.MTUSignature;
@@ -9,6 +8,7 @@ import de.rub.nds.virtualnetworklayer.p0f.signature.TCPSignature;
 import org.apache.log4j.Logger;
 
 import java.util.Set;
+import java.util.regex.Pattern;
 
 /**
  * Collection of Fingerprint signatures identifying a TLS endpoint
@@ -46,8 +46,16 @@ public class TLSFingerprint {
     */
 
     public TLSFingerprint(Connection connection) {
-        clientHelloSignature = new ClientHelloFingerprint(connection);
-        serverHelloSignature = new ServerHelloFingerprint(connection);
+        try {
+            clientHelloSignature = new ClientHelloFingerprint(connection);
+        } catch(RuntimeException e) {
+            logger.debug("Error creating ClientHelloFingerprint: " + e);
+        }
+        try {
+            serverHelloSignature = new ServerHelloFingerprint(connection);
+        } catch(RuntimeException e) {
+            logger.debug("Error creating ClientHelloFingerprint: " + e);
+        }
 
         serverTcpSignature = connection.getServerTcpSignature();
         serverMtuSignature = connection.getServerMtuSignature();
@@ -163,55 +171,71 @@ public class TLSFingerprint {
         return sb.toString();
     }
 
-    private enum SerializationIdentifier {
-        ClientHelloFingerprint("ClientHello"),
-        ServerHelloFingerprint("ServerHello"),
-        ServerTcpFingerprint("ServerTCP"),
-        ServerMtuFingerprint("ServerMTU"),
-        ;
+    private enum FingerprintId {
+        ClientHello("ClientHello"),
+        ServerHello("ServerHello"),
+        ServerTcp("ServerTCP"),
+        ServerMtu("ServerMTU");
 
         public final String id;
-        SerializationIdentifier(String id) { this.id = id; }
+        public final Pattern pattern;
+        FingerprintId(String id) {
+            this.id = id;
+            pattern = Pattern.compile(id, Pattern.LITERAL | Pattern.CASE_INSENSITIVE);
+        }
     }
 
     public String serialize() {
         StringBuilder sb = new StringBuilder();
 
-        sb.append("\tClientHello: ").append(clientHelloSignature.serialize()).append('\n');
-        sb.append("\tServerHello: ").append(serverHelloSignature.serialize()).append('\n');
+        if(clientHelloSignature != null) {
+            sb.append("\t").append(FingerprintId.ClientHello.id).append(": ");
+            sb.append(clientHelloSignature.serialize()).append('\n');
+        }
 
-        sb.append("\tserverTCP: ").append(TCPSignature.writeToString(serverTcpSignature));
-        sb.append("\n");
-        sb.append("\tserverMTU: ").append(MTUSignature.writeToString(serverMtuSignature));
-        sb.append("\n");
+        if(serverHelloSignature != null) {
+            sb.append("\t").append(FingerprintId.ServerHello.id).append(": ");
+            sb.append(serverHelloSignature.serialize()).append('\n');
+        }
+
+        if(serverTcpSignature != null) {
+            sb.append("\t").append(FingerprintId.ServerTcp.id).append(": ");
+            sb.append(TCPSignature.writeToString(serverTcpSignature)).append("\n");
+        }
+
+        if(serverMtuSignature != null) {
+            sb.append("\t").append(FingerprintId.ServerMtu.id).append(": ");
+            sb.append(MTUSignature.writeToString(serverMtuSignature)).append("\n");
+        }
 
         return sb.toString();
     }
 
     private void deserialize(String serialized) {
         for(String signature: serialized.split("\n")) {
+            if(signature.trim().isEmpty())
+                continue;
+
             if(! signature.startsWith("\t")) {
                 logger.warn("Unknown fingerprint component: " + signature);
                 continue;
             }
-            signature = signature.substring(1);
 
-            if(signature.startsWith(SerializationIdentifier.ClientHelloFingerprint.id)) {
-                signature = signature.substring(
-                        SerializationIdentifier.ClientHelloFingerprint.id.length());
-                clientHelloSignature = new ClientHelloFingerprint(signature);
-            } else if(signature.startsWith(SerializationIdentifier.ServerHelloFingerprint.id)) {
-                signature = signature.substring(
-                        SerializationIdentifier.ServerHelloFingerprint.id.length());
-                serverHelloSignature = new ServerHelloFingerprint(signature);
-            } else if(signature.startsWith(SerializationIdentifier.ServerTcpFingerprint.id)) {
-                signature = signature.substring(
-                        SerializationIdentifier.ServerTcpFingerprint.id.length());
-                serverTcpSignature = new TCPSignature(signature);
-            } else if(signature.startsWith(SerializationIdentifier.ServerMtuFingerprint.id)) {
-                signature = signature.substring(
-                        SerializationIdentifier.ServerMtuFingerprint.id.length());
-                serverMtuSignature = new MTUSignature(signature);
+            try {
+                String[] line = signature.trim().split("\\s", 2);
+                if(FingerprintId.ClientHello.pattern.matcher(line[0]).lookingAt()) {
+                    clientHelloSignature = new ClientHelloFingerprint(line[1]);
+                } else if (FingerprintId.ServerHello.pattern.matcher(line[0]).lookingAt()) {
+                    serverHelloSignature = new ServerHelloFingerprint(line[1]);
+                } else if (FingerprintId.ServerTcp.pattern.matcher(line[0]).lookingAt()) {
+                    serverTcpSignature = new TCPSignature(line[1]);
+                } else if (FingerprintId.ServerMtu.pattern.matcher(line[0]).lookingAt()) {
+                    serverMtuSignature = new MTUSignature(line[1]);
+                }
+            } catch(IllegalArgumentException|NullPointerException e) {
+                logger.debug("Error decoding signature " + signature);
+                logger.trace("Caused by " + e, e);
+                continue;
             }
         }
     }

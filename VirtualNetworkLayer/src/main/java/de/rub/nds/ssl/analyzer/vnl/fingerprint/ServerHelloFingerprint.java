@@ -43,7 +43,7 @@ public class ServerHelloFingerprint extends Fingerprint {
 
     @Override
     public void deserialize(String serialized) {
-        String[] signs = serialized.split(SERIALIZATION_DELIMITER);
+        String[] signs = serialized.split(SERIALIZATION_DELIMITER, -1);
         if(signs.length != 5) {
             throw new IllegalArgumentException("Serialized form of fingerprint invalid: "
                     + "Wrong sign count " + signs.length);

@@ -1,10 +1,17 @@
 package de.rub.nds.ssl.analyzer.vnl;
 
 import de.rub.nds.ssl.analyzer.vnl.fingerprint.TLSFingerprint;
+import de.rub.nds.ssl.analyzer.vnl.fingerprint.serialization.Serializer;
+import org.apache.log4j.Logger;
 
+import java.io.IOException;
+import java.nio.charset.Charset;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.*;
 
 public class FingerprintListener {
+    private Logger logger = Logger.getLogger(getClass());
 
 	private Map<SessionIdentifier, List<TLSFingerprint>> fingerprints = new HashMap<>();
 	private Collection<FingerprintReporter> reporters = new LinkedList<>();
@@ -87,5 +94,22 @@ public class FingerprintListener {
 		return String.format("saw %d fingerprinted connections, "
                         + "and %d fingerprint changes.",
                         fingerprints.size(), this.changes);
+    }
+
+    /**
+     * read all fingerprints in saveFile to the internal store.
+     * <p>
+     * <b>NOTE</b>: currently this overrides everything already in the internal store
+     *
+     * @throws IOException
+     */
+    public void loadFingerprintSaveFile(Path saveFile) throws IOException {
+        logger.debug("loading from " + saveFile);
+
+        Map<SessionIdentifier, List<TLSFingerprint>> fingerprints =
+                Serializer.deserialize(
+                        Files.newBufferedReader(saveFile, Charset.forName("UTF8")));
+
+        this.fingerprints.putAll(fingerprints);
     }
 }

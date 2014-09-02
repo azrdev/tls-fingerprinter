@@ -41,7 +41,7 @@ public class SessionIdentifier {
      * deserialize a SessionIdentifier object, see {@link SessionIdentifier#serialize()}
      */
     public SessionIdentifier(String serialized) {
-        String[] parts = serialized.split("|");
+        String[] parts = serialized.split("\\|");
 
         if(parts.length > 0)
             serverIPAddress = Util.ipAddressFromString(parts[0]);
@@ -95,7 +95,7 @@ public class SessionIdentifier {
         return String.format("%s|%d|%s",
                 Util.ipAddressToString(serverIPAddress),
                 serverTcpPort,
-                serverHostName);
+                (serverHostName == null)? "" : serverHostName);
     }
 
     public void setServerIPAddress(byte[] serverIPAddress) {

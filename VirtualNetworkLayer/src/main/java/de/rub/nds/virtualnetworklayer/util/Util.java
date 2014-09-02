@@ -14,7 +14,7 @@ import de.rub.nds.virtualnetworklayer.util.formatter.IpFormatter;
 
 /**
  * Utility class
- * </p>
+ * <p>
  * Using all static methods enforces the class to have no state.
  *
  * @author Marco Faltermeier <faltermeier@me.com>
@@ -31,14 +31,17 @@ public class Util {
             }
         }
 
-        throw new IllegalArgumentException();
+        throw new IllegalArgumentException("Could not read enum constant of type " +
+            clazz.getSimpleName() + " for value " + value);
     }
 
 
     public static Integer readBoundedInteger(String value, int rangeBegin, int rangeEnd) {
         int integer = Integer.parseInt(value.replaceAll("[^\\d]", ""));
         if (integer < rangeBegin || integer > rangeEnd) {
-            throw new IllegalArgumentException();
+            throw new IllegalArgumentException(
+                    String.format("Integer %d out of range [%d:%d]",
+                                  integer, rangeBegin, rangeEnd));
         }
 
         return integer;

@@ -44,8 +44,15 @@ public final class SslReportingConnectionHandler extends ConnectionHandler {
     private Set<SocketSession> reportedSessions = new HashSet<>();
 
     public SslReportingConnectionHandler() {
+        Path fingerprintDbFile = Paths.get(appDataDir + "fingerprints");
         fingerprintListener = new FingerprintListener();
-        setFingerprintReporting(true, Paths.get(appDataDir + "fingerprints"));
+        try {
+            fingerprintListener.loadFingerprintSaveFile(fingerprintDbFile);
+        } catch (IOException e) {
+            logger.warn("Could not load fingerprint save file " + fingerprintDbFile +
+                " - " + e);
+        }
+        setFingerprintReporting(true, fingerprintDbFile);
     }
 
     public void setFingerprintReporting(boolean log, Path saveToFile) {

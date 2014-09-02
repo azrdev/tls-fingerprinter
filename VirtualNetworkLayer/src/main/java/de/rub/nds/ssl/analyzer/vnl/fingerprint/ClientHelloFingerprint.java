@@ -48,7 +48,7 @@ public class ClientHelloFingerprint extends Fingerprint {
 
     @Override
     public void deserialize(String serialized) {
-        String[] signs = serialized.split(SERIALIZATION_DELIMITER);
+        String[] signs = serialized.trim().split(SERIALIZATION_DELIMITER, -1);
         if(signs.length != 5) {
             throw new IllegalArgumentException("Serialized form of fingerprint invalid: "
                     + "Wrong sign count " + signs.length);
@@ -62,20 +62,35 @@ public class ClientHelloFingerprint extends Fingerprint {
 
         List<ECompressionMethod> compressionMethods = new ArrayList<>();
         for(byte[] b : Serializer.deserializeList(signs[2].trim())) {
-            // should be only one byte, ignore others
-            compressionMethods.add(ECompressionMethod.getCompressionMethod(b[0]));
+            try {
+                // should be only one byte, ignore others
+                compressionMethods.add(ECompressionMethod.getCompressionMethod(b[0]));
+            } catch (IllegalArgumentException e) {
+                // best effort
+                compressionMethods.add(null);
+            }
         }
         addSign("compression-method-list", compressionMethods);
 
         List<ECipherSuite> cipherSuites = new ArrayList<>();
         for(byte[] b : Serializer.deserializeList(signs[3].trim())) {
-            cipherSuites.add(ECipherSuite.getCipherSuite(b));
+            try {
+                cipherSuites.add(ECipherSuite.getCipherSuite(b));
+            } catch(IllegalArgumentException e) {
+                // best effort
+                cipherSuites.add(null);
+            }
         }
         addSign("cipher-suite-list", cipherSuites);
 
         List<EExtensionType> extensionLayout = new ArrayList<>();
         for(byte[] b : Serializer.deserializeList(signs[4].trim())) {
-            extensionLayout.add(EExtensionType.getExtension(b));
+            try {
+                extensionLayout.add(EExtensionType.getExtension(b));
+            } catch(IllegalArgumentException e) {
+                // best effort
+                extensionLayout.add(null);
+            }
         }
         addSign("extensions-layout", extensionLayout);
     }
