@@ -48,7 +48,10 @@ public abstract class Fingerprint {
         public <T> T getSign(String key) {
             return (T) signs.get(key);
         }
-        
+
+        /**
+         * @return a (deep) copy of the signs in this signature
+         */
         public Map<String, Object> getSigns() {
         	return new HashMap<>(signs);
         }

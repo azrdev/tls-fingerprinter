@@ -8,15 +8,17 @@ import de.rub.nds.virtualnetworklayer.p0f.signature.tcp.TimeToLive;
 import de.rub.nds.virtualnetworklayer.p0f.signature.tcp.WindowSize;
 import de.rub.nds.virtualnetworklayer.packet.header.transport.TcpHeader;
 import de.rub.nds.virtualnetworklayer.util.Util;
+import org.apache.log4j.Logger;
 
 import java.util.EnumSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Property format: ver:ittl:olen:mss:wsize,windowScale:olayout:quirks:pclass
  *
- * @see de.rub.nds.virtualnetworklayer.util.IniTokenizer.Property
+ * @see de.rub.nds.virtualnetworklayer.util.IniTokenizer.Token.Property
  * @see Version
  * @see WindowSize
  * @see de.rub.nds.virtualnetworklayer.p0f.signature.tcp.Option
@@ -24,6 +26,7 @@ import java.util.List;
  * @see PayloadClass
  */
 public class TCPSignature extends Fingerprint.Signature {
+    private static Logger logger = Logger.getLogger(TCPSignature.class);
 
     public enum Version {
         Ip4('4'), Ip6('6'), Any('*');
@@ -60,7 +63,7 @@ public class TCPSignature extends Fingerprint.Signature {
     private List<TcpHeader.Option> optionsLayout;
 
     private void readFromString(String value) {
-        String[] parts = value.split(SIGN_DELIMITER);
+        String[] parts = value.trim().split(SIGN_DELIMITER);
 
         Version version = Util.readEnum(Version.class, parts[0]);
         if (version != Version.Any) {
@@ -133,33 +136,36 @@ public class TCPSignature extends Fingerprint.Signature {
     private static final String SIGN_DELIMITER = ":";
     private static final String PART_DELIMITER = ",";
 
-    public static String writeToString(Fingerprint.Signature signature) {
+    public static String writeToString(final Fingerprint.Signature signature) {
         StringBuilder sb = new StringBuilder();
 
-        Integer version = signature.getSign("version");
+        Map<String, Object> signs = signature.getSigns();
+
+        Integer version = (Integer) signs.remove("version");
         sb.append((version == null)?  Version.Any : version);
         sb.append(SIGN_DELIMITER);
 
-        TimeToLive ttl = signature.getSign("timeToLive");
+        TimeToLive ttl = (TimeToLive) signs.remove("timeToLive");
         if(ttl != null) sb.append(ttl.getInitialTTL());
         sb.append(SIGN_DELIMITER);
 
-        Integer ol = signature.getSign("optionsLength");
-        sb.append((ol == null)? 0 : ol);
+        Integer ol = (Integer) signs.remove("optionsLength");
+        if(ol != null) sb.append(ol);
         sb.append(SIGN_DELIMITER);
 
-        Integer mss = signature.getSign("maximumSegmentSize");
+        Integer mss = (Integer) signs.remove("maximumSegmentSize");
         sb.append((mss == null)? '*' : mss);
         sb.append(SIGN_DELIMITER);
 
-        WindowSize windowSize = signature.getSign("windowSize");
+        WindowSize windowSize = (WindowSize) signs.remove("windowSize");
         sb.append((windowSize == null)? '*' : windowSize);
         sb.append(PART_DELIMITER);
-        Integer windowScale = signature.getSign("windowScale");
+        Integer windowScale = (Integer) signs.remove("windowScale");
         sb.append((windowScale == null)? '*' : windowScale);
         sb.append(SIGN_DELIMITER);
 
-        List<TcpHeader.Option> optionsLayout = signature.getSign("optionsLayout");
+        List<TcpHeader.Option> optionsLayout =
+                (List<TcpHeader.Option>) signs.remove("optionsLayout");
         if(optionsLayout != null) {
             boolean hasOption = false;
             for(TcpHeader.Option opt : optionsLayout) {
@@ -189,8 +195,16 @@ public class TCPSignature extends Fingerprint.Signature {
         }
         sb.append(SIGN_DELIMITER);
 
-        PayloadClass pc = signature.getSign("payloadClass");
-        sb.append((pc == null)? '*' : pc.toString());
+        PayloadClass pc = (PayloadClass) signs.remove("payloadClass");
+        sb.append((pc == null) ? '*' : pc.toString());
+
+        // report other signs we don't know
+        if(! signs.isEmpty()) {
+            StringBuilder sbd = new StringBuilder();
+            for(String s : signs.keySet())
+                sbd.append(s).append(',');
+            logger.debug("Signs not serialized: " + sbd.toString());
+        }
 
         return sb.toString();
     }
