@@ -1,16 +1,15 @@
 package de.rub.nds.virtualnetworklayer.util;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.net.InetAddress;
-import java.net.UnknownHostException;
-import java.nio.ByteBuffer;
-import java.util.Arrays;
-import java.util.List;
-
 import com.google.common.net.InetAddresses;
 import de.rub.nds.virtualnetworklayer.packet.header.transport.TcpHeader;
 import de.rub.nds.virtualnetworklayer.util.formatter.IpFormatter;
+
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.net.InetAddress;
+import java.nio.ByteBuffer;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * Utility class
@@ -21,8 +20,7 @@ import de.rub.nds.virtualnetworklayer.util.formatter.IpFormatter;
  */
 public class Util {
 
-    private Util() {
-    }
+    private Util() {}
 
     public static <T extends Enum<T>> T readEnum(Class<T> clazz, String value) {
         for (T enumeration : clazz.getEnumConstants()) {
