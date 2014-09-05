@@ -195,7 +195,7 @@ public class Pcap {
         pcap_t pcap_t = PcapLibrary.pcap_create(Pointer.pointerToCString(device.getName()), errbuf);
 
         if (pcap_t == null) {
-            throw new IllegalArgumentException();
+            throw new IllegalArgumentException(errbuf.getCString());
         }
 
         if (Status.valueOf(PcapLibrary.pcap_set_rfmon(pcap_t, 1)) != Status.Success) {
@@ -240,7 +240,7 @@ public class Pcap {
         pcap_t pcap_t = PcapLibrary.pcap_open_live(Pointer.pointerToCString(device.getName()), snaplen, mode, timeout, errbuf);
 
         if (pcap_t == null) {
-            throw new IllegalArgumentException();
+            throw new IllegalArgumentException(errbuf.getCString());
         }
 
         return new Pcap(pcap_t, device);
@@ -274,7 +274,7 @@ public class Pcap {
         pcap_t pcap_t = PcapLibrary.pcap_open_offline(Pointer.pointerToCString(file.getAbsolutePath()), errbuf);
 
         if (pcap_t == null) {
-            throw new IllegalArgumentException();
+            throw new IllegalArgumentException(errbuf.getCString());
         }
 
         return new Pcap(pcap_t, file);
@@ -493,19 +493,19 @@ public class Pcap {
      * @return device otherwise null
      */
     public static Device getDefaultDevice() {
-		try {
-			String name = PcapLibrary.pcap_lookupdev(errbuf).getCString();
+        Pointer<Byte> dev = PcapLibrary.pcap_lookupdev(errbuf);
+        if(dev == null) {
+            throw new IllegalArgumentException(errbuf.getCString());
+        }
+        String name = dev.getCString();
 
-			for (Device device : getDevices()) {
-				if (device.getName().equals(name)) {
-					return device;
-				}
-			}
-		} catch (NullPointerException e) {
-			return null;
-		}
+        for (Device device : getDevices()) {
+            if (device.getName().equals(name)) {
+                return device;
+            }
+        }
 
-		return null;
+        return null;
     }
 
     /**
@@ -515,32 +515,38 @@ public class Pcap {
         Pointer<Pointer<pcap_if>> pcap_if = Pointer.allocatePointer(pcap_if.class);
         List<Device> devices = new ArrayList<Device>();
 
-        if (Status.valueOf(PcapLibrary.pcap_findalldevs(pcap_if, errbuf)) == Status.Success) {
-            Pointer<pcap_if> device = pcap_if.get();
+        try {
+            if (Status.valueOf(PcapLibrary.pcap_findalldevs(pcap_if, errbuf)) == Status.Success) {
+                Pointer<pcap_if> device = pcap_if.get();
 
-            while (device != Pointer.NULL) {
-                Pointer<Integer> netp = Pointer.allocateInt();
-                Pointer<Integer> maskp = Pointer.allocateInt();
+                while (device != Pointer.NULL) {
+                    Pointer<Integer> netp = Pointer.allocateInt();
+                    Pointer<Integer> maskp = Pointer.allocateInt();
 
-                int net = 0;
-                int mask = 0;
+                    int net = 0;
+                    int mask = 0;
 
-                if (Status.valueOf(PcapLibrary.pcap_lookupnet(device.get().name(), netp, maskp, errbuf)) == Status.Success) {
-                    net = netp.getInt();
-                    mask = maskp.getInt();
+                    if (Status.valueOf(PcapLibrary.pcap_lookupnet(device.get().name(), netp, maskp, errbuf)) == Status.Success) {
+                        net = netp.getInt();
+                        mask = maskp.getInt();
+                    } else {
+                        // errbuf.getCString() has error message
+                    }
+
+                    netp.release();
+                    maskp.release();
+
+                    devices.add(new Device(device.get(), net, mask));
+
+                    device = device.get().next();
                 }
 
-                netp.release();
-                maskp.release();
-
-                devices.add(new Device(device.get(), net, mask));
-
-                device = device.get().next();
+            } else {
+                throw new IllegalArgumentException(errbuf.getCString());
             }
-
+        } finally {
+            PcapLibrary.pcap_freealldevs(pcap_if.get());
         }
-
-        PcapLibrary.pcap_freealldevs(pcap_if.get());
 
         return devices;
     }

@@ -132,6 +132,8 @@ public abstract class PacketHandler extends PcapHandler {
 
         Header header;
         while (offset < length && (header = getHeader(packetHeaders, byteBuffer, offset, limit, dataLinkType)) != null) {
+            //TODO: getHeader throws IllegalArgumentException if offset < byteBuffer.limit catch here?
+
             Header packetHeader = header.clone();
             packetHeaders.add(packetHeader);
 
