@@ -31,19 +31,21 @@ public class PassiveSslReporter {
 	public void run(String filename) {
 		Pcap pcap = Pcap.openOffline(new File(filename));
         logger.info("now looping over file");
-        pcap.loop(handler);
-        logger.info("looping done");
+        Pcap.Status status = pcap.loop(handler);
+        logger.info("looping done, returned " + status);
 	}
 	
-	public void run() {
+	public Pcap.Status run() {
+        logger.info("opening live device");
         //open pcap on local live device
         Pcap pcap = Pcap.openLive();
         logger.info("now looping over live capture");
         
         // Give control to pcap, pcap will use callbacks.
-        pcap.loopAsynchronous(handler);
+        Pcap.Status status = pcap.loop(handler);
         
-        logger.info("looping done");
+        logger.info("looping done, returned " + status);
+        return status;
 	}
 	
 	public Thread startMonitorThread() {
