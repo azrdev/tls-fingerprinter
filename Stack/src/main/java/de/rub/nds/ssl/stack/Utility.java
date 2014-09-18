@@ -105,11 +105,11 @@ public final class Utility {
         return builder.toString().trim();
     }
     
-    public static String bytesToHex(final byte bytes){
+    public static String bytesToHex(final byte bytes) {
         return bytesToHex(new byte[]{bytes});
     }
 
-    public static String bytesToHex(final byte bytes, boolean addSpaces){
+    public static String bytesToHex(final byte bytes, boolean addSpaces) {
         return bytesToHex(new byte[]{bytes}, addSpaces);
     }
 
@@ -130,6 +130,20 @@ public final class Utility {
 //        }
 //        return sb.toString();
 //    }
+
+    /**
+     * Converts a list of byte[] to their hex string representations, delimited by ,
+     * @throws IllegalArgumentException if bytes is null or there is a null entry in it
+     */
+    public static String bytesToHexList(final List<byte[]> bytes) {
+        StringBuilder sb = new StringBuilder();
+        for(byte[] b : bytes) {
+            sb.append(bytesToHex(b)).append(',');
+        }
+        if(sb.length() > 0)
+            sb.setLength(sb.length() -1); // delete last ','
+        return sb.toString();
+    }
     
     /**
      * Converts a byte[] to int.

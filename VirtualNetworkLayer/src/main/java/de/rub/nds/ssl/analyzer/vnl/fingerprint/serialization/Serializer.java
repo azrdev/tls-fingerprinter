@@ -36,6 +36,8 @@ public class Serializer {
 
         if(sign instanceof Object[])
             return serializeList((Object[]) sign);
+        else if(sign instanceof byte[])
+            return Utility.bytesToHex((byte[]) sign, false);
         else if(sign instanceof Collection)
             return serializeList((Collection) sign);
         else if(sign instanceof EProtocolVersion)

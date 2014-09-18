@@ -11,7 +11,6 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -37,14 +36,19 @@ public final class Extensions extends APubliclySerializable {
     /**
      * List of all extensions of this object.
      */
-    private List<AExtension> extensions;
+    private List<AExtension> extensions = new ArrayList<>(5);
+
+    /**
+     * "type" bytes of each extension, irrespective of whether the corresponding
+     * {@link EExtensionType} exists or is implemented
+     */
+    private List<byte[]> rawExtensionTypes = new ArrayList<>(5);
 
     /**
      * Initializes an extensions object as defined in RFC-2246. No extensions
      * are added by default at construction time.
      */
     public Extensions() {
-        this.extensions = new ArrayList<>(5);
     }
 
     /**
@@ -53,7 +57,6 @@ public final class Extensions extends APubliclySerializable {
      * @param extensionsValue Extensions in encoded form
      */
     public Extensions(final byte[] extensionsValue) {
-        this.extensions = new ArrayList<>(5);
         this.decode(extensionsValue, false);
     }
 
@@ -71,6 +74,13 @@ public final class Extensions extends APubliclySerializable {
     }
 
     /**
+     * @return The raw "type" bytes of all extensions
+     */
+    public List<byte[]> getRawExtensionTypes() {
+        return rawExtensionTypes;
+    }
+
+    /**
      * Set the extensions.
      *
      * @param extensionsValue The extensions to be used
@@ -82,8 +92,13 @@ public final class Extensions extends APubliclySerializable {
 
         // new objects keep the array clean and small, Mr. Proper will be proud!
         this.extensions = new ArrayList<>(extensionsValue.size());
+        this.rawExtensionTypes = new ArrayList<>(extensionsValue.size());
         // refill, deep copy list, but not extensions itself!
-        this.extensions.addAll(this.extensions);
+        this.extensions.addAll(extensionsValue);
+
+        for(AExtension ex : extensionsValue) {
+            rawExtensionTypes.add(ex.getExtensionType().getId());
+        }
     }
 
     /**
@@ -93,6 +108,7 @@ public final class Extensions extends APubliclySerializable {
      */
     public void addExtension(final AExtension extension) {
         this.extensions.add(extension);
+        rawExtensionTypes.add(extension.getExtensionType().getId());
     }
 
     /**
@@ -121,8 +137,7 @@ public final class Extensions extends APubliclySerializable {
         pointer += tmp.length;
 
         for (byte[] tmpBytes : encodedExtensions) {
-            System.arraycopy(tmpBytes, 0, extensionBytes, pointer,
-                    tmpBytes.length);
+            System.arraycopy(tmpBytes, 0, extensionBytes, pointer, tmpBytes.length);
             pointer += tmpBytes.length;
         }
 
@@ -137,6 +152,8 @@ public final class Extensions extends APubliclySerializable {
     @Override
     public void decode(final byte[] message, final boolean chained) {
         int pointer;
+        extensions.clear();
+        rawExtensionTypes.clear();
 
         // deep copy
         final byte[] payloadCopy = new byte[message.length];
@@ -153,16 +170,15 @@ public final class Extensions extends APubliclySerializable {
             //TODO: this duplicates AExtension.decode()
 	        int extractedLength;
 	        EExtensionType extensionType = null;
-	        AExtension tmpExtension;
-	        byte[] tmp;
 
             // 1. extract extension type
-            tmp = new byte[EExtensionType.LENGTH_ENCODED];
-            System.arraycopy(payloadCopy, pointer, tmp, 0, tmp.length);
+            byte[] typeBytes = new byte[EExtensionType.LENGTH_ENCODED];
+            System.arraycopy(payloadCopy, pointer, typeBytes, 0, typeBytes.length);
+            rawExtensionTypes.add(typeBytes);
 	        try {
-		        extensionType = EExtensionType.getExtension(tmp);
+		        extensionType = EExtensionType.getExtension(typeBytes);
 	        } catch (UnknownTLSExtensionException ex) {
-		        logger.warn("Unknown extension: " + Utility.bytesIdToHex(tmp));
+		        logger.debug("Unknown extension: " + Utility.bytesIdToHex(typeBytes));
 	        }
 
             // 2. determine extension length
@@ -174,16 +190,15 @@ public final class Extensions extends APubliclySerializable {
             if (payloadCopy.length < pointer + extractedLength) {
                 throw new IllegalArgumentException("Extensions payload too short.");
             }
-            tmp = new byte[extractedLength + AExtension.LENGTH_MINIMUM_ENCODED];
+            byte[] tmp = new byte[extractedLength + AExtension.LENGTH_MINIMUM_ENCODED];
             System.arraycopy(payloadCopy, pointer, tmp, 0, tmp.length);
             pointer += tmp.length;
 
             // 4. add message to message list
             try {
-                tmpExtension = delegateDecoding(extensionType, tmp);
-                extensions.add(tmpExtension);
+                extensions.add(delegateDecoding(extensionType, tmp));
             } catch(IllegalArgumentException | NullPointerException ex) {
-                logger.warn("Could not decode extension: " + ex, ex);
+                logger.debug(ex, ex);
             }
         }
     }
@@ -218,13 +233,14 @@ public final class Extensions extends APubliclySerializable {
                     EExtensionType.class);
             setExtensionType.setAccessible(true);
             setExtensionType.invoke(result, type);
-        } catch (InvocationTargetException |
-                SecurityException |
+        } catch (SecurityException |
                 NoSuchMethodException |
                 InstantiationException |
                 IllegalArgumentException |
                 IllegalAccessException ex) {
-            logger.warn("delegateDecoding(" + type + ") throws: " + ex, ex);
+            throw new IllegalArgumentException("Could not decode extension: " + ex, ex);
+        } catch(InvocationTargetException ex) {
+            throw new IllegalArgumentException(ex.getCause());
         }
         return result;
     }
@@ -233,6 +249,7 @@ public final class Extensions extends APubliclySerializable {
     public String toString() {
         StringBuilder sb = new StringBuilder();
         sb.append("Handshake extensions: {");
+        sb.append("\nRaw types: ").append(Utility.bytesToHexList(rawExtensionTypes));
         for(AExtension ext : extensions) {
             sb.append("\n  ").append(ext.toString());
         }

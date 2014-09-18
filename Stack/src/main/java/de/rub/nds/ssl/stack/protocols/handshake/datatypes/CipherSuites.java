@@ -5,7 +5,9 @@ import de.rub.nds.ssl.stack.protocols.commons.APubliclySerializable;
 import de.rub.nds.ssl.stack.protocols.commons.ECipherSuite;
 import org.apache.log4j.Logger;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 /**
  * Cipher suites part - as defined in RFC-2246.
@@ -30,7 +32,13 @@ public final class CipherSuites extends APubliclySerializable {
     /**
      * List of all cipher suites of this object.
      */
-    private ECipherSuite[] suites;
+    private ECipherSuite[] suites = new ECipherSuite[0];
+
+    /**
+     * All cipher suites as raw byte ids, irrespective of whether a corresponding
+     * ECipherSuite exists
+     */
+    private List<byte[]> rawSuites = new ArrayList<>(0);
 
     /**
      * {@inheritDoc}
@@ -71,11 +79,22 @@ public final class CipherSuites extends APubliclySerializable {
     }
 
     /**
+     * @return the raw suite "id"s of all CipherSuites
+     */
+    public List<byte[]> getRawSuites() {
+        return rawSuites;
+    }
+
+    /**
      * Set the cipher suites of this message.
      *
      * @param suites The cipher suites to be used for this message
      */
     public void setSuites(final ECipherSuite[] suites) {
+        setSuites(suites, true);
+    }
+
+    private void setSuites(final ECipherSuite[] suites, boolean setRaw) {
         if (suites == null) {
             throw new IllegalArgumentException("Suites must not be null!");
         }
@@ -84,6 +103,13 @@ public final class CipherSuites extends APubliclySerializable {
         this.suites = new ECipherSuite[suites.length];
         // refill, deep copy
         System.arraycopy(suites, 0, this.suites, 0, suites.length);
+
+        if(setRaw) {
+            this.rawSuites = new ArrayList<>(suites.length);
+            for (ECipherSuite cs : suites) {
+                rawSuites.add(cs.getId());
+            }
+        }
     }
 
     /**
@@ -120,6 +146,7 @@ public final class CipherSuites extends APubliclySerializable {
      */
     @Override
     public void decode(final byte[] message, final boolean chained) {
+        rawSuites.clear();
         final int cipherSuitesCount;
         // deep copy
         final byte[] tmpSuites = new byte[message.length];
@@ -143,13 +170,14 @@ public final class CipherSuites extends APubliclySerializable {
         ECipherSuite[] cipherSuites = new ECipherSuite[cipherSuitesCount];
         for (int j = 0, i = LENGTH_LENGTH_FIELD; j < cipherSuitesCount;
                 i += ECipherSuite.LENGTH_ENCODED, j++) {
+            byte[] id = new byte[]{tmpSuites[i], tmpSuites[i + 1]};
+            rawSuites.add(id);
             try {
-                cipherSuites[j] = ECipherSuite.getCipherSuite(
-                        new byte[]{tmpSuites[i], tmpSuites[i + 1]});
+                cipherSuites[j] = ECipherSuite.getCipherSuite(id);
             } catch(UnknownCipherSuiteException e) {
-                logger.warn(e);
+                logger.debug(e);
             }
         }
-        setSuites(cipherSuites);
+        setSuites(cipherSuites, false);
     }
 }

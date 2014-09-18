@@ -94,6 +94,7 @@ public class FingerprintListener {
 		return String.format("saw %d fingerprinted connections, "
                         + "and %d fingerprint changes.",
                         fingerprints.size(), this.changes);
+        //FIXME: with loadFingerprintSaveFile these numbers are wrong
     }
 
     /**

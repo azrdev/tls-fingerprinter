@@ -382,8 +382,7 @@ public final class ServerHello extends AHandshakeRecord {
             System.arraycopy(payloadCopy, pointer, extension_part, 0,
                     extension_part.length);
             
-            Extensions extensions = new Extensions(extension_part);
-            setExtensions(extensions);
+            extensions = new Extensions(extension_part);
         } else {
             extensions = null;
         }

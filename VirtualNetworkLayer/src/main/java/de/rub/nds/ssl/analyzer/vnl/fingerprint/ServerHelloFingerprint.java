@@ -7,11 +7,9 @@ import de.rub.nds.ssl.stack.protocols.commons.ECipherSuite;
 import de.rub.nds.ssl.stack.protocols.commons.ECompressionMethod;
 import de.rub.nds.ssl.stack.protocols.commons.EProtocolVersion;
 import de.rub.nds.ssl.stack.protocols.handshake.ServerHello;
-import de.rub.nds.ssl.stack.protocols.handshake.extensions.AExtension;
-import de.rub.nds.ssl.stack.protocols.handshake.extensions.datatypes.EExtensionType;
+import de.rub.nds.ssl.stack.protocols.handshake.datatypes.Extensions;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 public class ServerHelloFingerprint extends Fingerprint {
@@ -30,13 +28,9 @@ public class ServerHelloFingerprint extends Fingerprint {
         addSign("compression-method", serverHello.getCompressionMethod());
         addSign("session-id-empty", serverHello.getSessionID().isEmpty());
 
-        AExtension[] extensions = serverHello.getExtensions().getExtensions();
+        Extensions extensions = serverHello.getExtensions();
 
-        List<EExtensionType> extensionLayout = new ArrayList<>(extensions.length);
-        for(AExtension extension : extensions) {
-            extensionLayout.add(extension.getExtensionType());
-        }
-        addSign("extensions-layout", extensionLayout);
+        addSign("extensions-layout", extensions.getRawExtensionTypes());
 
         //TODO: extensions content
     }
@@ -61,9 +55,9 @@ public class ServerHelloFingerprint extends Fingerprint {
 
         addSign("session-id-empty", signs[3].trim().equals("true"));
 
-        List<EExtensionType> extensionLayout = new ArrayList<>();
+        List<byte[]> extensionLayout = new ArrayList<>();
         for(byte[] b : Serializer.deserializeList(signs[4].trim())) {
-            extensionLayout.add(EExtensionType.getExtension(b));
+            extensionLayout.add(b);
         }
         addSign("extensions-layout", extensionLayout);
     }

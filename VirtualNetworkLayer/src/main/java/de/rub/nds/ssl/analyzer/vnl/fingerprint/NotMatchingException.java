@@ -8,7 +8,7 @@ package de.rub.nds.ssl.analyzer.vnl.fingerprint;
  */
 public class NotMatchingException extends IllegalArgumentException {
     public NotMatchingException() {
-        super("The supplied Connection did not contain elements" +
+        super("The supplied Connection did not contain elements " +
               "to create such fingerprint.");
     }
 }

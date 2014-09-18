@@ -29,10 +29,16 @@ public final class CompressionMethod extends APubliclySerializable {
      * Minimum length of the encoded form.
      */
     public static final int LENGTH_MINIMUM_ENCODED = LENGTH_LENGTH_FIELD;
+
     /**
      * Compression methods.
      */
     private List<ECompressionMethod> methods = new ArrayList<>();
+
+    /**
+     * Compression methods - raw "id" bytes
+     */
+    private List<byte[]> rawMethods = new ArrayList<>(0);
 
     @Override
     public String toString() {
@@ -43,14 +49,14 @@ public final class CompressionMethod extends APubliclySerializable {
      * Initializes as defined in RFC 2246. By default contain only ECompressionMethod.NULL
      */
     public CompressionMethod() {
-        methods.add(ECompressionMethod.NULL);
+        setMethods(new ECompressionMethod[]{ECompressionMethod.NULL});
     }
 
     /**
      * Initializes with the given methods
      */
     public CompressionMethod(List<ECompressionMethod> methods) {
-        this.methods = new ArrayList<>(methods);
+        setMethods(methods);
     }
 
     /**
@@ -62,15 +68,6 @@ public final class CompressionMethod extends APubliclySerializable {
         this.decode(message, false);
     }
 
-    /**
-     * Get the compression method of this message.
-     *
-     * @return The compression method of this message
-     */
-    public List<ECompressionMethod> getMethods() {
-        return methods;
-    }
-
     /*
      * @return The compression method of this message
      */
@@ -79,16 +76,20 @@ public final class CompressionMethod extends APubliclySerializable {
     }
 
     /**
+     * @return the raw method "id" bytes, irrespective of whether a corresponding
+     * ECompressionMethod exists
+     */
+    public List<byte[]> getRawMethods() {
+        return rawMethods;
+    }
+
+    /**
      * Set the compression methods of this message.
      *
      * @param methods The compression methods to be used for this message
      */
     public final void setMethods(final ECompressionMethod[] methods) {
-        if (methods == null) {
-            throw new IllegalArgumentException("Compression methods must not be null!");
-        }
-
-        this.methods = Utility.deepCopyAsList(methods);
+        setMethods(Arrays.asList(methods));
     }
 
     /**
@@ -97,7 +98,24 @@ public final class CompressionMethod extends APubliclySerializable {
      * @param methods The compression methods to be used for this message
      */
     public final void setMethods(final List<ECompressionMethod> methods) {
+        setMethods(methods, true);
+    }
+
+    /**
+     * @param setRaw Iff false, don't overwrite the rawMethods field
+     */
+    private void setMethods(final List<ECompressionMethod> methods, boolean setRaw) {
+        if (methods == null) {
+            throw new IllegalArgumentException("Compression methods must not be null!");
+        }
+
         this.methods = new ArrayList<>(methods);
+        if(setRaw) {
+            this.rawMethods = new ArrayList<>(methods.size());
+            for (ECompressionMethod method : methods) {
+                rawMethods.add(new byte[]{method.getId()});
+            }
+        }
     }
 
     /**
@@ -126,6 +144,7 @@ public final class CompressionMethod extends APubliclySerializable {
      * Method parameter will be ignored - no support for chained decoding.
      */
     public void decode(final byte[] message, final boolean chained) {
+        this.rawMethods.clear();
         final int methodsLength;
         List<ECompressionMethod> newMethods;
 
@@ -143,14 +162,15 @@ public final class CompressionMethod extends APubliclySerializable {
         newMethods = new ArrayList<>();
         for(int i = LENGTH_LENGTH_FIELD; i < methods.length; ++i) {
             ECompressionMethod method = null;
+            rawMethods.add(new byte[] {methods[i]});
             try {
                 method = ECompressionMethod.getCompressionMethod(methods[i]);
             } catch(IllegalArgumentException e) {
-                logger.warn(e);
+                logger.debug(e);
             }
             newMethods.add(method);
         }
-        setMethods(newMethods);
+        setMethods(newMethods, false);
     }
 
     @Override
@@ -174,4 +194,5 @@ public final class CompressionMethod extends APubliclySerializable {
     public int hashCode() {
         return methods != null ? methods.hashCode() : 0;
     }
+
 }

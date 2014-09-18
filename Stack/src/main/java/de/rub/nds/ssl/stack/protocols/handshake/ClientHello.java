@@ -451,8 +451,8 @@ public final class ClientHello extends AHandshakeRecord {
      *
      * @return The cipher suites of this message
      */
-    public ECipherSuite[] getCipherSuites() {
-        return cipherSuites.getSuites();
+    public CipherSuites getCipherSuites() {
+        return cipherSuites;
     }
 
     /**
