@@ -47,7 +47,7 @@ public final class SslReportingConnectionHandler extends ConnectionHandler {
         Path fingerprintDbFile = Paths.get(appDataDir + "fingerprints");
         fingerprintListener = new FingerprintListener();
         try {
-            fingerprintListener.loadFingerprintSaveFile(fingerprintDbFile);
+            fingerprintListener.loadFingerprintSaveFile(fingerprintDbFile, false);
         } catch (IOException e) {
             logger.warn("Could not load fingerprint save file " + fingerprintDbFile +
                 " - " + e);
