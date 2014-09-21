@@ -12,7 +12,6 @@ import org.apache.log4j.Logger;
 
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.Reader;
 import java.util.*;
 
 /**
@@ -104,10 +103,7 @@ public class Serializer {
             if(line.startsWith("\t")) {
                 fpBuffer.append(line).append('\n');
             } else {
-                List<TLSFingerprint> fps = deserialize(fpBuffer.toString());
-                if(sidBuffer != null && fps != null)
-                    fingerprints.put(sidBuffer, fps);
-                fpBuffer.setLength(0);
+                commitFingerprint(sidBuffer, fpBuffer, fingerprints);
 
                 try {
                     sidBuffer = new SessionIdentifier(line);
@@ -118,23 +114,37 @@ public class Serializer {
             }
         }
 
-        List<TLSFingerprint> fps = deserialize(fpBuffer.toString());
-        if(sidBuffer != null && fps != null)
-            fingerprints.put(sidBuffer, fps);
+        commitFingerprint(sidBuffer, fpBuffer, fingerprints);
 
         return fingerprints;
     }
 
-    private static List<TLSFingerprint> deserialize(String serialized) {
-        List<TLSFingerprint> fps = new LinkedList<>();
+    private static void commitFingerprint(SessionIdentifier sidBuffer,
+                  StringBuilder fpBuffer,
+                  Map<SessionIdentifier, List<TLSFingerprint>> fingerprints) {
+        TLSFingerprint fp = null;
         try {
-            if (serialized != null) {
-                fps.add(new TLSFingerprint(serialized));
-                return fps;
-            }
+            fp = new TLSFingerprint(fpBuffer.toString());
         } catch(IllegalArgumentException e) {
             logger.debug("Error reading fingerprint: " + e, e);
         }
-        return null;
+        fpBuffer.setLength(0);
+
+        if(sidBuffer != null && fp != null) {
+            List<TLSFingerprint> fps;
+            if(fingerprints.containsKey(sidBuffer)) {
+                // append to list of fingerprints belonging to SessionIdentifier
+                fps = fingerprints.get(sidBuffer);
+                if(! fps.contains(fp)) {
+                    fps.add(fp);
+                } else {
+                    logger.warn("Duplicate fingerprint in file for " + sidBuffer);
+                }
+            } else {
+                fps = new ArrayList<>(1);
+                fps.add(fp);
+                fingerprints.put(sidBuffer, fps);
+            }
+        }
     }
 }
