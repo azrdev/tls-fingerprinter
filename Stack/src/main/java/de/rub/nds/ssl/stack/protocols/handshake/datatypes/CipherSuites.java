@@ -3,6 +3,7 @@ package de.rub.nds.ssl.stack.protocols.handshake.datatypes;
 import de.rub.nds.ssl.stack.exceptions.UnknownCipherSuiteException;
 import de.rub.nds.ssl.stack.protocols.commons.APubliclySerializable;
 import de.rub.nds.ssl.stack.protocols.commons.ECipherSuite;
+import de.rub.nds.ssl.stack.protocols.commons.Id;
 import org.apache.log4j.Logger;
 
 import java.util.ArrayList;
@@ -38,7 +39,7 @@ public final class CipherSuites extends APubliclySerializable {
      * All cipher suites as raw byte ids, irrespective of whether a corresponding
      * ECipherSuite exists
      */
-    private List<byte[]> rawSuites = new ArrayList<>(0);
+    private List<Id> rawSuites = new ArrayList<>(0);
 
     /**
      * {@inheritDoc}
@@ -81,7 +82,7 @@ public final class CipherSuites extends APubliclySerializable {
     /**
      * @return the raw suite "id"s of all CipherSuites
      */
-    public List<byte[]> getRawSuites() {
+    public List<Id> getRawSuites() {
         return rawSuites;
     }
 
@@ -107,7 +108,7 @@ public final class CipherSuites extends APubliclySerializable {
         if(setRaw) {
             this.rawSuites = new ArrayList<>(suites.length);
             for (ECipherSuite cs : suites) {
-                rawSuites.add(cs.getId());
+                rawSuites.add(new Id(cs.getId()));
             }
         }
     }
@@ -171,7 +172,7 @@ public final class CipherSuites extends APubliclySerializable {
         for (int j = 0, i = LENGTH_LENGTH_FIELD; j < cipherSuitesCount;
                 i += ECipherSuite.LENGTH_ENCODED, j++) {
             byte[] id = new byte[]{tmpSuites[i], tmpSuites[i + 1]};
-            rawSuites.add(id);
+            rawSuites.add(new Id(id));
             try {
                 cipherSuites[j] = ECipherSuite.getCipherSuite(id);
             } catch(UnknownCipherSuiteException e) {

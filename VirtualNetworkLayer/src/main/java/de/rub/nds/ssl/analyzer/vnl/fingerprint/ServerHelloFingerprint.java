@@ -6,6 +6,7 @@ import de.rub.nds.ssl.stack.Utility;
 import de.rub.nds.ssl.stack.protocols.commons.ECipherSuite;
 import de.rub.nds.ssl.stack.protocols.commons.ECompressionMethod;
 import de.rub.nds.ssl.stack.protocols.commons.EProtocolVersion;
+import de.rub.nds.ssl.stack.protocols.commons.Id;
 import de.rub.nds.ssl.stack.protocols.handshake.ServerHello;
 import de.rub.nds.ssl.stack.protocols.handshake.datatypes.Extensions;
 
@@ -55,9 +56,9 @@ public class ServerHelloFingerprint extends Fingerprint {
 
         addSign("session-id-empty", signs[3].trim().equals("true"));
 
-        List<byte[]> extensionLayout = new ArrayList<>();
-        for(byte[] b : Serializer.deserializeList(signs[4].trim())) {
-            extensionLayout.add(b);
+        List<Id> extensionLayout = new ArrayList<>();
+        for(Id id : Serializer.deserializeList(signs[4].trim())) {
+            extensionLayout.add(id);
         }
         addSign("extensions-layout", extensionLayout);
     }

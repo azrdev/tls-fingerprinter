@@ -7,6 +7,7 @@ import de.rub.nds.ssl.stack.Utility;
 import de.rub.nds.ssl.stack.protocols.commons.ECipherSuite;
 import de.rub.nds.ssl.stack.protocols.commons.ECompressionMethod;
 import de.rub.nds.ssl.stack.protocols.commons.EProtocolVersion;
+import de.rub.nds.ssl.stack.protocols.commons.Id;
 import de.rub.nds.ssl.stack.protocols.handshake.extensions.datatypes.EExtensionType;
 import org.apache.log4j.Logger;
 
@@ -35,10 +36,14 @@ public class Serializer {
 
         if(sign instanceof Object[])
             return serializeList((Object[]) sign);
-        else if(sign instanceof byte[])
+        else if(sign instanceof byte[]) {
+            logger.debug("Serializing byte[]");
             return Utility.bytesToHex((byte[]) sign, false);
-        else if(sign instanceof Collection)
+        } else if(sign instanceof Collection)
             return serializeList((Collection) sign);
+
+        else if(sign instanceof Id)
+            return Utility.bytesToHex(((Id) sign).getBytes(), false);
         else if(sign instanceof EProtocolVersion)
             return Utility.bytesToHex(((EProtocolVersion) sign).getId(), false);
         else if(sign instanceof ECompressionMethod)
@@ -72,10 +77,10 @@ public class Serializer {
         return serializeList(Arrays.asList(arr));
     }
 
-    public static List<byte[]> deserializeList(String serialized) {
-        List<byte[]> bytes = new ArrayList<>(serialized.length());
+    public static List<Id> deserializeList(String serialized) {
+        List<Id> bytes = new ArrayList<>(serialized.length());
         for(String item : serialized.split(LIST_DELIMITER, -1)) {
-            bytes.add(Utility.hexToBytes(item.trim()));
+            bytes.add(new Id(Utility.hexToBytes(item.trim())));
         }
 
         return bytes;

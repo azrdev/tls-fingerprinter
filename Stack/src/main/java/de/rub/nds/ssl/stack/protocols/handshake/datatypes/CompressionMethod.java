@@ -3,6 +3,7 @@ package de.rub.nds.ssl.stack.protocols.handshake.datatypes;
 import de.rub.nds.ssl.stack.Utility;
 import de.rub.nds.ssl.stack.protocols.commons.APubliclySerializable;
 import de.rub.nds.ssl.stack.protocols.commons.ECompressionMethod;
+import de.rub.nds.ssl.stack.protocols.commons.Id;
 import org.apache.log4j.Logger;
 
 import java.util.ArrayList;
@@ -38,7 +39,7 @@ public final class CompressionMethod extends APubliclySerializable {
     /**
      * Compression methods - raw "id" bytes
      */
-    private List<byte[]> rawMethods = new ArrayList<>(0);
+    private List<Id> rawMethods = new ArrayList<>(0);
 
     @Override
     public String toString() {
@@ -79,7 +80,7 @@ public final class CompressionMethod extends APubliclySerializable {
      * @return the raw method "id" bytes, irrespective of whether a corresponding
      * ECompressionMethod exists
      */
-    public List<byte[]> getRawMethods() {
+    public List<Id> getRawMethods() {
         return rawMethods;
     }
 
@@ -113,7 +114,7 @@ public final class CompressionMethod extends APubliclySerializable {
         if(setRaw) {
             this.rawMethods = new ArrayList<>(methods.size());
             for (ECompressionMethod method : methods) {
-                rawMethods.add(new byte[]{method.getId()});
+                rawMethods.add(new Id(method.getId()));
             }
         }
     }
@@ -162,7 +163,7 @@ public final class CompressionMethod extends APubliclySerializable {
         newMethods = new ArrayList<>();
         for(int i = LENGTH_LENGTH_FIELD; i < methods.length; ++i) {
             ECompressionMethod method = null;
-            rawMethods.add(new byte[] {methods[i]});
+            rawMethods.add(new Id(methods[i]));
             try {
                 method = ECompressionMethod.getCompressionMethod(methods[i]);
             } catch(IllegalArgumentException e) {

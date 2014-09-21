@@ -9,7 +9,6 @@ import java.util.Map;
 
 /**
  * Fingerprinting abilities like in {@link de.rub.nds.virtualnetworklayer.fingerprint.Fingerprint}.
- * TODO: update doc
  *
  * <p>The purpose of this fingerprinting is to identify individual TLS endpoints and
  * recognize them (to detect changes on identical endpoint addresses).
@@ -17,6 +16,9 @@ import java.util.Map;
  * Contrary to that, the fingerprinting in the virtualnetworklayer tries to assign each
  * fingerprinted endpoint to one of a set of previously known classes (with Labels -
  * see {@link de.rub.nds.virtualnetworklayer.connection.pcap.PcapConnection}).</p>
+ *
+ * <b>NOTE:</b> don't ever put arrays as sign values, or you'll break things
+ * (e.g. <code>toString()</code> and <code>equals()</code>)
  *
  * @author jBiegert azrdev@qrdn.de
  */

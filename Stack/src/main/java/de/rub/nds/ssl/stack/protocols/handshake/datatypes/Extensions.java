@@ -3,6 +3,7 @@ package de.rub.nds.ssl.stack.protocols.handshake.datatypes;
 import de.rub.nds.ssl.stack.Utility;
 import de.rub.nds.ssl.stack.exceptions.UnknownTLSExtensionException;
 import de.rub.nds.ssl.stack.protocols.commons.APubliclySerializable;
+import de.rub.nds.ssl.stack.protocols.commons.Id;
 import de.rub.nds.ssl.stack.protocols.handshake.extensions.AExtension;
 import de.rub.nds.ssl.stack.protocols.handshake.extensions.datatypes.EExtensionType;
 import org.apache.log4j.Logger;
@@ -42,7 +43,7 @@ public final class Extensions extends APubliclySerializable {
      * "type" bytes of each extension, irrespective of whether the corresponding
      * {@link EExtensionType} exists or is implemented
      */
-    private List<byte[]> rawExtensionTypes = new ArrayList<>(5);
+    private List<Id> rawExtensionTypes = new ArrayList<>(5);
 
     /**
      * Initializes an extensions object as defined in RFC-2246. No extensions
@@ -76,7 +77,7 @@ public final class Extensions extends APubliclySerializable {
     /**
      * @return The raw "type" bytes of all extensions
      */
-    public List<byte[]> getRawExtensionTypes() {
+    public List<Id> getRawExtensionTypes() {
         return rawExtensionTypes;
     }
 
@@ -97,7 +98,7 @@ public final class Extensions extends APubliclySerializable {
         this.extensions.addAll(extensionsValue);
 
         for(AExtension ex : extensionsValue) {
-            rawExtensionTypes.add(ex.getExtensionType().getId());
+            rawExtensionTypes.add(new Id(ex.getExtensionType().getId()));
         }
     }
 
@@ -108,7 +109,7 @@ public final class Extensions extends APubliclySerializable {
      */
     public void addExtension(final AExtension extension) {
         this.extensions.add(extension);
-        rawExtensionTypes.add(extension.getExtensionType().getId());
+        rawExtensionTypes.add(new Id(extension.getExtensionType().getId()));
     }
 
     /**
@@ -174,7 +175,7 @@ public final class Extensions extends APubliclySerializable {
             // 1. extract extension type
             byte[] typeBytes = new byte[EExtensionType.LENGTH_ENCODED];
             System.arraycopy(payloadCopy, pointer, typeBytes, 0, typeBytes.length);
-            rawExtensionTypes.add(typeBytes);
+            rawExtensionTypes.add(new Id(typeBytes));
 	        try {
 		        extensionType = EExtensionType.getExtension(typeBytes);
 	        } catch (UnknownTLSExtensionException ex) {
@@ -197,8 +198,11 @@ public final class Extensions extends APubliclySerializable {
             // 4. add message to message list
             try {
                 extensions.add(delegateDecoding(extensionType, tmp));
-            } catch(IllegalArgumentException | NullPointerException ex) {
-                logger.debug(ex, ex);
+            } catch(IllegalArgumentException ex) {
+                logger.debug(ex);
+            } catch(NullPointerException ex) {
+                logger.debug("Unknown extension of type " +
+                        rawExtensionTypes.get(rawExtensionTypes.size() -1));
             }
         }
     }
@@ -249,7 +253,7 @@ public final class Extensions extends APubliclySerializable {
     public String toString() {
         StringBuilder sb = new StringBuilder();
         sb.append("Handshake extensions: {");
-        sb.append("\nRaw types: ").append(Utility.bytesToHexList(rawExtensionTypes));
+        sb.append("\nRaw types: ").append(rawExtensionTypes);
         for(AExtension ext : extensions) {
             sb.append("\n  ").append(ext.toString());
         }

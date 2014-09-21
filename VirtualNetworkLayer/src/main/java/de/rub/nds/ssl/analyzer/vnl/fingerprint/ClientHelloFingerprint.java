@@ -4,6 +4,7 @@ import de.rub.nds.ssl.analyzer.vnl.Connection;
 import de.rub.nds.ssl.analyzer.vnl.fingerprint.serialization.Serializer;
 import de.rub.nds.ssl.stack.Utility;
 import de.rub.nds.ssl.stack.protocols.commons.EProtocolVersion;
+import de.rub.nds.ssl.stack.protocols.commons.Id;
 import de.rub.nds.ssl.stack.protocols.handshake.ClientHello;
 import de.rub.nds.ssl.stack.protocols.handshake.datatypes.Extensions;
 
@@ -51,21 +52,21 @@ public class ClientHelloFingerprint extends Fingerprint {
 
         addSign("session-id-empty", signs[1].trim().equals("true"));
 
-        List<byte[]> compressionMethods = new ArrayList<>();
-        for(byte[] b : Serializer.deserializeList(signs[2].trim())) {
-            compressionMethods.add(b);
+        List<Id> compressionMethods = new ArrayList<>();
+        for(Id id : Serializer.deserializeList(signs[2].trim())) {
+            compressionMethods.add(id);
         }
         addSign("compression-method-list", compressionMethods);
 
-        List<byte[]> cipherSuites = new ArrayList<>();
-        for(byte[] b : Serializer.deserializeList(signs[3].trim())) {
-            cipherSuites.add(b);
+        List<Id> cipherSuites = new ArrayList<>();
+        for(Id id : Serializer.deserializeList(signs[3].trim())) {
+            cipherSuites.add(id);
         }
         addSign("cipher-suite-list", cipherSuites);
 
-        List<byte[]> extensionLayout = new ArrayList<>();
-        for(byte[] b : Serializer.deserializeList(signs[4].trim())) {
-            extensionLayout.add(b);
+        List<Id> extensionLayout = new ArrayList<>();
+        for(Id id : Serializer.deserializeList(signs[4].trim())) {
+            extensionLayout.add(id);
         }
         addSign("extensions-layout", extensionLayout);
     }
