@@ -2,9 +2,7 @@ package de.rub.nds.ssl.stack.protocols.handshake.extensions.datatypes;
 
 import de.rub.nds.ssl.stack.Utility;
 import de.rub.nds.ssl.stack.exceptions.UnknownTLSExtensionException;
-import de.rub.nds.ssl.stack.protocols.handshake.extensions.EllipticCurves;
-import de.rub.nds.ssl.stack.protocols.handshake.extensions.ServerNameList;
-import de.rub.nds.ssl.stack.protocols.handshake.extensions.SupportedPointFormats;
+import de.rub.nds.ssl.stack.protocols.handshake.extensions.*;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -109,7 +107,7 @@ public enum EExtensionType{
     /**
      * Renegotiation info (RFC5746).
      */
-    RENEGOTIATION_INFO(new byte[]{(byte) 0xFF, 0x01}, null);
+    RENEGOTIATION_INFO(new byte[]{(byte) 0xFF, 0x01}, RenegotiationInfo.class);
 
    
     /**
