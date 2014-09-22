@@ -227,9 +227,7 @@ public final class ClientHello extends AHandshakeRecord {
             throw new IllegalArgumentException("Extensions must not be null!");
         }
 
-        // deep copy
-//        this.extensions = new Extensions(extensions.encode(false));
-        // TODO fix me!
+        //TODO: deep copy
         this.extensions = extensionsValue;
     }
 

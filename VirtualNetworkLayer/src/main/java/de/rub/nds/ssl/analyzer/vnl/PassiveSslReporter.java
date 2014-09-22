@@ -15,7 +15,7 @@ import org.apache.log4j.Logger;
  */
 public class PassiveSslReporter {
 
-    private Logger logger = Logger.getRootLogger();
+    private static Logger logger = Logger.getRootLogger();
 	
 	static {
 		ConnectionHandler.registerP0fFile(P0fFile.Embedded);
@@ -74,14 +74,21 @@ public class PassiveSslReporter {
 	public static void main(String[] args) {
 		PassiveSslReporter psr = new PassiveSslReporter();
         Thread monitorThread = psr.startMonitorThread();
-		if (args.length == 0) {
-			psr.run();
-		} else {
-			for (String string : args) {
-				psr.run(string);
-			}
-		}
-        monitorThread.interrupt();
+        try {
+            if (args.length == 0) {
+                psr.run();
+            } else {
+                for (String string : args) {
+                    try {
+                        psr.run(string);
+                    } catch (IllegalArgumentException e) {
+                        logger.error(e);
+                    }
+                }
+            }
+        } finally {
+            monitorThread.interrupt();
+        }
 		System.exit(0);
 	}
 

@@ -86,7 +86,6 @@ public class Connection {
     }
 
 	private List<MessageContainer> decodeTrace() {
-        //TODO: why not merge MessageContainer and ARecordFrame ?
 		List<MessageContainer> frameList = new LinkedList<>();
 
         boolean clientCompleted = false;

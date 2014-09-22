@@ -37,7 +37,7 @@ public class EHostName extends AServerName {
 	}
 
 	/**
-	 * Set the DNS Host Name
+	 * Set the DNS Host Name. Must be ascii-only
 	 * @throws java.lang.IllegalArgumentException if no valid FQDN
 	 */
 	public void setHostName(String hostName) throws IllegalArgumentException {
@@ -83,7 +83,6 @@ public class EHostName extends AServerName {
 			throw new IllegalArgumentException("Wrong length of DNS hostname");
 		}
 
-		//TODO: this string constructor doesn't throw on non-ascii chars, does setHostName() ?
 		setHostName(new String(nameBytes, pointer, extractedLength, asciiCharset));
 	}
 

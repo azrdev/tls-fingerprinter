@@ -32,7 +32,7 @@ public class Serializer {
         if(sign == null)
             return "";
 
-        //FIXME: better mapping & dispatch of sign-type -> serialization method
+        //FIXME: better mapping & dispatch of sign-type -> serialization method. Maybe use Visitor for TLSFingerprint.serialize()
 
         if(sign instanceof Object[])
             return serializeList((Object[]) sign);

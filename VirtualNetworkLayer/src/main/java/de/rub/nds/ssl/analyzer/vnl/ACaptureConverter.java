@@ -179,7 +179,7 @@ public abstract class ACaptureConverter {
     public static ARecordFrame[] decodeRecordFrames(final byte[] record,
 			EKeyExchangeAlgorithm keyExchangeAlgorithm) {
         ARecordFrame[] decodedFrames = new ARecordFrame[1];
-        //TODO: if content type != HANDSHAKE, we only ever return 1 ARecordFrame
+        //if content type != HANDSHAKE, we only ever return 1 ARecordFrame
         switch (EContentType.getContentType(record[0])) {
             case CHANGE_CIPHER_SPEC:
                 decodedFrames[0] = new ChangeCipherSpec(record, true);
@@ -189,13 +189,14 @@ public abstract class ACaptureConverter {
                 break;
             case HANDSHAKE:
                 // try to decode the message
-                decodedFrames = new HandshakeEnumeration(record, true, keyExchangeAlgorithm).
-                        getMessages();
+                decodedFrames = new HandshakeEnumeration(record, true,
+                        keyExchangeAlgorithm).getMessages();
                 // very likely to deal with an encrypted message
                 if (decodedFrames == null
                         || decodedFrames.length < 1
                         || decodedFrames[0] == null) {
-                    logger.warn("decoding handshake messages failed! " + Arrays.toString(decodedFrames));
+                    logger.warn("decoding handshake messages failed! " +
+                            Arrays.toString(decodedFrames));
                 }
                 break;
             case APPLICATION:
@@ -213,6 +214,5 @@ public abstract class ACaptureConverter {
     /**
      * Utility class - private constructor.
      */
-    private ACaptureConverter() {
-    }
+    private ACaptureConverter() {}
 }

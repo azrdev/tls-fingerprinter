@@ -1,7 +1,10 @@
 package de.rub.nds.ssl.stack.protocols.handshake.datatypes;
 
+import de.rub.nds.ssl.stack.Utility;
 import de.rub.nds.ssl.stack.protocols.commons.APubliclySerializable;
 import de.rub.nds.ssl.stack.protocols.commons.PseudoRandomFunction;
+import org.apache.log4j.Logger;
+
 import java.security.InvalidKeyException;
 
 /**
@@ -13,6 +16,7 @@ import java.security.InvalidKeyException;
  * Feb 16, 2012
  */
 public class MasterSecret extends APubliclySerializable {
+    private static Logger logger = Logger.getLogger(MasterSecret.class);
 
     /**
      * Minimum length of the encoded form.
@@ -106,6 +110,6 @@ public class MasterSecret extends APubliclySerializable {
 
     @Override
     public void decode(final byte[] message, final boolean chained) {
-        // TODO Auto-generated method stub
+        logger.warn("decode() not implemented. message: " + Utility.bytesToHex(message));
     }
 }

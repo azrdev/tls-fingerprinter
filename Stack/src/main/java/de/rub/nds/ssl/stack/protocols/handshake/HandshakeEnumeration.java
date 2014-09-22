@@ -1,5 +1,6 @@
 package de.rub.nds.ssl.stack.protocols.handshake;
 
+import de.rub.nds.ssl.stack.exceptions.UnknownHandshakeMessageTypeException;
 import de.rub.nds.ssl.stack.protocols.ARecordFrame;
 import de.rub.nds.ssl.stack.protocols.commons.EProtocolVersion;
 import de.rub.nds.ssl.stack.protocols.handshake.datatypes.EKeyExchangeAlgorithm;
@@ -134,9 +135,12 @@ final public class HandshakeEnumeration extends ARecordFrame {
 
             // 4. add message to message list
             try {
-                tmpHandshakeMsg = delegateDecoding(tmpMessageType, tmpMessage);
+                EMessageType messageType = EMessageType.getMessageType(tmpMessageType);
+                tmpHandshakeMsg = delegateDecoding(messageType, tmpMessage);
                 msgObserve.statusChanged(tmpHandshakeMsg);
                 messages.add(tmpHandshakeMsg);
+            } catch (UnknownHandshakeMessageTypeException e) {
+                logger.warn(e);
             } catch (IllegalArgumentException e) {
                 logger.warn("cannot decode Handshake record: " + e);
             }
@@ -150,17 +154,16 @@ final public class HandshakeEnumeration extends ARecordFrame {
      * @param message Message to decode
      * @return A decoded handshake record object
      */
-    private AHandshakeRecord delegateDecoding(final byte messageType,
+    private AHandshakeRecord delegateDecoding(final EMessageType messageType,
             final byte[] message) {
         AHandshakeRecord result = null;
-        EMessageType type = EMessageType.getMessageType(messageType);
         EProtocolVersion version = this.getProtocolVersion();
 
         // invoke decode
-        Class<AHandshakeRecord> implClass = type.getImplementingClass();
+        Class<AHandshakeRecord> implClass = messageType.getImplementingClass();
         if (implClass == null) {
             throw new IllegalArgumentException(
-                    "No Implementation found for Handshake message type " + type);
+                    "No Implementation found for Handshake message type " + messageType);
         }
         
         try {
@@ -175,7 +178,7 @@ final public class HandshakeEnumeration extends ARecordFrame {
                         .getConstructor(parameter);
                 result = constructor.newInstance(message,
                         keyEKeyExchangeAlgorithm, false);
-                result.setMessageType(type);
+                result.setMessageType(messageType);
 
                 // set protocol version
                 Method setProtocolVersion = ARecordFrame.class
@@ -190,7 +193,7 @@ final public class HandshakeEnumeration extends ARecordFrame {
                 Constructor<AHandshakeRecord> constructor = implClass
                         .getConstructor(parameter);
                 result = constructor.newInstance(message, false);
-                result.setMessageType(type);
+                result.setMessageType(messageType);
 
                 // set protocol version
                 Method setProtocolVersion = ARecordFrame.class
@@ -201,14 +204,12 @@ final public class HandshakeEnumeration extends ARecordFrame {
             }
         } catch (InstantiationException |
                 IllegalAccessException |
-                InvocationTargetException ex) {
+                NoSuchMethodException ex) {
+            throw new IllegalArgumentException("could not decode handshake message " + ex);
+        } catch(InvocationTargetException ex) {
             // InvocationTargetException happens with ClientKeyExchange message -
             // TODO why and when? (CM)
-            logger.warn("could not decode handshake message " + ex, ex);
-        } catch (NoSuchMethodException ex) {
-            logger.warn("Could not find a suitable method for type "
-                    + type + " and class " + implClass.getCanonicalName());
-            ex.printStackTrace();
+            throw new IllegalArgumentException(ex.getCause());
         }
         return result;
     }
