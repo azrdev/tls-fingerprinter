@@ -72,8 +72,8 @@ public final class ECPoint extends APubliclySerializable {
     /**
      * {@inheritDoc}
      *
-     * ECCurve representation 1 byte a + 1 byte b. Chained parameter is ignored
-     * - no chained encoding.
+     * ECCurve representation 1 byte a + 1 byte b. 
+     * @param chained parameter is ignored - no chained encoding.
      */
     @Override
     public byte[] encode(final boolean chained) {
@@ -100,7 +100,7 @@ public final class ECPoint extends APubliclySerializable {
     /**
      * {@inheritDoc}
      *
-     * Chained parameter is ignored - no chained decoding.
+     * @param chained parameter is ignored - no chained decoding.
      */
     @Override
     public void decode(final byte[] message, final boolean chained) {

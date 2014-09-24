@@ -110,7 +110,8 @@ public final class ECCurve extends APubliclySerializable {
      * {@inheritDoc}
      *
      * ECCurve representation 1 byte a length + 1 byte a + 1 byte b length + 1
-     * byte b. Chained parameter is ignored - no chained encoding.
+     * byte b. 
+     * @param chained parameter is ignored - no chained encoding.
      */
     @Override
     public byte[] encode(final boolean chained) {

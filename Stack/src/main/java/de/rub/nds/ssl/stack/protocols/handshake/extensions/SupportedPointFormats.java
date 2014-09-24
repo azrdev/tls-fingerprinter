@@ -121,18 +121,17 @@ public final class SupportedPointFormats extends AExtension {
         }
         
         formatsCount = (extractLength(tmp, 0, LENGTH_LENGTH_FIELD)) & 0xff;
-        if (tmp.length - LENGTH_LENGTH_FIELD != formatsCount
-                * EECPointFormat.LENGTH_ENCODED) {
+        if (tmp.length - LENGTH_LENGTH_FIELD !=
+                formatsCount * EECPointFormat.LENGTH_ENCODED) {
             throw new IllegalArgumentException(
                     "EC Point Formats extension length invalid.");
         }
 
         // extract point formats
-        EECPointFormat[] extractedPointFormats =
-                new EECPointFormat[formatsCount];
+        EECPointFormat[] extractedPointFormats = new EECPointFormat[formatsCount];
         for (int j = 0; j < formatsCount; j++) {
-            extractedPointFormats[j] = EECPointFormat.getECPointFormat(
-                    tmp[j + LENGTH_LENGTH_FIELD]);
+            extractedPointFormats[j] =
+                    EECPointFormat.getECPointFormat(tmp[j + LENGTH_LENGTH_FIELD]);
         }
         setSupportedPointFormats(extractedPointFormats);
     }

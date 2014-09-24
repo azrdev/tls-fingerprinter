@@ -117,7 +117,7 @@ public final class ClientECDHPublic extends APubliclySerializable
     /**
      * {@inheritDoc}
      *
-     * Chained parameter is ignored - no chained encoding.
+     * @param chained parameter is ignored - no chained encoding.
      */
     @Override
     public byte[] encode(final boolean chained) {

@@ -435,7 +435,7 @@ public final class ECParameters extends APubliclySerializable {
     /**
      * {@inheritDoc}
      *
-     * Chained parameter is ignored - no chained encoding.
+     * @param chained parameter is ignored - no chained encoding.
      */
     @Override
     public byte[] encode(final boolean chained) {
@@ -464,7 +464,8 @@ public final class ECParameters extends APubliclySerializable {
     }
 
     /**
-     * {@inheritDoc} Chained parameter is ignored - no chained decoding.
+     * {@inheritDoc} 
+     * @param chained parameter is ignored - no chained decoding.
      */
     @Override
     public void decode(final byte[] message, final boolean chained) {
