@@ -68,7 +68,9 @@ public class RenegotiationInfo extends AExtension {
                 renegotiatedConnection.length);
 
         setExtensionData(extensionBytes);
-        return super.encode(chained);
+        if(chained)
+            return super.encode(chained);
+        return extensionBytes;
     }
 
     @Override

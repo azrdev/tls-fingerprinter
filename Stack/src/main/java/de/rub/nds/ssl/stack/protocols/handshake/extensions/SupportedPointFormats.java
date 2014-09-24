@@ -41,7 +41,7 @@ public final class SupportedPointFormats extends AExtension {
      * @param message Supported Point Formats Extension in encoded form
      */
     public SupportedPointFormats(final byte[] message) {
-        this.decode(message, false);
+        this.decode(message, true);
     }
 
     /**
@@ -103,14 +103,15 @@ public final class SupportedPointFormats extends AExtension {
 
     /**
      * {@inheritDoc}
-     *
-     * Method parameter will be ignored - no support for chained decoding.
      */
     @Override
     public void decode(final byte[] message, final boolean chained) {
+        if(chained)
+            super.decode(message, chained);
+        else
+            setExtensionData(message);
+
         final int formatsCount;
-        // deep copy
-        super.decode(message, true);
         final byte[] tmp = getExtensionData();
         
         // check size

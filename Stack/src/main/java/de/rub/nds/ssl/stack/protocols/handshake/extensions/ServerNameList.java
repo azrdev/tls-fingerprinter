@@ -10,7 +10,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Server Name extension as defined in RFC 6066
+ * Server Name extension as defined in RFC 6066.
+ *
+ * This implements Server Name Indication (SNI).
  *
  * @author jBiegert azrdev@qrdn.de
  */
@@ -44,7 +46,7 @@ public final class ServerNameList extends AExtension {
      * @param message Server Name Extension in encoded form
      */
     public ServerNameList(final byte[] message) {
-        this.decode(message, false);
+        this.decode(message, true);
     }
 
     public List<AServerName> getServerNames() {
@@ -91,11 +93,14 @@ public final class ServerNameList extends AExtension {
 
     /**
      * {@inheritDoc}
-     * @param chained <b>ignored</b>, chained decoding not supported
      */
     @Override
     public void decode(final byte[] message, final boolean chained) {
-        super.decode(message, chained);
+        if(chained)
+            super.decode(message, chained);
+        else
+            setExtensionData(message);
+
         final byte[] rawNames = getExtensionData();
         List<AServerName> serverNames = new ArrayList<>(1);
         int pointer = 0;
