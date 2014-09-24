@@ -181,6 +181,7 @@ public class PseudoRandomFunction {
                 currentHash = a1;
                 break;
             default:
+                //TODO: support other Hash Algorithms in EHashAlgorithm
                 break;
         }
         int pointer = 0;

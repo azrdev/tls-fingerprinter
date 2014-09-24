@@ -76,7 +76,7 @@ public enum EExtensionType{
     /**
      * Signature algorithms (RFC5246).
      */
-    SIGNATURE_ALGORITHMS(new byte[]{0x00, 0x0D}, null),
+    SIGNATURE_ALGORITHMS(new byte[]{0x00, 0x0D}, SupportedSignatureAlgorithms.class),
     /**
      * Use SRTP (RFC5764).
      */
