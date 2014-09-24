@@ -96,14 +96,14 @@ public enum EExtensionType{
 	SIGNED_CERTIFICATE_TIMESTAMP(new byte[]{0x00, 0x12}, null),
 
 	/**
-	 * Padding (draft <http://www.iana.org/go/draft-agl-tls-padding>)
+	 * Padding (draft http://www.iana.org/go/draft-agl-tls-padding)
 	 */
 	PADDING(new byte[]{0x00, 0x15}, null),
 
     /**
-     * Session ticket TLS (RFC4507).
+     * Session ticket TLS (RFC5077).
      */
-    SESSION_TICKET_TLS(new byte[]{0x00, 0x23}, null),
+    SESSION_TICKET_TLS(new byte[]{0x00, 0x23}, SessionTicket.class),
     /**
      * Renegotiation info (RFC5746).
      */
