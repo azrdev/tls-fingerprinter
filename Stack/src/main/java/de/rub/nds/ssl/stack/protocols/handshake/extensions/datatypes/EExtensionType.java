@@ -44,7 +44,7 @@ public enum EExtensionType{
     /**
      * Status Request (RFC6066).
      */
-    STATUS_REQUEST(new byte[]{0x00, 0x05}, null),
+    STATUS_REQUEST(new byte[]{0x00, 0x05}, CertificateStatusRequest.class),
     /**
      * User mapping (RFC4681).
      */
