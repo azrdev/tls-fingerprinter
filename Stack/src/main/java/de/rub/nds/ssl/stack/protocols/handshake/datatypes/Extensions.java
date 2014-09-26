@@ -196,13 +196,12 @@ public final class Extensions extends APubliclySerializable {
             pointer += tmp.length;
 
             // 4. add message to message list
-            try {
-                extensions.add(delegateDecoding(extensionType, tmp));
-            } catch(IllegalArgumentException ex) {
-                logger.debug(ex);
-            } catch(NullPointerException ex) {
-                logger.debug("Unknown extension of type " +
-                        rawExtensionTypes.get(rawExtensionTypes.size() -1));
+            if(extensionType != null) {
+                try {
+                    extensions.add(delegateDecoding(extensionType, tmp));
+                } catch (IllegalArgumentException ex) {
+                    logger.debug(ex);
+                }
             }
         }
     }
