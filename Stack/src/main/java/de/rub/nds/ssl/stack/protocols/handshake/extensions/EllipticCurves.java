@@ -119,11 +119,10 @@ public final class EllipticCurves extends AExtension {
             throw new IllegalArgumentException(
                     "Elliptic curves extension too short.");
         }
-        curvesCount = (extractLength(tmpCurves, 0,
-                LENGTH_LENGTH_FIELD) >> 1) & 0xff;
+        curvesCount = (extractLength(tmpCurves, 0, LENGTH_LENGTH_FIELD) >> 1) & 0xff;
 
-        if (tmpCurves.length - LENGTH_LENGTH_FIELD != curvesCount
-                * ENamedCurve.LENGTH_ENCODED) {
+        if (tmpCurves.length - LENGTH_LENGTH_FIELD !=
+                curvesCount * ENamedCurve.LENGTH_ENCODED) {
             throw new IllegalArgumentException(
                     "Elliptic Curves extension length invalid.");
         }

@@ -3,6 +3,7 @@ package de.rub.nds.ssl.stack.protocols.handshake.extensions;
 import de.rub.nds.ssl.stack.protocols.handshake.extensions.datatypes.EExtensionType;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -56,6 +57,7 @@ public class SignedCertificateTimestamp extends AExtension {
         int pointer = 0;
 
         if(extensionData.length == 0) {
+            setSignedCertificateTimestampList(Collections.EMPTY_LIST);
             return;
         }
 

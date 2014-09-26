@@ -9,7 +9,7 @@ import java.nio.charset.StandardCharsets;
  *
  * @author jBiegert azrdev@qrdn.de
  */
-public class EHostName extends AServerName {
+public class HostName extends AServerName {
 
     /**
      * Length of the length field.
@@ -27,12 +27,12 @@ public class EHostName extends AServerName {
 	/**
 	 * Initializes a Host Name with an empty String.
 	 */
-	public EHostName() {}
+	public HostName() {}
 
 	/**
 	 * Initializes a Host Name.
 	 */
-	public EHostName(final byte[] encoded) {
+	public HostName(final byte[] encoded) {
 		this.decode(encoded, false);
 	}
 

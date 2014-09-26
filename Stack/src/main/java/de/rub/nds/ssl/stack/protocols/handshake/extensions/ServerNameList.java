@@ -7,7 +7,9 @@ import de.rub.nds.ssl.stack.protocols.handshake.extensions.exceptions.UnknownSer
 import org.apache.log4j.Logger;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * Server Name extension as defined in RFC 6066.
@@ -54,6 +56,9 @@ public final class ServerNameList extends AExtension {
     }
 
     public void setServerNames(List<AServerName> serverNames) {
+        if(serverNames == null)
+            throw new IllegalArgumentException("ServerName List must not be null");
+
         this.serverNames = serverNames;
     }
 
@@ -107,7 +112,7 @@ public final class ServerNameList extends AExtension {
 
         // check length
         if(rawNames.length == 0) {
-            setServerNames(new ArrayList<AServerName>(0));
+            setServerNames(Collections.EMPTY_LIST);
             return;
         }
 

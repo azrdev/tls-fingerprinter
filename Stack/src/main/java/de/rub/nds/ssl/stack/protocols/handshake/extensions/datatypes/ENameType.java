@@ -15,7 +15,7 @@ public enum ENameType {
 	/**
 	 * Server name is a DNS hostname
 	 */
-	HOST_NAME((byte) 0x00, EHostName.class);
+	HOST_NAME((byte) 0x00, HostName.class);
 
 	private final byte id;
 	private final Class implementingClass;
@@ -51,7 +51,7 @@ public enum ENameType {
 	public AServerName getInstance(final byte[] message) {
 		switch (this) {
 			case HOST_NAME:
-				return new EHostName(message);
+				return new HostName(message);
 			default:
 				throw new IllegalArgumentException("No class implementing " + this);
 		}
