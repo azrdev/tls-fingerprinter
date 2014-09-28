@@ -4,6 +4,7 @@ import de.rub.nds.ssl.stack.protocols.commons.EProtocolVersion;
 import de.rub.nds.ssl.stack.protocols.handshake.datatypes.*;
 import static de.rub.nds.ssl.stack.protocols.handshake.datatypes.EKeyExchangeAlgorithm.DIFFIE_HELLMAN;
 import de.rub.nds.ssl.stack.protocols.handshake.extensions.datatypes.ClientECDHPublic;
+import org.apache.log4j.Logger;
 
 /**
  * Defines the ClientKeyExchange message of SSL/TLS as defined in RFC 2246.
@@ -14,6 +15,7 @@ import de.rub.nds.ssl.stack.protocols.handshake.extensions.datatypes.ClientECDHP
  * Jan 10, 2011
  */
 public final class ClientKeyExchange extends AHandshakeRecord {
+    private static Logger logger = Logger.getLogger(ClientKeyExchange.class);
 
     /**
      * Minimum length of the encoded form.
@@ -208,7 +210,9 @@ public final class ClientKeyExchange extends AHandshakeRecord {
         // payload already deep copied
         payloadCopy = getPayload();
 
-        // check size
+        if(keyExchangeAlgorithm == null)
+            throw new IllegalStateException("KeyExchangeAlgorithm null");
+
         switch (keyExchangeAlgorithm) {
             case DIFFIE_HELLMAN:
                 if (payloadCopy.length < ClientDHPublic.LENGTH_MINIMUM_ENCODED) {
@@ -232,6 +236,8 @@ public final class ClientKeyExchange extends AHandshakeRecord {
                 exchangeKeys = new ClientECDHPublic(payloadCopy);
                 break;
             default:
+                logger.debug("ClientKeyExchange.decode not implemented for " +
+                        keyExchangeAlgorithm);
                 break;
         }
 

@@ -1,12 +1,20 @@
 package de.rub.nds.ssl.stack.protocols.msgs.datatypes;
 
+import de.rub.nds.ssl.stack.exceptions.SignatureInvalidException;
+import de.rub.nds.ssl.stack.exceptions.UnknownHashAlgorithmException;
+import de.rub.nds.ssl.stack.exceptions.UnknownSignatureAlgorithmException;
 import de.rub.nds.ssl.stack.protocols.commons.APubliclySerializable;
 import de.rub.nds.ssl.stack.protocols.commons.KeyExchangeParams;
 import de.rub.nds.ssl.stack.protocols.handshake.datatypes.ESignatureAlgorithm;
+import de.rub.nds.ssl.stack.protocols.handshake.extensions.datatypes.SignatureAndHashAlgorithm;
+
+import java.util.Arrays;
 
 /**
  * TLS signature as defined in RFC 2246. The signature algorithms DSA and RSA
  * are supported.
+ *
+ * TODO: rework this whole class :-/
  *
  * @author Eugen Weiss - eugen.weiss@ruhr-uni-bochum.de
  * @version 0.1 May 03, 2012
@@ -26,10 +34,6 @@ public class TLSSignature extends APubliclySerializable {
      */
     private byte[] serverParams;
     /**
-     * Max. count of parameters in ServerKeyExchange message.
-     */
-    private static final int MAX_COUNT_PARAM = 4;
-    /**
      * Signature value.
      */
     private byte[] sigValue = null;
@@ -46,12 +50,15 @@ public class TLSSignature extends APubliclySerializable {
     /**
      * Initialize a TLS signature as defined in RFC 2246.
      *
-     * @param message Handshake message bytes
+     * @param encodedSignature The Signature in encoded form
+     * @param message The bytes the signature is calculated for
      */
-    public TLSSignature(final byte[] message) {
+    public TLSSignature(final byte[] encodedSignature, final byte[] message) {
         KeyExchangeParams keyParams = KeyExchangeParams.getInstance();
         this.sigAlgorithm = keyParams.getSignatureAlgorithm();
-        this.decode(message, false);
+
+        this.setServerParams(message);
+        this.decode(encodedSignature, false);
     }
 
     /**
@@ -64,16 +71,23 @@ public class TLSSignature extends APubliclySerializable {
      */
     public final boolean checkSignature(final byte[] signature) {
         KeyExchangeParams keyParams = KeyExchangeParams.getInstance();
-        boolean valid = false;
         ISignature sign;
-        if (this.sigAlgorithm == ESignatureAlgorithm.RSA) {
-            sign = new RSASignature(getServerParams());
-            valid = sign.checkSignature(signature, keyParams.getPublicKey());
-        } else {
-            sign = new DSASignature(getServerParams());
-            valid = sign.checkSignature(signature, keyParams.getPublicKey());
+
+        if(sigAlgorithm == null)
+            throw new IllegalArgumentException(
+                    "Cannot check signature: SignatureAlgorithm null");
+
+        switch(sigAlgorithm) {
+            case RSA:
+                sign = new RSASignature(getServerParams());
+                return sign.checkSignature(signature, keyParams.getPublicKey());
+            case DSS:
+                sign = new DSASignature(getServerParams());
+                return sign.checkSignature(signature, keyParams.getPublicKey());
+            default:
+                throw new IllegalArgumentException(
+                        "Signature check not implemented for " + sigAlgorithm);
         }
-        return valid;
     }
 
     /**
@@ -81,11 +95,8 @@ public class TLSSignature extends APubliclySerializable {
      */
     @Override
     public final byte[] encode(final boolean chained) {
-        /*
-         * To be implemented.
-         */
-        byte[] tmp = new byte[0];
-        return tmp;
+        //TODO: implement TLSSignature.encode()
+        return new byte[0];
     }
 
     /**
@@ -93,49 +104,74 @@ public class TLSSignature extends APubliclySerializable {
      */
     @Override
     public final void decode(final byte[] message, final boolean chained) {
-        int extractedLength;
         int sigLength = 0;
         byte[] tmpBytes;
+        int pointer = 0;
+
         // deep copy
         final byte[] paramCopy = new byte[message.length];
         System.arraycopy(message, 0, paramCopy, 0, paramCopy.length);
 
-        if (sigAlgorithm == ESignatureAlgorithm.anon) {
-            /*
-             * if signature algorithm is set to "anonymous" no signature value
-             * was added
-             */
-            setSignatureValue(new byte[0]);
-        } else {
-            int pointer = 0;
-            //XXX: invalid length? -> AIOOBException
-            for (int i = 0; i < MAX_COUNT_PARAM; i++) {
-                extractedLength = extractLength(paramCopy, pointer,
-                        LENGTH_LENGTH_FIELD);
-                pointer += LENGTH_LENGTH_FIELD + extractedLength;
-                if (pointer == paramCopy.length) {
-                    sigLength = extractedLength;
-                    pointer -= extractedLength;
-                    break;
+        /*TODO: get protocol version to decide if signature contains
+        SignatureAndHashAlgorithm
+
+        if(sigAlgorithm == null) {
+            // TLS >= 1.2 contains a SignatureAndHashAlgorithm spec in the signature
+            if(paramCopy.length >= SignatureAndHashAlgorithm.LENGTH_ENCODED) {
+                byte[] tmp = Arrays.copyOfRange(paramCopy, 0,
+                        SignatureAndHashAlgorithm.LENGTH_ENCODED);
+                try {
+                    SignatureAndHashAlgorithm algorithms = new SignatureAndHashAlgorithm(tmp);
+
+                    this.sigAlgorithm = algorithms.getSignatureAlgorithm();
+                    pointer += SignatureAndHashAlgorithm.LENGTH_ENCODED;
+                } catch(UnknownSignatureAlgorithmException |
+                        UnknownHashAlgorithmException ex) {
+                    // either unimplemented or protocol version < 1.2 => no algorithm fields
                 }
             }
-            // extract signature
-            tmpBytes = new byte[sigLength];
-            System.arraycopy(paramCopy, pointer, tmpBytes, 0, tmpBytes.length);
-            setSignatureValue(tmpBytes);
-            //extract serverParams
-            byte[] parameters = new byte[paramCopy.length - (sigLength + 2)];
-            System.arraycopy(paramCopy, 0, parameters, 0,
-                    paramCopy.length - (sigLength + 2));
-            setServerParams(parameters);
-            // TODO: Re-Enable the signature check
-//            if (!(checkSignature(tmpBytes))) {
-//                try {
-//                    throw new Exception("Signature invalid");
-//                } catch (Exception e) {
-//                    e.printStackTrace();
-//                }
-//            }
+        }
+        */
+
+        if(sigAlgorithm == null)
+            throw new IllegalStateException("Could not determine SignatureAlgorithm");
+
+        switch(sigAlgorithm) {
+            case anon:
+                /*
+                 * if signature algorithm is set to "anonymous" no signature value
+                 * was added
+                 */
+                setSignatureValue(new byte[0]);
+                break;
+
+            case RSA:
+            case DSS:
+                if(pointer + LENGTH_LENGTH_FIELD > paramCopy.length)
+                    throw new IllegalArgumentException("Signature too short");
+
+                // extract signature length
+                sigLength = extractLength(paramCopy, pointer, LENGTH_LENGTH_FIELD);
+                pointer += LENGTH_LENGTH_FIELD;
+                if(pointer + sigLength > paramCopy.length)
+                    throw new IllegalArgumentException("Signature length field invalid");
+
+                // extract signature
+                tmpBytes = new byte[sigLength];
+                System.arraycopy(paramCopy, pointer, tmpBytes, 0, tmpBytes.length);
+                setSignatureValue(tmpBytes);
+
+                if (!(checkSignature(getSignatureValue()))) {
+                    throw new SignatureInvalidException();
+                }
+
+                break;
+
+            case ECDSA:
+
+            default:
+                throw new IllegalArgumentException(
+                        "Signature not implemented for " + sigAlgorithm);
         }
     }
 

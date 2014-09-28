@@ -8,6 +8,9 @@ import de.rub.nds.ssl.stack.protocols.handshake.datatypes.ServerDHParams;
 import de.rub.nds.ssl.stack.protocols.handshake.datatypes.ServerECDHParams;
 import de.rub.nds.ssl.stack.protocols.handshake.datatypes.ServerRSAParams;
 import de.rub.nds.ssl.stack.protocols.msgs.datatypes.TLSSignature;
+import org.apache.log4j.Logger;
+
+import java.util.Arrays;
 
 /**
  * Defines the ServerKeyExchange message of SSL/TLS as defined in RFC 2246.
@@ -19,6 +22,7 @@ import de.rub.nds.ssl.stack.protocols.msgs.datatypes.TLSSignature;
  * Apr 17, 2012
  */
 public class ServerKeyExchange extends AHandshakeRecord {
+    private static Logger logger = Logger.getLogger(ServerKeyExchange.class);
 
     /**
      * Key exchange algorithm used in the handshake.
@@ -33,6 +37,12 @@ public class ServerKeyExchange extends AHandshakeRecord {
      */
     private TLSSignature signature;
 
+    private void setKeyExchangeAlgorithm(EKeyExchangeAlgorithm kea) {
+        this.keyExchangeAlgorithm = kea;
+        KeyExchangeParams keyExchangeParams = KeyExchangeParams.getInstance();
+        keyExchangeParams.setKeyExchangeAlgorithm(kea);
+    }
+
     /**
      * Initializes a ServerKeyExchange message as defined in RFC 2246.
      *
@@ -44,8 +54,7 @@ public class ServerKeyExchange extends AHandshakeRecord {
         // dummy call - decoding will invoke decoders of the parents if desired
         super();
         KeyExchangeParams keyParams = KeyExchangeParams.getInstance();
-        this.keyExchangeAlgorithm =
-                keyParams.getKeyExchangeAlgorithm();
+        this.setKeyExchangeAlgorithm(keyParams.getKeyExchangeAlgorithm());
         this.decode(message, chained);
     }
 
@@ -61,7 +70,7 @@ public class ServerKeyExchange extends AHandshakeRecord {
             final boolean chained) {
         // dummy call - decoding will invoke decoders of the parents if desired
         super();
-        this.keyExchangeAlgorithm = exchangeAlgorithm;
+        this.setKeyExchangeAlgorithm(exchangeAlgorithm);
         this.setMessageType(EMessageType.SERVER_KEY_EXCHANGE);
         this.decode(message, chained);
     }
@@ -75,9 +84,7 @@ public class ServerKeyExchange extends AHandshakeRecord {
     public ServerKeyExchange(final EProtocolVersion protocolVersion,
             final EKeyExchangeAlgorithm exchangeAlgorithm) {
         super(protocolVersion, EMessageType.SERVER_KEY_EXCHANGE);
-        this.keyExchangeAlgorithm = exchangeAlgorithm;
-        KeyExchangeParams keyParams = KeyExchangeParams.getInstance();
-        keyParams.setKeyExchangeAlgorithm(exchangeAlgorithm);
+        this.setKeyExchangeAlgorithm(exchangeAlgorithm);
     }
 
     /**
@@ -86,25 +93,19 @@ public class ServerKeyExchange extends AHandshakeRecord {
      * @return Key exchange keys of this message
      */
     public final IExchangeKeys getExchangeKeys() {
-        IExchangeKeys keys = null;
         byte[] tmp;
 
         tmp = this.exchangeKeys.encode(false);
         switch (this.keyExchangeAlgorithm) {
             case DIFFIE_HELLMAN:
-                keys = new ServerDHParams(tmp);
-                break;
+                return new ServerDHParams(tmp);
             case RSA:
-                keys = new ServerRSAParams(tmp);
-                break;
+                return new ServerRSAParams(tmp);
             case EC_DIFFIE_HELLMAN:
-                keys = new ServerECDHParams(tmp);
-                break;
+                return new ServerECDHParams(tmp);
             default:
-                break;
+                return null;
         }
-
-        return keys;
     }
 
     /**
@@ -113,7 +114,9 @@ public class ServerKeyExchange extends AHandshakeRecord {
     @Override
     public final void decode(final byte[] message, final boolean chained) {
         byte[] payloadCopy;
-        byte[] tmp;
+        byte[] params;
+        int pointer = 0;
+
         if (chained) {
             super.decode(message, true);
         } else {
@@ -122,6 +125,10 @@ public class ServerKeyExchange extends AHandshakeRecord {
 
         // payload already deep copied
         payloadCopy = getPayload();
+
+        // security parameters
+        if(keyExchangeAlgorithm == null)
+            throw new IllegalStateException("KeyExchangeAlgorithm null");
 
         switch (keyExchangeAlgorithm) {
             case DIFFIE_HELLMAN:
@@ -137,10 +144,26 @@ public class ServerKeyExchange extends AHandshakeRecord {
                 break;
         }
 
-        tmp = exchangeKeys.encode(false);
-        tmp = new byte[payloadCopy.length - tmp.length];
-        System.arraycopy(payloadCopy, payloadCopy.length - tmp.length,
-                tmp, 0, tmp.length);
-        signature = new TLSSignature(tmp);
+        /*
+         * maybe better make Server*Params an abstract class,
+         * which extracts & checks signature itself
+         */
+
+        // get the part of payloadCopy that was captured by the parameters (esp. its length)
+        params = exchangeKeys.encode(false);
+        if(params.length > payloadCopy.length) {
+            throw new IllegalArgumentException(
+                    "Error parsing ServerKeyExchange Parameters");
+        }
+        pointer += params.length;
+
+        // signature over parameters
+        byte[] signatureBytes = Arrays.copyOfRange(payloadCopy, pointer,
+                payloadCopy.length);
+        try {
+            signature = new TLSSignature(signatureBytes, params);
+        } catch(IllegalArgumentException|IllegalStateException ex) {
+            logger.warn("Error checking signature in ServerKeyExchange: " + ex);
+        }
     }
 }

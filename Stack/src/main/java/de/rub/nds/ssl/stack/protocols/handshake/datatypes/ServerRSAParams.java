@@ -90,18 +90,23 @@ public class ServerRSAParams extends APubliclySerializable implements
 
         int pointer = 0;
         // 1. extract the RSA modulus
-        extractedLength = extractLength(paramCopy, 0, LENGTH_LENGTH_FIELD);
-        tmpBytes = new byte[extractedLength];
+        extractedLength = extractLength(paramCopy, pointer, LENGTH_LENGTH_FIELD);
         pointer += LENGTH_LENGTH_FIELD;
+        if(pointer + extractedLength > paramCopy.length) {
+            throw new IllegalArgumentException("RSA modulus field too short.");
+        }
+        tmpBytes = new byte[extractedLength];
         System.arraycopy(paramCopy, pointer, tmpBytes, 0, tmpBytes.length);
         setRsaModulus(tmpBytes);
         pointer += tmpBytes.length;
 
         // 2. extract the RSA exponent
-        extractedLength = extractLength(paramCopy, pointer,
-                LENGTH_LENGTH_FIELD);
-        tmpBytes = new byte[extractedLength];
+        extractedLength = extractLength(paramCopy, pointer, LENGTH_LENGTH_FIELD);
         pointer += LENGTH_LENGTH_FIELD;
+        if(pointer + extractedLength > paramCopy.length) {
+            throw new IllegalArgumentException("RSA exponent field too short.");
+        }
+        tmpBytes = new byte[extractedLength];
         System.arraycopy(paramCopy, pointer, tmpBytes, 0, tmpBytes.length);
         setRsaExponent(tmpBytes);
 

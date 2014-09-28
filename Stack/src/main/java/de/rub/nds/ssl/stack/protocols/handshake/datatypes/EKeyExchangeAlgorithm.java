@@ -8,6 +8,8 @@ package de.rub.nds.ssl.stack.protocols.handshake.datatypes;
  */
 public enum EKeyExchangeAlgorithm {
 
+    //TODO: support all values of KeyExchangeAlgorithm: dhe_dss, dhe_rsa, dh_anon, rsa, dh_dss, dh_rsa
+
     /**
      * RSA key exchange.
      */

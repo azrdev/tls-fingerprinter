@@ -85,7 +85,6 @@ final public class HandshakeEnumeration extends ARecordFrame {
         byte[] tmpMessage;
         byte tmpMessageType;
         int tmpMessageLength;
-        AHandshakeRecord tmpHandshakeMsg;
         MessageObservable msgObserve = MessageObservable.getInstance();
         int pointer = 0;
 
@@ -136,9 +135,15 @@ final public class HandshakeEnumeration extends ARecordFrame {
             // 4. add message to message list
             try {
                 EMessageType messageType = EMessageType.getMessageType(tmpMessageType);
-                tmpHandshakeMsg = delegateDecoding(messageType, tmpMessage);
-                msgObserve.statusChanged(tmpHandshakeMsg);
-                messages.add(tmpHandshakeMsg);
+                AHandshakeRecord handshakeMsg = delegateDecoding(messageType, tmpMessage);
+                msgObserve.statusChanged(handshakeMsg);
+                messages.add(handshakeMsg);
+
+                if(handshakeMsg.getMessageType() == EMessageType.SERVER_HELLO) {
+                    ServerHello sh = (ServerHello) handshakeMsg;
+                    keyEKeyExchangeAlgorithm =
+                            sh.getCipherSuite().getKeyExchangeAlgorithm();
+                }
             } catch (UnknownHandshakeMessageTypeException e) {
                 logger.warn(e);
             } catch (IllegalArgumentException e) {
@@ -167,41 +172,35 @@ final public class HandshakeEnumeration extends ARecordFrame {
         }
         
         try {
-            // Can we decide this in another way?
-            if ((implClass.equals(ServerKeyExchange.class) || (implClass
-                    .equals(ClientKeyExchange.class)))) {
-                Class[] parameter = new Class[3];
-                parameter[0] = byte[].class;
-                parameter[1] = EKeyExchangeAlgorithm.class;
-                parameter[2] = boolean.class;
-                Constructor<AHandshakeRecord> constructor = implClass
-                        .getConstructor(parameter);
-                result = constructor.newInstance(message,
-                        keyEKeyExchangeAlgorithm, false);
-                result.setMessageType(messageType);
-
-                // set protocol version
-                Method setProtocolVersion = ARecordFrame.class
-                        .getDeclaredMethod("setProtocolVersion",
-                        EProtocolVersion.class);
-                setProtocolVersion.setAccessible(true);
-                setProtocolVersion.invoke(result, version);
-            } else {
-                Class[] parameter = new Class[2];
-                parameter[0] = byte[].class;
-                parameter[1] = boolean.class;
-                Constructor<AHandshakeRecord> constructor = implClass
-                        .getConstructor(parameter);
-                result = constructor.newInstance(message, false);
-                result.setMessageType(messageType);
-
-                // set protocol version
-                Method setProtocolVersion = ARecordFrame.class
-                        .getDeclaredMethod("setProtocolVersion",
-                        EProtocolVersion.class);
-                setProtocolVersion.setAccessible(true);
-                setProtocolVersion.invoke(result, version);
+            Class[] parameter;
+            Constructor<AHandshakeRecord> constructor;
+            Method setProtocolVersion;
+            switch(messageType) {
+                case SERVER_KEY_EXCHANGE:
+                case CLIENT_KEY_EXCHANGE:
+                    parameter = new Class[3];
+                    parameter[0] = byte[].class;
+                    parameter[1] = EKeyExchangeAlgorithm.class;
+                    parameter[2] = boolean.class;
+                    constructor = implClass.getConstructor(parameter);
+                    result = constructor.newInstance(message,
+                            keyEKeyExchangeAlgorithm, false);
+                    break;
+                default:
+                    parameter = new Class[2];
+                    parameter[0] = byte[].class;
+                    parameter[1] = boolean.class;
+                    constructor = implClass.getConstructor(parameter);
+                    result = constructor.newInstance(message, false);
             }
+            result.setMessageType(messageType);
+
+            // set protocol version
+            setProtocolVersion = ARecordFrame.class.getDeclaredMethod(
+                    "setProtocolVersion", EProtocolVersion.class);
+            setProtocolVersion.setAccessible(true);
+            setProtocolVersion.invoke(result, version);
+
         } catch (InstantiationException |
                 IllegalAccessException |
                 NoSuchMethodException ex) {
@@ -209,7 +208,9 @@ final public class HandshakeEnumeration extends ARecordFrame {
         } catch(InvocationTargetException ex) {
             // InvocationTargetException happens with ClientKeyExchange message -
             // TODO why and when? (CM)
-            throw new IllegalArgumentException(ex.getCause());
+            logger.debug(ex, ex);
+            throw new IllegalArgumentException(
+                    "could not decode handshake message " + ex.getCause());
         }
         return result;
     }
