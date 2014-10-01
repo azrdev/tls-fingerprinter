@@ -18,7 +18,10 @@ public class ClientHelloFingerprint extends Fingerprint {
     }
 
     public ClientHelloFingerprint(Connection connection) {
-        ClientHello clientHello = connection.getClientHello();
+        this(connection.getClientHello());
+    }
+
+    public ClientHelloFingerprint(ClientHello clientHello) {
         if(clientHello == null)
             throw new NotMatchingException();
 

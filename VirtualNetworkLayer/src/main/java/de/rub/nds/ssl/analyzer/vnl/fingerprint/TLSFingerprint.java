@@ -1,6 +1,7 @@
 package de.rub.nds.ssl.analyzer.vnl.fingerprint;
 
 import de.rub.nds.ssl.analyzer.vnl.Connection;
+import de.rub.nds.ssl.analyzer.vnl.fingerprint.serialization.Serializer;
 import de.rub.nds.virtualnetworklayer.fingerprint.MtuFingerprint;
 import de.rub.nds.virtualnetworklayer.fingerprint.TcpFingerprint;
 import de.rub.nds.virtualnetworklayer.p0f.signature.MTUSignature;
@@ -24,7 +25,6 @@ public class TLSFingerprint {
 
     // non-static Signature instances
 
-    private Fingerprint clientHelloSignature;
     private Fingerprint serverHelloSignature;
     private de.rub.nds.virtualnetworklayer.fingerprint.Fingerprint.Signature serverTcpSignature;
     private de.rub.nds.virtualnetworklayer.fingerprint.Fingerprint.Signature serverMtuSignature;
@@ -45,28 +45,30 @@ public class TLSFingerprint {
     }
     */
 
+    /**
+     * initialize all signatures with null
+     */
+    public <T extends de.rub.nds.virtualnetworklayer.fingerprint.Fingerprint>
+    TLSFingerprint(Fingerprint serverHelloSignature,
+                          T.Signature serverTcpSignature,
+                          T.Signature serverMtuSignature) {
+        this.serverHelloSignature = serverHelloSignature;
+        this.serverTcpSignature = serverTcpSignature;
+        this.serverMtuSignature = serverMtuSignature;
+    }
+
+    /**
+     * initialize all signatures from connection
+     */
     public TLSFingerprint(Connection connection) {
-        try {
-            clientHelloSignature = new ClientHelloFingerprint(connection);
-        } catch(RuntimeException e) {
-            logger.debug("Error creating ClientHelloFingerprint: " + e);
-        }
         try {
             serverHelloSignature = new ServerHelloFingerprint(connection);
         } catch(RuntimeException e) {
-            logger.debug("Error creating ClientHelloFingerprint: " + e);
+            logger.debug("Error creating ServerHelloFingerprint: " + e);
         }
 
         serverTcpSignature = connection.getServerTcpSignature();
         serverMtuSignature = connection.getServerMtuSignature();
-    }
-
-    public TLSFingerprint(String serialized) {
-        deserialize(serialized);
-    }
-
-    public Fingerprint getClientHelloSignature() {
-        return clientHelloSignature;
     }
 
     public Fingerprint getServerHelloSignature() {
@@ -90,10 +92,6 @@ public class TLSFingerprint {
 
         TLSFingerprint that = (TLSFingerprint) o;
 
-        if (clientHelloSignature != null ?
-                !clientHelloSignature.equals(that.clientHelloSignature) :
-                that.clientHelloSignature != null)
-            return false;
         if (serverHelloSignature != null ?
                 !serverHelloSignature.equals(that.serverHelloSignature) :
                 that.serverHelloSignature != null)
@@ -113,7 +111,7 @@ public class TLSFingerprint {
     @Override
     public int hashCode() {
         final int prime = 31;
-        int result = clientHelloSignature != null ? clientHelloSignature.hashCode() : 0;
+        int result = 0;
         result = prime * result +
                 (serverHelloSignature != null ? serverHelloSignature.hashCode() : 0);
         result = prime * result +
@@ -127,7 +125,6 @@ public class TLSFingerprint {
     public String toString() {
         StringBuilder sb = new StringBuilder();
         sb.append("TLSFingerprint: {");
-        sb.append("\nClient Hello: {\n").append(clientHelloSignature).append("\n}");
         sb.append("\nServer Hello: {\n").append(serverHelloSignature).append("\n}");
         sb.append("\nServer TCP: {\n").append(serverTcpSignature).append("\n}");
         sb.append("\nServer MTU: {\n").append(serverMtuSignature).append("\n}");
@@ -143,13 +140,7 @@ public class TLSFingerprint {
         StringBuilder sb = new StringBuilder(
                 getClass().getSimpleName() + " difference to " + otherName + ":\n");
 
-        Set<SignatureDifference.SignDifference> differenceSet =
-            SignatureDifference.fromGenericFingerprints(clientHelloSignature,
-                    other.getClientHelloSignature()).getDifferences();
-        for(SignatureDifference.SignDifference d : differenceSet) {
-            sb.append("ClientHello.").append(d).append("\n");
-        }
-
+        Set<SignatureDifference.SignDifference> differenceSet;
         differenceSet = SignatureDifference.fromGenericFingerprints(serverHelloSignature,
                 other.getServerHelloSignature()).getDifferences();
         for(SignatureDifference.SignDifference d : differenceSet) {
@@ -171,72 +162,7 @@ public class TLSFingerprint {
         return sb.toString();
     }
 
-    private enum FingerprintId {
-        ClientHello("ClientHello"),
-        ServerHello("ServerHello"),
-        ServerTcp("ServerTCP"),
-        ServerMtu("ServerMTU");
-
-        public final String id;
-        public final Pattern pattern;
-        FingerprintId(String id) {
-            this.id = id;
-            pattern = Pattern.compile(id, Pattern.LITERAL | Pattern.CASE_INSENSITIVE);
-        }
-    }
-
     public String serialize() {
-        StringBuilder sb = new StringBuilder();
-
-        if(clientHelloSignature != null) {
-            sb.append("\t").append(FingerprintId.ClientHello.id).append(": ");
-            sb.append(clientHelloSignature.serialize()).append('\n');
-        }
-
-        if(serverHelloSignature != null) {
-            sb.append("\t").append(FingerprintId.ServerHello.id).append(": ");
-            sb.append(serverHelloSignature.serialize()).append('\n');
-        }
-
-        if(serverTcpSignature != null) {
-            sb.append("\t").append(FingerprintId.ServerTcp.id).append(": ");
-            sb.append(TCPSignature.writeToString(serverTcpSignature)).append("\n");
-        }
-
-        if(serverMtuSignature != null) {
-            sb.append("\t").append(FingerprintId.ServerMtu.id).append(": ");
-            sb.append(MTUSignature.writeToString(serverMtuSignature)).append("\n");
-        }
-
-        return sb.toString();
-    }
-
-    private void deserialize(String serialized) {
-        for(String signature: serialized.split("\n")) {
-            if(signature.trim().isEmpty())
-                continue;
-
-            if(! signature.startsWith("\t")) {
-                logger.warn("Unknown fingerprint component: " + signature);
-                continue;
-            }
-
-            try {
-                String[] line = signature.trim().split("\\s", 2);
-                if(FingerprintId.ClientHello.pattern.matcher(line[0]).lookingAt()) {
-                    clientHelloSignature = new ClientHelloFingerprint(line[1]);
-                } else if (FingerprintId.ServerHello.pattern.matcher(line[0]).lookingAt()) {
-                    serverHelloSignature = new ServerHelloFingerprint(line[1]);
-                } else if (FingerprintId.ServerTcp.pattern.matcher(line[0]).lookingAt()) {
-                    serverTcpSignature = new TCPSignature(line[1]);
-                } else if (FingerprintId.ServerMtu.pattern.matcher(line[0]).lookingAt()) {
-                    serverMtuSignature = new MTUSignature(line[1]);
-                }
-            } catch(IllegalArgumentException|NullPointerException e) {
-                logger.debug("Error decoding signature " + signature);
-                logger.trace("Caused by " + e, e);
-                continue;
-            }
-        }
+        return Serializer.serialize(this);
     }
 }

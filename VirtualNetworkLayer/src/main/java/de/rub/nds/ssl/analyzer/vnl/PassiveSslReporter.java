@@ -30,7 +30,7 @@ public class PassiveSslReporter {
 
 	public void run(String filename) {
 		Pcap pcap = Pcap.openOffline(new File(filename));
-        logger.info("now looping over file");
+        logger.info("now looping over file " + filename);
         Pcap.Status status = pcap.loop(handler);
         logger.info("looping done, returned " + status);
 	}

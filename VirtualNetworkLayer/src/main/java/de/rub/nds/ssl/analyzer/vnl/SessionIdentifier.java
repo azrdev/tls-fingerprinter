@@ -1,11 +1,10 @@
 package de.rub.nds.ssl.analyzer.vnl;
 
-import com.google.common.net.InetAddresses;
+import de.rub.nds.ssl.analyzer.vnl.fingerprint.Fingerprint;
+import de.rub.nds.ssl.analyzer.vnl.fingerprint.serialization.Serializer;
 import de.rub.nds.virtualnetworklayer.util.Util;
 import de.rub.nds.virtualnetworklayer.util.formatter.IpFormatter;
 
-import java.net.InetAddress;
-import java.net.UnknownHostException;
 import java.util.Arrays;
 
 /**
@@ -19,6 +18,8 @@ public class SessionIdentifier {
     private int serverTcpPort;
     private String serverHostName;
 
+    private Fingerprint clientHelloSignature;
+
     private static final int MAX_PORT = 65535;
 
     /**
@@ -31,10 +32,12 @@ public class SessionIdentifier {
      */
     public SessionIdentifier(byte[] serverIPAddress,
                              int serverTcpPort,
-                             String serverHostName) {
+                             String serverHostName,
+                             Fingerprint clientHelloSignature) {
         setServerTcpPort(serverTcpPort);
         this.serverIPAddress = serverIPAddress;
         this.serverHostName = serverHostName;
+        this.clientHelloSignature = clientHelloSignature;
     }
 
     /**
@@ -68,6 +71,10 @@ public class SessionIdentifier {
             return false;
         if (!Arrays.equals(serverIPAddress, that.serverIPAddress))
             return false;
+        if (clientHelloSignature != null ?
+                !clientHelloSignature.equals(that.clientHelloSignature) :
+                that.clientHelloSignature != null)
+            return false;
 
         return true;
     }
@@ -80,22 +87,30 @@ public class SessionIdentifier {
         result = prime * result + serverTcpPort;
         result = prime * result +
                 (serverHostName != null ? serverHostName.hashCode() : 0);
+        result = prime * result +
+                (clientHelloSignature != null ? clientHelloSignature.hashCode() : 0);
         return result;
     }
 
     @Override
     public String toString() {
-        return String.format("Connection to %s port %d, server name %s",
+        return String.format("Connection to %s port %d, server name %s. ClientHello:\n%s",
                 IpFormatter.toString(serverIPAddress),
                 serverTcpPort,
-                serverHostName);
+                serverHostName,
+                clientHelloSignature);
     }
 
     public String serialize() {
-        return String.format("%s|%d|%s",
-                Util.ipAddressToString(serverIPAddress),
-                serverTcpPort,
-                (serverHostName == null)? "" : serverHostName);
+        StringBuilder sb = new StringBuilder();
+        sb.append(Util.ipAddressToString(serverIPAddress)).append('|');
+        sb.append(serverTcpPort).append('|');
+        if(serverHostName != null)
+            sb.append(serverHostName);
+        sb.append("\n");
+        sb.append(Serializer.serializeClientHello(clientHelloSignature));
+
+        return sb.toString();
     }
 
     public void setServerIPAddress(byte[] serverIPAddress) {
@@ -111,5 +126,13 @@ public class SessionIdentifier {
 
     public void setServerHostName(String serverHostName) {
         this.serverHostName = serverHostName;
+    }
+
+    public Fingerprint getClientHelloSignature() {
+        return clientHelloSignature;
+    }
+
+    public void setClientHelloSignature(Fingerprint clientHelloSignature) {
+        this.clientHelloSignature = clientHelloSignature;
     }
 }

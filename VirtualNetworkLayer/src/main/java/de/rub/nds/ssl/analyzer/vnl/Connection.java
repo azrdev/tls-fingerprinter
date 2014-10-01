@@ -1,5 +1,6 @@
 package de.rub.nds.ssl.analyzer.vnl;
 
+import de.rub.nds.ssl.analyzer.vnl.fingerprint.ClientHelloFingerprint;
 import de.rub.nds.ssl.stack.protocols.ARecordFrame;
 import de.rub.nds.ssl.stack.protocols.handshake.ClientHello;
 import de.rub.nds.ssl.stack.protocols.handshake.ServerHello;
@@ -150,6 +151,9 @@ public class Connection {
 
                             ClientHello ch = (ClientHello) frame;
                             sessionIdentifier.setServerHostName(ch.getHostName());
+
+                            sessionIdentifier.setClientHelloSignature(
+                                    new ClientHelloFingerprint(ch));
                         }
                         if (frame instanceof ServerHello) {
                             /*
