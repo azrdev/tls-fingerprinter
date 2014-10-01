@@ -1,5 +1,7 @@
-package de.rub.nds.ssl.stack.protocols.handshake.extensions.datatypes;
+package de.rub.nds.ssl.stack.protocols.handshake.datatypes;
 
+import de.rub.nds.ssl.stack.protocols.handshake.extensions.datatypes.ACertificateStatusRequest;
+import de.rub.nds.ssl.stack.protocols.handshake.extensions.datatypes.OCSPStatusRequest;
 import de.rub.nds.ssl.stack.protocols.handshake.extensions.exceptions.UnknownCertificateStatusTypeException;
 
 import java.util.HashMap;
@@ -42,12 +44,23 @@ public enum ECertificateStatusType {
         return ID_MAP.get(id);
     }
 
-    public ACertificateStatusRequest getInstance(byte[] message) {
+    public ACertificateStatusRequest getRequest(byte[] message) {
         switch(this) {
             case OCSP:
                 return new OCSPStatusRequest(message);
             default:
-                throw new IllegalArgumentException("No class implementing " + this);
+                throw new IllegalArgumentException("No Request class implementing " +
+                        this);
+        }
+    }
+
+    public ACertificateStatusResponse getResponse(final byte[] message) {
+        switch (this) {
+            case OCSP:
+                return new OCSPStatusResponse(message);
+            default:
+                throw new IllegalArgumentException("No Response class implementing " +
+                        this);
         }
     }
 }

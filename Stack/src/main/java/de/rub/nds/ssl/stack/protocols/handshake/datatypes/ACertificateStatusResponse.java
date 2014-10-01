@@ -1,12 +1,11 @@
-package de.rub.nds.ssl.stack.protocols.handshake.extensions.datatypes;
+package de.rub.nds.ssl.stack.protocols.handshake.datatypes;
 
 import de.rub.nds.ssl.stack.protocols.commons.APubliclySerializable;
-import de.rub.nds.ssl.stack.protocols.handshake.datatypes.ECertificateStatusType;
 
 /**
  * @author jBiegert azrdev@qrdn.de
  */
-public abstract class ACertificateStatusRequest extends APubliclySerializable {
+public abstract class ACertificateStatusResponse extends APubliclySerializable {
 
     private ECertificateStatusType type;
 

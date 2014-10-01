@@ -163,7 +163,7 @@ public class ServerKeyExchange extends AHandshakeRecord {
         try {
             signature = new TLSSignature(signatureBytes, params);
         } catch(IllegalArgumentException|IllegalStateException ex) {
-            logger.warn("Error checking signature in ServerKeyExchange: " + ex);
+            logger.warn("Error checking signature: " + ex);
         }
     }
 }

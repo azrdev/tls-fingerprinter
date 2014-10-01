@@ -26,20 +26,20 @@ public enum EMessageType {
     CLIENT_KEY_EXCHANGE((byte) 0x10, ClientKeyExchange.class),
     FINISHED((byte) 0x14, Finished.class),
     CERTIFICATE_URL((byte) 0x15, null),
-    CERTIFICATE_STATUS((byte) 0x16, null),
+    CERTIFICATE_STATUS((byte) 0x16, CertificateStatus.class),
     SUPPLEMENTAL_DATA((byte) 0x17, null);
 
     /**
      * Length of the message type id: 1 Byte
      */
     final public static int LENGTH_ENCODED = 1;
-    final private static Map<Byte, EMessageType> ID_MAP =
-            new HashMap<Byte, EMessageType>(10);
+
+    final private static Map<Byte, EMessageType> ID_MAP;
     final private byte id;
     final private Class implementingClass;
 
     static {
-        byte[] id;
+        ID_MAP = new HashMap<>(values().length);
         for (EMessageType tmp : EMessageType.values()) {
             ID_MAP.put(tmp.getId(), tmp);
         }

@@ -1,8 +1,10 @@
 package de.rub.nds.ssl.stack.protocols.handshake.extensions;
 
 import de.rub.nds.ssl.stack.protocols.handshake.extensions.datatypes.ACertificateStatusRequest;
-import de.rub.nds.ssl.stack.protocols.handshake.extensions.datatypes.ECertificateStatusType;
+import de.rub.nds.ssl.stack.protocols.handshake.datatypes.ECertificateStatusType;
 import de.rub.nds.ssl.stack.protocols.handshake.extensions.datatypes.EExtensionType;
+
+import java.util.Objects;
 
 /**
  * A CertificateStatusRequest hello extension as in RFC 6066
@@ -15,6 +17,7 @@ public class CertificateStatusRequest extends AExtension {
             ECertificateStatusType.LENGTH_ENCODED;
 
     private ACertificateStatusRequest certificateStatusRequest;
+    private ECertificateStatusType certificateStatusType;
 
     /**
      * Initialize an empty extension object
@@ -55,17 +58,20 @@ public class CertificateStatusRequest extends AExtension {
 
     @Override
     public byte[] encode(boolean chained) {
-        byte[] bytes = new byte[0];
+        final byte[] encodedRequest = certificateStatusRequest == null ?
+                new byte[0] : certificateStatusRequest.encode(true);
 
-        if(certificateStatusRequest != null) {
-            bytes = certificateStatusRequest.encode(true);
-        }
+        int pointer = 0;
+        byte[] bytes = new byte[ECertificateStatusType.LENGTH_ENCODED +
+                encodedRequest.length];
+
+        bytes[pointer] = getCertificateStatusType().getId();
+        pointer += ECertificateStatusType.LENGTH_ENCODED;
+
+        System.arraycopy(encodedRequest, 0, bytes, pointer, bytes.length - pointer);
 
         setExtensionData(bytes);
-        if(chained)
-            return super.encode(chained);
-        else
-            return bytes;
+        return chained ? super.encode(chained) : bytes;
     }
 
     @Override
@@ -87,13 +93,26 @@ public class CertificateStatusRequest extends AExtension {
             throw new IllegalArgumentException("CertificateStatusRequest too short.");
 
         // 1. parse status_type
-        ECertificateStatusType type =
-                ECertificateStatusType.getCertificateStatusType(messageCopy[pointer]);
+        setCertificateStatusType(messageCopy[pointer]);
         pointer += ECertificateStatusType.LENGTH_ENCODED;
 
         // 2. request
         byte[] tmp = new byte[messageCopy.length - pointer];
         System.arraycopy(messageCopy, pointer, tmp, 0, tmp.length);
-        setCertificateStatusRequest(type.getInstance(tmp));
+        setCertificateStatusRequest(getCertificateStatusType().getRequest(tmp));
+    }
+
+    public ECertificateStatusType getCertificateStatusType() {
+        return certificateStatusType;
+    }
+
+    public void setCertificateStatusType(final byte id) {
+        this.certificateStatusType = ECertificateStatusType.getCertificateStatusType(id);
+    }
+
+    public void setCertificateStatusType(ECertificateStatusType certificateStatusType) {
+        Objects.requireNonNull(certificateStatusType);
+
+        this.certificateStatusType = certificateStatusType;
     }
 }
