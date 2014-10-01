@@ -40,6 +40,10 @@ public enum ENamedCurve {
     SECP_256_R1(new byte[]{0x00, 0x17}),
     SECP_384_R1(new byte[]{0x00, 0x18}),
     SECP_521_R1(new byte[]{0x00, 0x19}),
+    BRAINPOOL_P256_R1(new byte[]{0x00, 0x1A}),
+    BRAINPOOL_P384_R1(new byte[]{0x00, 0x1B}),
+    BRAINPOOL_P521_R1(new byte[]{0x00, 0x1C}),
+
     ARBITRARY_EXPLICIT_PRIME_CURVES(new byte[]{(byte) 0xFF, 0x01}),
     ARBITRARY_EXPLICIT_CHAR2_CURVES(new byte[]{(byte) 0xFF, 0x02});
     /**

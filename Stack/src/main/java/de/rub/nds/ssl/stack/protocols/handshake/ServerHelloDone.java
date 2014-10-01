@@ -1,6 +1,7 @@
 package de.rub.nds.ssl.stack.protocols.handshake;
 
 import de.rub.nds.ssl.stack.protocols.commons.EProtocolVersion;
+import de.rub.nds.ssl.stack.protocols.handshake.datatypes.EMessageType;
 
 /**
  * Defines the ServerHelloDone message of SSL/TLS as defined in RFC 2246.

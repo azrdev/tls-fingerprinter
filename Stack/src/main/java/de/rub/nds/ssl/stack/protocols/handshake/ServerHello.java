@@ -4,10 +4,7 @@ import de.rub.nds.ssl.stack.exceptions.UnknownCipherSuiteException;
 import de.rub.nds.ssl.stack.protocols.commons.ECipherSuite;
 import de.rub.nds.ssl.stack.protocols.commons.ECompressionMethod;
 import de.rub.nds.ssl.stack.protocols.commons.EProtocolVersion;
-import de.rub.nds.ssl.stack.protocols.handshake.datatypes.CompressionMethod;
-import de.rub.nds.ssl.stack.protocols.handshake.datatypes.Extensions;
-import de.rub.nds.ssl.stack.protocols.handshake.datatypes.RandomValue;
-import de.rub.nds.ssl.stack.protocols.handshake.datatypes.SessionId;
+import de.rub.nds.ssl.stack.protocols.handshake.datatypes.*;
 import org.apache.log4j.Logger;
 
 /**

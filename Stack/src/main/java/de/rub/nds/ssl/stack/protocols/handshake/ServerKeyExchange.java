@@ -2,11 +2,7 @@ package de.rub.nds.ssl.stack.protocols.handshake;
 
 import de.rub.nds.ssl.stack.protocols.commons.EProtocolVersion;
 import de.rub.nds.ssl.stack.protocols.commons.KeyExchangeParams;
-import de.rub.nds.ssl.stack.protocols.handshake.datatypes.EKeyExchangeAlgorithm;
-import de.rub.nds.ssl.stack.protocols.handshake.datatypes.IExchangeKeys;
-import de.rub.nds.ssl.stack.protocols.handshake.datatypes.ServerDHParams;
-import de.rub.nds.ssl.stack.protocols.handshake.datatypes.ServerECDHParams;
-import de.rub.nds.ssl.stack.protocols.handshake.datatypes.ServerRSAParams;
+import de.rub.nds.ssl.stack.protocols.handshake.datatypes.*;
 import de.rub.nds.ssl.stack.protocols.msgs.datatypes.TLSSignature;
 import org.apache.log4j.Logger;
 

@@ -13,7 +13,14 @@ import java.util.Map;
  * @author jBiegert azrdev@qrdn.de
  */
 public enum ECertificateStatusType {
-    OCSP((byte) 0x01);
+    /**
+     * RFC 6066
+     */
+    OCSP((byte) 0x01),
+    /**
+     * RFC 6961
+     */
+    OCSP_MULTI((byte) 0x02);
 
     public static final int LENGTH_ENCODED = 1;
 

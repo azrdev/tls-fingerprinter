@@ -7,6 +7,7 @@ package de.rub.nds.ssl.stack.protocols.commons;
  * @version 0.1 Mar 09, 2012
  */
 public enum EMACAlgorithm {
+    //TODO: EMACAlgorithm duplicate of EHashAlgorithm ?
 
     /**
      * MD5 MAC.

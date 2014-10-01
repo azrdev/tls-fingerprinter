@@ -3,6 +3,7 @@ package de.rub.nds.ssl.stack.protocols.handshake;
 import de.rub.nds.ssl.stack.protocols.commons.EProtocolVersion;
 import de.rub.nds.ssl.stack.protocols.handshake.datatypes.ACertificateStatusResponse;
 import de.rub.nds.ssl.stack.protocols.handshake.datatypes.ECertificateStatusType;
+import de.rub.nds.ssl.stack.protocols.handshake.datatypes.EMessageType;
 
 import java.util.Arrays;
 import java.util.Objects;

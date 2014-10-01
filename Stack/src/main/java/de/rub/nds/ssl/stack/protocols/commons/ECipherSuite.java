@@ -17,8 +17,6 @@ import de.rub.nds.ssl.stack.protocols.handshake.datatypes.EKeyExchangeAlgorithm;
  * @version 0.1 Nov 11, 2011
  */
 public enum ECipherSuite {
-    //TODO: handle cipher suites as short instead of byte[]
-
     TLS_NULL_WITH_NULL_NULL(new byte[]{(byte) 0x00, (byte) 0x00}),
     TLS_RSA_WITH_NULL_MD5(new byte[]{(byte) 0x00, (byte) 0x01}),
     TLS_RSA_WITH_NULL_SHA(new byte[]{(byte) 0x00, (byte) 0x02}),
@@ -47,6 +45,7 @@ public enum ECipherSuite {
     TLS_DH_anon_EXPORT_WITH_DES40_CBC_SHA(new byte[]{(byte) 0x00, (byte) 0x19}),
     TLS_DH_anon_WITH_DES_CBC_SHA(new byte[]{(byte) 0x00, (byte) 0x1A}),
     TLS_DH_anon_WITH_3DES_EDE_CBC_SHA(new byte[]{(byte) 0x00, (byte) 0x1B}),
+
     TLS_KRB5_WITH_DES_CBC_SHA(new byte[]{(byte) 0x00, (byte) 0x1E}),
     TLS_KRB5_WITH_3DES_EDE_CBC_SHA(new byte[]{(byte) 0x00, (byte) 0x1F}),
     TLS_KRB5_WITH_RC4_128_SHA(new byte[]{(byte) 0x00, (byte) 0x20}),
@@ -75,6 +74,12 @@ public enum ECipherSuite {
     TLS_DH_RSA_WITH_AES_256_CBC_SHA(new byte[]{(byte) 0x00, (byte) 0x37}),
     TLS_DHE_DSS_WITH_AES_256_CBC_SHA(new byte[]{(byte) 0x00, (byte) 0x38}),
     TLS_DHE_RSA_WITH_AES_256_CBC_SHA(new byte[]{(byte) 0x00, (byte) 0x39}),
+    TLS_DH_anon_WITH_AES_256_CBC_SHA(new byte[]{(byte) 0x00, (byte) 0x3A}),
+    TLS_RSA_WITH_NULL_SHA256(new byte[]{(byte) 0x00, (byte) 0x3B}),
+    TLS_RSA_WITH_AES_128_CBC_SHA256(new byte[]{(byte) 0x00, (byte) 0x3C}),
+    TLS_RSA_WITH_AES_256_CBC_SHA256(new byte[]{(byte) 0x00, (byte) 0x3D}),
+    TLS_DH_DSS_WITH_AES_128_CBC_SHA256(new byte[]{(byte) 0x00, (byte) 0x3E}),
+    TLS_DH_RSA_WITH_AES_128_CBC_SHA256(new byte[]{(byte) 0x00, (byte) 0x3F}),
     TLS_DHE_DSS_WITH_AES_128_CBC_SHA256(new byte[]{(byte) 0x00, (byte) 0x40}),
     TLS_RSA_WITH_CAMELLIA_128_CBC_SHA(new byte[]{(byte) 0x00, (byte) 0x41}),
     TLS_DH_DSS_WITH_CAMELLIA_128_CBC_SHA(new byte[]{(byte) 0x00, (byte) 0x42}),
@@ -82,7 +87,9 @@ public enum ECipherSuite {
     TLS_DHE_DSS_WITH_CAMELLIA_128_CBC_SHA(new byte[]{(byte) 0x00, (byte) 0x44}),
     TLS_DHE_RSA_WITH_CAMELLIA_128_CBC_SHA(new byte[]{(byte) 0x00, (byte) 0x45}),
     TLS_DH_anon_WITH_CAMELLIA_128_CBC_SHA(new byte[]{(byte) 0x00, (byte) 0x46}),
+
     TLS_DHE_DSS_WITH_RC4_128_SHA(new byte[]{(byte) 0x00, (byte) 0x66}),
+
     TLS_DHE_RSA_WITH_AES_128_CBC_SHA256(new byte[]{(byte) 0x00, (byte) 0x67}),
     TLS_DH_DSS_WITH_AES_256_CBC_SHA256(new byte[]{(byte) 0x00, (byte) 0x68}),
     TLS_DH_RSA_WITH_AES_256_CBC_SHA256(new byte[]{(byte) 0x00, (byte) 0x69}),
@@ -90,6 +97,7 @@ public enum ECipherSuite {
     TLS_DHE_RSA_WITH_AES_256_CBC_SHA256(new byte[]{(byte) 0x00, (byte) 0x6B}),
     TLS_DH_anon_WITH_AES_128_CBC_SHA256(new byte[]{(byte) 0x00, (byte) 0x6C}),
     TLS_DH_anon_WITH_AES_256_CBC_SHA256(new byte[]{(byte) 0x00, (byte) 0x6D}),
+
     TLS_RSA_WITH_CAMELLIA_256_CBC_SHA(new byte[]{(byte) 0x00, (byte) 0x84}),
     TLS_DH_DSS_WITH_CAMELLIA_256_CBC_SHA(new byte[]{(byte) 0x00, (byte) 0x85}),
     TLS_DH_RSA_WITH_CAMELLIA_256_CBC_SHA(new byte[]{(byte) 0x00, (byte) 0x86}),
@@ -156,7 +164,9 @@ public enum ECipherSuite {
     TLS_DHE_DSS_WITH_CAMELLIA_256_CBC_SHA256(new byte[]{(byte) 0x00, (byte) 0xC3}),
     TLS_DHE_RSA_WITH_CAMELLIA_256_CBC_SHA256(new byte[]{(byte) 0x00, (byte) 0xC4}),
     TLS_DH_anon_WITH_CAMELLIA_256_CBC_SHA256(new byte[]{(byte) 0x00, (byte) 0xC5}),
+
     TLS_EMPTY_RENEGOTIATION_INFO_SCSV(new byte[]{(byte) 0x00, (byte) 0xFF}),
+
     TLS_ECDH_ECDSA_WITH_NULL_SHA(new byte[]{(byte) 0xC0, (byte) 0x01}),
     TLS_ECDH_ECDSA_WITH_RC4_128_SHA(new byte[]{(byte) 0xC0, (byte) 0x02}),
     TLS_ECDH_ECDSA_WITH_3DES_EDE_CBC_SHA(new byte[]{(byte) 0xC0, (byte) 0x03}),
@@ -312,6 +322,27 @@ public enum ECipherSuite {
     TLS_RSA_PSK_WITH_CAMELLIA_256_CBC_SHA384(new byte[]{(byte) 0xC0, (byte) 0x99}),
     TLS_ECDHE_PSK_WITH_CAMELLIA_128_CBC_SHA256(new byte[]{(byte) 0xC0, (byte) 0x9A}),
     TLS_ECDHE_PSK_WITH_CAMELLIA_256_CBC_SHA384(new byte[]{(byte) 0xC0, (byte) 0x9B}),
+    TLS_RSA_WITH_AES_128_CCM(new byte[]{(byte) 0xC0,(byte) 0x9C}),
+    TLS_RSA_WITH_AES_256_CCM(new byte[]{(byte) 0xC0,(byte) 0x9D}),
+    TLS_DHE_RSA_WITH_AES_128_CCM(new byte[]{(byte) 0xC0,(byte) 0x9E}),
+    TLS_DHE_RSA_WITH_AES_256_CCM(new byte[]{(byte) 0xC0,(byte) 0x9F}),
+    TLS_RSA_WITH_AES_128_CCM_8(new byte[]{(byte) 0xC0,(byte) 0xA0}),
+    TLS_RSA_WITH_AES_256_CCM_8(new byte[]{(byte) 0xC0,(byte) 0xA1}),
+    TLS_DHE_RSA_WITH_AES_128_CCM_8(new byte[]{(byte) 0xC0,(byte) 0xA2}),
+    TLS_DHE_RSA_WITH_AES_256_CCM_8(new byte[]{(byte) 0xC0,(byte) 0xA3}),
+    TLS_PSK_WITH_AES_128_CCM(new byte[]{(byte) 0xC0,(byte) 0xA4}),
+    TLS_PSK_WITH_AES_256_CCM(new byte[]{(byte) 0xC0,(byte) 0xA5}),
+    TLS_DHE_PSK_WITH_AES_128_CCM(new byte[]{(byte) 0xC0,(byte) 0xA6}),
+    TLS_DHE_PSK_WITH_AES_256_CCM(new byte[]{(byte) 0xC0,(byte) 0xA7}),
+    TLS_PSK_WITH_AES_128_CCM_8(new byte[]{(byte) 0xC0,(byte) 0xA8}),
+    TLS_PSK_WITH_AES_256_CCM_8(new byte[]{(byte) 0xC0,(byte) 0xA9}),
+    TLS_PSK_DHE_WITH_AES_128_CCM_8(new byte[]{(byte) 0xC0,(byte) 0xAA}),
+    TLS_PSK_DHE_WITH_AES_256_CCM_8(new byte[]{(byte) 0xC0,(byte) 0xAB}),
+    TLS_ECDHE_ECDSA_WITH_AES_128_CCM(new byte[]{(byte) 0xC0,(byte) 0xAC}),
+    TLS_ECDHE_ECDSA_WITH_AES_256_CCM(new byte[]{(byte) 0xC0,(byte) 0xAD}),
+    TLS_ECDHE_ECDSA_WITH_AES_128_CCM_8(new byte[]{(byte) 0xC0,(byte) 0xAE}),
+    TLS_ECDHE_ECDSA_WITH_AES_256_CCM_8(new byte[]{(byte) 0xC0,(byte) 0xAF}),
+
     SSL_RSA_FIPS_WITH_3DES_EDE_CBC_SHA(new byte[]{(byte) 0xfe, (byte) 0xff}),;
 
     /**
@@ -412,7 +443,7 @@ public enum ECipherSuite {
         cipherSuite = ((id[0] & 0xff) << Utility.BITS_IN_BYTE) | (id[1] & 0xff);
 
         if (!ID_MAP.containsKey(cipherSuite)) {
-            throw new UnknownCipherSuiteException(cipherSuite);
+            throw new UnknownCipherSuiteException(id);
         }
 
         return ID_MAP.get(cipherSuite);

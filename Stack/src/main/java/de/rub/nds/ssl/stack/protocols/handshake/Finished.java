@@ -3,6 +3,7 @@ package de.rub.nds.ssl.stack.protocols.handshake;
 import de.rub.nds.ssl.stack.protocols.commons.EConnectionEnd;
 import de.rub.nds.ssl.stack.protocols.commons.EProtocolVersion;
 import de.rub.nds.ssl.stack.protocols.commons.PseudoRandomFunction;
+import de.rub.nds.ssl.stack.protocols.handshake.datatypes.EMessageType;
 import de.rub.nds.ssl.stack.protocols.handshake.datatypes.MasterSecret;
 import java.security.InvalidKeyException;
 

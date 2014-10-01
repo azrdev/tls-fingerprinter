@@ -34,9 +34,9 @@ public enum EExtensionType{
      */
     CLIENT_CERTIFICATE_URL(new byte[]{0x00, 0x02}, null),
     /**
-     * Truncated CA keys (RFC6066).
+     * Trusted CA keys (RFC6066).
      */
-    TRUNCATED_CA_KEYS(new byte[]{0x00, 0x03}, null),
+    TRUSTED_CA_KEYS(new byte[]{0x00, 0x03}, null),
     /**
      * Truncated HMAC (RFC6066).
      */
@@ -85,7 +85,10 @@ public enum EExtensionType{
      * Heartbeat (RFC6520).
      */
     HEARTBEAT(new byte[]{0x00, 0x0F}, null),
-
+    /**
+     * Application Layer Protocol Negotiation (RFC7301)
+     */
+    APPLICATION_LAYER_PROTOCOL_NEGOTIATION(new byte[]{0x00, 0x10}, null),
 	/**
 	 * Status Request Version 2 (RFC6961)
 	 */
@@ -96,16 +99,32 @@ public enum EExtensionType{
      * the extension_data field is empty, so the AExtension implementation suffices
 	 */
 	SIGNED_CERTIFICATE_TIMESTAMP(new byte[]{0x00, 0x12}, SignedCertificateTimestamp.class),
-
+    /**
+     * Client Certificate Type (RFC7250)
+     */
+    CLIENT_CERTIFICATE_TYPE(new byte[]{0x00, 0x13}, null),
+    /**
+     * Server Certificate Type (RFC7250)
+     */
+    SERVER_CERTIFICATE_TYPE(new byte[]{0x00, 0x14}, null),
 	/**
 	 * Padding (draft http://www.iana.org/go/draft-agl-tls-padding)
 	 */
 	PADDING(new byte[]{0x00, 0x15}, null),
+    /**
+     * Encrypt then MAC (RFC7366)
+     */
+    ENCRYPT_THEN_MAC(new byte[]{0x00, 0x16}, null),
+    /**
+     * Extended Master Secret (draft http://www.iana.org/go/draft-ietf-tls-session-hash)
+     */
+    EXTENDED_MASTER_SECRET(new byte[]{0x00, 0x17}, null),
 
     /**
      * Session ticket TLS (RFC5077).
      */
     SESSION_TICKET_TLS(new byte[]{0x00, 0x23}, SessionTicket.class),
+
     /**
      * Renegotiation info (RFC5746).
      */

@@ -4,6 +4,7 @@ import de.rub.nds.ssl.stack.exceptions.UnknownHandshakeMessageTypeException;
 import de.rub.nds.ssl.stack.protocols.ARecordFrame;
 import de.rub.nds.ssl.stack.protocols.commons.EProtocolVersion;
 import de.rub.nds.ssl.stack.protocols.handshake.datatypes.EKeyExchangeAlgorithm;
+import de.rub.nds.ssl.stack.protocols.handshake.datatypes.EMessageType;
 import org.apache.log4j.Logger;
 
 import java.lang.reflect.Constructor;
