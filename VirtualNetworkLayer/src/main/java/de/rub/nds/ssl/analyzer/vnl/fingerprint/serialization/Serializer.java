@@ -10,7 +10,10 @@ import de.rub.nds.ssl.stack.protocols.commons.ECipherSuite;
 import de.rub.nds.ssl.stack.protocols.commons.ECompressionMethod;
 import de.rub.nds.ssl.stack.protocols.commons.EProtocolVersion;
 import de.rub.nds.ssl.stack.protocols.commons.Id;
+import de.rub.nds.ssl.stack.protocols.handshake.extensions.datatypes.EECCurveType;
+import de.rub.nds.ssl.stack.protocols.handshake.extensions.datatypes.EECPointFormat;
 import de.rub.nds.ssl.stack.protocols.handshake.extensions.datatypes.EExtensionType;
+import de.rub.nds.ssl.stack.protocols.handshake.extensions.datatypes.ENamedCurve;
 import de.rub.nds.virtualnetworklayer.p0f.signature.MTUSignature;
 import de.rub.nds.virtualnetworklayer.p0f.signature.TCPSignature;
 import org.apache.log4j.Logger;
@@ -59,6 +62,10 @@ public class Serializer {
             return Utility.bytesToHex(((ECipherSuite) sign).getId(), false);
         else if(sign instanceof EExtensionType)
             return Utility.bytesToHex(((EExtensionType) sign).getId(), false);
+        else if(sign instanceof ENamedCurve)
+            return Utility.bytesToHex(((ENamedCurve) sign).getId(), false);
+        else if(sign instanceof EECPointFormat)
+            return Utility.bytesToHex(((EECPointFormat) sign).getId(), false);
         else
             return sign.toString();
     }
@@ -176,7 +183,7 @@ public class Serializer {
                         logger.debug("Unrecognized signature: " + line);
                     }
                 } catch(IllegalArgumentException ex) {
-                    logger.debug("Error reading signature: " + line);
+                    logger.debug("Error reading signature: " + ex + " - " + line);
                 }
             } else {
                 commitFingerprint(sid, new TLSFingerprint(serverHelloSignature,

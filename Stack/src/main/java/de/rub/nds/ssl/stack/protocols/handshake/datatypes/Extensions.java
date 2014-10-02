@@ -75,6 +75,17 @@ public final class Extensions extends APubliclySerializable {
     }
 
     /**
+     * @return the extension with given type, or null if none present
+     */
+    public <T extends AExtension> T getExtension(EExtensionType type) {
+        for(AExtension ex : extensions) {
+            if(ex.getExtensionType() == type)
+                return (T) ex;
+        }
+        return null;
+    }
+
+    /**
      * @return The raw "type" bytes of all extensions
      */
     public List<Id> getRawExtensionTypes() {

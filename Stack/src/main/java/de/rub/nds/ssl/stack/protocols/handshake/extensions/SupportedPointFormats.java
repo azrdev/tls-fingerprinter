@@ -3,6 +3,9 @@ package de.rub.nds.ssl.stack.protocols.handshake.extensions;
 import de.rub.nds.ssl.stack.protocols.handshake.extensions.datatypes.EECPointFormat;
 import de.rub.nds.ssl.stack.protocols.handshake.extensions.datatypes.EExtensionType;
 
+import java.util.Arrays;
+import java.util.List;
+
 /**
  * Supported Point Formats extension as defined in RFC 4492.
  *
@@ -56,6 +59,13 @@ public final class SupportedPointFormats extends AExtension {
                 supportedPointFormats.length);
 
         return tmp;
+    }
+
+    /**
+     * @return Supported EC point formats, as List
+     */
+    public List<EECPointFormat> getSupportedPointFormatsList() {
+        return Arrays.asList(supportedPointFormats);
     }
 
     /**

@@ -4,6 +4,9 @@ import de.rub.nds.ssl.stack.protocols.commons.ECipherSuite;
 import de.rub.nds.ssl.stack.protocols.handshake.extensions.datatypes.EExtensionType;
 import de.rub.nds.ssl.stack.protocols.handshake.extensions.datatypes.ENamedCurve;
 
+import java.util.Arrays;
+import java.util.List;
+
 /**
  * Elliptic curve extension as defined in RFC 4492.
  *
@@ -56,6 +59,13 @@ public final class EllipticCurves extends AExtension {
         System.arraycopy(supportedCurves, 0, tmp, 0, supportedCurves.length);
 
         return tmp;
+    }
+
+    /**
+     * @return Supported Named Elliptic Curves, as List.
+     */
+    public List<ENamedCurve> getSupportedCurvesList() {
+        return Arrays.asList(supportedCurves);
     }
 
     /**

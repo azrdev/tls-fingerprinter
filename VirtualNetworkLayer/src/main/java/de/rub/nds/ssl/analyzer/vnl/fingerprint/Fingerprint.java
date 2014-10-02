@@ -5,6 +5,7 @@ import de.rub.nds.virtualnetworklayer.util.Util;
 
 import java.util.Arrays;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -94,7 +95,7 @@ public abstract class Fingerprint {
     public String serialize() {
         StringBuilder sb = new StringBuilder();
 
-        for(String sign : signs.keySet()) {
+        for(String sign : serializationSigns()) {
             Object obj = getSign(sign);
             sb.append(Serializer.serializeSign(obj)).append(SERIALIZATION_DELIMITER);
         }
@@ -104,6 +105,11 @@ public abstract class Fingerprint {
 
         return sb.toString();
     }
+
+    /**
+     * @return A List of all signs that should be serialized in that order.
+     */
+    public abstract List<String> serializationSigns();
 
     public abstract void deserialize(String serialized);
 }
