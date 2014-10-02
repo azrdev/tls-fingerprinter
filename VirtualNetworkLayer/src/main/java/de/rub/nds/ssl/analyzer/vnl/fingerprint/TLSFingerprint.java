@@ -25,33 +25,20 @@ public class TLSFingerprint {
 
     // non-static Signature instances
 
+    private Fingerprint handshakeSignature;
     private Fingerprint serverHelloSignature;
     private de.rub.nds.virtualnetworklayer.fingerprint.Fingerprint.Signature serverTcpSignature;
     private de.rub.nds.virtualnetworklayer.fingerprint.Fingerprint.Signature serverMtuSignature;
 
     /**
-     * Identifiers to use in a TLSFingerprint
-     *
-     * TODO: use as key in Map<Type, Fingerprint.Signature> when Fingerprint classes are unified
-     *
-     * @author jBiegert azrdev@qrdn.de
-     */
-    /*
-    public enum Type {
-        CLIENT_TLS_HELLO,
-        SERVER_TLS_HELLO,
-        SERVER_TCP,
-        SERVER_MTU,
-    }
-    */
-
-    /**
      * initialize all signatures with null
      */
     public <T extends de.rub.nds.virtualnetworklayer.fingerprint.Fingerprint>
-    TLSFingerprint(Fingerprint serverHelloSignature,
-                          T.Signature serverTcpSignature,
-                          T.Signature serverMtuSignature) {
+    TLSFingerprint(Fingerprint handshakeSignature,
+                   Fingerprint serverHelloSignature,
+                   T.Signature serverTcpSignature,
+                   T.Signature serverMtuSignature) {
+        this.handshakeSignature = handshakeSignature;
         this.serverHelloSignature = serverHelloSignature;
         this.serverTcpSignature = serverTcpSignature;
         this.serverMtuSignature = serverMtuSignature;
@@ -66,9 +53,14 @@ public class TLSFingerprint {
         } catch(RuntimeException e) {
             logger.debug("Error creating ServerHelloFingerprint: " + e);
         }
+        handshakeSignature = new HandshakeFingerprint(connection.getFrameList());
 
         serverTcpSignature = connection.getServerTcpSignature();
         serverMtuSignature = connection.getServerMtuSignature();
+    }
+
+    public Fingerprint getHandshakeSignature() {
+        return handshakeSignature;
     }
 
     public Fingerprint getServerHelloSignature() {
@@ -92,6 +84,10 @@ public class TLSFingerprint {
 
         TLSFingerprint that = (TLSFingerprint) o;
 
+        if (handshakeSignature != null?
+                !handshakeSignature.equals(that.handshakeSignature) :
+                that.handshakeSignature != null)
+            return false;
         if (serverHelloSignature != null ?
                 !serverHelloSignature.equals(that.serverHelloSignature) :
                 that.serverHelloSignature != null)
@@ -113,6 +109,8 @@ public class TLSFingerprint {
         final int prime = 31;
         int result = 0;
         result = prime * result +
+                (handshakeSignature != null ? handshakeSignature.hashCode() : 0);
+        result = prime * result +
                 (serverHelloSignature != null ? serverHelloSignature.hashCode() : 0);
         result = prime * result +
                 (serverTcpSignature != null ? serverTcpSignature.hashCode() : 0);
@@ -125,6 +123,7 @@ public class TLSFingerprint {
     public String toString() {
         StringBuilder sb = new StringBuilder();
         sb.append("TLSFingerprint: {");
+        sb.append("\nHandshake: {\n").append(handshakeSignature).append("\n}");
         sb.append("\nServer Hello: {\n").append(serverHelloSignature).append("\n}");
         sb.append("\nServer TCP: {\n").append(serverTcpSignature).append("\n}");
         sb.append("\nServer MTU: {\n").append(serverMtuSignature).append("\n}");
@@ -141,6 +140,13 @@ public class TLSFingerprint {
                 getClass().getSimpleName() + " difference to " + otherName + ":\n");
 
         Set<SignatureDifference.SignDifference> differenceSet;
+
+        differenceSet = SignatureDifference.fromGenericFingerprints(handshakeSignature,
+                other.getHandshakeSignature()).getDifferences();
+        for(SignatureDifference.SignDifference d : differenceSet) {
+            sb.append("Handshake.").append(d).append("\n");
+        }
+
         differenceSet = SignatureDifference.fromGenericFingerprints(serverHelloSignature,
                 other.getServerHelloSignature()).getDifferences();
         for(SignatureDifference.SignDifference d : differenceSet) {

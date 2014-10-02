@@ -70,7 +70,7 @@ public final class ChangeCipherSpec extends ARecordFrame {
         // check size
         if (payloadCopy.length > 1 || payloadCopy.length == 0) {
             throw new IllegalArgumentException(
-                    "Unvalid ChangeCipherSpec message");
+                    "Invalid ChangeCipherSpec message length");
         }
 
         // extract byte

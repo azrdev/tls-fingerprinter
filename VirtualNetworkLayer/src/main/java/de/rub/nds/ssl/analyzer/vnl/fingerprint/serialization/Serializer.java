@@ -1,16 +1,12 @@
 package de.rub.nds.ssl.analyzer.vnl.fingerprint.serialization;
 
 import de.rub.nds.ssl.analyzer.vnl.SessionIdentifier;
-import de.rub.nds.ssl.analyzer.vnl.fingerprint.ClientHelloFingerprint;
-import de.rub.nds.ssl.analyzer.vnl.fingerprint.Fingerprint;
-import de.rub.nds.ssl.analyzer.vnl.fingerprint.ServerHelloFingerprint;
-import de.rub.nds.ssl.analyzer.vnl.fingerprint.TLSFingerprint;
+import de.rub.nds.ssl.analyzer.vnl.fingerprint.*;
 import de.rub.nds.ssl.stack.Utility;
 import de.rub.nds.ssl.stack.protocols.commons.ECipherSuite;
 import de.rub.nds.ssl.stack.protocols.commons.ECompressionMethod;
 import de.rub.nds.ssl.stack.protocols.commons.EProtocolVersion;
 import de.rub.nds.ssl.stack.protocols.commons.Id;
-import de.rub.nds.ssl.stack.protocols.handshake.extensions.datatypes.EECCurveType;
 import de.rub.nds.ssl.stack.protocols.handshake.extensions.datatypes.EECPointFormat;
 import de.rub.nds.ssl.stack.protocols.handshake.extensions.datatypes.EExtensionType;
 import de.rub.nds.ssl.stack.protocols.handshake.extensions.datatypes.ENamedCurve;
@@ -54,7 +50,9 @@ public class Serializer {
 
         else if(sign instanceof Id)
             return Utility.bytesToHex(((Id) sign).getBytes(), false);
-        else if(sign instanceof EProtocolVersion)
+        else if(sign instanceof HandshakeFingerprint.MessageTypes) {
+            return ((HandshakeFingerprint.MessageTypes) sign).serialize();
+        } else if(sign instanceof EProtocolVersion)
             return Utility.bytesToHex(((EProtocolVersion) sign).getId(), false);
         else if(sign instanceof ECompressionMethod)
             return Utility.bytesToHex(((ECompressionMethod) sign).getId(), false);
@@ -97,9 +95,18 @@ public class Serializer {
     }
 
     public static String serialize(TLSFingerprint fp) {
-        return serializeServerHello(fp.getServerHelloSignature())
-                + Serializer.serializeServerTcp(fp.getServerTcpSignature())
-                + Serializer.serializeServerMtu(fp.getServerMtuSignature());
+        return serializeHandshake(fp.getHandshakeSignature())
+                + serializeServerHello(fp.getServerHelloSignature())
+                + serializeServerTcp(fp.getServerTcpSignature())
+                + serializeServerMtu(fp.getServerMtuSignature());
+    }
+
+    public static String serializeHandshake(Fingerprint handshakeSignature) {
+        if(handshakeSignature == null)
+            return "";
+
+        return String.format("\t%s: %s\n", FingerprintId.Handshake.id,
+                handshakeSignature.serialize());
     }
 
     public static String serializeClientHello(Fingerprint clientHelloSignature) {
@@ -138,6 +145,17 @@ public class Serializer {
                 MTUSignature.writeToString(sig));
     }
 
+    public static HandshakeFingerprint.MessageTypes
+    deserializeMessageTypes(String serialized) {
+        final String[] types = serialized.split("-", 2);
+        final Id contentType = new Id(Utility.hexToBytes(types[0]));
+        if(types.length > 1)
+            return new HandshakeFingerprint.MessageTypeSubtype(contentType,
+                    new Id(Utility.hexToBytes(types[1])));
+        else
+            return new HandshakeFingerprint.MessageType(contentType);
+    }
+
     public static List<Id> deserializeList(String serialized) {
         List<Id> bytes = new ArrayList<>(serialized.length());
         for(String item : serialized.split(LIST_DELIMITER, -1)) {
@@ -145,6 +163,14 @@ public class Serializer {
         }
 
         return bytes;
+    }
+
+    public static List<String> deserializeStringList(String serialized) {
+        List<String> strings = new ArrayList<>(serialized.length());
+        for(String item : serialized.split(LIST_DELIMITER, -1)) {
+            strings.add(item.trim());
+        }
+        return strings;
     }
 
     public static Map<SessionIdentifier, List<TLSFingerprint>>
@@ -155,6 +181,7 @@ public class Serializer {
         SessionIdentifier sid = null;
         ClientHelloFingerprint clientHelloSignature = null;
         ServerHelloFingerprint serverHelloSignature = null;
+        HandshakeFingerprint handshakeSignature = null;
         TCPSignature serverTcpSignature = null;
         MTUSignature serverMtuSignature = null;
 
@@ -179,6 +206,8 @@ public class Serializer {
                         serverTcpSignature = new TCPSignature(split[1]);
                     } else if (FingerprintId.ServerMtu.isAtStart(split[0])) {
                         serverMtuSignature = new MTUSignature(split[1]);
+                    } else if (FingerprintId.Handshake.isAtStart(split[0])) {
+                        handshakeSignature = new HandshakeFingerprint(split[1]);
                     } else {
                         logger.debug("Unrecognized signature: " + line);
                     }
@@ -186,8 +215,8 @@ public class Serializer {
                     logger.debug("Error reading signature: " + ex + " - " + line);
                 }
             } else {
-                commitFingerprint(sid, new TLSFingerprint(serverHelloSignature,
-                                serverTcpSignature, serverMtuSignature),
+                commitFingerprint(sid, new TLSFingerprint(handshakeSignature,
+                        serverHelloSignature, serverTcpSignature, serverMtuSignature),
                         fingerprints);
 
                 try {
@@ -199,8 +228,9 @@ public class Serializer {
             }
         }
 
-        commitFingerprint(sid, new TLSFingerprint(serverHelloSignature,
-                serverTcpSignature, serverMtuSignature), fingerprints);
+        commitFingerprint(sid, new TLSFingerprint(handshakeSignature,
+                serverHelloSignature, serverTcpSignature, serverMtuSignature),
+                fingerprints);
 
         return fingerprints;
     }
@@ -235,7 +265,8 @@ public class Serializer {
         ClientHello("ClientHello"),
         ServerHello("ServerHello"),
         ServerTcp("ServerTCP"),
-        ServerMtu("ServerMTU");
+        ServerMtu("ServerMTU"),
+        Handshake("Handshake");
 
         public final String id;
         private final Pattern pattern;

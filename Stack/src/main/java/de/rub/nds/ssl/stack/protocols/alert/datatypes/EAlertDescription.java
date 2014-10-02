@@ -66,7 +66,7 @@ public enum EAlertDescription {
     static {
         ID_MAP = new HashMap<>(values().length);
         for (EAlertDescription alert : EAlertDescription.values()) {
-            ID_MAP.put(alert.getAlertDescriptionId(), alert);
+            ID_MAP.put(alert.getId(), alert);
         }
     }
 
@@ -79,7 +79,7 @@ public enum EAlertDescription {
      *
      * @return byte-value of the alert description
      */
-    public byte getAlertDescriptionId() {
+    public byte getId() {
         return this.desc;
     }
 

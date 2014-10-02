@@ -55,7 +55,7 @@ public class Alert extends ARecordFrame {
         byte[] alert = new byte[2];
 
         alert[0] = this.level.getAlertLevelId();
-        alert[1] = this.desc.getAlertDescriptionId();
+        alert[1] = this.desc.getId();
 
         super.setPayload(alert);
         return chained ? super.encode(true) : alert;

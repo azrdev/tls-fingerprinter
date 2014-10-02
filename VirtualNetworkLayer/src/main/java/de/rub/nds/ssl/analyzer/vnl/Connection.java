@@ -22,11 +22,10 @@ import java.util.LinkedList;
 import java.util.List;
 
 public class Connection {
-
-    private Logger logger = Logger.getLogger(getClass());
+    private static Logger logger = Logger.getLogger(Connection.class);
 
 	private PcapTrace trace;
-	private List<MessageContainer> fl;
+    private List<MessageContainer> frameList;
 
     private Fingerprint.Signature serverTcpSignature;
     private Fingerprint.Signature serverMtuSignature;
@@ -38,28 +37,36 @@ public class Connection {
         //TODO: Direction.Request  if we serve TLS
 		this.serverTcpSignature = pcapConnection.getSignature(Direction.Response, Fingerprints.Tcp);
 		this.serverMtuSignature = pcapConnection.getSignature(Direction.Response, Fingerprints.Mtu);
-		this.fl = this.decodeTrace();
+		this.frameList = this.decodeTrace();
 	}
 	
 	public boolean isCompleted() {
-		return this.fl != null;
+		return this.frameList != null;
 	}
 
+    public List<MessageContainer> getFrameList() {
+        return frameList;
+    }
+
     public ServerHello getServerHello() {
-        for (MessageContainer mc : fl) {
+        for (MessageContainer mc : frameList) {
             ARecordFrame rf = mc.getCurrentRecord();
             if (rf instanceof ServerHello) {
                 return (ServerHello) rf;
             }
         }
-        // No Server Hello?
         throw new RuntimeException("Could not find a ServerHello");
     }
 	
 	public ClientHello getClientHello() {
-		// the first message is always the ClientHello
-		MessageContainer clientHelloMC = fl.get(0);
-		return (ClientHello) clientHelloMC.getCurrentRecord();
+        // should be the first message, but who knows about hello_request
+        for (MessageContainer mc : frameList) {
+            ARecordFrame rf = mc.getCurrentRecord();
+            if (rf instanceof ClientHello) {
+                return (ClientHello) rf;
+            }
+        }
+        throw new RuntimeException("Could not find a ClientHello");
 	}
 
     public Fingerprint.Signature getServerTcpSignature() {
@@ -71,10 +78,10 @@ public class Connection {
     }
 
 	public void printReport() {
-		if (fl != null) {
+		if (frameList != null) {
             StringBuilder sb = new StringBuilder();
             sb.append("Full connection report: begin trace\n");
-			for (MessageContainer aRecordFrame : fl) {
+			for (MessageContainer aRecordFrame : frameList) {
 				sb.append(aRecordFrame.getCurrentRecord()).append("\n");
 			}
 			sb.append("end of trace");
@@ -106,8 +113,7 @@ public class Connection {
 
                     // Decode these bytes
                     ARecordFrame[] frames = ACaptureConverter
-                            .decodeRecordFrames(content,
-                                    keyExchangeAlgorithm);
+                            .decodeRecordFrames(content, keyExchangeAlgorithm);
 
                     // Convert all Frames to MessageContainer and add them to the list
                     for (ARecordFrame frame : frames) {
@@ -128,7 +134,7 @@ public class Connection {
                                 serverCompleted = true;
                             }
                             if (clientCompleted && serverCompleted) {
-                                // Both have send a ChangeCipherSpec message
+                                // Both have send a ChangeCipherSpec message -> Finalize
                                 return frameList;
                             }
                         }
