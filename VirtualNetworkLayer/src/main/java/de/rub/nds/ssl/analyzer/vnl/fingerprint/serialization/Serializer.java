@@ -156,6 +156,15 @@ public class Serializer {
             return new HandshakeFingerprint.MessageType(contentType);
     }
 
+    public static Boolean deserializeBoolean(String serialized) {
+        final String trimmed = serialized.trim().toLowerCase();
+        if(trimmed.equals("true"))
+            return true;
+        if(trimmed.equals("false"))
+            return false;
+        return null;
+    }
+
     public static List<Id> deserializeList(String serialized) {
         List<Id> bytes = new ArrayList<>(serialized.length());
         for(String item : serialized.split(LIST_DELIMITER, -1)) {

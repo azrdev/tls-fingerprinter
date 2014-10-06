@@ -81,7 +81,7 @@ public class ClientHelloFingerprint extends Fingerprint {
         bytes = Utility.hexToBytes(signs[0].trim());
         addSign("version", EProtocolVersion.getProtocolVersion(bytes));
 
-        addSign("session-id-empty", signs[1].trim().equals("true"));
+        addSign("session-id-empty", Serializer.deserializeBoolean(signs[1]));
 
         List<Id> compressionMethods = Serializer.deserializeList(signs[2].trim());
         addSign("compression-method-list", compressionMethods);

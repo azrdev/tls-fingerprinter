@@ -126,6 +126,12 @@ public enum EExtensionType{
     SESSION_TICKET_TLS(new byte[]{0x00, 0x23}, SessionTicket.class),
 
     /**
+     * Next Protocol Negotiation (http://tools.ietf.org/html/draft-agl-tls-nextprotoneg-04)
+     * Expired draft, replaced by {@link #APPLICATION_LAYER_PROTOCOL_NEGOTIATION}
+     */
+    NEXT_PROTOCOL_NEGOTIATION(new byte[]{0x33, 0x74}, null),
+
+    /**
      * Renegotiation info (RFC5746).
      */
     RENEGOTIATION_INFO(new byte[]{(byte) 0xFF, 0x01}, RenegotiationInfo.class);

@@ -84,7 +84,7 @@ public class ServerHelloFingerprint extends Fingerprint {
         bytes = Utility.hexToBytes(signs[2].trim());
         addSign("compression-method", ECompressionMethod.getCompressionMethod(bytes[0]));
 
-        addSign("session-id-empty", signs[3].trim().equals("true"));
+        addSign("session-id-empty", Serializer.deserializeBoolean(signs[3]));
 
         List<Id> extensionLayout = Serializer.deserializeList(signs[4].trim());
         addSign("extensions-layout", extensionLayout);
