@@ -23,7 +23,7 @@ public class SessionIdentifier {
     private static final int MAX_PORT = 65535;
 
     /**
-     * Initializes all attributes with null
+     * Initializes all attributes with null => isValid() == false
      */
     public SessionIdentifier() {}
 
@@ -38,6 +38,16 @@ public class SessionIdentifier {
         this.serverIPAddress = serverIPAddress;
         this.serverHostName = serverHostName;
         this.clientHelloSignature = clientHelloSignature;
+    }
+
+    /**
+     * @return True iff at leas one component of the id is not uninitialized / null
+     */
+    public boolean isValid() {
+        return serverIPAddress != null ||
+                serverTcpPort != 0 ||
+                (serverHostName != null && ! serverHostName.isEmpty()) ||
+                clientHelloSignature != null;
     }
 
     /**

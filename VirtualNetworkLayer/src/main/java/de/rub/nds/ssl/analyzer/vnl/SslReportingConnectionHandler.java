@@ -114,9 +114,11 @@ public final class SslReportingConnectionHandler extends ConnectionHandler {
 				reportedSessions.add(session);
 
                 SessionIdentifier sessionIdentifier = c.getSessionIdentifier();
-                TLSFingerprint tlsFingerprint = new TLSFingerprint(c);
-
-                fingerprintListener.reportConnection(sessionIdentifier, tlsFingerprint);
+                if(sessionIdentifier.isValid()) {
+                    TLSFingerprint tlsFingerprint = new TLSFingerprint(c);
+                    fingerprintListener.reportConnection(sessionIdentifier,
+                            tlsFingerprint);
+                }
 
 				//c.printReport();
 			}
