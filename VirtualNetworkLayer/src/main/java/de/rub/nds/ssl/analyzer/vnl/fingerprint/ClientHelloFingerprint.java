@@ -8,14 +8,18 @@ import de.rub.nds.ssl.stack.protocols.commons.Id;
 import de.rub.nds.ssl.stack.protocols.handshake.ClientHello;
 import de.rub.nds.ssl.stack.protocols.handshake.datatypes.Extensions;
 import de.rub.nds.ssl.stack.protocols.handshake.extensions.EllipticCurves;
+import de.rub.nds.ssl.stack.protocols.handshake.extensions.RenegotiationInfo;
 import de.rub.nds.ssl.stack.protocols.handshake.extensions.SupportedPointFormats;
 import de.rub.nds.ssl.stack.protocols.handshake.extensions.datatypes.EExtensionType;
+import de.rub.nds.virtualnetworklayer.util.Util;
+import org.apache.log4j.Logger;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 public class ClientHelloFingerprint extends Fingerprint {
+    private static Logger logger = Logger.getLogger(ClientHelloFingerprint.class);
 
     public ClientHelloFingerprint(String serialized) {
         deserialize(serialized);
@@ -58,6 +62,13 @@ public class ClientHelloFingerprint extends Fingerprint {
         if(supportedCurves != null) {
             addSign("supported-curves", supportedCurves.getSupportedCurvesList());
         }
+
+        RenegotiationInfo renegotiationInfo =
+                extensions.getExtension(EExtensionType.RENEGOTIATION_INFO);
+        if(renegotiationInfo != null) {
+            addSign("renegotiation-info-length",
+                    renegotiationInfo.getRenegotiatedConnection().length);
+        }
     }
 
     @Override
@@ -68,7 +79,8 @@ public class ClientHelloFingerprint extends Fingerprint {
                 "cipher-suite-list",
                 "extensions-layout",
                 "supported-point-formats",
-                "supported-curves");
+                "supported-curves",
+                "renegotiation-info-length");
     }
 
     @Override
@@ -96,14 +108,22 @@ public class ClientHelloFingerprint extends Fingerprint {
 
         if(signs.length < 6)
             return;
-
         List<Id> supportedPointFormats = Serializer.deserializeList(signs[5].trim());
         addSign("supported-point-formats", supportedPointFormats);
 
         if(signs.length < 7)
             return;
-
         List<Id> supportedCurves = Serializer.deserializeList(signs[6].trim());
         addSign("supported-curves", supportedCurves);
+
+        if(signs.length < 8)
+            return;
+        try {
+            addSign("renegotiation-info-length",
+                    Util.readBoundedInteger(signs[7].trim(), 0 , 255));
+        } catch(NumberFormatException e) {
+            // probably empty
+            logger.debug("Cannot parse renegotiation-info-length: " + signs[7]);
+        }
     }
 }
