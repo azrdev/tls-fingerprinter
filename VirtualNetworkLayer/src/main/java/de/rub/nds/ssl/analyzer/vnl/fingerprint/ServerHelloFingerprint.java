@@ -34,6 +34,8 @@ public class ServerHelloFingerprint extends Fingerprint {
         addSign("session-id-empty", serverHello.getSessionID().isEmpty());
 
         Extensions extensions = serverHello.getExtensions();
+        if(extensions == null)
+            return; //TODO: distinguish no extensions from empty list
 
         addSign("extensions-layout", extensions.getRawExtensionTypes());
 

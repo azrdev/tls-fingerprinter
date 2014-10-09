@@ -39,6 +39,8 @@ public class ClientHelloFingerprint extends Fingerprint {
                 clientHello.getCipherSuites().getRawSuites());
 
         Extensions extensions = clientHello.getExtensions();
+        if(extensions == null)
+            return; //TODO: distinguish no extensions from empty list
 
         addSign("extensions-layout", extensions.getRawExtensionTypes());
 
