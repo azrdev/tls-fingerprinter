@@ -11,6 +11,8 @@ import de.rub.nds.virtualnetworklayer.packet.header.transport.SocketSession;
 import de.rub.nds.virtualnetworklayer.pcap.Pcap;
 import de.rub.nds.virtualnetworklayer.util.Util;
 import de.rub.nds.virtualnetworklayer.util.formatter.IpFormatter;
+import org.apache.log4j.Logger;
+
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
@@ -26,6 +28,8 @@ import java.util.List;
  * @see Pcap
  */
 public class PcapConnection implements Connection {
+    private static Logger logger = Logger.getLogger(PcapConnection.class);
+
     private PcapTrace trace = new PcapTrace();
     private Label[][] labels;
     private Fingerprint.Signature[][] signatures;
@@ -114,11 +118,10 @@ public class PcapConnection implements Connection {
             try {
                 while (connection.trace.size() < 3) {
                     // TODO deadlocked
+                    logger.debug("deadlocked: " + connection);
                     connection.wait();
                 }
-            } catch (InterruptedException e) {
-
-            }
+            } catch (InterruptedException e) {}
         }
 
         return connection;

@@ -170,7 +170,7 @@ public class PcapPacket implements Packet, StringFormattable {
 
     @Override
     public String toString() {
-        return new Long(timeStamp).toString() + " " + getDirection() + " " + getSession();
+        return Long.toString(timeStamp) + " " + getDirection() + " " + getSession();
     }
 
     public String toFormattedString() {
