@@ -26,8 +26,15 @@ import java.util.Map.Entry;
  * @see Fingerprint
  */
 public abstract class ConnectionHandler extends PacketHandler {
-	
-	private static int TIMEOUT = 300*1000*1000; // 120 seconds
+
+    /**
+     * TIMEOUT after which a connection should be considered dead and <b>be removed</b>
+     * from the internal connection list (like TCP keepalive). In nanoseconds.
+     */
+	private static long TIMEOUT = 120 * 1000000000L; // 120 seconds
+    /**
+     * Interval how often TIMEOUT should be checked - number of packets to newPacket()
+     */
 	private static int TIMEOUT_INTERVAL = 5000; // Every 5000 Packets
 
     /**
