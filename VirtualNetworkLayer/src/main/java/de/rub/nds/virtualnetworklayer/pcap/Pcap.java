@@ -8,6 +8,7 @@ import de.rub.nds.virtualnetworklayer.util.Util;
 import org.bridj.Pointer;
 
 import java.io.File;
+import java.lang.IllegalArgumentException;
 import java.lang.ref.WeakReference;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -278,6 +279,21 @@ public class Pcap {
         }
 
         return new Pcap(pcap_t, file);
+    }
+
+    /**
+     * Create a pcap instance in offline mode reading from Standard Input
+     * @return instance of {@link Pcap}
+     * @throws IllegalArgumentException on failure
+     */
+    public static Pcap openOfflineStdin() {
+        pcap_t pcap_t = PcapLibrary.pcap_open_offline(
+                Pointer.pointerToCString("-"), errbuf);
+        if(pcap_t == null) {
+            throw new IllegalArgumentException(errbuf.getCString());
+        }
+
+        return new Pcap(pcap_t);
     }
 
     /**

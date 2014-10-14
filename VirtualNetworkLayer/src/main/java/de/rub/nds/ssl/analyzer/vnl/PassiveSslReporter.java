@@ -34,7 +34,7 @@ public class PassiveSslReporter {
         Pcap.Status status = pcap.loop(handler);
         logger.info("looping done, returned " + status);
 	}
-	
+
 	public Pcap.Status run() {
         logger.info("opening live device");
         //open pcap on local live device
@@ -47,8 +47,16 @@ public class PassiveSslReporter {
         logger.info("looping done, returned " + status);
         return status;
 	}
-	
-	public Thread startMonitorThread() {
+
+    public Pcap.Status runOnStdin() {
+        Pcap pcap = Pcap.openOfflineStdin();
+        logger.info("now looping over stdin");
+        Pcap.Status status = pcap.loop(handler);
+        logger.info("looping done, returned " + status);
+        return status;
+    }
+
+    public Thread startMonitorThread() {
         Thread t = new Thread(new Runnable() {
             @Override
             public void run() {
@@ -79,11 +87,14 @@ public class PassiveSslReporter {
                 psr.run();
             } else {
                 for (String string : args) {
-                    try {
-                        psr.run(string);
-                    } catch (IllegalArgumentException e) {
-                        logger.error(e);
-                    }
+                    if(string.equals("-")) {
+                        psr.runOnStdin();
+                    } else
+                        try {
+                            psr.run(string);
+                        } catch (IllegalArgumentException e) {
+                            logger.error(e);
+                        }
                 }
             }
         } finally {
