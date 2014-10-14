@@ -16,6 +16,8 @@
         <module>BleichenbacherTests</module>
         <module>BleichenbacherTimingStripped</module>
         <module>ECCTests</module>
+        <module>PassiveAnalyzer</module>
+        <module>VirtualNetworkLayer</module>
     </modules>
 
     <build>
