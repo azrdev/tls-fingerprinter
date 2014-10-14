@@ -14,11 +14,12 @@
     <groupId>de.rub.nds</groupId>
     <version>1.0-SNAPSHOT</version>
     <name>VirtualNetworkLayer</name>
+
     <properties>
         <version.bridj>0.6.1</version.bridj>
-        <version.junit>4.10</version.junit>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
+
     <dependencies>
         <dependency>
             <groupId>com.nativelibs4java</groupId>
@@ -28,8 +29,6 @@
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
-            <version>${version.junit}</version>
-            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
@@ -41,7 +40,12 @@
             <artifactId>guava</artifactId>
             <version>12.0</version>
         </dependency>
+        <dependency>
+            <groupId>log4j</groupId>
+            <artifactId>log4j</artifactId>
+        </dependency>
     </dependencies>
+
     <build>
         <plugins>
             <plugin>
@@ -50,15 +54,6 @@
                 <configuration>
                     <!-- skipTests since they require root permissions for pcap on linux -->
                     <skipTests>true</skipTests>
-                </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.1</version>
-                <configuration>
-                    <source>1.7</source>
-                    <target>1.7</target>
                 </configuration>
             </plugin>
             <plugin>
