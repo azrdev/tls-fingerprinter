@@ -4,8 +4,9 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Arrays;
+import java.util.Date;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import de.rub.nds.ssl.analyzer.vnl.fingerprint.*;
@@ -14,6 +15,8 @@ import de.rub.nds.virtualnetworklayer.connection.pcap.ConnectionHandler;
 import de.rub.nds.virtualnetworklayer.connection.pcap.PcapConnection;
 import de.rub.nds.virtualnetworklayer.p0f.P0fFile;
 import de.rub.nds.virtualnetworklayer.packet.header.transport.SocketSession;
+import de.rub.nds.virtualnetworklayer.pcap.Pcap;
+import de.rub.nds.virtualnetworklayer.pcap.PcapDumper;
 import org.apache.log4j.Logger;
 
 /**
@@ -25,6 +28,7 @@ import org.apache.log4j.Logger;
  *
  */
 public final class SslReportingConnectionHandler extends ConnectionHandler {
+    private static Logger logger = Logger.getLogger(SslReportingConnectionHandler.class);
 
 	static {
 		registerP0fFile(P0fFile.Embedded);
@@ -43,11 +47,11 @@ public final class SslReportingConnectionHandler extends ConnectionHandler {
      */
     private static final int SSL_PORT = 443;
 
-    private Logger logger = Logger.getLogger(getClass());
-
     private FingerprintListener fingerprintListener = new FingerprintListener();
 
     private Set<SocketSession> reportedSessions = new HashSet<>();
+
+    private PcapConnection currentConnection = null;
 
     public SslReportingConnectionHandler() {
         for(Path fpDb : Arrays.asList(fingerprintsNewDb, fingerprintsChangedDb)) {
@@ -60,10 +64,24 @@ public final class SslReportingConnectionHandler extends ConnectionHandler {
         }
 
         //configure here:
-        setFingerprintReporting(true, fingerprintsNewDb, fingerprintsChangedDb);
+        setFingerprintReporting(true, fingerprintsNewDb, fingerprintsChangedDb, true, true);
     }
 
-    public void setFingerprintReporting(boolean log, Path saveToFileNew, Path saveToFileChanged) {
+    /**
+     * Enable/Disable fingerprint reporting modules
+     * @param log Enable {@link LoggingFingerprintReporter}
+     * @param saveToFileNew Enable serialization of new fingerprints to that file.
+     * @param saveToFileChanged Enable serialization of changed fingerprints to that file.
+     * @param writeCaptureOnNewFingerprint Write pcap file of every handshake with a
+     *                                     new fingerprint
+     * @param writeCaptureOnChangedFingerprint Write pcap file of every handshake with a
+     *                                     changed fingerprint
+     */
+    public void setFingerprintReporting(boolean log,
+                                        Path saveToFileNew,
+                                        Path saveToFileChanged,
+                                        final boolean writeCaptureOnNewFingerprint,
+                                        final boolean writeCaptureOnChangedFingerprint) {
         fingerprintListener.clearFingerprintReporters();
 
         if(log)
@@ -76,6 +94,25 @@ public final class SslReportingConnectionHandler extends ConnectionHandler {
             } catch (IOException e) {
                 logger.info("Could not open fingerprint save file: " + e);
             }
+        }
+
+        if(writeCaptureOnNewFingerprint || writeCaptureOnChangedFingerprint) {
+            fingerprintListener.addFingerprintReporter(new FingerprintReporter() {
+                @Override
+                public void reportChange(SessionIdentifier sessionIdentifier, TLSFingerprint fingerprint, List<TLSFingerprint> previousFingerprints) {
+                    if(writeCaptureOnChangedFingerprint)
+                        writeCapture("changed");
+                }
+
+                @Override
+                public void reportUpdate(SessionIdentifier s, TLSFingerprint t) {}
+
+                @Override
+                public void reportNew(SessionIdentifier sessionIdentifier, TLSFingerprint tlsFingerprint) {
+                    if(writeCaptureOnNewFingerprint)
+                        writeCapture("new");
+                }
+            });
         }
     }
     
@@ -93,16 +130,21 @@ public final class SslReportingConnectionHandler extends ConnectionHandler {
 
     @Override
     public void newConnection(final Event event, final PcapConnection connection) {
+        currentConnection = connection;
+        try {
 
-        if (isSsl(connection)) {
-            if (event == Event.New) {
-                // logger.info("new connection");
-                // There is a new SSL connection
-                handleUpdate(connection);
-            } else if (event == Event.Update) {
-                // A new frame has arrived
-                handleUpdate(connection);
+            if (isSsl(connection)) {
+                if (event == Event.New) {
+                    // logger.info("new connection");
+                    // There is a new SSL connection
+                    handleUpdate(connection);
+                } else if (event == Event.Update) {
+                    // A new frame has arrived
+                    handleUpdate(connection);
+                }
             }
+        } finally {
+            currentConnection = null;
         }
     }
 
@@ -111,6 +153,7 @@ public final class SslReportingConnectionHandler extends ConnectionHandler {
 		// Did we handle this already?
 		SocketSession session = connection.getSession();
 		if (!reportedSessions.contains(session)) {
+            connection.setKeepRawPackets(true);
 
 			Connection c;
 			try {
@@ -134,4 +177,20 @@ public final class SslReportingConnectionHandler extends ConnectionHandler {
 
 		}
 	}
+
+    private void writeCapture(String nameSuffix) {
+        if(currentConnection == null) {
+            logger.warn("no current connection");
+            return;
+        }
+        final String name = new Date() + "_" +
+                currentConnection.getSession() + "_" +
+                nameSuffix + ".pcap";
+        PcapDumper pcapDumper = Pcap.getInstance(new byte[]{}).openDump(new File(name));
+        for(RawPacket rawPacket : currentConnection.getRawPackets()) {
+            pcapDumper.dump(rawPacket.header, rawPacket.bytes);
+        }
+
+        currentConnection.setKeepRawPackets(false);
+    }
 }

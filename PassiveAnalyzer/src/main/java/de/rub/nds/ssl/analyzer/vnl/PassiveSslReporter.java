@@ -14,7 +14,6 @@ import org.apache.log4j.Logger;
  *
  */
 public class PassiveSslReporter {
-
     private static Logger logger = Logger.getRootLogger();
 	
 	static {
@@ -23,13 +22,14 @@ public class PassiveSslReporter {
 	
 	// Our handler will report on all new packets
 	private SslReportingConnectionHandler handler = new SslReportingConnectionHandler();
+    private Pcap pcap;
 
     private PassiveSslReporter() {
         logger.info("Starting up");
     }
 
 	public void run(String filename) {
-		Pcap pcap = Pcap.openOffline(new File(filename));
+		pcap = Pcap.openOffline(new File(filename));
         logger.info("now looping over file " + filename);
         Pcap.Status status = pcap.loop(handler);
         logger.info("looping done, returned " + status);
@@ -38,7 +38,7 @@ public class PassiveSslReporter {
 	public Pcap.Status run() {
         logger.info("opening live device");
         //open pcap on local live device
-        Pcap pcap = Pcap.openLive();
+        pcap = Pcap.openLive();
         logger.info("now looping over live capture");
         
         // Give control to pcap, pcap will use callbacks.
@@ -49,7 +49,7 @@ public class PassiveSslReporter {
 	}
 
     public Pcap.Status runOnStdin() {
-        Pcap pcap = Pcap.openOfflineStdin();
+        pcap = Pcap.openOfflineStdin();
         logger.info("now looping over stdin");
         Pcap.Status status = pcap.loop(handler);
         logger.info("looping done, returned " + status);
