@@ -1,8 +1,6 @@
 package de.rub.nds.virtualnetworklayer.pcap;
 
-import de.rub.nds.virtualnetworklayer.pcap.structs.bpf_program;
-import de.rub.nds.virtualnetworklayer.pcap.structs.pcap_if;
-import de.rub.nds.virtualnetworklayer.pcap.structs.pcap_t;
+import de.rub.nds.virtualnetworklayer.pcap.structs.*;
 import org.bridj.BridJ;
 import org.bridj.CRuntime;
 import org.bridj.Platform;
@@ -63,5 +61,19 @@ public class PcapLibrary {
     public static native int pcap_set_datalink(pcap_t p, int dlt);
 
     public static native void pcap_close(pcap_t p);
+
+
+    public static native Pointer<Byte> pcap_geterr(pcap_t p);
+
+    public static native pcap_dumper_t pcap_dump_open(pcap_t p, Pointer<Byte> fname);
+
+    public static native void pcap_dump_close(pcap_dumper_t p);
+
+    public static native int pcap_dump_flush(pcap_dumper_t p);
+
+    public static native long pcap_dump_ftell(pcap_dumper_t p);
+    
+    public static native void pcap_dump(Pointer user, Pointer<pcap_pkthdr> h,
+                                        Pointer<Byte> sp);
 
 }

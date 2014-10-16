@@ -2,6 +2,7 @@ package de.rub.nds.virtualnetworklayer.pcap;
 
 import de.rub.nds.virtualnetworklayer.connection.pcap.ConnectionHandler;
 import de.rub.nds.virtualnetworklayer.pcap.structs.bpf_program;
+import de.rub.nds.virtualnetworklayer.pcap.structs.pcap_dumper_t;
 import de.rub.nds.virtualnetworklayer.pcap.structs.pcap_if;
 import de.rub.nds.virtualnetworklayer.pcap.structs.pcap_t;
 import de.rub.nds.virtualnetworklayer.util.Util;
@@ -24,6 +25,7 @@ import java.util.Set;
  * <ul>
  * <li>live capturing: {@link #openLive()}, {@link #openLive(Device)}, {@link #openLive(Device, java.util.Set)}</li>
  * <li>opening an pcap dump: {@link #openOffline(java.io.File)}</li>
+ * <li>opening standard input as pcap: {@link #openOfflineStdin()}</li>
  * <li>radio frequence monitoring: {@link #openRadioFrequencyMonitor()}, {@link #openRadioFrequencyMonitor(Device)}</li>
  * </ul>
  * The wrapper does reference counting, so a instance might be also looked up by address {@link #getInstance(byte[])}.
@@ -570,6 +572,33 @@ public class Pcap {
     private Status setStatus(int code) {
         this.status = Status.valueOf(code);
         return this.status;
+    }
+
+    /**
+     * Open a file to which to write packets
+     *
+     * @param pathname Name of the file to open.
+     * @return A {@link PcapDumper} suitable to dump packets
+     */
+    public PcapDumper openDump(File pathname) {
+        pcap_dumper_t dumper = PcapLibrary.pcap_dump_open(pcap_t,
+                Pointer.pointerToCString(pathname.getAbsolutePath()));
+
+        if(dumper == null)
+            throw new IllegalArgumentException(getLastError());
+
+        return new PcapDumper(dumper);
+    }
+
+    /**
+     * @return The last occured error. Use for functions without errbuf parameter.
+     */
+    public String getLastError() {
+        Pointer<Byte> err = PcapLibrary.pcap_geterr(pcap_t);
+        if(err == null)
+            return null;
+
+        return err.getCString();
     }
 
     /**
