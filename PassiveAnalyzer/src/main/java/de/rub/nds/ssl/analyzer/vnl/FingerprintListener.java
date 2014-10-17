@@ -53,7 +53,7 @@ public class FingerprintListener {
             reportFingerprintChange(sessionIdentifier, tlsFingerprint, previousFingerprints);
             previousFingerprints.add(tlsFingerprint);
         } else {
-            // the ClientHelloFingerprint is not yet in fingerprints, add it
+            // the ClientFingerprint is not yet in fingerprints, add it
             List<TLSFingerprint> fingerprintList = new ArrayList<>(1);
             fingerprintList.add(tlsFingerprint);
             reportFingerprintNew(sessionIdentifier, tlsFingerprint);

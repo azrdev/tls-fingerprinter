@@ -120,7 +120,8 @@ public class ServerHelloFingerprint extends Fingerprint {
                     Util.readBoundedInteger(signs[7].trim(), 0, 255));
         } catch(NumberFormatException e) {
             // probably empty
-            logger.debug("Cannot parse renegotiation-info-length: " + signs[7]);
+            logger.debug("Cannot parse renegotiation-info-length. signature: " +
+                    serialized);
         }
     }
 }

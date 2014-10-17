@@ -193,7 +193,9 @@ public class HandshakeFingerprint extends Fingerprint {
 
     @Override
     public List<String> serializationSigns() {
-        return Arrays.asList("message-types");
+        return Arrays.asList(
+                "message-types",
+                "session-ids-match");
     }
 
     @Override
