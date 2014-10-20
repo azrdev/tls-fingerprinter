@@ -84,7 +84,12 @@ public class PassiveSslReporter {
         Thread monitorThread = psr.startMonitorThread();
         try {
             if (args.length == 0) {
-                psr.run();
+                try {
+                    psr.run();
+                } catch(IllegalArgumentException e) {
+                    logger.error(e);
+                    throw e;
+                }
             } else {
                 for (String string : args) {
                     if(string.equals("-")) {

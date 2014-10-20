@@ -99,6 +99,7 @@ public final class SslReportingConnectionHandler extends ConnectionHandler {
     }
 
 	public void handleUpdate(final PcapConnection connection) {
+        //TODO: on every packet (Ethernet frame) we do this again: parse the whole-so-far handshake
 		// Did we handle this already?
 		SocketSession session = connection.getSession();
 		if (!reportedSessions.contains(session)) {
