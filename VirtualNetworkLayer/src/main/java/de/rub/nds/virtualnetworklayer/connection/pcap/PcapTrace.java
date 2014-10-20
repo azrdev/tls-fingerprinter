@@ -48,21 +48,29 @@ public class PcapTrace extends Connection.Trace<PcapPacket> {
         return true;
     }
 
+    /**
+     * Fit the packet into sequenceOrder, re-assembling higher-layered Headers that
+     * were split over multiple TCP segments.
+     */
     private void reassembleTcp(PcapPacket packet) {
         TcpHeader tcpHeader = packet.getHeader(TcpHeader.Id);
 
         if (fragmentSequences.containsKey(tcpHeader.getSequenceNumber())) {
+            /**
+             * Some incomplete payload header is waiting to be continued by this packet
+             */
             FragmentSequence sequence = fragmentSequences.remove(tcpHeader.getSequenceNumber());
-            if (!sequence.isComplete()) {
+            if (sequence.isComplete()) {
+                sequenceOrder.add(packet);
+            } else {
 
                 sequence.add(packet);
                 mergeNonContinuousSequences(sequence, tcpHeader, packet);
-                fragmentSequences.put(tcpHeader.getNextSequenceNumber(), sequence);
+                fragmentSequences.put(tcpHeader.getNextSequenceNumber(), sequence);//XXX
 
                 if (sequence.isComplete()) {
                     addReassembledPacket(sequence);
                 }
-
             }
         } else if (packet.isFragmented()) {
             fragmentSequences.put(tcpHeader.getNextSequenceNumber(), new FragmentSequence(packet));
@@ -86,8 +94,9 @@ public class PcapTrace extends Connection.Trace<PcapPacket> {
     }
 
     private void addReassembledPacket(FragmentSequence sequence) {
-        if (sequence.getCroppedPacket() != null) {
-            sequenceOrder.add(sequence.getCroppedPacket());
+        ReassembledPacket croppedPacket = sequence.getCroppedPacket();
+        if (croppedPacket != null) {
+            sequenceOrder.add(croppedPacket);
         }
 
         sequenceOrder.add(sequence.getExtendedPacket());
@@ -139,7 +148,7 @@ public class PcapTrace extends Connection.Trace<PcapPacket> {
 
     /**
      * @param position
-     * @return reassembeld packet at specified position in sequence
+     * @return reassembled packet at specified position in sequence
      */
     @Override
     public PcapPacket get(int position) {

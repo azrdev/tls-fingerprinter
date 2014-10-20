@@ -211,7 +211,7 @@ public class TcpHeader extends Header implements Session, Port {
     }
 
     public Long getNextSequenceNumber() {
-        if (getFlags().contains(Flag.SYN)) {
+        if (getFlags().contains(Flag.SYN) || getFlags().contains(Flag.FIN)) {
             return getSequenceNumber() + 1;
         } else {
             return getSequenceNumber() + getPayloadLength();
