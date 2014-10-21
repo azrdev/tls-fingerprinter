@@ -1,10 +1,13 @@
 package de.rub.nds.ssl.stack.protocols.handshake.extensions;
 
 import de.rub.nds.ssl.stack.protocols.commons.ECipherSuite;
+import de.rub.nds.ssl.stack.protocols.commons.Id;
 import de.rub.nds.ssl.stack.protocols.handshake.extensions.datatypes.EExtensionType;
 import de.rub.nds.ssl.stack.protocols.handshake.extensions.datatypes.ENamedCurve;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -28,7 +31,9 @@ public final class EllipticCurves extends AExtension {
     /**
      * Array of supported elliptic curves in preferred order.
      */
-    private ENamedCurve[] supportedCurves;
+    private List<ENamedCurve> supportedCurves = new LinkedList<>();
+
+    private List<Id> rawSupportedCurves = new LinkedList<>();
 
     /**
      * Initializes an Elliptic Curves Extension as defined in RFC 4492. All
@@ -53,19 +58,12 @@ public final class EllipticCurves extends AExtension {
      *
      * @return Supported curves.
      */
-    public ENamedCurve[] getSupportedCurves() {
-        // deep copy
-        ENamedCurve[] tmp = new ENamedCurve[supportedCurves.length];
-        System.arraycopy(supportedCurves, 0, tmp, 0, supportedCurves.length);
-
-        return tmp;
+    public List<ENamedCurve> getSupportedCurves() {
+        return new ArrayList<>(supportedCurves);
     }
 
-    /**
-     * @return Supported Named Elliptic Curves, as List.
-     */
-    public List<ENamedCurve> getSupportedCurvesList() {
-        return Arrays.asList(supportedCurves);
+    public List<Id> getRawSupportedCurves() {
+        return new ArrayList<>(rawSupportedCurves);
     }
 
     /**
@@ -77,10 +75,7 @@ public final class EllipticCurves extends AExtension {
         if (curves == null) {
             throw new IllegalArgumentException("Curves must not be null!");
         }
-        // keep the array clean and small, Mr. Proper will be proud!
-        this.supportedCurves = new ENamedCurve[curves.length];
-        // refill, deep copy
-        System.arraycopy(curves, 0, this.supportedCurves, 0, curves.length);
+        supportedCurves = Arrays.asList(curves);
     }
 
     /**
@@ -92,7 +87,7 @@ public final class EllipticCurves extends AExtension {
     @Override
     public byte[] encode(final boolean chained) {
         int pointer = 0;
-        Integer curvesBytes = supportedCurves.length * ENamedCurve.LENGTH_ENCODED;
+        Integer curvesBytes = supportedCurves.size() * ENamedCurve.LENGTH_ENCODED;
         byte[] tmp = new byte[LENGTH_LENGTH_FIELD + curvesBytes];
         byte[] tmpID;
 
@@ -101,8 +96,8 @@ public final class EllipticCurves extends AExtension {
         System.arraycopy(tmpID, 0, tmp, pointer, tmpID.length);
         //pointer += tmpID.length;
 
-        for (int i = 1; i - 1 < supportedCurves.length; i++) {
-            tmpID = supportedCurves[i - 1].getId();
+        for (int i = 1; i - 1 < supportedCurves.size(); i++) {
+            tmpID = supportedCurves.get(i - 1).getId();
             tmp[i * ECipherSuite.LENGTH_ENCODED] = tmpID[0];
             tmp[i * ECipherSuite.LENGTH_ENCODED + 1] = tmpID[1];
         }
@@ -123,6 +118,9 @@ public final class EllipticCurves extends AExtension {
 
         final int curvesCount;
         final byte[] tmpCurves = getExtensionData();
+
+        supportedCurves = new LinkedList<>();
+        rawSupportedCurves = new LinkedList<>();
         
         // check size
         if (tmpCurves.length < LENGTH_MINIMUM_ENCODED) {
@@ -138,12 +136,11 @@ public final class EllipticCurves extends AExtension {
         }
 
         // extract curves
-        ENamedCurve[] extractedCurves = new ENamedCurve[curvesCount];
         for (int j = 0, i = LENGTH_LENGTH_FIELD; j < curvesCount;
                 i += ENamedCurve.LENGTH_ENCODED, j++) {
-            extractedCurves[j] = ENamedCurve.getNamedCurve(
-                    new byte[]{tmpCurves[i], tmpCurves[i + 1]});
+            final byte[] id = new byte[]{tmpCurves[i], tmpCurves[i + 1]};
+            supportedCurves.add(ENamedCurve.getNamedCurve(id));
+            rawSupportedCurves.add(new Id(id));
         }
-        setSupportedCurves(extractedCurves);
     }
 }

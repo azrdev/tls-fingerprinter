@@ -1,10 +1,10 @@
 package de.rub.nds.ssl.stack.protocols.handshake.extensions;
 
+import de.rub.nds.ssl.stack.protocols.commons.Id;
 import de.rub.nds.ssl.stack.protocols.handshake.extensions.datatypes.EECPointFormat;
 import de.rub.nds.ssl.stack.protocols.handshake.extensions.datatypes.EExtensionType;
 
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 
 /**
  * Supported Point Formats extension as defined in RFC 4492.
@@ -27,7 +27,9 @@ public final class SupportedPointFormats extends AExtension {
     /**
      * Array of supported point formats in preferred order.
      */
-    private EECPointFormat[] supportedPointFormats;
+    private List<EECPointFormat> supportedPointFormats = new LinkedList<>();
+
+    private List<Id> rawPointFormats = new LinkedList<>();
 
     /**
      * Initializes an Supported Point Formats Extension as defined in RFC 4492.
@@ -52,20 +54,12 @@ public final class SupportedPointFormats extends AExtension {
      *
      * @return Supported EC point formats.
      */
-    public EECPointFormat[] getSupportedPointFormats() {
-        // deep copy
-        EECPointFormat[] tmp = new EECPointFormat[supportedPointFormats.length];
-        System.arraycopy(supportedPointFormats, 0, tmp, 0,
-                supportedPointFormats.length);
-
-        return tmp;
+    public List<EECPointFormat> getSupportedPointFormats() {
+        return new ArrayList<>(supportedPointFormats);
     }
 
-    /**
-     * @return Supported EC point formats, as List
-     */
-    public List<EECPointFormat> getSupportedPointFormatsList() {
-        return Arrays.asList(supportedPointFormats);
+    public List<Id> getRawPointFormats() {
+        return new ArrayList<>(rawPointFormats);
     }
 
     /**
@@ -77,11 +71,13 @@ public final class SupportedPointFormats extends AExtension {
         if (formats == null) {
             throw new IllegalArgumentException("Formats must not be null!");
         }
-        // keep the array clean and small, Mr. Proper will be proud!
-        this.supportedPointFormats = new EECPointFormat[formats.length];
-        // refill, deep copy
-        System.arraycopy(formats, 0, this.supportedPointFormats, 0,
-                formats.length);
+
+        this.supportedPointFormats = Arrays.asList(formats);
+
+        this.rawPointFormats = new ArrayList<>(formats.length);
+        for(EECPointFormat pf : formats) {
+            rawPointFormats.add(new Id(pf.getId()));
+        }
     }
 
     /**
@@ -93,7 +89,7 @@ public final class SupportedPointFormats extends AExtension {
     @Override
     public byte[] encode(final boolean chained) {
         int pointer = 0;
-        Integer formatBytes = supportedPointFormats.length
+        Integer formatBytes = supportedPointFormats.size()
                 * EECPointFormat.LENGTH_ENCODED;
         byte[] tmp = new byte[LENGTH_LENGTH_FIELD + formatBytes];
         byte[] length;
@@ -103,8 +99,8 @@ public final class SupportedPointFormats extends AExtension {
         System.arraycopy(length, 0, tmp, pointer, length.length);
         pointer += length.length;
         
-        for (int i = 0; i < supportedPointFormats.length; i++) {
-            tmp[i + pointer] = supportedPointFormats[i].getId();
+        for (int i = 0; i < supportedPointFormats.size(); i++) {
+            tmp[i + pointer] = supportedPointFormats.get(i).getId();
         }
         
         setExtensionData(tmp);
@@ -123,6 +119,9 @@ public final class SupportedPointFormats extends AExtension {
 
         final int formatsCount;
         final byte[] tmp = getExtensionData();
+
+        rawPointFormats = new LinkedList<>();
+        supportedPointFormats = new LinkedList<>();
         
         // check size
         if (tmp.length < LENGTH_MINIMUM_ENCODED) {
@@ -138,11 +137,10 @@ public final class SupportedPointFormats extends AExtension {
         }
 
         // extract point formats
-        EECPointFormat[] extractedPointFormats = new EECPointFormat[formatsCount];
         for (int j = 0; j < formatsCount; j++) {
-            extractedPointFormats[j] =
-                    EECPointFormat.getECPointFormat(tmp[j + LENGTH_LENGTH_FIELD]);
+            final byte id = tmp[j + LENGTH_LENGTH_FIELD];
+            rawPointFormats.add(new Id(id));
+            supportedPointFormats.add(EECPointFormat.getECPointFormat(id));
         }
-        setSupportedPointFormats(extractedPointFormats);
     }
 }
