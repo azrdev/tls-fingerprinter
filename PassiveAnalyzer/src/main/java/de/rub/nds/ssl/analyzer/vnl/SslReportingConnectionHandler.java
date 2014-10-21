@@ -52,6 +52,7 @@ public final class SslReportingConnectionHandler extends ConnectionHandler {
             logger.warn("Could not load fingerprint save file " + fingerprintDbFile +
                 " - " + e);
         }
+        printStats();
         setFingerprintReporting(true, fingerprintDbFile);
     }
 

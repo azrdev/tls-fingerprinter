@@ -54,13 +54,13 @@ public class ClientHelloFingerprint extends Fingerprint {
                 extensions.getExtension(EExtensionType.EC_POINT_FORMATS);
         if(supportedPointFormats != null) {
             addSign("supported-point-formats",
-                    supportedPointFormats.getSupportedPointFormatsList());
+                    supportedPointFormats.getRawPointFormats());
         }
 
         EllipticCurves supportedCurves =
                 extensions.getExtension(EExtensionType.ELLIPTIC_CURVES);
         if(supportedCurves != null) {
-            addSign("supported-curves", supportedCurves.getSupportedCurvesList());
+            addSign("supported-curves", supportedCurves.getRawSupportedCurves());
         }
 
         RenegotiationInfo renegotiationInfo =
@@ -104,23 +104,28 @@ public class ClientHelloFingerprint extends Fingerprint {
         addSign("cipher-suite-list", cipherSuites);
 
         List<Id> extensionLayout = Serializer.deserializeList(signs[4].trim());
-        addSign("extensions-layout", extensionLayout);
+        if(extensionLayout.size() > 0)
+            addSign("extensions-layout", extensionLayout);
 
         if(signs.length < 6)
             return;
         List<Id> supportedPointFormats = Serializer.deserializeList(signs[5].trim());
-        addSign("supported-point-formats", supportedPointFormats);
+        if(supportedPointFormats.size() > 0)
+            addSign("supported-point-formats", supportedPointFormats);
 
         if(signs.length < 7)
             return;
         List<Id> supportedCurves = Serializer.deserializeList(signs[6].trim());
-        addSign("supported-curves", supportedCurves);
+        if(supportedCurves.size() > 0)
+            addSign("supported-curves", supportedCurves);
 
         if(signs.length < 8)
             return;
         try {
-            addSign("renegotiation-info-length",
-                    Util.readBoundedInteger(signs[7].trim(), 0 , 255));
+            final String sign = signs[7].trim();
+            if(!sign.isEmpty())
+                addSign("renegotiation-info-length",
+                        Util.readBoundedInteger(sign, 0, 255));
         } catch(NumberFormatException e) {
             // probably empty
             logger.debug("Cannot parse renegotiation-info-length. signature: " +

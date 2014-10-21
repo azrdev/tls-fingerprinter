@@ -149,10 +149,14 @@ public class Serializer {
     deserializeMessageTypes(String serialized) {
         final String[] types = serialized.split("-", 2);
         final Id contentType = new Id(Utility.hexToBytes(types[0]));
-        if(types.length > 1)
-            return new HandshakeFingerprint.MessageTypeSubtype(contentType,
-                    new Id(Utility.hexToBytes(types[1])));
-        else
+        if(types.length > 1) {
+            final byte[] subType = Utility.hexToBytes(types[1]);
+            if(subType != null && subType.length > 0)
+                return new HandshakeFingerprint.MessageTypeSubtype(contentType,
+                        new Id(subType));
+            else
+                return new HandshakeFingerprint.MessageTypeSubtype(contentType, null);
+        } else
             return new HandshakeFingerprint.MessageType(contentType);
     }
 
@@ -168,6 +172,8 @@ public class Serializer {
     public static List<Id> deserializeList(String serialized) {
         List<Id> bytes = new ArrayList<>(serialized.length());
         for(String item : serialized.split(LIST_DELIMITER, -1)) {
+            if(item.isEmpty())
+                continue;
             bytes.add(new Id(Utility.hexToBytes(item.trim())));
         }
 

@@ -3,10 +3,7 @@ package de.rub.nds.ssl.analyzer.vnl.fingerprint;
 import de.rub.nds.ssl.analyzer.vnl.fingerprint.serialization.Serializer;
 import de.rub.nds.virtualnetworklayer.util.Util;
 
-import java.util.Arrays;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Fingerprinting abilities like in {@link de.rub.nds.virtualnetworklayer.fingerprint.Fingerprint}.
@@ -55,11 +52,16 @@ public abstract class Fingerprint {
 
         Fingerprint other = (Fingerprint) o;
 
-        for (Map.Entry<String, Object> entry : other.signs.entrySet()) {
-            Object value = signs.get(entry.getKey());
+        Set<String> allSigns = new HashSet<>();
+        allSigns.addAll(signs.keySet());
+        allSigns.addAll(other.signs.keySet());
+
+        for (String key : allSigns) {
+            Object value = signs.get(key);
+            Object oValue = other.signs.get(key);
 
             //NOTE: don't put arrays as sign values!
-            if (! Util.equal(value, entry.getValue())) {
+            if (! Util.equal(value, oValue)) {
                 return false;
             }
         }
