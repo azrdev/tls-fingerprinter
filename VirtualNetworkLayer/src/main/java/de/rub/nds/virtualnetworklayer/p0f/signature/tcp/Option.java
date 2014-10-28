@@ -44,6 +44,9 @@ public enum Option {
 
 
     public static Option read(String value) {
+        if(value == null || value.isEmpty())
+            return null;
+
         for (Option option : values()) {
             if (value.startsWith(option.value)) {
                 if (!option.separator.isEmpty()) {

@@ -63,7 +63,7 @@ public class Util {
         int i = 0;
 
         for (Enum<?> e : enums) {
-            ordinals[i] = e.ordinal();
+            ordinals[i] = (e != null)? e.ordinal() : 0;
             i++;
         }
 

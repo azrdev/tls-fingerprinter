@@ -99,9 +99,11 @@ public class TCPSignature extends Fingerprint.Signature {
     private void readOptions(String options) {
         optionsLayout = new LinkedList<>();
 
-        String[] parts = options.split(PART_DELIMITER);
-        for (String part : parts) {
-            optionsLayout.add(Option.read(part).getMapping());
+        if(! options.isEmpty()) {
+            String[] parts = options.split(PART_DELIMITER);
+            for (String part : parts) {
+                optionsLayout.add(Option.read(part).getMapping());
+            }
         }
 
         this.addSign("optionsLayout", optionsLayout);
@@ -154,14 +156,14 @@ public class TCPSignature extends Fingerprint.Signature {
         sb.append(SIGN_DELIMITER);
 
         Integer mss = (Integer) signs.remove("maximumSegmentSize");
-        sb.append((mss == null)? '*' : mss);
+        sb.append((mss == null)? "*" : mss);
         sb.append(SIGN_DELIMITER);
 
         WindowSize windowSize = (WindowSize) signs.remove("windowSize");
-        sb.append((windowSize == null)? '*' : windowSize);
+        sb.append((windowSize == null)? "*" : windowSize);
         sb.append(PART_DELIMITER);
         Integer windowScale = (Integer) signs.remove("windowScale");
-        sb.append((windowScale == null)? '*' : windowScale);
+        sb.append((windowScale == null)? "*" : windowScale);
         sb.append(SIGN_DELIMITER);
 
         List<TcpHeader.Option> optionsLayout =
@@ -196,7 +198,7 @@ public class TCPSignature extends Fingerprint.Signature {
         sb.append(SIGN_DELIMITER);
 
         PayloadClass pc = (PayloadClass) signs.remove("payloadClass");
-        sb.append((pc == null) ? '*' : pc.toString());
+        sb.append((pc == null) ? "*" : pc.toString());
 
         // report other signs we don't know
         if(! signs.isEmpty()) {

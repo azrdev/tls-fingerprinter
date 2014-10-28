@@ -12,7 +12,11 @@ import de.rub.nds.virtualnetworklayer.util.Util;
 public class MTUSignature extends Fingerprint.Signature {
 
     public MTUSignature(String value) {
-        addSign("mtu", Util.readBoundedInteger(value.trim(), 0, 65535));
+        try {
+            addSign("mtu", Util.readBoundedInteger(value.trim(), 0, 65535));
+        } catch(NumberFormatException e) {
+            // skip addSign
+        }
     }
 
     public static String writeToString(Fingerprint.Signature signature) {
