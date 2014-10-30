@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -32,6 +33,11 @@ public final class SslReportingConnectionHandler extends ConnectionHandler {
     private static final String appDataDir =
             System.getProperty("user.home") + File.separator
                     + ".ssl-reporter" + File.separator;
+
+    private final Path fingerprintsNewDb = Paths.get(appDataDir + "fingerprints_new");
+    private final Path fingerprintsChangedDb =
+            Paths.get(appDataDir + "fingerprints_changed");
+
     /**
      * Default SSL Port.
      */
@@ -39,33 +45,34 @@ public final class SslReportingConnectionHandler extends ConnectionHandler {
 
     private Logger logger = Logger.getLogger(getClass());
 
-    private FingerprintListener fingerprintListener;
+    private FingerprintListener fingerprintListener = new FingerprintListener();
 
     private Set<SocketSession> reportedSessions = new HashSet<>();
 
     public SslReportingConnectionHandler() {
-        Path fingerprintDbFile = Paths.get(appDataDir + "fingerprints");
-        fingerprintListener = new FingerprintListener();
-        try {
-            fingerprintListener.loadFingerprintSaveFile(fingerprintDbFile, false);
-        } catch (IOException e) {
-            logger.warn("Could not load fingerprint save file " + fingerprintDbFile +
-                " - " + e);
+        for(Path fpDb : Arrays.asList(fingerprintsNewDb, fingerprintsChangedDb)) {
+            try {
+                fingerprintListener.loadFingerprintSaveFile(fpDb, false);
+            } catch (IOException e) {
+                logger.warn("Could not load fingerprint save file: " + e);
+            }
+            printStats();
         }
-        printStats();
-        setFingerprintReporting(true, fingerprintDbFile);
+
+        //configure here:
+        setFingerprintReporting(true, fingerprintsNewDb, fingerprintsChangedDb);
     }
 
-    public void setFingerprintReporting(boolean log, Path saveToFile) {
+    public void setFingerprintReporting(boolean log, Path saveToFileNew, Path saveToFileChanged) {
         fingerprintListener.clearFingerprintReporters();
 
         if(log)
             fingerprintListener.addFingerprintReporter(new LoggingFingerprintReporter());
 
-        if(saveToFile != null) {
+        if(saveToFileNew != null || saveToFileChanged != null) {
             try {
                 fingerprintListener.addFingerprintReporter(
-                        new SavefileFingerprintReporter(saveToFile));
+                        new SavefileFingerprintReporter(saveToFileNew, saveToFileChanged));
             } catch (IOException e) {
                 logger.info("Could not open fingerprint save file: " + e);
             }

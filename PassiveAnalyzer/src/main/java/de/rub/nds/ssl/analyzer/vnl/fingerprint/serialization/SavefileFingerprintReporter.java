@@ -22,25 +22,56 @@ import java.util.List;
  */
 public class SavefileFingerprintReporter implements FingerprintReporter {
     private Logger logger = Logger.getLogger(getClass());
-    private PrintWriter writer;
+    private PrintWriter newFpWriter;
+    private PrintWriter changedFpWriter;
 
+    /**
+     * Ctor for an instance saving new and changed fingerprints to one file
+     */
     public SavefileFingerprintReporter(Path saveFile) throws IOException {
         logger.debug("saving to " + saveFile);
         Files.createDirectories(saveFile.getParent());
-        writer = new PrintWriter(Files.newBufferedWriter(saveFile,
+        newFpWriter = new PrintWriter(Files.newBufferedWriter(saveFile,
                 Charset.forName("UTF8"),
                 StandardOpenOption.CREATE,
                 StandardOpenOption.WRITE,
                 StandardOpenOption.APPEND), true);
 
-        writer.println("# " + new Date());
+        changedFpWriter = newFpWriter;
+
+        newFpWriter.println("# " + new Date());
+    }
+
+    /**
+     * Ctor for an instance saving new and changed fingerprints, to different files
+     * @throws IOException If any file could not be opened for appending
+     */
+    public SavefileFingerprintReporter(Path saveFileNew, Path saveFileChanged)
+            throws IOException {
+        logger.debug("saving new fingerprints to " + saveFileNew);
+        Files.createDirectories(saveFileNew.getParent());
+        newFpWriter = new PrintWriter(Files.newBufferedWriter(saveFileNew,
+                Charset.forName("UTF8"),
+                StandardOpenOption.CREATE,
+                StandardOpenOption.WRITE,
+                StandardOpenOption.APPEND), true);
+        newFpWriter.println("# " + new Date());
+
+        logger.debug("saving changed fingerprints to " + saveFileChanged);
+        Files.createDirectories(saveFileChanged.getParent());
+        changedFpWriter = new PrintWriter(Files.newBufferedWriter(saveFileChanged,
+                Charset.forName("UTF8"),
+                StandardOpenOption.CREATE,
+                StandardOpenOption.WRITE,
+                StandardOpenOption.APPEND), true);
+        changedFpWriter.println("# " + new Date());
     }
 
     @Override
     public void reportChange(SessionIdentifier sessionIdentifier,
                              TLSFingerprint fingerprint,
                              List<TLSFingerprint> previousFingerprints) {
-        saveFingerprint(sessionIdentifier, fingerprint);
+        changedFpWriter.println(Serializer.serialize(sessionIdentifier, fingerprint));
     }
 
     @Override
@@ -52,17 +83,12 @@ public class SavefileFingerprintReporter implements FingerprintReporter {
     @Override
     public void reportNew(SessionIdentifier sessionIdentifier,
                           TLSFingerprint tlsFingerprint) {
-        saveFingerprint(sessionIdentifier, tlsFingerprint);
-    }
-
-    private void saveFingerprint(SessionIdentifier sessionIdentifier,
-                                 TLSFingerprint tlsFingerprint) {
-        writer.println(Serializer.serialize(sessionIdentifier, tlsFingerprint));
+        newFpWriter.println(Serializer.serialize(sessionIdentifier, tlsFingerprint));
     }
 
     @Override
     protected void finalize() throws Throwable {
-        writer.close();
+        newFpWriter.close();
         super.finalize();
     }
 }

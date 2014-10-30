@@ -136,6 +136,7 @@ public class FingerprintListener {
                         if(fps.contains(fp)) {
                             logger.warn("fingerprint in file already known: " +
                                     e.getKey());
+                            logger.trace("fingerprint: " + fp);
                         } else {
                             fps.add(fp);
                         }

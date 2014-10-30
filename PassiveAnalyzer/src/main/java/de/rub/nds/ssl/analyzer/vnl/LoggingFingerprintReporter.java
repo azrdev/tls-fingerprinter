@@ -13,8 +13,7 @@ public class LoggingFingerprintReporter implements FingerprintReporter {
 	public void reportChange(SessionIdentifier sessionIdentifier,
 			TLSFingerprint fingerprint,
 			List<TLSFingerprint> previousFingerprints) {
-		logger.warn("Change detected for " + sessionIdentifier +
-                ", new " + fingerprint);
+		logger.warn("Change detected for " + sessionIdentifier + "\n" + fingerprint);
         for (int i = 0, ps = previousFingerprints.size(); i < ps; i++) {
             TLSFingerprint previous = previousFingerprints.get(i);
             logger.info(fingerprint.difference(previous,
