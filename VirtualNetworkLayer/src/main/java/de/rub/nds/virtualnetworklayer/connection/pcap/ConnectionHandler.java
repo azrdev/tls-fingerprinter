@@ -31,11 +31,11 @@ public abstract class ConnectionHandler extends PacketHandler {
      * TIMEOUT after which a connection should be considered dead and <b>be removed</b>
      * from the internal connection list (like TCP keepalive). In nanoseconds.
      */
-	private static long TIMEOUT = 120 * 1000000000L; // 120 seconds
+	private static final long TIMEOUT = 120 * 1000000000L; // 120 seconds
     /**
      * Interval how often TIMEOUT should be checked - number of packets to newPacket()
      */
-	private static int TIMEOUT_INTERVAL = 5000; // Every 5000 Packets
+	private static final int TIMEOUT_INTERVAL = 5000; // Every 5000 Packets
 
     /**
      * A quiet connection handler discards all reporting.
@@ -58,12 +58,15 @@ public abstract class ConnectionHandler extends PacketHandler {
         Update
     }
 
-    private final static Logger logger = Logger.getLogger(ConnectionHandler.class);
+    private static final Logger logger = Logger.getLogger(ConnectionHandler.class);
 
     private static Map<Fingerprint.Signature, Label>[] signatures;
     private static List<Fingerprint> prints = new LinkedList<>();
 
     private Map<SocketSession, PcapConnection> connections = new HashMap<>();
+    /**
+     * income packets since the last {@link #gc(long)}
+     */
     private int timeout_counter = 0;
 
     static {
@@ -144,7 +147,7 @@ public abstract class ConnectionHandler extends PacketHandler {
     private void gc(long timestamp) {
     	HashMap<SocketSession, PcapConnection> tmp = new HashMap<SocketSession, PcapConnection>();
     	for (Entry<SocketSession, PcapConnection> e : this.connections.entrySet()) {
-			if (e.getValue().getTrace().getLast().getTimeStamp() + TIMEOUT > timestamp) {
+			if (e.getValue().getTrace().getLastTimeStamp() + TIMEOUT > timestamp) {
 				tmp.put(e.getKey(), e.getValue());
 			}
 		}

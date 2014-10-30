@@ -205,4 +205,22 @@ public class PcapTrace extends Connection.Trace<PcapPacket> {
         return sequenceOrder.size();
     }
 
+    /**
+     * Get the newest timestamp seen in this trace. Use in place of {@link #getLast()} and
+     * {@link Packet#getTimeStamp()}, because in case of fragmented sequences getLast()
+     * may return null.
+     * @return The newest timestamp seen in this trace.
+     */
+    public long getLastTimeStamp() {
+        if(size() > 0) {
+            return getLast().getTimeStamp();
+        }
+
+        long latest = Long.MIN_VALUE;
+        for(Packet p : arrivalOrder) {
+            latest = Math.max(latest, p.getTimeStamp());
+        }
+        return latest;
+    }
+
 }
