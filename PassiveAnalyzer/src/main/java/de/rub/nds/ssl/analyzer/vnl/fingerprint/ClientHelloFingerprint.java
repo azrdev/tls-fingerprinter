@@ -44,8 +44,7 @@ public class ClientHelloFingerprint extends Fingerprint {
 
         Extensions extensions = clientHello.getExtensions();
         if(extensions == null)
-            return; //TODO: distinguish no extensions from empty list
-
+            return;
         addSign("extensions-layout", extensions.getRawExtensionTypes());
 
         // below are handled specific extensions, if present
@@ -104,19 +103,19 @@ public class ClientHelloFingerprint extends Fingerprint {
         addSign("cipher-suite-list", cipherSuites);
 
         List<Id> extensionLayout = Serializer.deserializeList(signs[4].trim());
-        if(extensionLayout.size() > 0)
+        if(extensionLayout != null)
             addSign("extensions-layout", extensionLayout);
 
         if(signs.length < 6)
             return;
         List<Id> supportedPointFormats = Serializer.deserializeList(signs[5].trim());
-        if(supportedPointFormats.size() > 0)
+        if(supportedPointFormats != null)
             addSign("supported-point-formats", supportedPointFormats);
 
         if(signs.length < 7)
             return;
         List<Id> supportedCurves = Serializer.deserializeList(signs[6].trim());
-        if(supportedCurves.size() > 0)
+        if(supportedCurves != null)
             addSign("supported-curves", supportedCurves);
 
         if(signs.length < 8)

@@ -219,10 +219,6 @@ public final class ClientHello extends AHandshakeRecord {
      * @param extensionsValue The extensions to be used for this message
      */
     public void setExtensions(final Extensions extensionsValue) {
-        if (extensionsValue == null) {
-            throw new IllegalArgumentException("Extensions must not be null!");
-        }
-
         //TODO: deep copy
         this.extensions = extensionsValue;
     }
@@ -436,7 +432,7 @@ public final class ClientHello extends AHandshakeRecord {
             Extensions decodedExtensions = new Extensions(extensionPart);
             setExtensions(decodedExtensions);
         } else {
-            extensions = new Extensions();
+            extensions = null;
         }
     }
 

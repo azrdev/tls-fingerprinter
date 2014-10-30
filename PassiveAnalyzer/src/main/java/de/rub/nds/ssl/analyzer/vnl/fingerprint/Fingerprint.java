@@ -99,7 +99,9 @@ public abstract class Fingerprint {
 
         for(String sign : serializationSigns()) {
             Object obj = getSign(sign);
-            sb.append(Serializer.serializeSign(obj)).append(SERIALIZATION_DELIMITER);
+            if(obj != null)
+                sb.append(Serializer.serializeSign(obj));
+            sb.append(SERIALIZATION_DELIMITER);
         }
 
         // delete the last delimiter

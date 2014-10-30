@@ -202,10 +202,6 @@ public final class ServerHello extends AHandshakeRecord {
      * @param extensions The extensions to be used for this message
      */
     public void setExtensions(final Extensions extensions) {
-        if (extensions == null) {
-            throw new IllegalArgumentException("Extensions must not be null!");
-        }
-
         // deep copy
         this.extensions = new Extensions(extensions.encode(false));
     }
