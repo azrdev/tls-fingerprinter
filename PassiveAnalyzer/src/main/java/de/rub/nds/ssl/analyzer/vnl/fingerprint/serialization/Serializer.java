@@ -16,6 +16,7 @@ import org.apache.log4j.Logger;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.lang.IllegalArgumentException;
 import java.util.*;
 import java.util.regex.Pattern;
 
@@ -32,7 +33,9 @@ public class Serializer {
     private static Logger logger = Logger.getLogger(Serializer.class);
 
     /**
-     * Build the Serialized form of a sign
+     * Build the Serialized form of a sign.
+     * <br>
+     * <b>NOTE</b>: never put Object[] as sign value, or things will break!
      */
     public static String serializeSign(Object sign) {
         if(sign == null)
@@ -43,7 +46,7 @@ public class Serializer {
         if(sign instanceof Object[])
             return serializeList((Object[]) sign);
         else if(sign instanceof byte[]) {
-            logger.debug("Serializing byte[]");
+            logger.warn("Serializing byte[]");
             return Utility.bytesToHex((byte[]) sign, false);
         } else if(sign instanceof Collection)
             return serializeList((Collection) sign);
@@ -70,10 +73,13 @@ public class Serializer {
 
     public static final String LIST_DELIMITER = ",";
 
-    private static String serializeList(Collection arr) {
+    private static String serializeList(Collection collection) {
+        if(collection.isEmpty())
+            return LIST_DELIMITER;
+
         StringBuilder sb = new StringBuilder();
 
-        for(Object o : arr) {
+        for(Object o : collection) {
             // recursive call to serialize that element
             // never put Object[] as sign value, or this will break!
             sb.append(serializeSign(o)).append(LIST_DELIMITER);
@@ -169,7 +175,14 @@ public class Serializer {
         return null;
     }
 
+    /**
+     * Parse serialized list of Id instances
+     * @return null if serialized was empty, else a list of Ids without nulls
+     * @throws IllegalArgumentException If there is an unparseable char in any Id
+     */
     public static List<Id> deserializeList(String serialized) {
+        if(serialized.isEmpty())
+            return null;
         List<Id> bytes = new ArrayList<>(serialized.length());
         for(String item : serialized.split(LIST_DELIMITER, -1)) {
             if(item.isEmpty())
@@ -233,6 +246,11 @@ public class Serializer {
                 commitFingerprint(sid, new TLSFingerprint(handshakeSignature,
                         serverHelloSignature, serverTcpSignature, serverMtuSignature),
                         fingerprints);
+                clientHelloSignature = null;
+                serverHelloSignature = null;
+                serverTcpSignature = null;
+                serverMtuSignature = null;
+                handshakeSignature = null;
 
                 try {
                     sid = new SessionIdentifier(line);
@@ -267,6 +285,7 @@ public class Serializer {
                     fps.add(tlsFingerprint);
                 } else {
                     logger.warn("Duplicate fingerprint in file for " + sessionId);
+                    logger.trace("fingerprint: " + tlsFingerprint);
                 }
             } else {
                 fps = new ArrayList<>(1);
