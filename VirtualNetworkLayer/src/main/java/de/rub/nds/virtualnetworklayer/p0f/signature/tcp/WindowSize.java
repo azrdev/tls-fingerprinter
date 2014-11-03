@@ -84,6 +84,9 @@ public class WindowSize {
      * @return {@code size % a divisor from list == 0}
      */
     public boolean modulo(List<Integer> divisors) {
+        if(size == 0)
+            return false;
+
         for (int divisor : divisors) {
             if (divisor > 0 && size % divisor == 0) {
                 size /= divisor;
