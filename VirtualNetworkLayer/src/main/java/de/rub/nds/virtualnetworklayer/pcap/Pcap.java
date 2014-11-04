@@ -20,7 +20,7 @@ import java.util.Set;
 
 /**
  * Pcap wrapper
- * </p>
+ * <p>
  * To create a new instance use one of the following factory methods:
  * <ul>
  * <li>live capturing: {@link #openLive()}, {@link #openLive(Device)}, {@link #openLive(Device, java.util.Set)}</li>
@@ -28,10 +28,11 @@ import java.util.Set;
  * <li>opening standard input as pcap: {@link #openOfflineStdin()}</li>
  * <li>radio frequence monitoring: {@link #openRadioFrequencyMonitor()}, {@link #openRadioFrequencyMonitor(Device)}</li>
  * </ul>
- * The wrapper does reference counting, so a instance might be also looked up by address {@link #getInstance(byte[])}.
- * If a instance was not closed or garbage collected, when the Java virtual machine is shutting down,
- * {@link Pcap.GarbageCollector} kicks in.
- * </p>
+ * The wrapper does reference counting, so an instance might be also looked up by
+ * address {@link #getInstance(byte[])}.
+ * If an instance was not closed or garbage collected, when the Java virtual machine is
+ * shutting down, {@link Pcap.GarbageCollector} kicks in.
+ * <p>
  * Register a callback {@link PcapHandler} with {@link #loopAsynchronous(PcapHandler)} or {@link #loop(PcapHandler)}.
  *
  * @author Marco Faltermeier <faltermeier@me.com>
@@ -591,7 +592,7 @@ public class Pcap {
     }
 
     /**
-     * @return The last occured error. Use for functions without errbuf parameter.
+     * @return The last occurred error. Use for functions without errbuf parameter.
      */
     public String getLastError() {
         Pointer<Byte> err = PcapLibrary.pcap_geterr(pcap_t);

@@ -15,6 +15,10 @@ import java.nio.ByteBuffer;
 public abstract class PcapHandler extends pcap_handler {
     protected Pcap.DataLinkType dataLinkType;
 
+    // raw pcap data - use these with {@link PcapDumper#dump(org.bridj.Pointer,org.bridj.Pointer)}
+    protected Pointer<pcap_pkthdr> current_pkt_hdr;
+    protected Pointer<Byte> current_bytes;
+
     @Override
     protected void callback(Pointer user, Pointer<pcap_pkthdr> pkt_header, Pointer<Byte> pkt_data) {
         pcap_pkthdr header = pkt_header.get();
@@ -22,7 +26,11 @@ public abstract class PcapHandler extends pcap_handler {
         int length = header.caplen();
         dataLinkType = Pcap.DataLinkType.valueOf(user.getInt());
 
+        current_pkt_hdr = pkt_header;
+        current_bytes = pkt_data;
         newByteBuffer(timeStamp, length, pkt_data.getByteBuffer(length));
+        current_pkt_hdr = null;
+        current_bytes = null;
     }
 
 
