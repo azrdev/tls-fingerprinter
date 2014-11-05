@@ -13,7 +13,6 @@ import java.io.File;
  *
  * @author jBiegert azrdev@qrdn.de
  */
-//FIXME: memory management
 public class PcapDumper {
     private pcap_dumper_t pcap_dumper_t;
 

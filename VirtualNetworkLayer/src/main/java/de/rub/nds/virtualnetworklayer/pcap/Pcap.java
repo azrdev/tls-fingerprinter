@@ -50,11 +50,12 @@ public class Pcap {
     private int referenceCount = 0;
     private int referencePosition = 0;
     private String filter = "";
+    private List<WeakReference<PcapDumper>> dumperReferences = new LinkedList<>();
 
     private static int snaplen = 65535;
     private static int mode = 0;
     private static int timeout = 250;
-    private static List<WeakReference<Pcap>> references = new LinkedList<WeakReference<Pcap>>();
+    private static List<WeakReference<Pcap>> references = new LinkedList<>();
     private static Device liveDevice;
 
     private class Loop implements Runnable {
@@ -79,7 +80,7 @@ public class Pcap {
     private static class GarbageCollector implements Runnable {
         @Override
         public void run() {
-            for (WeakReference<Pcap> reference : new LinkedList<WeakReference<Pcap>>(references)) {
+            for (WeakReference<Pcap> reference : new LinkedList<>(references)) {
                 Pcap instance = reference.get();
                 if (instance != null) {
                     try {
@@ -365,7 +366,7 @@ public class Pcap {
         pcap_datalink.set(PcapLibrary.pcap_datalink(pcap_t));
 
         referencePosition = references.size();
-        references.add(new WeakReference<Pcap>(this));
+        references.add(new WeakReference<>(this));
     }
 
     private Pcap(pcap_t pcap_t, Device device) {
@@ -587,8 +588,10 @@ public class Pcap {
 
         if(dumper == null)
             throw new IllegalArgumentException(getLastError());
+        PcapDumper pcapDumper = new PcapDumper(dumper);
 
-        return new PcapDumper(dumper);
+        dumperReferences.add(new WeakReference<PcapDumper>(pcapDumper));
+        return pcapDumper;
     }
 
     /**
@@ -636,6 +639,18 @@ public class Pcap {
         referenceCount--;
 
         if (referenceCount <= 0) {
+            for (WeakReference<PcapDumper> reference : dumperReferences) {
+                PcapDumper dumper = reference.get();
+                if(dumper != null)
+                    try {
+                        dumper.finalize();
+                    } catch (Throwable throwable) {
+                        //
+                    }
+            }
+            dumperReferences.clear();
+
+
             if (loop != null) {
                 breakloop();
             }
@@ -646,6 +661,7 @@ public class Pcap {
 
             if (referencePosition < references.size()) {
                 references.remove(referencePosition);
+                //FIXME: invalidates referencePosition in all "later" instances
             }
         }
     }
