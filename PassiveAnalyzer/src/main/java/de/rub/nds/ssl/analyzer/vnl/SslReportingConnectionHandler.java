@@ -2,13 +2,14 @@ package de.rub.nds.ssl.analyzer.vnl;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
+import com.google.common.base.Joiner;
 import de.rub.nds.ssl.analyzer.vnl.fingerprint.*;
 import de.rub.nds.ssl.analyzer.vnl.fingerprint.serialization.SavefileFingerprintReporter;
 import de.rub.nds.virtualnetworklayer.connection.pcap.ConnectionHandler;
@@ -41,6 +42,8 @@ public final class SslReportingConnectionHandler extends ConnectionHandler {
     private final Path fingerprintsNewDb = Paths.get(appDataDir + "fingerprints_new");
     private final Path fingerprintsChangedDb =
             Paths.get(appDataDir + "fingerprints_changed");
+    private final String captureDir = appDataDir + File.separator +
+            "captures" + File.separator;
 
     /**
      * Default SSL Port.
@@ -52,6 +55,7 @@ public final class SslReportingConnectionHandler extends ConnectionHandler {
     private Set<SocketSession> reportedSessions = new HashSet<>();
 
     private PcapConnection currentConnection = null;
+    private Pcap pcap = null;
 
     public SslReportingConnectionHandler() {
         for(Path fpDb : Arrays.asList(fingerprintsNewDb, fingerprintsChangedDb)) {
@@ -97,22 +101,34 @@ public final class SslReportingConnectionHandler extends ConnectionHandler {
         }
 
         if(writeCaptureOnNewFingerprint || writeCaptureOnChangedFingerprint) {
-            fingerprintListener.addFingerprintReporter(new FingerprintReporter() {
-                @Override
-                public void reportChange(SessionIdentifier sessionIdentifier, TLSFingerprint fingerprint, List<TLSFingerprint> previousFingerprints) {
-                    if(writeCaptureOnChangedFingerprint)
-                        writeCapture("changed");
-                }
+            final String what = Joiner.on(',').skipNulls().join(
+                    writeCaptureOnNewFingerprint? "new" : null,
+                    writeCaptureOnChangedFingerprint? "changed" : null);
+            logger.info("Writing captures of " + what + " fingerprints to " + captureDir);
 
-                @Override
-                public void reportUpdate(SessionIdentifier s, TLSFingerprint t) {}
+            try {
+                Files.createDirectories(Paths.get(captureDir));
 
-                @Override
-                public void reportNew(SessionIdentifier sessionIdentifier, TLSFingerprint tlsFingerprint) {
-                    if(writeCaptureOnNewFingerprint)
-                        writeCapture("new");
-                }
-            });
+                fingerprintListener.addFingerprintReporter(new FingerprintReporter() {
+                    @Override
+                    public void reportChange(SessionIdentifier sessionIdentifier, TLSFingerprint fingerprint, List<TLSFingerprint> previousFingerprints) {
+                        if (writeCaptureOnChangedFingerprint)
+                            writeCapture("changed");
+                    }
+
+                    @Override
+                    public void reportUpdate(SessionIdentifier s, TLSFingerprint t) {
+                    }
+
+                    @Override
+                    public void reportNew(SessionIdentifier sessionIdentifier, TLSFingerprint tlsFingerprint) {
+                        if (writeCaptureOnNewFingerprint)
+                            writeCapture("new");
+                    }
+                });
+            } catch(IOException e) {
+                logger.info("Could not create capture directory " + e);
+            }
         }
     }
     
@@ -178,19 +194,42 @@ public final class SslReportingConnectionHandler extends ConnectionHandler {
 		}
 	}
 
-    private void writeCapture(String nameSuffix) {
+    /**
+     * Takes the currently handled connection and write its stored packet data to a
+     * pcap file in {@link #captureDir}.
+     * Requires {@link #setPcap(Pcap)} to have set the looping pcap instance.
+     *
+     * @see PcapConnection#getRawPackets()
+     * @see Pcap#openDump(File)
+     */
+    private boolean writeCapture(String nameSuffix) {
         if(currentConnection == null) {
             logger.warn("no current connection");
-            return;
+            return false;
         }
-        final String name = new Date() + "_" +
+
+        final String name = captureDir +
+                new SimpleDateFormat("yyyy-MM-dd HH-mm-ss").format(new Date()) + "_" +
                 currentConnection.getSession() + "_" +
                 nameSuffix + ".pcap";
-        PcapDumper pcapDumper = Pcap.getInstance(new byte[]{}).openDump(new File(name));
+        logger.debug("Writing capture to " + name);
+
+        PcapDumper pcapDumper = this.pcap.openDump(new File(name));
         for(RawPacket rawPacket : currentConnection.getRawPackets()) {
-            pcapDumper.dump(rawPacket.header, rawPacket.bytes);
+            pcapDumper.dump(rawPacket.getHeaderNative(), rawPacket.getBytesNative());
         }
 
         currentConnection.setKeepRawPackets(false);
+        return true;
+    }
+
+    /**
+     * Set the {@link Pcap} instance that loops using this handler.
+     * <p>
+     * <b>This will break when more than one Pcap loops with the same handler</b>
+     * @param pcap
+     */
+    public void setPcap(Pcap pcap) {
+        this.pcap = pcap;
     }
 }

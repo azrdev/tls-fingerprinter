@@ -9,6 +9,10 @@ public class LoggingFingerprintReporter implements FingerprintReporter {
 
     private Logger logger = Logger.getLogger(getClass());
 
+    public LoggingFingerprintReporter() {
+        logger.info("Logging fingerprints");
+    }
+
 	@Override
 	public void reportChange(SessionIdentifier sessionIdentifier,
 			TLSFingerprint fingerprint,

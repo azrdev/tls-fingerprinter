@@ -36,6 +36,7 @@ public class FingerprintListener {
 
     public void clearFingerprintReporters() {
         reporters.clear();
+        logger.info("Cleared all fingerprint reporters");
     }
 
     public void reportConnection(SessionIdentifier sessionIdentifier,

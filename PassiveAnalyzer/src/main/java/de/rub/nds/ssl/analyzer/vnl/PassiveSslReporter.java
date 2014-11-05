@@ -31,6 +31,7 @@ public class PassiveSslReporter {
 	public void run(String filename) {
 		pcap = Pcap.openOffline(new File(filename));
         logger.info("now looping over file " + filename);
+        handler.setPcap(pcap);
         Pcap.Status status = pcap.loop(handler);
         logger.info("looping done, returned " + status);
 	}
@@ -42,6 +43,7 @@ public class PassiveSslReporter {
         logger.info("now looping over live capture");
         
         // Give control to pcap, pcap will use callbacks.
+        handler.setPcap(pcap);
         Pcap.Status status = pcap.loop(handler);
         
         logger.info("looping done, returned " + status);
@@ -51,6 +53,7 @@ public class PassiveSslReporter {
     public Pcap.Status runOnStdin() {
         pcap = Pcap.openOfflineStdin();
         logger.info("now looping over stdin");
+        handler.setPcap(pcap);
         Pcap.Status status = pcap.loop(handler);
         logger.info("looping done, returned " + status);
         return status;

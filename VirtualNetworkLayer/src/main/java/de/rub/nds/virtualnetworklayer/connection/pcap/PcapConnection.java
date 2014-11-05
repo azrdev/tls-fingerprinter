@@ -18,6 +18,7 @@ import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.Arrays;
+import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -38,6 +39,10 @@ public class PcapConnection implements Connection {
     private Socket socket;
     private Pcap pcap;
     private int lastPacketPosition;
+
+    private boolean keepRawPackets = false;
+
+    private List<ConnectionHandler.RawPacket> rawPackets = new LinkedList<>();
 
     /**
      * Creates a connection and connects to the specified port number at the specified IP address.
@@ -274,5 +279,28 @@ public class PcapConnection implements Connection {
     @Override
     protected void finalize() throws Throwable {
         close();
+    }
+
+    public boolean keepRawPackets() {
+        return keepRawPackets;
+    }
+
+    public void setKeepRawPackets(boolean keepRawPackets) {
+        setKeepRawPackets(keepRawPackets, false);
+    }
+
+    /**
+     * @param keepCurrent If true, don't throw away currently kept raw packets when
+     *                    setting keepRawPackets to false
+     */
+    public void setKeepRawPackets(boolean keepRawPackets, boolean keepCurrent) {
+        this.keepRawPackets = keepRawPackets;
+        if(! keepRawPackets && ! keepCurrent) {
+            rawPackets.clear();
+        }
+    }
+
+    public List<ConnectionHandler.RawPacket> getRawPackets() {
+        return rawPackets;
     }
 }

@@ -127,7 +127,8 @@ public class PcapTest {
         pcap.loop(new PcapHandler() {
             @Override
             protected void newByteBuffer(long timeStamp, int length, ByteBuffer byteBuffer) {
-                dumper.dump(current_pkt_hdr, current_bytes);
+                RawPacket rawPacket = getCurrentRawPacket();
+                dumper.dump(rawPacket.getHeaderNative(), rawPacket.getBytesNative());
 
                 // save java-layer data to compare it later
                 PacketData packet = new PacketData();

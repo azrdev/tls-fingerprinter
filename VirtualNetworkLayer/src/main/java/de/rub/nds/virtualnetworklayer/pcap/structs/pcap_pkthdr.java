@@ -18,8 +18,22 @@ public class pcap_pkthdr extends StructObject {
         return this.io.getNativeObjectField(this, 0);
     }
 
+    @Field(0)
+    public pcap_pkthdr ts(TimeT.timeval ts) {
+        this.io.setNativeObjectField(this, 0, ts);
+        return this;
+    }
+
     public long getTimeStamp() {
         return (ts().seconds() * 1000 * 1000 + ts().milliseconds()) * 1000;
+    }
+
+    public pcap_pkthdr setTimeStamp(long timeStamp) {
+        TimeT.timeval timeval = new TimeT.timeval();
+        timeval.milliseconds((int) timeStamp / 1000);
+        timeval.seconds(timeStamp / (1000 ^ 3));
+        this.ts(timeval);
+        return this;
     }
 
     @Field(1)
@@ -27,9 +41,21 @@ public class pcap_pkthdr extends StructObject {
         return this.io.getIntField(this, 1);
     }
 
+    @Field(1)
+    public pcap_pkthdr caplen(int caplen) {
+        this.io.setIntField(this, 1, caplen);
+        return this;
+    }
+
     @Field(2)
     public int len() {
         return this.io.getIntField(this, 2);
+    }
+
+    @Field(2)
+    public pcap_pkthdr len(int len) {
+        this.io.setIntField(this, 2, len);
+        return this;
     }
 
     public pcap_pkthdr(Pointer pointer) {

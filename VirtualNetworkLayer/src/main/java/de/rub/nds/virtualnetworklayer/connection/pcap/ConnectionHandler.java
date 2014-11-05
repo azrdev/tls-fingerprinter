@@ -9,7 +9,9 @@ import de.rub.nds.virtualnetworklayer.p0f.P0fFile;
 import de.rub.nds.virtualnetworklayer.packet.PacketHandler;
 import de.rub.nds.virtualnetworklayer.packet.PcapPacket;
 import de.rub.nds.virtualnetworklayer.packet.header.transport.SocketSession;
+import de.rub.nds.virtualnetworklayer.pcap.structs.pcap_pkthdr;
 import org.apache.log4j.Logger;
+import org.bridj.Pointer;
 
 import java.io.InputStream;
 import java.util.HashMap;
@@ -170,6 +172,8 @@ public abstract class ConnectionHandler extends PacketHandler {
 
         if (session != null) {
             PcapConnection connection = getConnection(session);
+            if(connection.keepRawPackets())
+                saveRawPacket(connection);
 
             packet.setDirection(connection.getSession().getDirection(packet));
             connection.getTrace().add(packet);
@@ -194,6 +198,10 @@ public abstract class ConnectionHandler extends PacketHandler {
                 newConnection(Event.Update, connection);
             }
         }
+    }
+
+    protected void saveRawPacket(PcapConnection connection) {
+        connection.getRawPackets().add(getCurrentRawPacket());
     }
 
     private Label lookupSignature(Fingerprint.Signature signature) {

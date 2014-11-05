@@ -15,9 +15,8 @@ import java.nio.ByteBuffer;
 public abstract class PcapHandler extends pcap_handler {
     protected Pcap.DataLinkType dataLinkType;
 
-    // raw pcap data - use these with {@link PcapDumper#dump(org.bridj.Pointer,org.bridj.Pointer)}
-    protected Pointer<pcap_pkthdr> current_pkt_hdr;
-    protected Pointer<Byte> current_bytes;
+    private Pointer<pcap_pkthdr> current_pkt_hdr;
+    private Pointer<Byte> current_bytes;
 
     @Override
     protected void callback(Pointer user, Pointer<pcap_pkthdr> pkt_header, Pointer<Byte> pkt_data) {
@@ -28,9 +27,12 @@ public abstract class PcapHandler extends pcap_handler {
 
         current_pkt_hdr = pkt_header;
         current_bytes = pkt_data;
-        newByteBuffer(timeStamp, length, pkt_data.getByteBuffer(length));
-        current_pkt_hdr = null;
-        current_bytes = null;
+        try {
+            newByteBuffer(timeStamp, length, pkt_data.getByteBuffer(length));
+        } finally {
+            current_pkt_hdr = null;
+            current_bytes = null;
+        }
     }
 
 
@@ -39,4 +41,42 @@ public abstract class PcapHandler extends pcap_handler {
     }
 
     protected abstract void newByteBuffer(long timeStamp, int length, ByteBuffer byteBuffer);
+
+    /**
+     *  raw pcap data - use with {@link PcapDumper#dump(org.bridj.Pointer,org.bridj.Pointer)}
+     */
+    public RawPacket getCurrentRawPacket() {
+        return new RawPacket(current_pkt_hdr, current_bytes);
+    }
+
+    public static class RawPacket {
+        private long timeStamp;
+        private int caplen;
+        private int len;
+        private ByteBuffer bytes;
+
+        private RawPacket(Pointer<pcap_pkthdr> pkt_hdr, Pointer<Byte> bytes) {
+            pcap_pkthdr header = pkt_hdr.get();
+            timeStamp = header.getTimeStamp();
+            caplen = header.caplen();
+            len = header.len();
+
+            this.bytes = ByteBuffer.allocateDirect(caplen);
+            this.bytes.put(bytes.getByteBuffer(caplen));
+        }
+
+        public Pointer<pcap_pkthdr> getHeaderNative() {
+            pcap_pkthdr hdr = new pcap_pkthdr();
+
+            hdr.setTimeStamp(timeStamp);
+            hdr.caplen(caplen);
+            hdr.len(len);
+
+            return Pointer.pointerTo(hdr);
+        }
+
+        public Pointer<Byte> getBytesNative() {
+            return Pointer.pointerToBytes(bytes);
+        }
+    }
 }
