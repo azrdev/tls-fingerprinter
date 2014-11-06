@@ -14,7 +14,10 @@ import de.rub.nds.ssl.analyzer.vnl.fingerprint.*;
 import de.rub.nds.ssl.analyzer.vnl.fingerprint.serialization.SavefileFingerprintReporter;
 import de.rub.nds.virtualnetworklayer.connection.pcap.ConnectionHandler;
 import de.rub.nds.virtualnetworklayer.connection.pcap.PcapConnection;
+import de.rub.nds.virtualnetworklayer.connection.pcap.PcapTrace;
 import de.rub.nds.virtualnetworklayer.p0f.P0fFile;
+import de.rub.nds.virtualnetworklayer.packet.Headers;
+import de.rub.nds.virtualnetworklayer.packet.PcapPacket;
 import de.rub.nds.virtualnetworklayer.packet.header.transport.SocketSession;
 import de.rub.nds.virtualnetworklayer.pcap.Pcap;
 import de.rub.nds.virtualnetworklayer.pcap.PcapDumper;
@@ -137,11 +140,24 @@ public final class SslReportingConnectionHandler extends ConnectionHandler {
     }
 
     /**
-     * Check if a certain connection has source or destination port 443.
+     * Check if connection contains any TLS packets. Relies on protocol recognition in
+     * {@link de.rub.nds.virtualnetworklayer.packet.header.application.TlsHeader}.
+     * @return <code>true</code> if any TLS packets were found. If not,
+     * the connection may be in the TCP handshake, and TLS packets will occur later.
      */
     private static boolean isSsl(final PcapConnection connection) {
-        return ((connection.getSession().getDestinationPort() == SSL_PORT)
-                || (connection.getSession().getSourcePort() == SSL_PORT));
+        PcapTrace trace = connection.getTrace();
+        if(trace == null) {
+            logger.debug("got connection without trace: " + connection);
+            return false;
+        }
+
+        Iterator<PcapPacket> packets = trace.getArrivalOrder();
+        while(packets.hasNext()) {
+            if(packets.next().getHeaders(Headers.Tls).size() > 0)
+                return true;
+        }
+        return false;
     }
 
     @Override
