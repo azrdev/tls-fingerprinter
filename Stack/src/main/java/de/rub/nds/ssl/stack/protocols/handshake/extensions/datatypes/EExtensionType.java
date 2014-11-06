@@ -95,8 +95,6 @@ public enum EExtensionType{
 	STATUS_REQUEST_V2(new byte[]{0x00, 0x11}, null),
 	/**
 	 * Signed Certificate Timestamp (RFC6962)
-     *
-     * the extension_data field is empty, so the AExtension implementation suffices
 	 */
 	SIGNED_CERTIFICATE_TIMESTAMP(new byte[]{0x00, 0x12}, SignedCertificateTimestamp.class),
     /**

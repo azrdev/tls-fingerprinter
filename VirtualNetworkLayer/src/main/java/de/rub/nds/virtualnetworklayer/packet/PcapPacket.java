@@ -62,8 +62,13 @@ public class PcapPacket implements Packet, StringFormattable {
         return getHeader(header.getId());
     }
 
+    /**
+     * Get all Headers of given type
+     * @see #getHeader(Headers)
+     * @see #getHeader(int)
+     */
 	public <T extends Header> List<T> getHeaders(Headers header) {
-		List<T> filteredHeaders = new LinkedList<T>();
+		List<T> filteredHeaders = new LinkedList<>();
 		for(Header h : headers) {
 			if(h.getId() == header.getId()) {
 				filteredHeaders.add((T) h);

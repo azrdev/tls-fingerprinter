@@ -40,7 +40,8 @@ public final class RandomValue extends APubliclySerializable {
     private byte[] unixTimestamp = new byte[LENGTH_UNIX_TIMESTAMP];
     
     public String toString() {
-    	return "RandomValue: " + Arrays.toString(unixTimestamp) + " " + Arrays.toString(value);
+    	return "RandomValue: " + Utility.bytesToInt(unixTimestamp) +
+                " " + Utility.bytesToHex(value);
     }
 
     /**
