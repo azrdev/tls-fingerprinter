@@ -109,12 +109,18 @@ public class HandshakeFingerprint extends Fingerprint {
         }
     }
 
+    /**
+     * Cloning ctor: create a copy of original
+     */
+    public HandshakeFingerprint(HandshakeFingerprint original) {
+        super(original);
+    }
+
     public HandshakeFingerprint(String serialized) {
         deserialize(serialized);
     }
 
     public HandshakeFingerprint(List<MessageContainer> frameList) {
-
         // sign: message-types
 
         final List<MessageTypes> messageTypes = new LinkedList<>();

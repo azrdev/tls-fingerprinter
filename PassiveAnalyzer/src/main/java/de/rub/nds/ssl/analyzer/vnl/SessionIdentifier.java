@@ -1,5 +1,6 @@
 package de.rub.nds.ssl.analyzer.vnl;
 
+import de.rub.nds.ssl.analyzer.vnl.fingerprint.ClientHelloFingerprint;
 import de.rub.nds.ssl.analyzer.vnl.fingerprint.Fingerprint;
 import de.rub.nds.ssl.analyzer.vnl.fingerprint.serialization.Serializer;
 import de.rub.nds.ssl.stack.Utility;
@@ -19,7 +20,7 @@ public class SessionIdentifier {
     private static final Logger logger = Logger.getLogger(SessionIdentifier.class);
 
     private String serverHostName;
-    private Fingerprint clientHelloSignature;
+    private ClientHelloFingerprint clientHelloSignature;
 
     /**
      * Initializes all attributes with null => isValid() == false
@@ -30,13 +31,13 @@ public class SessionIdentifier {
      * Initializes all attributes with the given values
      */
     public SessionIdentifier(String serverHostName,
-                             Fingerprint clientHelloSignature) {
+                             ClientHelloFingerprint clientHelloSignature) {
         this.serverHostName = serverHostName;
         this.clientHelloSignature = clientHelloSignature;
     }
 
     /**
-     * @return True iff at leas one component of the id is not uninitialized / null
+     * @return True iff at least one component of the id is not uninitialized / null
      */
     public boolean isValid() {
         return (serverHostName != null && ! serverHostName.isEmpty()) ||
@@ -116,11 +117,15 @@ public class SessionIdentifier {
         this.serverHostName = serverHostName;
     }
 
-    public Fingerprint getClientHelloSignature() {
-        return clientHelloSignature;
+    public void setClientHelloSignature(ClientHelloFingerprint clientHelloSignature) {
+        this.clientHelloSignature = clientHelloSignature;
     }
 
-    public void setClientHelloSignature(Fingerprint clientHelloSignature) {
-        this.clientHelloSignature = clientHelloSignature;
+    public String getServerHostName() {
+        return serverHostName;
+    }
+
+    public ClientHelloFingerprint getClientHelloSignature() {
+        return clientHelloSignature;
     }
 }

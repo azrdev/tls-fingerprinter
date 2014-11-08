@@ -21,11 +21,19 @@ import java.util.*;
  * @author jBiegert azrdev@qrdn.de
  */
 public abstract class Fingerprint {
+
+    protected Fingerprint() {}
+
+    protected Fingerprint(Fingerprint original) {
+        Objects.requireNonNull(original);
+        this.signs = original.getSigns();
+    }
+
     /**
      * LinkedHashMap -> insertion-ordered
      * this keeps the order of serialization and deserialization consistent
      */
-    private Map<String, Object> signs = new LinkedHashMap<>();
+    protected Map<String, Object> signs = new LinkedHashMap<>();
 
     /**
      * Add a sign "key" to this Signature

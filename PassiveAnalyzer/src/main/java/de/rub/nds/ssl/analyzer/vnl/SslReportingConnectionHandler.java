@@ -65,7 +65,7 @@ public final class SslReportingConnectionHandler extends ConnectionHandler {
         }
 
         //configure here:
-        setFingerprintReporting(true, fingerprintsNewDb, fingerprintsChangedDb, true, true);
+        setFingerprintReporting(true, fingerprintsNewDb, fingerprintsChangedDb, true, true, true);
     }
 
     /**
@@ -77,13 +77,19 @@ public final class SslReportingConnectionHandler extends ConnectionHandler {
      *                                     new fingerprint
      * @param writeCaptureOnChangedFingerprint Write pcap file of every handshake with a
      *                                     changed fingerprint
+     * @param guessResumptionFingerprints Enable {@link ResumptionFingerprintGuesser}
      */
     public void setFingerprintReporting(boolean log,
                                         Path saveToFileNew,
                                         Path saveToFileChanged,
                                         final boolean writeCaptureOnNewFingerprint,
-                                        final boolean writeCaptureOnChangedFingerprint) {
+                                        final boolean writeCaptureOnChangedFingerprint,
+                                        boolean guessResumptionFingerprints) {
         fingerprintListener.clearFingerprintReporters();
+
+        if(guessResumptionFingerprints)
+            fingerprintListener.addFingerprintReporter(
+                    new ResumptionFingerprintGuesser(null));
 
         if(log)
             fingerprintListener.addFingerprintReporter(new LoggingFingerprintReporter());

@@ -21,6 +21,13 @@ import java.util.List;
 public class ClientHelloFingerprint extends Fingerprint {
     private static Logger logger = Logger.getLogger(ClientHelloFingerprint.class);
 
+    /**
+     * Cloning ctor: Create a copy of original
+     */
+    public ClientHelloFingerprint(ClientHelloFingerprint original) {
+        super(original);
+    }
+
     public ClientHelloFingerprint(String serialized) {
         deserialize(serialized);
     }
@@ -41,6 +48,8 @@ public class ClientHelloFingerprint extends Fingerprint {
                 clientHello.getCompressionMethod().getRawMethods());
         addSign("cipher-suite-list",
                 clientHello.getCipherSuites().getRawSuites());
+
+        //TODO: remove extensions from fp?
 
         Extensions extensions = clientHello.getExtensions();
         if(extensions == null)

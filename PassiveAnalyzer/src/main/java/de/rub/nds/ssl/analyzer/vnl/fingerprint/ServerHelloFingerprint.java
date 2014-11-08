@@ -23,6 +23,13 @@ import java.util.List;
 public class ServerHelloFingerprint extends Fingerprint {
     private static Logger logger = Logger.getLogger(ServerHelloFingerprint.class);
 
+    /**
+     * Cloning ctor: Create a copy of original
+     */
+    public ServerHelloFingerprint(ServerHelloFingerprint original) {
+        super(original);
+    }
+
     public ServerHelloFingerprint(String serialized) {
         deserialize(serialized);
     }

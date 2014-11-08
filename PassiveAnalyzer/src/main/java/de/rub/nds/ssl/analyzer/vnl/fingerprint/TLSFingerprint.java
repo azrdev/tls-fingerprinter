@@ -4,12 +4,9 @@ import de.rub.nds.ssl.analyzer.vnl.Connection;
 import de.rub.nds.ssl.analyzer.vnl.fingerprint.serialization.Serializer;
 import de.rub.nds.virtualnetworklayer.fingerprint.MtuFingerprint;
 import de.rub.nds.virtualnetworklayer.fingerprint.TcpFingerprint;
-import de.rub.nds.virtualnetworklayer.p0f.signature.MTUSignature;
-import de.rub.nds.virtualnetworklayer.p0f.signature.TCPSignature;
 import org.apache.log4j.Logger;
 
 import java.util.Set;
-import java.util.regex.Pattern;
 
 /**
  * Collection of Fingerprint signatures identifying a TLS endpoint
@@ -25,8 +22,8 @@ public class TLSFingerprint {
 
     // non-static Signature instances
 
-    private Fingerprint handshakeSignature;
-    private Fingerprint serverHelloSignature;
+    private HandshakeFingerprint handshakeSignature;
+    private ServerHelloFingerprint serverHelloSignature;
     private de.rub.nds.virtualnetworklayer.fingerprint.Fingerprint.Signature serverTcpSignature;
     private de.rub.nds.virtualnetworklayer.fingerprint.Fingerprint.Signature serverMtuSignature;
 
@@ -34,8 +31,8 @@ public class TLSFingerprint {
      * initialize all signatures with null
      */
     public <T extends de.rub.nds.virtualnetworklayer.fingerprint.Fingerprint>
-    TLSFingerprint(Fingerprint handshakeSignature,
-                   Fingerprint serverHelloSignature,
+    TLSFingerprint(HandshakeFingerprint handshakeSignature,
+                   ServerHelloFingerprint serverHelloSignature,
                    T.Signature serverTcpSignature,
                    T.Signature serverMtuSignature) {
         this.handshakeSignature = handshakeSignature;
@@ -59,11 +56,11 @@ public class TLSFingerprint {
         serverMtuSignature = connection.getServerMtuSignature();
     }
 
-    public Fingerprint getHandshakeSignature() {
+    public HandshakeFingerprint getHandshakeSignature() {
         return handshakeSignature;
     }
 
-    public Fingerprint getServerHelloSignature() {
+    public ServerHelloFingerprint getServerHelloSignature() {
         return serverHelloSignature;
     }
 
