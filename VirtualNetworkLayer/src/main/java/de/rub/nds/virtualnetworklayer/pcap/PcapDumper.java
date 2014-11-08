@@ -16,6 +16,11 @@ import java.io.File;
 public class PcapDumper {
     private pcap_dumper_t pcap_dumper_t;
 
+    private void checkDumper() throws IllegalStateException {
+        if(pcap_dumper_t == null)
+            throw new IllegalStateException("pcap_dumper_t == NULL");
+    }
+
     /**
      * @see Pcap#openDump(java.io.File)
      */
@@ -52,7 +57,9 @@ public class PcapDumper {
     }
 
     public void close() {
+        checkDumper();
         PcapLibrary.pcap_dump_close(pcap_dumper_t);
+        pcap_dumper_t = null;
     }
 
     @Override

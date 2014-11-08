@@ -5,7 +5,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
@@ -47,11 +46,6 @@ public final class SslReportingConnectionHandler extends ConnectionHandler {
             Paths.get(appDataDir + "fingerprints_changed");
     private final String captureDir = appDataDir + File.separator +
             "captures" + File.separator;
-
-    /**
-     * Default SSL Port.
-     */
-    private static final int SSL_PORT = 443;
 
     private FingerprintListener fingerprintListener = new FingerprintListener();
 
@@ -225,9 +219,9 @@ public final class SslReportingConnectionHandler extends ConnectionHandler {
         }
 
         final String name = captureDir +
-                new SimpleDateFormat("yyyy-MM-dd HH-mm-ss").format(new Date()) + "_" +
-                currentConnection.getSession() + "_" +
-                nameSuffix + ".pcap";
+                (new SimpleDateFormat("yyyy-MM-dd HH-mm-ss-SSS ").format(new Date()) +
+                currentConnection.getSession() + " " +
+                nameSuffix).replaceAll("[^\\w\\s-]", "_") + ".pcap";
         logger.debug("Writing capture to " + name);
 
         PcapDumper pcapDumper = this.pcap.openDump(new File(name));

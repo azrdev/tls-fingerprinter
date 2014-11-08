@@ -643,7 +643,7 @@ public class Pcap {
                 PcapDumper dumper = reference.get();
                 if(dumper != null)
                     try {
-                        dumper.finalize();
+                        dumper.close();
                     } catch (Throwable throwable) {
                         //
                     }
