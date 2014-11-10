@@ -22,15 +22,10 @@ import java.util.List;
  * Dec 19, 2011
  */
 final public class HandshakeEnumeration extends ARecordFrame {
+    private static Logger logger = Logger.getLogger(HandshakeEnumeration.class);
 
-    private Logger logger = Logger.getLogger(getClass());
+    private final List<AHandshakeRecord> messages = new ArrayList<>(3);
 
-    /**
-     * Predefined size of the messages list
-     */
-    final private static int DEFAULT_LIST_SIZE = 3;
-    final private List<AHandshakeRecord> messages =
-            new ArrayList<AHandshakeRecord>(DEFAULT_LIST_SIZE);
     private EKeyExchangeAlgorithm keyEKeyExchangeAlgorithm = null;
 
     /**
@@ -44,6 +39,7 @@ final public class HandshakeEnumeration extends ARecordFrame {
             EKeyExchangeAlgorithm keyExchangeAlgorithm) {
         // dummy call - decoding will invoke decoders of the parents if desired
         super();
+
         this.keyEKeyExchangeAlgorithm = keyExchangeAlgorithm;
         this.decode(message, chained);
     }
@@ -175,7 +171,6 @@ final public class HandshakeEnumeration extends ARecordFrame {
         try {
             Class[] parameter;
             Constructor<AHandshakeRecord> constructor;
-            Method setProtocolVersion;
             switch(messageType) {
                 case SERVER_KEY_EXCHANGE:
                 case CLIENT_KEY_EXCHANGE:
@@ -197,11 +192,10 @@ final public class HandshakeEnumeration extends ARecordFrame {
             result.setMessageType(messageType);
 
             // set protocol version
-            setProtocolVersion = ARecordFrame.class.getDeclaredMethod(
+            Method setProtocolVersion = ARecordFrame.class.getDeclaredMethod(
                     "setProtocolVersion", EProtocolVersion.class);
             setProtocolVersion.setAccessible(true);
             setProtocolVersion.invoke(result, version);
-
         } catch (InstantiationException |
                 IllegalAccessException |
                 NoSuchMethodException ex) {
@@ -218,5 +212,9 @@ final public class HandshakeEnumeration extends ARecordFrame {
 
     public AHandshakeRecord[] getMessages() {
         return messages.toArray(new AHandshakeRecord[messages.size()]);
+    }
+
+    public List<AHandshakeRecord> getMessagesList() {
+        return new ArrayList<>(messages);
     }
 }

@@ -4,13 +4,18 @@ import de.rub.nds.ssl.stack.protocols.ARecordFrame;
 import de.rub.nds.ssl.stack.workflows.TLS10HandshakeWorkflow.EStates;
 import de.rub.nds.virtualnetworklayer.packet.PcapPacket;
 
+import java.util.LinkedList;
+import java.util.List;
+
 /**
  * MessageContainer information about the SSL handshake processing.
  *
  * @author Eugen Weiss - eugen.weiss@ruhr-uni-bochum.de
  * @author Christopher Meyer - christopher.meyer@ruhr-uni-bochum.de
  * @version 0.1 Apr 10, 2012
+ * @see de.rub.nds.ssl.stack.trace.MessageContainer
  */
+//TODO: merge back / subclass stack.MessageContainer
 public final class MessageContainer {
 
     /**

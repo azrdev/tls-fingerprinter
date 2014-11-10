@@ -37,8 +37,8 @@ public abstract class ACaptureConverter {
      */
     public static MessageContainer[] convertToMessageContainer(
             final PcapTrace trace) {
-        List<MessageContainer> container = new ArrayList<MessageContainer>(10);
-        List<Integer> offsets = new ArrayList<Integer>(10);
+        List<MessageContainer> container = new ArrayList<>(10);
+        List<Integer> offsets = new ArrayList<>(10);
 
         int pointer = 0;
         // determine overall byte length
@@ -58,7 +58,7 @@ public abstract class ACaptureConverter {
 
         pointer = 0;
         byte[] encodedRecord;
-        ARecordFrame[] frames;
+        List<ARecordFrame> frames;
         // extract all record frames and add them to the message container
         while (pointer < traceBytes.length) {
             // extract next record frame from byte[]
@@ -75,8 +75,7 @@ public abstract class ACaptureConverter {
                     offset = offsets.get(i);
                     if (!(pointer > offset)) {
                         // packet found
-                        container.add(new MessageContainer(frame,
-                                trace.get(i)));
+                        container.add(new MessageContainer(frame, trace.get(i)));
                         break;
                     }
                 }
@@ -152,11 +151,11 @@ public abstract class ACaptureConverter {
      * @return Decoded messages included in the captured byte[].
      */
     public static ARecordFrame[] extractRecords(final byte[] capture) {
-        List<ARecordFrame> recordFrames = new ArrayList<ARecordFrame>(10);
+        List<ARecordFrame> recordFrames = new ArrayList<>(10);
 
         int offset = 0;
         byte[] encodedRecord;
-        ARecordFrame[] decodedFrames;
+        List<ARecordFrame> decodedFrames;
         while (offset < capture.length) {
             // extract next record frame from byte[]
             encodedRecord = sliceOfNextRecord(capture, offset);
@@ -164,7 +163,7 @@ public abstract class ACaptureConverter {
 
             // decode frame
             decodedFrames = decodeRecordFrames(encodedRecord, null);
-            recordFrames.addAll(Arrays.asList(decodedFrames));
+            recordFrames.addAll(decodedFrames);
         }
 
         return recordFrames.toArray(new ARecordFrame[recordFrames.size()]);
@@ -176,31 +175,30 @@ public abstract class ACaptureConverter {
      * @param record Encoded record
      * @return Decoded record frames
      */
-    public static ARecordFrame[] decodeRecordFrames(final byte[] record,
+    public static List<ARecordFrame> decodeRecordFrames(final byte[] record,
 			EKeyExchangeAlgorithm keyExchangeAlgorithm) {
-        ARecordFrame[] decodedFrames = new ARecordFrame[1];
-        //if content type != HANDSHAKE, we only ever return 1 ARecordFrame
+        List<ARecordFrame> decodedFrames = new ArrayList<>(1);
+
+        //TODO: TLS Record layer fragmentation for non-HANDSHAKE messages
+
         switch (EContentType.getContentType(record[0])) {
             case CHANGE_CIPHER_SPEC:
-                decodedFrames[0] = new ChangeCipherSpec(record, true);
+                decodedFrames.add(new ChangeCipherSpec(record, true));
                 break;
             case ALERT:
-                decodedFrames[0] = new Alert(record, true);
+                decodedFrames.add(new Alert(record, true));
                 break;
             case HANDSHAKE:
                 // try to decode the message
-                decodedFrames = new HandshakeEnumeration(record, true,
-                        keyExchangeAlgorithm).getMessages();
+                decodedFrames.addAll(new HandshakeEnumeration(record, true,
+                        keyExchangeAlgorithm).getMessagesList());
                 // very likely to deal with an encrypted message
-                if (decodedFrames == null
-                        || decodedFrames.length < 1
-                        || decodedFrames[0] == null) {
-                    logger.warn("decoding handshake messages failed! " +
-                            Arrays.toString(decodedFrames));
+                if (decodedFrames.size() < 1 || decodedFrames.get(0) == null) {
+                    logger.warn("decoding handshake messages failed: " + decodedFrames);
                 }
                 break;
             case APPLICATION:
-                decodedFrames[0] = new TLSPlaintext(record, true);
+                decodedFrames.add(new TLSPlaintext(record, true));
                 break;
             default:
                 logger.warn("TLS record type unknown: "

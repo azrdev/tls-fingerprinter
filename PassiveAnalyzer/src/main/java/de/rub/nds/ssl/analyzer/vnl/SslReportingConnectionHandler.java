@@ -158,7 +158,6 @@ public final class SslReportingConnectionHandler extends ConnectionHandler {
     public void newConnection(final Event event, final PcapConnection connection) {
         currentConnection = connection;
         try {
-
             if (isSsl(connection)) {
                 if (event == Event.New) {
                     // logger.info("new connection");
@@ -176,32 +175,33 @@ public final class SslReportingConnectionHandler extends ConnectionHandler {
 
 	public void handleUpdate(final PcapConnection connection) {
         //TODO: on every packet (Ethernet frame) we do this again: parse the whole-so-far handshake
-		// Did we handle this already?
+
 		SocketSession session = connection.getSession();
-		if (!reportedSessions.contains(session)) {
-            connection.setKeepRawPackets(true);
+		if (reportedSessions.contains(session))
+            return;
 
-			Connection c;
-			try {
-				c = new Connection(connection);
-			} catch (Throwable e) {
-				logger.warn("Error decoding connection: " + e, e);
-				return;
-			}
-			if (c.isCompleted()) {
-				reportedSessions.add(session);
+        connection.setKeepRawPackets(true);
 
-                SessionIdentifier sessionIdentifier = c.getSessionIdentifier();
-                if(sessionIdentifier.isValid()) {
-                    TLSFingerprint tlsFingerprint = new TLSFingerprint(c);
-                    fingerprintListener.reportConnection(sessionIdentifier,
-                            tlsFingerprint);
-                }
+        // parse TLS
+        Connection tlsConnection;
+        try {
+            tlsConnection = new Connection(connection);
+        } catch (Throwable e) {
+            logger.warn("Error decoding connection: " + e);
+            logger.trace("backtrace: ", e);
+            return;
+        }
 
-				//c.printReport();
-			}
+        // if handshake is completed, fingerprint
+        if (tlsConnection.isCompleted()) {
+            reportedSessions.add(session);
 
-		}
+            SessionIdentifier sessionIdentifier = tlsConnection.getSessionIdentifier();
+            if(sessionIdentifier.isValid()) {
+                TLSFingerprint tlsFingerprint = new TLSFingerprint(tlsConnection);
+                fingerprintListener.reportConnection(sessionIdentifier, tlsFingerprint);
+            }
+        }
 	}
 
     /**

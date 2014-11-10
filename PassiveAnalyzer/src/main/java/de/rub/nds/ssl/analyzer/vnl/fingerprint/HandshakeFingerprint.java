@@ -160,6 +160,7 @@ public class HandshakeFingerprint extends Fingerprint {
         addSign("message-types", messageTypes);
 
         // sign: session-ids-match
+
         byte[] clientSessionId = null;
         byte[] serverSessionId = null;
 
