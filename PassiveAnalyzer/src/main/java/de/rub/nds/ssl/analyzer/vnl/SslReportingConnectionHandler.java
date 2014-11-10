@@ -213,6 +213,8 @@ public final class SslReportingConnectionHandler extends ConnectionHandler {
      * @see Pcap#openDump(File)
      */
     private boolean writeCapture(String nameSuffix) {
+        //FIXME: called from newConnection() -> last packet missing, b/c newPacket saves after call
+
         if(currentConnection == null) {
             logger.warn("no current connection");
             return false;

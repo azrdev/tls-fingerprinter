@@ -1,5 +1,6 @@
 package de.rub.nds.ssl.analyzer.vnl.fingerprint;
 
+import com.google.common.base.Joiner;
 import de.rub.nds.ssl.analyzer.vnl.MessageContainer;
 import de.rub.nds.ssl.analyzer.vnl.fingerprint.serialization.Serializer;
 import de.rub.nds.ssl.stack.protocols.ARecordFrame;
@@ -190,13 +191,23 @@ public class HandshakeFingerprint extends Fingerprint {
                 break;
             }
         }
+
+        // sign: ssl-fragment-layout
+
+        List<String> sslFragmentLayout = new LinkedList<>();
+        for (MessageContainer messageContainer : frameList) {
+            sslFragmentLayout.add(
+                    Joiner.on("-").join(messageContainer.getFragmentSourceRecords()));
+        }
+        addSign("ssl-fragment-layout", sslFragmentLayout);
     }
 
     @Override
     public List<String> serializationSigns() {
         return Arrays.asList(
                 "message-types",
-                "session-ids-match");
+                "session-ids-match",
+                "ssl-fragment-layout");
     }
 
     @Override
@@ -214,7 +225,10 @@ public class HandshakeFingerprint extends Fingerprint {
 
         if(signs.length < 2)
             return;
-
         addSign("session-ids-match", Serializer.deserializeBoolean(signs[1]));
+
+        if(signs.length < 3)
+            return;
+        addSign("ssl-fragment-layout", Serializer.deserializeStringList(signs[2]));
     }
 }

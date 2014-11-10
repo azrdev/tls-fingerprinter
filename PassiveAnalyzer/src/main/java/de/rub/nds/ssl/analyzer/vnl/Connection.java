@@ -96,8 +96,13 @@ public class Connection {
 	private List<MessageContainer> decodeTrace() {
 		List<MessageContainer> frameList = new LinkedList<>();
 
+        // whether we have seen a ChangeCipherSpec message
         boolean clientCompleted = false;
 		boolean serverCompleted = false;
+
+        // index of the current TLSPlaintext record (different from frame, because of fragmentation
+        int clientRecordIndex = 0;
+        int serverRecordIndex = 0;
 	
 		// Now, iterate over all packets
 		for (PcapPacket packet : trace) {
@@ -121,7 +126,13 @@ public class Connection {
                         logger.warn("failed to parse something: "
                                 + packet + " " + packet.getHeaders());
                     }
-                    frameList.add(new MessageContainer(frame, packet));
+
+                    final MessageContainer messageContainer =
+                            new MessageContainer(frame, packet);
+                    messageContainer.addFragmentSourceRecord(
+                            (packet.getDirection() == Direction.Request)?
+                                    clientRecordIndex : serverRecordIndex);
+                    frameList.add(messageContainer);
 
                     /*
                      * Does this complete the unencrypted part of the handshake?
@@ -157,6 +168,11 @@ public class Connection {
                                 sh.getCipherSuite().getKeyExchangeAlgorithm();
                     }
                 }
+
+                if(packet.getDirection() == Direction.Request)
+                    ++clientRecordIndex;
+                else
+                    ++serverRecordIndex;
 			}
 		}
 		return null;

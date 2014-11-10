@@ -3,7 +3,9 @@ package de.rub.nds.ssl.analyzer.vnl;
 import de.rub.nds.ssl.stack.protocols.ARecordFrame;
 import de.rub.nds.ssl.stack.workflows.TLS10HandshakeWorkflow.EStates;
 import de.rub.nds.virtualnetworklayer.packet.PcapPacket;
+import org.apache.log4j.Logger;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -17,6 +19,7 @@ import java.util.List;
  */
 //TODO: merge back / subclass stack.MessageContainer
 public final class MessageContainer {
+    private static Logger logger = Logger.getLogger(MessageContainer.class);
 
     /**
      * Newly constructed SSL record.
@@ -50,6 +53,12 @@ public final class MessageContainer {
      * Previous state.
      */
     private EStates previousState;
+
+    /**
+     * Indices of the TLSPlaintext record(s) which contained bytes of our ARecordFrame.
+     * Only set after decoding.
+     */
+    private List<Integer> fragmentSourceRecords = new LinkedList<>();
 
     /**
      * Empty constructor.
@@ -289,5 +298,22 @@ public final class MessageContainer {
             msg = getCurrentRecord().encode(true);
             setCurrentRecordBytes(msg);
         }
+    }
+
+    /**
+     * Only set after decoding.
+     * @return The indices of the TLSPlaintext record(s) which contained bytes of our
+     * ARecordFrame.
+     */
+    public List<Integer> getFragmentSourceRecords() {
+        return new ArrayList<>(fragmentSourceRecords);
+    }
+
+    void addFragmentSourceRecord(Integer recordIndex) {
+        //TODO: cannot decode split ARecordFrame, and MessageContainer doesn't know multiple packets attached to one ARecordFrame, either
+        if(fragmentSourceRecords.size() > 0)
+            logger.warn("more than one record source for ARecordFrame: not implemented!");
+
+        fragmentSourceRecords.add(recordIndex);
     }
 }
