@@ -8,6 +8,7 @@ import de.rub.nds.ssl.stack.protocols.handshake.datatypes.EKeyExchangeAlgorithm;
 import de.rub.nds.ssl.stack.protocols.msgs.ChangeCipherSpec;
 import de.rub.nds.virtualnetworklayer.connection.pcap.PcapConnection;
 import de.rub.nds.virtualnetworklayer.connection.pcap.PcapTrace;
+import de.rub.nds.virtualnetworklayer.connection.pcap.ReassembledPacket;
 import de.rub.nds.virtualnetworklayer.fingerprint.Fingerprint;
 import de.rub.nds.virtualnetworklayer.fingerprint.Fingerprints;
 import de.rub.nds.virtualnetworklayer.packet.Headers;
@@ -18,6 +19,8 @@ import de.rub.nds.virtualnetworklayer.packet.header.internet.Ip;
 import de.rub.nds.virtualnetworklayer.packet.header.transport.TcpHeader;
 import org.apache.log4j.Logger;
 
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -103,16 +106,30 @@ public class Connection {
         // index of the current TLSPlaintext record (different from frame, because of fragmentation
         int clientRecordIndex = 0;
         int serverRecordIndex = 0;
+        List<Integer> segmentIndices = Arrays.asList(-1);
 	
 		// Now, iterate over all packets
 		for (PcapPacket packet : trace) {
+            final boolean request = packet.getDirection() == Direction.Request;
+
+            // get tcp segment indices
+            Integer lastSegmentIndex = Collections.max(segmentIndices);
+            segmentIndices = new LinkedList<>();
+            if(packet instanceof ReassembledPacket) {
+                for (PcapPacket op : ((ReassembledPacket) packet).getFragmentSequence().getPackets()) {
+                    segmentIndices.add(++lastSegmentIndex);
+                }
+            } else {
+                segmentIndices = Arrays.asList(++lastSegmentIndex);
+            }
+
             // ... and find TLS record layer frames
 			for (Header header : packet.getHeaders(Headers.Tls)) {
 
                 // we're not interested in any messages after we've seen ChangeCipherSpec
-                if(packet.getDirection() == Direction.Request && clientCompleted)
+                if(request && clientCompleted)
                     continue;
-                if(packet.getDirection() == Direction.Response && serverCompleted)
+                if(!request && serverCompleted)
                     continue;
 
                 // Decode the raw bytes of (TLS)-header and -payload
@@ -129,16 +146,22 @@ public class Connection {
 
                     final MessageContainer messageContainer =
                             new MessageContainer(frame, packet);
+
+                    //TODO: we cannot distinguish between TLS record and frame, see ARecordFrame
+                    // set index of TCP segment holding TLSPlaintext record
+                    messageContainer.setRecordSourceSegments(segmentIndices);
+
+                    // set index of TLSPlaintext record holding frame
                     messageContainer.addFragmentSourceRecord(
-                            (packet.getDirection() == Direction.Request)?
-                                    clientRecordIndex : serverRecordIndex);
+                            request? clientRecordIndex : serverRecordIndex);
+
                     frameList.add(messageContainer);
 
                     /*
                      * Does this complete the unencrypted part of the handshake?
                      */
                     if (frame instanceof ChangeCipherSpec) {
-                        if (packet.getDirection() == Direction.Request) {
+                        if (request) {
                             clientCompleted = true;
                         } else {
                             serverCompleted = true;
@@ -169,7 +192,7 @@ public class Connection {
                     }
                 }
 
-                if(packet.getDirection() == Direction.Request)
+                if(request)
                     ++clientRecordIndex;
                 else
                     ++serverRecordIndex;

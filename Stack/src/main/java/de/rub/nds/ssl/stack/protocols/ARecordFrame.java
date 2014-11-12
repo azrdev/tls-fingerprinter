@@ -1,7 +1,5 @@
 package de.rub.nds.ssl.stack.protocols;
 
-import java.util.Arrays;
-
 import de.rub.nds.ssl.stack.protocols.commons.APubliclySerializable;
 import de.rub.nds.ssl.stack.protocols.commons.EContentType;
 import de.rub.nds.ssl.stack.protocols.commons.EProtocolVersion;
@@ -15,6 +13,7 @@ import de.rub.nds.ssl.stack.protocols.commons.EProtocolVersion;
  *
  * Feb 05, 2014
  */
+//TODO: record-layer fragmentation
 public abstract class ARecordFrame extends APubliclySerializable {
 
     /**

@@ -8,13 +8,13 @@ import org.apache.log4j.Logger;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * MessageContainer information about the SSL handshake processing.
  *
  * @author Eugen Weiss - eugen.weiss@ruhr-uni-bochum.de
  * @author Christopher Meyer - christopher.meyer@ruhr-uni-bochum.de
- * @version 0.1 Apr 10, 2012
  * @see de.rub.nds.ssl.stack.trace.MessageContainer
  */
 //TODO: merge back / subclass stack.MessageContainer
@@ -59,6 +59,11 @@ public final class MessageContainer {
      * Only set after decoding.
      */
     private List<Integer> fragmentSourceRecords = new LinkedList<>();
+
+    /**
+     * Indices of the TCP segment(s) which contained bytes of our TLSPlaintext record
+     */
+    private List<Integer> recordSourceSegments = new LinkedList<>();
 
     /**
      * Empty constructor.
@@ -315,5 +320,19 @@ public final class MessageContainer {
             logger.warn("more than one record source for ARecordFrame: not implemented!");
 
         fragmentSourceRecords.add(recordIndex);
+    }
+
+    /**
+     * Only set after decoding
+     * @return The indices of the TCP segment(s) which contained bytes of our
+     * TLSPlaintext record
+     */
+    public List<Integer> getRecordSourceSegments() {
+        return new ArrayList<>(recordSourceSegments);
+    }
+
+    void setRecordSourceSegments(List<Integer> segmentIndices) {
+        Objects.requireNonNull(segmentIndices);
+        recordSourceSegments = new ArrayList<>(segmentIndices);
     }
 }

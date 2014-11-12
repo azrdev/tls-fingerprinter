@@ -10,6 +10,8 @@ import de.rub.nds.ssl.stack.protocols.commons.Id;
 import de.rub.nds.ssl.stack.protocols.handshake.AHandshakeRecord;
 import de.rub.nds.ssl.stack.protocols.handshake.ClientHello;
 import de.rub.nds.ssl.stack.protocols.handshake.ServerHello;
+import de.rub.nds.virtualnetworklayer.connection.pcap.ReassembledPacket;
+import de.rub.nds.virtualnetworklayer.packet.PcapPacket;
 import org.apache.log4j.Logger;
 
 import java.util.Arrays;
@@ -115,7 +117,7 @@ public class HandshakeFingerprint extends Fingerprint {
 
         // sign: message-types
 
-        List<MessageTypes> messageTypes = new LinkedList<>();
+        final List<MessageTypes> messageTypes = new LinkedList<>();
         for (MessageContainer messageContainer : frameList) {
             final ARecordFrame record = messageContainer.getCurrentRecord();
 
@@ -193,13 +195,18 @@ public class HandshakeFingerprint extends Fingerprint {
         }
 
         // sign: ssl-fragment-layout
+        // sign: tcp-fragment-layout
 
-        List<String> sslFragmentLayout = new LinkedList<>();
+        final List<String> sslFragmentLayout = new LinkedList<>();
+        final List<String> tcpSegmentLayout = new LinkedList<>();
+
         for (MessageContainer messageContainer : frameList) {
-            sslFragmentLayout.add(
-                    Joiner.on("-").join(messageContainer.getFragmentSourceRecords()));
+            final Joiner j = Joiner.on("-");
+            sslFragmentLayout.add(j.join(messageContainer.getFragmentSourceRecords()));
+            tcpSegmentLayout.add(j.join(messageContainer.getRecordSourceSegments()));
         }
         addSign("ssl-fragment-layout", sslFragmentLayout);
+        addSign("tcp-segment-layout", tcpSegmentLayout);
     }
 
     @Override
@@ -207,7 +214,8 @@ public class HandshakeFingerprint extends Fingerprint {
         return Arrays.asList(
                 "message-types",
                 "session-ids-match",
-                "ssl-fragment-layout");
+                "ssl-fragment-layout",
+                "tcp-segment-layout");
     }
 
     @Override
@@ -230,5 +238,9 @@ public class HandshakeFingerprint extends Fingerprint {
         if(signs.length < 3)
             return;
         addSign("ssl-fragment-layout", Serializer.deserializeStringList(signs[2]));
+
+        if(signs.length < 4)
+            return;
+        addSign("tcp-segment-layout", Serializer.deserializeStringList(signs[3]));
     }
 }
