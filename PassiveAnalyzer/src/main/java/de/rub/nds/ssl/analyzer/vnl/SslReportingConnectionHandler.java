@@ -180,6 +180,10 @@ public final class SslReportingConnectionHandler extends ConnectionHandler {
 		if (reportedSessions.contains(session))
             return;
 
+        // keep raw packets for dump capture. if not done yet,
+        // we have to keep the current packet, too
+        if(! connection.keepRawPackets())
+            saveRawPacket(connection);
         connection.setKeepRawPackets(true);
 
         // parse TLS
@@ -213,8 +217,6 @@ public final class SslReportingConnectionHandler extends ConnectionHandler {
      * @see Pcap#openDump(File)
      */
     private boolean writeCapture(String nameSuffix) {
-        //FIXME: called from newConnection() -> last packet missing, b/c newPacket saves after call
-
         if(currentConnection == null) {
             logger.warn("no current connection");
             return false;
@@ -231,7 +233,7 @@ public final class SslReportingConnectionHandler extends ConnectionHandler {
             pcapDumper.dump(rawPacket.getHeaderNative(), rawPacket.getBytesNative());
         }
 
-        currentConnection.setKeepRawPackets(false);
+        currentConnection.setKeepRawPackets(false, true);
         return true;
     }
 

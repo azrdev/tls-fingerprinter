@@ -9,6 +9,7 @@ import de.rub.nds.virtualnetworklayer.packet.PcapPacket;
 import de.rub.nds.virtualnetworklayer.packet.header.link.family.Family;
 import de.rub.nds.virtualnetworklayer.packet.header.transport.SocketSession;
 import de.rub.nds.virtualnetworklayer.pcap.Pcap;
+import de.rub.nds.virtualnetworklayer.pcap.PcapHandler;
 import de.rub.nds.virtualnetworklayer.util.Util;
 import de.rub.nds.virtualnetworklayer.util.formatter.IpFormatter;
 import org.apache.log4j.Logger;
@@ -285,13 +286,25 @@ public class PcapConnection implements Connection {
         return keepRawPackets;
     }
 
+    /**
+     * @see #setKeepRawPackets(boolean, boolean)
+     */
     public void setKeepRawPackets(boolean keepRawPackets) {
         setKeepRawPackets(keepRawPackets, false);
     }
 
     /**
+     * Set if this connection should collect raw pcap data of all packets to be dumped
+     * later. Checked by {@link ConnectionHandler} before calling
+     * <code>newConnection()</code>, thus if you override <code>newConnection()</code>
+     * calling <code>setKeepRawPackets(true)</code>, you have to catch the
+     * <em>current</em> packet manually with {@link ConnectionHandler#saveRawPacket
+     * (PcapConnection)}.
+     *
      * @param keepCurrent If true, don't throw away currently kept raw packets when
-     *                    setting keepRawPackets to false
+     *                    setting keepRawPackets to false. Default: false.
+     * @see PcapHandler#getCurrentRawPacket()
+     * @see ConnectionHandler#newConnection(ConnectionHandler.Event, PcapConnection)
      */
     public void setKeepRawPackets(boolean keepRawPackets, boolean keepCurrent) {
         this.keepRawPackets = keepRawPackets;

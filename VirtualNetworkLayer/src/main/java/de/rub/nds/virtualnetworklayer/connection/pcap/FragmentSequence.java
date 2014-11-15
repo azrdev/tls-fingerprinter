@@ -117,7 +117,7 @@ public class FragmentSequence {
      * These are in same order as getPackets().
      * <p/>
      * {@code
-     * accumulate(+ , getLengths(), 0) == getReassmbledPayloadLength();
+     * accumulate(+ , getLengths(), 0) == getReassembledPayloadLength();
      * }
      *
      * @return a list of fragments lengths

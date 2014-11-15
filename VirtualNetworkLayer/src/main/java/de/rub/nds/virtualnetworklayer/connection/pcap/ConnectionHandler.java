@@ -173,6 +173,9 @@ public abstract class ConnectionHandler extends PacketHandler {
         if (session != null) {
             PcapConnection connection = getConnection(session);
 
+            if(connection.keepRawPackets())
+                saveRawPacket(connection);
+
             packet.setDirection(connection.getSession().getDirection(packet));
             connection.getTrace().add(packet);
 
@@ -195,13 +198,10 @@ public abstract class ConnectionHandler extends PacketHandler {
                 connection.notify();
                 newConnection(Event.Update, connection);
             }
-
-            if(connection.keepRawPackets())
-                saveRawPacket(connection);
         }
     }
 
-    private void saveRawPacket(PcapConnection connection) {
+    protected void saveRawPacket(PcapConnection connection) {
         connection.getRawPackets().add(getCurrentRawPacket());
     }
 
