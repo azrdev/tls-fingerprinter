@@ -3,6 +3,7 @@ package de.rub.nds.virtualnetworklayer.pcap;
 import de.rub.nds.virtualnetworklayer.pcap.structs.pcap_handler;
 import de.rub.nds.virtualnetworklayer.pcap.structs.pcap_pkthdr;
 import org.bridj.Pointer;
+import org.bridj.TimeT;
 
 import java.nio.ByteBuffer;
 
@@ -50,14 +51,14 @@ public abstract class PcapHandler extends pcap_handler {
     }
 
     public static class RawPacket {
-        private long timeStamp;
+        private TimeT.timeval timeStamp;
         private int caplen;
         private int len;
         private ByteBuffer bytes;
 
         private RawPacket(Pointer<pcap_pkthdr> pkt_hdr, Pointer<Byte> bytes) {
             pcap_pkthdr header = pkt_hdr.get();
-            timeStamp = header.getTimeStamp();
+            timeStamp = header.ts();
             caplen = header.caplen();
             len = header.len();
 
@@ -68,7 +69,7 @@ public abstract class PcapHandler extends pcap_handler {
         public Pointer<pcap_pkthdr> getHeaderNative() {
             pcap_pkthdr hdr = new pcap_pkthdr();
 
-            hdr.setTimeStamp(timeStamp);
+            hdr.ts(timeStamp);
             hdr.caplen(caplen);
             hdr.len(len);
 

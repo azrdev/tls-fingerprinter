@@ -38,8 +38,12 @@ public class PcapDumper {
      * Parameters are identical to those of {@link
      * PcapHandler#callback(Pointer, Pointer, Pointer)}
      */
-    public void dump(Pointer<pcap_pkthdr> header, Pointer<Byte> bytes) {
+    void dump(Pointer<pcap_pkthdr> header, Pointer<Byte> bytes) {
         PcapLibrary.pcap_dump(pcap_dumper_t, header, bytes);
+    }
+
+    public void dump(PcapHandler.RawPacket packet) {
+        dump(packet.getHeaderNative(), packet.getBytesNative());
     }
 
     /**

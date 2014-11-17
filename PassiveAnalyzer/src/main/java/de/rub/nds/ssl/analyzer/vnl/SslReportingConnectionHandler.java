@@ -230,7 +230,7 @@ public final class SslReportingConnectionHandler extends ConnectionHandler {
 
         PcapDumper pcapDumper = this.pcap.openDump(new File(name));
         for(RawPacket rawPacket : currentConnection.getRawPackets()) {
-            pcapDumper.dump(rawPacket.getHeaderNative(), rawPacket.getBytesNative());
+            pcapDumper.dump(rawPacket);
         }
 
         currentConnection.setKeepRawPackets(false, true);

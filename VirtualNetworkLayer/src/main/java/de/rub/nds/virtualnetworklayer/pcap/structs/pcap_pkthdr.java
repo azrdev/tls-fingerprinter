@@ -24,16 +24,12 @@ public class pcap_pkthdr extends StructObject {
         return this;
     }
 
+    /**
+     * @return Timestamp in nanoseconds
+     * @see #ts()
+     */
     public long getTimeStamp() {
         return (ts().seconds() * 1000 * 1000 + ts().milliseconds()) * 1000;
-    }
-
-    public pcap_pkthdr setTimeStamp(long timeStamp) {
-        TimeT.timeval timeval = new TimeT.timeval();
-        timeval.milliseconds((int) timeStamp / 1000);
-        timeval.seconds(timeStamp / (1000 ^ 3));
-        this.ts(timeval);
-        return this;
     }
 
     @Field(1)
