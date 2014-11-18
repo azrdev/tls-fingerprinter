@@ -2,8 +2,10 @@ package de.rub.nds.ssl.analyzer.vnl;
 
 import de.rub.nds.ssl.analyzer.vnl.fingerprint.Fingerprint;
 import de.rub.nds.ssl.analyzer.vnl.fingerprint.serialization.Serializer;
+import de.rub.nds.ssl.stack.Utility;
 import de.rub.nds.virtualnetworklayer.util.Util;
 import de.rub.nds.virtualnetworklayer.util.formatter.IpFormatter;
+import org.apache.log4j.Logger;
 
 import java.util.Arrays;
 
@@ -14,13 +16,10 @@ import java.util.Arrays;
  * @author jBiegert azrdev@qrdn.de
  */
 public class SessionIdentifier {
-    private byte[] serverIPAddress;
-    private int serverTcpPort;
+    private static final Logger logger = Logger.getLogger(SessionIdentifier.class);
+
     private String serverHostName;
-
     private Fingerprint clientHelloSignature;
-
-    private static final int MAX_PORT = 65535;
 
     /**
      * Initializes all attributes with null => isValid() == false
@@ -30,12 +29,8 @@ public class SessionIdentifier {
     /**
      * Initializes all attributes with the given values
      */
-    public SessionIdentifier(byte[] serverIPAddress,
-                             int serverTcpPort,
-                             String serverHostName,
+    public SessionIdentifier(String serverHostName,
                              Fingerprint clientHelloSignature) {
-        setServerTcpPort(serverTcpPort);
-        this.serverIPAddress = serverIPAddress;
         this.serverHostName = serverHostName;
         this.clientHelloSignature = clientHelloSignature;
     }
@@ -44,9 +39,7 @@ public class SessionIdentifier {
      * @return True iff at leas one component of the id is not uninitialized / null
      */
     public boolean isValid() {
-        return serverIPAddress != null ||
-                serverTcpPort != 0 ||
-                (serverHostName != null && ! serverHostName.isEmpty()) ||
+        return (serverHostName != null && ! serverHostName.isEmpty()) ||
                 clientHelloSignature != null;
     }
 
@@ -56,12 +49,20 @@ public class SessionIdentifier {
     public SessionIdentifier(String serialized) {
         String[] parts = serialized.split("\\|");
 
-        if(parts.length > 0)
-            serverIPAddress = Util.ipAddressFromString(parts[0]);
-        if(parts.length > 1)
-            serverTcpPort = Util.readBoundedInteger(parts[1], 0, 65536);
-        if(parts.length > 2)
+        if(parts.length == 0)
+            throw new IllegalArgumentException();
+
+        if(parts.length == 3) {
+            final byte[] serverIPAddress = Util.ipAddressFromString(parts[0]);
+            int serverTcpPort = Util.readBoundedInteger(parts[1], 0, 65536);
             serverHostName = parts[2];
+
+            //TODO: un-support old serialized format with ip and port
+            logger.debug(String.format("unused for host %s: read server IP: %s, port %d",
+                    serverHostName, IpFormatter.toString(serverIPAddress), serverTcpPort));
+        }
+        if(parts.length == 1)
+            serverHostName = parts[0];
     }
 
     @Override
@@ -73,13 +74,9 @@ public class SessionIdentifier {
 
         SessionIdentifier that = (SessionIdentifier) o;
 
-        if (serverTcpPort != that.serverTcpPort)
-            return false;
         if (serverHostName != null ?
                 !serverHostName.equals(that.serverHostName) :
                 that.serverHostName != null)
-            return false;
-        if (!Arrays.equals(serverIPAddress, that.serverIPAddress))
             return false;
         if (clientHelloSignature != null ?
                 !clientHelloSignature.equals(that.clientHelloSignature) :
@@ -92,11 +89,7 @@ public class SessionIdentifier {
     @Override
     public int hashCode() {
         final int prime = 31;
-        int result = serverIPAddress != null ?
-                Arrays.hashCode(serverIPAddress) : 0;
-        result = prime * result + serverTcpPort;
-        result = prime * result +
-                (serverHostName != null ? serverHostName.hashCode() : 0);
+        int result = (serverHostName != null ? serverHostName.hashCode() : 0);
         result = prime * result +
                 (clientHelloSignature != null ? clientHelloSignature.hashCode() : 0);
         return result;
@@ -104,34 +97,19 @@ public class SessionIdentifier {
 
     @Override
     public String toString() {
-        return String.format("Connection to %s port %d, server name %s. ClientHello:\n%s",
-                IpFormatter.toString(serverIPAddress),
-                serverTcpPort,
+        return String.format("Connection to %s. ClientHello:\n%s",
                 serverHostName,
                 clientHelloSignature);
     }
 
     public String serialize() {
         StringBuilder sb = new StringBuilder();
-        sb.append(Util.ipAddressToString(serverIPAddress)).append('|');
-        sb.append(serverTcpPort).append('|');
         if(serverHostName != null)
             sb.append(serverHostName);
         sb.append("\n");
         sb.append(Serializer.serializeClientHello(clientHelloSignature));
 
         return sb.toString();
-    }
-
-    public void setServerIPAddress(byte[] serverIPAddress) {
-        this.serverIPAddress = serverIPAddress;
-    }
-
-    public void setServerTcpPort(int serverTcpPort) {
-        if(serverTcpPort > MAX_PORT) {
-            throw new IllegalArgumentException("Server port out of range: " + serverTcpPort);
-        }
-        this.serverTcpPort = serverTcpPort;
     }
 
     public void setServerHostName(String serverHostName) {

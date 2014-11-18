@@ -203,25 +203,9 @@ public class Connection {
 
     private SessionIdentifier extractSessionIdentifier(ClientHello clientHello,
                                                        PcapPacket packet) {
-        SessionIdentifier sessionIdentifier = new SessionIdentifier();
-
-        Ip ipHeader = packet.getHeader(Headers.Ip4);
-        if (ipHeader == null)
-            ipHeader = packet.getHeader(Headers.Ip6);
-        if (ipHeader == null)
-            sessionIdentifier.setServerIPAddress(null);
-        else
-            sessionIdentifier.setServerIPAddress(ipHeader.getDestinationAddress());
-
-        TcpHeader tcpHeader = packet.getHeader(Headers.Tcp);
-        //sessionIdentifier.setClientTcpPort(tcpHeader.getSourcePort());
-        sessionIdentifier.setServerTcpPort(tcpHeader.getDestinationPort());
-
-        sessionIdentifier.setServerHostName(clientHello.getHostName());
-
-        sessionIdentifier.setClientHelloSignature(
-                new ClientHelloFingerprint(clientHello));
-
-        return sessionIdentifier;
+        SessionIdentifier sid = new SessionIdentifier();
+        sid.setServerHostName(clientHello.getHostName());
+        sid.setClientHelloSignature(new ClientHelloFingerprint(clientHello));
+        return sid;
     }
 }
