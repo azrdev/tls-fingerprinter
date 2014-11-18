@@ -10,6 +10,7 @@ import de.rub.nds.ssl.stack.protocols.commons.Id;
 import de.rub.nds.ssl.stack.protocols.handshake.extensions.datatypes.EECPointFormat;
 import de.rub.nds.ssl.stack.protocols.handshake.extensions.datatypes.EExtensionType;
 import de.rub.nds.ssl.stack.protocols.handshake.extensions.datatypes.ENamedCurve;
+import de.rub.nds.virtualnetworklayer.p0f.Module;
 import de.rub.nds.virtualnetworklayer.p0f.signature.MTUSignature;
 import de.rub.nds.virtualnetworklayer.p0f.signature.TCPSignature;
 import org.apache.log4j.Logger;
@@ -231,7 +232,7 @@ public class Serializer {
                     } else if (FingerprintId.ServerHello.isAtStart(split[0])) {
                         serverHelloSignature = new ServerHelloFingerprint(split[1]);
                     } else if (FingerprintId.ServerTcp.isAtStart(split[0])) {
-                        serverTcpSignature = new TCPSignature(split[1]);
+                        serverTcpSignature = new TCPSignature(split[1], Module.Direction.Response);
                     } else if (FingerprintId.ServerMtu.isAtStart(split[0])) {
                         serverMtuSignature = new MTUSignature(split[1]);
                     } else if (FingerprintId.Handshake.isAtStart(split[0])) {
