@@ -38,4 +38,11 @@ public class LoggingFingerprintReporter implements FingerprintReporter {
                 sessionIdentifier.toString(),
                 fingerprint.toString()));
     }
+
+    @Override
+    public void reportArtificial(SessionIdentifier sessionIdentifier, TLSFingerprint fingerprint) {
+        logger.info(String.format("Saw an artificial fingerprint:%s\n%s",
+                sessionIdentifier.toString(),
+                fingerprint.toString()));
+    }
 }

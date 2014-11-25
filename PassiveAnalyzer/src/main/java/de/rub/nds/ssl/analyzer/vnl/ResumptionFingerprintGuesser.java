@@ -8,7 +8,7 @@ import de.rub.nds.ssl.stack.protocols.commons.Id;
 import org.apache.log4j.Logger;
 
 import java.util.ArrayList;
-import java.util.LinkedList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -42,21 +42,31 @@ public class ResumptionFingerprintGuesser implements FingerprintReporter {
     }
 
     @Override
+    public void reportArtificial(SessionIdentifier sessionIdentifier, TLSFingerprint fingerprint) {
+        // nothing
+    }
+
+    @Override
     public void reportNew(SessionIdentifier sessionIdentifier, TLSFingerprint tlsFingerprint) {
+        if(sessionIdentifier instanceof GuessedSessionId ||
+                tlsFingerprint instanceof GuessedResumptionFingerprint)
+            return;
+
+        SessionIdentifier sessionIdGuess = new GuessedSessionId(sessionIdentifier);
         TLSFingerprint resumptionGuess = new GuessedResumptionFingerprint(tlsFingerprint);
-        logger.info("Guessed: " + resumptionGuess);
+        logger.debug("Guessed session id: " + sessionIdGuess);
+        logger.debug("Guessed fingerprint: " + resumptionGuess);
+        ;
 
         if(listener != null) {
             logger.debug("now reporting guessed fingerprint");
-            listener.reportConnection(sessionIdentifier, resumptionGuess);
+            listener.insertFingerprint(sessionIdGuess, resumptionGuess);
         }
     }
 
     public static class GuessedSessionId extends SessionIdentifier {
         public GuessedSessionId(SessionIdentifier original) {
-            super(original.getServerIPAddress(),
-                    original.getServerTcpPort(),
-                    original.getServerHostName(),
+            super(original.getServerHostName(),
                     new GuessedClientHelloFingerprint(original.getClientHelloSignature()));
         }
     }
@@ -71,10 +81,12 @@ public class ResumptionFingerprintGuesser implements FingerprintReporter {
             //FIXME: ClientHello.extensionsLayout - multiple variants, dep. on original?
             Object sign = signs.get("extensions-layout");
             if(sign instanceof List) {
-                List<Id> extensionsLayout = (List<Id>) sign;
+                List<Id> extensionsLayout = new ArrayList<>((List<Id>) sign);
                 extensionsLayout.remove(new Id(new byte[]{0x00, (byte) 0x0d})); // signature_algorithms
                 extensionsLayout.add(new Id(new byte[]{0x00, (byte) 0x15})); // padding
                 signs.put("extensions-layout", extensionsLayout);
+            } else if(sign != null) {
+                logger.warn("ClientHello.extensions-layout not a list: " + sign);
             }
         }
     }
@@ -89,13 +101,13 @@ public class ResumptionFingerprintGuesser implements FingerprintReporter {
     }
 
     public static class GuessedHandshakeFingerprint extends HandshakeFingerprint {
-        public static final List<MessageTypes> MESSAGE_TYPES = new ArrayList<>(4);
-        static {
-            MESSAGE_TYPES.add(new MessageTypeSubtype(new Id((byte) 0x16), new Id((byte) 0x01)));
-            MESSAGE_TYPES.add(new MessageTypeSubtype(new Id((byte) 0x16), new Id((byte) 0x02)));
-            MESSAGE_TYPES.add(new MessageType(new Id((byte) 0x14)));
-            MESSAGE_TYPES.add(new MessageType(new Id((byte) 0x14)));
-        }
+        public static final List<MessageTypes> MESSAGE_TYPES =
+                Arrays.asList(new MessageTypes[]{
+                    new MessageTypeSubtype(new Id((byte) 0x16), new Id((byte) 0x01)),
+                    new MessageTypeSubtype(new Id((byte) 0x16), new Id((byte) 0x02)),
+                    new MessageType(new Id((byte) 0x14)),
+                    new MessageType(new Id((byte) 0x14))
+                });
 
         public GuessedHandshakeFingerprint(HandshakeFingerprint original) {
             super(original); // copy
@@ -116,10 +128,12 @@ public class ResumptionFingerprintGuesser implements FingerprintReporter {
             //FIXME: ServerHello.extensionsLayout - multiple variants, dep. on original?
             Object sign = signs.get("extensions-layout");
             if(sign instanceof List) {
-                final List<Id> extensionsLayout = (List<Id>) sign;
-                List<Id> newExtensionsLayout = new LinkedList<>();
-                newExtensionsLayout.add(new Id(new byte[]{(byte) 0xff, 0x01}));
+                final List<Id> extensionsLayout = new ArrayList<>((List<Id>) sign);
+                List<Id> newExtensionsLayout = Arrays.asList(
+                        new Id(new byte[]{(byte) 0xff, 0x01}));
                 signs.put("extensions-layout", newExtensionsLayout);
+            } else if(sign != null) {
+                logger.warn("ServerHello.extensions-layout not a list: " + sign);
             }
         }
     }

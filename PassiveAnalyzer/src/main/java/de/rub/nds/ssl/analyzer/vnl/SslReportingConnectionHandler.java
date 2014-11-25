@@ -44,6 +44,9 @@ public final class SslReportingConnectionHandler extends ConnectionHandler {
     private final Path fingerprintsNewDb = Paths.get(appDataDir + "fingerprints_new");
     private final Path fingerprintsChangedDb =
             Paths.get(appDataDir + "fingerprints_changed");
+    private final Path fingerprintsGuessedDb =
+            Paths.get(appDataDir + "fingerprints_guessed");
+
     private final String captureDir = appDataDir + File.separator +
             "captures" + File.separator;
 
@@ -55,7 +58,8 @@ public final class SslReportingConnectionHandler extends ConnectionHandler {
     private Pcap pcap = null;
 
     public SslReportingConnectionHandler() {
-        for(Path fpDb : Arrays.asList(fingerprintsNewDb, fingerprintsChangedDb)) {
+        for(Path fpDb : Arrays.asList(
+                fingerprintsNewDb, fingerprintsChangedDb, fingerprintsGuessedDb)) {
             try {
                 fingerprintListener.loadFingerprintSaveFile(fpDb, false);
             } catch (IOException e) {
@@ -65,7 +69,9 @@ public final class SslReportingConnectionHandler extends ConnectionHandler {
         }
 
         //configure here:
-        setFingerprintReporting(true, fingerprintsNewDb, fingerprintsChangedDb, true, true, true);
+        setFingerprintReporting(true,
+                fingerprintsNewDb, fingerprintsChangedDb, fingerprintsGuessedDb,
+                true, true, true);
     }
 
     /**
@@ -73,6 +79,7 @@ public final class SslReportingConnectionHandler extends ConnectionHandler {
      * @param log Enable {@link LoggingFingerprintReporter}
      * @param saveToFileNew Enable serialization of new fingerprints to that file.
      * @param saveToFileChanged Enable serialization of changed fingerprints to that file.
+     * @param saveToFileGuessed Enable serialization of guessed fingerprints to that file.
      * @param writeCaptureOnNewFingerprint Write pcap file of every handshake with a
      *                                     new fingerprint
      * @param writeCaptureOnChangedFingerprint Write pcap file of every handshake with a
@@ -82,14 +89,11 @@ public final class SslReportingConnectionHandler extends ConnectionHandler {
     public void setFingerprintReporting(boolean log,
                                         Path saveToFileNew,
                                         Path saveToFileChanged,
+                                        Path saveToFileGuessed,
                                         final boolean writeCaptureOnNewFingerprint,
                                         final boolean writeCaptureOnChangedFingerprint,
                                         boolean guessResumptionFingerprints) {
         fingerprintListener.clearFingerprintReporters();
-
-        if(guessResumptionFingerprints)
-            fingerprintListener.addFingerprintReporter(
-                    new ResumptionFingerprintGuesser(null));
 
         if(log)
             fingerprintListener.addFingerprintReporter(new LoggingFingerprintReporter());
@@ -97,7 +101,9 @@ public final class SslReportingConnectionHandler extends ConnectionHandler {
         if(saveToFileNew != null || saveToFileChanged != null) {
             try {
                 fingerprintListener.addFingerprintReporter(
-                        new SavefileFingerprintReporter(saveToFileNew, saveToFileChanged));
+                        new SavefileFingerprintReporter(saveToFileNew,
+                                saveToFileChanged,
+                                saveToFileGuessed));
             } catch (IOException e) {
                 logger.info("Could not open fingerprint save file: " + e);
             }
@@ -120,8 +126,10 @@ public final class SslReportingConnectionHandler extends ConnectionHandler {
                     }
 
                     @Override
-                    public void reportUpdate(SessionIdentifier s, TLSFingerprint t) {
-                    }
+                    public void reportUpdate(SessionIdentifier s, TLSFingerprint t) {}
+
+                    @Override
+                    public void reportArtificial(SessionIdentifier s, TLSFingerprint t) {}
 
                     @Override
                     public void reportNew(SessionIdentifier sessionIdentifier, TLSFingerprint tlsFingerprint) {
@@ -133,6 +141,10 @@ public final class SslReportingConnectionHandler extends ConnectionHandler {
                 logger.info("Could not create capture directory " + e);
             }
         }
+
+        if(guessResumptionFingerprints)
+            fingerprintListener.addFingerprintReporter(
+                    new ResumptionFingerprintGuesser(fingerprintListener));
     }
     
     public void printStats() {

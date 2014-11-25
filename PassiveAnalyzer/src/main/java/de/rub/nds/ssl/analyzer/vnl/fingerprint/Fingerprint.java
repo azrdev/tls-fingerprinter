@@ -26,7 +26,7 @@ public abstract class Fingerprint {
 
     protected Fingerprint(Fingerprint original) {
         Objects.requireNonNull(original);
-        this.signs = original.getSigns();
+        this.signs = new HashMap<>(original.getSigns());
     }
 
     /**

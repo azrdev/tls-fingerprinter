@@ -24,47 +24,55 @@ public class SavefileFingerprintReporter implements FingerprintReporter {
     private Logger logger = Logger.getLogger(getClass());
     private PrintWriter newFpWriter;
     private PrintWriter changedFpWriter;
+    private PrintWriter artificialFpWriter;
 
     /**
-     * Ctor for an instance saving new and changed fingerprints to one file
+     * Ctor for an instance saving new, changed, and artificial fingerprints to one file
      */
     public SavefileFingerprintReporter(Path saveFile) throws IOException {
         logger.debug("saving to " + saveFile);
-        Files.createDirectories(saveFile.getParent());
-        newFpWriter = new PrintWriter(Files.newBufferedWriter(saveFile,
-                Charset.forName("UTF8"),
-                StandardOpenOption.CREATE,
-                StandardOpenOption.WRITE,
-                StandardOpenOption.APPEND), true);
-
-        changedFpWriter = newFpWriter;
+        artificialFpWriter = changedFpWriter = newFpWriter = open(saveFile);
 
         newFpWriter.println("# " + new Date());
     }
 
     /**
-     * Ctor for an instance saving new and changed fingerprints, to different files
-     * @throws IOException If any file could not be opened for appending
+     * Ctor for an instance saving new, changed, and artificial fingerprints, to
+     * different files. If any of the arguments is <code>null</code>, it is disabled.
+     * @throws IOException If any (non-null) file could not be opened for appending
      */
-    public SavefileFingerprintReporter(Path saveFileNew, Path saveFileChanged)
-            throws IOException {
-        logger.debug("saving new fingerprints to " + saveFileNew);
-        Files.createDirectories(saveFileNew.getParent());
-        newFpWriter = new PrintWriter(Files.newBufferedWriter(saveFileNew,
-                Charset.forName("UTF8"),
-                StandardOpenOption.CREATE,
-                StandardOpenOption.WRITE,
-                StandardOpenOption.APPEND), true);
-        newFpWriter.println("# " + new Date());
+    public SavefileFingerprintReporter(Path saveFileNew,
+                                       Path saveFileChanged,
+                                       Path saveFileArtificial) throws IOException {
+        if(saveFileNew != null) {
+            logger.debug("saving new fingerprints to " + saveFileNew);
+            newFpWriter = open(saveFileNew);
+            newFpWriter.println("# " + new Date());
+        }
 
-        logger.debug("saving changed fingerprints to " + saveFileChanged);
-        Files.createDirectories(saveFileChanged.getParent());
-        changedFpWriter = new PrintWriter(Files.newBufferedWriter(saveFileChanged,
+        if(saveFileChanged != null) {
+            logger.debug("saving changed fingerprints to " + saveFileChanged);
+            changedFpWriter = open(saveFileChanged);
+            changedFpWriter.println("# " + new Date());
+        }
+
+        if(saveFileArtificial != null) {
+            logger.debug("saving artificial fingerprints to " + saveFileArtificial);
+            artificialFpWriter = open(saveFileArtificial);
+            artificialFpWriter.println("# " + new Date());
+        }
+    }
+
+    private static PrintWriter open(Path file) throws IOException {
+        com.google.common.io.Files.createParentDirs(file.toFile());
+
+        return new PrintWriter(Files.newBufferedWriter(
+                file,
                 Charset.forName("UTF8"),
                 StandardOpenOption.CREATE,
                 StandardOpenOption.WRITE,
-                StandardOpenOption.APPEND), true);
-        changedFpWriter.println("# " + new Date());
+                StandardOpenOption.APPEND),
+                true);
     }
 
     @Override
@@ -84,6 +92,11 @@ public class SavefileFingerprintReporter implements FingerprintReporter {
     public void reportNew(SessionIdentifier sessionIdentifier,
                           TLSFingerprint tlsFingerprint) {
         newFpWriter.println(Serializer.serialize(sessionIdentifier, tlsFingerprint));
+    }
+
+    @Override
+    public void reportArtificial(SessionIdentifier sessionIdentifier, TLSFingerprint fingerprint) {
+        artificialFpWriter.println(Serializer.serialize(sessionIdentifier, fingerprint));
     }
 
     @Override
