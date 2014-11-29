@@ -141,7 +141,7 @@ public class ServerKeyExchange extends AHandshakeRecord {
         }
 
         /*
-         * maybe better make Server*Params an abstract class,
+         * TODO: better make Server*Params an abstract class,
          * which extracts & checks signature itself
          */
 

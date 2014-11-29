@@ -54,9 +54,6 @@ public class ResumptionFingerprintGuesser implements FingerprintReporter {
 
         SessionIdentifier sessionIdGuess = new GuessedSessionId(sessionIdentifier);
         TLSFingerprint resumptionGuess = new GuessedResumptionFingerprint(tlsFingerprint);
-        logger.debug("Guessed session id: " + sessionIdGuess);
-        logger.debug("Guessed fingerprint: " + resumptionGuess);
-        ;
 
         if(listener != null) {
             logger.debug("now reporting guessed fingerprint");

@@ -137,11 +137,13 @@ public class FingerprintListener {
     }
 
     public String toString() {
-        return String.format("Endpoints: %d; Fingerprints: New %d, Updates %d, Changes %d",
+        return String.format(
+                "Endpoints: %d; Fingerprints: New %d, Updates %d, Changes %d, Generated %d",
                 fingerprints.size(),
                 fingerprintsNew,
                 fingerprintsUpdates,
-                fingerprintsChanges);
+                fingerprintsChanges,
+                fingerprintsArtificial);
         //TODO: detailed statistics, here or (completely) elsewhere (in reporter?)
     }
 

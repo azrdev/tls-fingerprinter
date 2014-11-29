@@ -27,21 +27,21 @@ public class LoggingFingerprintReporter implements FingerprintReporter {
 
 	@Override
 	public void reportUpdate(SessionIdentifier sessionIdentifier, TLSFingerprint fingerprint) {
-		logger.info(String.format("Saw a Fingerprint again:\n%s\n%s",
+		logger.info(String.format("Saw a Fingerprint again: %s\n%s",
                 sessionIdentifier.toString(),
                 fingerprint.toString()));
 	}
 
     @Override
     public void reportNew(SessionIdentifier sessionIdentifier, TLSFingerprint fingerprint) {
-		logger.info(String.format("Saw a new Fingerprint:\n%s\n%s",
+		logger.info(String.format("Saw a new Fingerprint: %s\n%s",
                 sessionIdentifier.toString(),
                 fingerprint.toString()));
     }
 
     @Override
     public void reportArtificial(SessionIdentifier sessionIdentifier, TLSFingerprint fingerprint) {
-        logger.info(String.format("Saw an artificial fingerprint:%s\n%s",
+        logger.info(String.format("Saw an artificial fingerprint: %s\n%s",
                 sessionIdentifier.toString(),
                 fingerprint.toString()));
     }

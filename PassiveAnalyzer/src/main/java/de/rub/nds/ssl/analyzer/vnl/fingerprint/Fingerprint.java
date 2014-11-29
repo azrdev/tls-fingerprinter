@@ -29,11 +29,7 @@ public abstract class Fingerprint {
         this.signs = new HashMap<>(original.getSigns());
     }
 
-    /**
-     * LinkedHashMap -> insertion-ordered
-     * this keeps the order of serialization and deserialization consistent
-     */
-    protected Map<String, Object> signs = new LinkedHashMap<>();
+    protected Map<String, Object> signs = new HashMap<>();
 
     /**
      * Add a sign "key" to this Signature
@@ -49,7 +45,7 @@ public abstract class Fingerprint {
     }
 
     public Map<String, Object> getSigns() {
-        return new LinkedHashMap<>(signs);
+        return new HashMap<>(signs);
     }
 
     @Override
