@@ -67,11 +67,19 @@ public final class SslReportingConnectionHandler extends ConnectionHandler {
             }
             printStats();
         }
+    }
 
-        //configure here:
-        setFingerprintReporting(true,
-                fingerprintsNewDb, fingerprintsChangedDb, fingerprintsGuessedDb,
-                true, true, true);
+    /**
+     * @see #setFingerprintReporting(boolean, Path, Path, Path, boolean, boolean, boolean)
+     */
+    public void setFingerprintReporting(boolean log,
+                                        boolean saveFingerprintsToFile,
+                                        boolean writeCaptures,
+                                        boolean guessResumptionFingerprints) {
+        final Path nDb = saveFingerprintsToFile? fingerprintsNewDb : null;
+        final Path cDb = saveFingerprintsToFile? fingerprintsChangedDb : null;
+        final Path gDb = saveFingerprintsToFile? fingerprintsGuessedDb : null;
+        setFingerprintReporting(log, nDb, cDb, gDb, writeCaptures, writeCaptures, guessResumptionFingerprints);
     }
 
     /**
