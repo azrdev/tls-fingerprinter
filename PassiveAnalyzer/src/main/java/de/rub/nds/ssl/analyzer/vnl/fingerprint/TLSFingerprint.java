@@ -14,7 +14,7 @@ import java.util.Set;
  * @author jBiegert azrdev@qrdn.de
  */
 public class TLSFingerprint {
-    private Logger logger = Logger.getLogger(getClass());
+    private static Logger logger = Logger.getLogger(TLSFingerprint.class);
 
     // static Fingerprint instances for signature creation
     private static TcpFingerprint serverTcpFingerprint = new TcpFingerprint();

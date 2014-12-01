@@ -12,7 +12,7 @@ import java.nio.file.Path;
 import java.util.*;
 
 public class FingerprintListener {
-    private Logger logger = Logger.getLogger(getClass());
+    private static Logger logger = Logger.getLogger(TLSFingerprint.class);
 
     private Map<SessionIdentifier, List<TLSFingerprint>> fingerprints = new HashMap<>();
     /**

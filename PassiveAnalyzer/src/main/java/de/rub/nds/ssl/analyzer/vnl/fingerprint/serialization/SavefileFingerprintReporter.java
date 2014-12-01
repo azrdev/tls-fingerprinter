@@ -21,7 +21,7 @@ import java.util.List;
  * @author jBiegert azrdev@qrdn.de
  */
 public class SavefileFingerprintReporter implements FingerprintReporter {
-    private Logger logger = Logger.getLogger(getClass());
+    private static Logger logger = Logger.getLogger(SavefileFingerprintReporter.class);
     private PrintWriter newFpWriter;
     private PrintWriter changedFpWriter;
     private PrintWriter artificialFpWriter;
