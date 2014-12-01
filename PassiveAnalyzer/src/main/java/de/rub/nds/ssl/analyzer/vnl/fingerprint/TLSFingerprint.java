@@ -76,7 +76,7 @@ public class TLSFingerprint {
     public boolean equals(Object o) {
         if (this == o)
             return true;
-        if (o == null || getClass() != o.getClass())
+        if (o == null || !(o instanceof TLSFingerprint))
             return false;
 
         TLSFingerprint that = (TLSFingerprint) o;

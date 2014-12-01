@@ -54,7 +54,7 @@ public class HandshakeFingerprint extends Fingerprint {
         @Override
         public boolean equals(Object o) {
             if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
+            if (o == null || !(o instanceof MessageType)) return false;
 
             MessageType that = (MessageType) o;
 
@@ -90,7 +90,7 @@ public class HandshakeFingerprint extends Fingerprint {
         @Override
         public boolean equals(Object o) {
             if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
+            if (o == null || !(o instanceof MessageTypeSubtype)) return false;
             if (!super.equals(o)) return false;
 
             MessageTypeSubtype that = (MessageTypeSubtype) o;
