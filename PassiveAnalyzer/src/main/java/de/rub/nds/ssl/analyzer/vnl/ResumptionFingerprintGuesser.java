@@ -49,40 +49,11 @@ public class ResumptionFingerprintGuesser implements FingerprintReporter {
 
     @Override
     public void reportNew(SessionIdentifier sessionIdentifier, TLSFingerprint tlsFingerprint) {
-        if(sessionIdentifier instanceof GuessedSessionId ||
-                tlsFingerprint instanceof GuessedResumptionFingerprint)
-            return;
-
-        SessionIdentifier sessionIdGuess = new GuessedSessionId(sessionIdentifier);
         TLSFingerprint resumptionGuess = new GuessedResumptionFingerprint(tlsFingerprint);
 
         if(listener != null) {
             logger.debug("now reporting guessed fingerprint");
-            listener.insertFingerprint(sessionIdGuess, resumptionGuess);
-        }
-    }
-
-    public static class GuessedSessionId extends SessionIdentifier {
-        public GuessedSessionId(SessionIdentifier original) {
-            super(original.getServerHostName(),
-                    new GuessedClientHelloFingerprint(original.getClientHelloSignature()));
-        }
-    }
-
-    public static class GuessedClientHelloFingerprint extends ClientHelloFingerprint {
-        public GuessedClientHelloFingerprint(ClientHelloFingerprint original) {
-            super(original); // copy
-
-            //FIXME: ClientHello.extensionsLayout - multiple variants, dep. on original?
-            Object sign = signs.get("extensions-layout");
-            if(sign instanceof List) {
-                List<Id> extensionsLayout = new ArrayList<>((List<Id>) sign);
-                extensionsLayout.remove(new Id(new byte[]{0x00, (byte) 0x0d})); // signature_algorithms
-                extensionsLayout.add(new Id(new byte[]{0x00, (byte) 0x15})); // padding
-                signs.put("extensions-layout", extensionsLayout);
-            } else if(sign != null) {
-                logger.warn("ClientHello.extensions-layout not a list: " + sign);
-            }
+            listener.insertFingerprint(sessionIdentifier, resumptionGuess);
         }
     }
 
