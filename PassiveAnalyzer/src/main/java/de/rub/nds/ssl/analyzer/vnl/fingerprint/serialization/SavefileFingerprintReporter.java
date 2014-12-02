@@ -12,7 +12,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.util.Date;
-import java.util.List;
+import java.util.Set;
 
 /**
  * Saves all reported fingerprints to a file, so they can be read back in by
@@ -78,7 +78,7 @@ public class SavefileFingerprintReporter implements FingerprintReporter {
     @Override
     public void reportChange(SessionIdentifier sessionIdentifier,
                              TLSFingerprint fingerprint,
-                             List<TLSFingerprint> previousFingerprints) {
+                             Set<TLSFingerprint> previousFingerprints) {
         changedFpWriter.println(Serializer.serialize(sessionIdentifier, fingerprint));
     }
 

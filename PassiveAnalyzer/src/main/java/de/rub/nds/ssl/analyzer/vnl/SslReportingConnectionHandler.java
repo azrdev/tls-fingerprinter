@@ -128,7 +128,7 @@ public final class SslReportingConnectionHandler extends ConnectionHandler {
 
                 fingerprintListener.addFingerprintReporter(new FingerprintReporter() {
                     @Override
-                    public void reportChange(SessionIdentifier sessionIdentifier, TLSFingerprint fingerprint, List<TLSFingerprint> previousFingerprints) {
+                    public void reportChange(SessionIdentifier sessionIdentifier, TLSFingerprint fingerprint, Set<TLSFingerprint> previousFingerprints) {
                         if (writeCaptureOnChangedFingerprint)
                             writeCapture("changed");
                     }

@@ -3,7 +3,7 @@ package de.rub.nds.ssl.analyzer.vnl;
 import de.rub.nds.ssl.analyzer.vnl.fingerprint.TLSFingerprint;
 import org.apache.log4j.Logger;
 
-import java.util.List;
+import java.util.Set;
 
 public class LoggingFingerprintReporter implements FingerprintReporter {
     private static Logger logger = Logger.getLogger(LoggingFingerprintReporter.class);
@@ -15,12 +15,14 @@ public class LoggingFingerprintReporter implements FingerprintReporter {
 	@Override
 	public void reportChange(SessionIdentifier sessionIdentifier,
 			TLSFingerprint fingerprint,
-			List<TLSFingerprint> previousFingerprints) {
+			Set<TLSFingerprint> previousFingerprints) {
 		logger.warn("Change detected for " + sessionIdentifier + "\n" + fingerprint);
-        for (int i = 0, ps = previousFingerprints.size(); i < ps; i++) {
-            TLSFingerprint previous = previousFingerprints.get(i);
+
+        int i = 0;
+        for (TLSFingerprint previous : previousFingerprints) {
+            ++i;
             logger.info(fingerprint.difference(previous,
-                    String.format("previous #%d", i+1)));
+                    String.format("previous #%d", i)));
         }
 	}
 

@@ -10,6 +10,7 @@ import org.apache.log4j.Logger;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Listens for fingerprints of "normal" handshakes and guesses how the fingerprints of
@@ -31,7 +32,7 @@ public class ResumptionFingerprintGuesser implements FingerprintReporter {
     }
 
     @Override
-    public void reportChange(SessionIdentifier sessionIdentifier, TLSFingerprint fingerprint, List<TLSFingerprint> previousFingerprints) {
+    public void reportChange(SessionIdentifier sessionIdentifier, TLSFingerprint fingerprint, Set<TLSFingerprint> previousFingerprints) {
         //nothing
     }
 

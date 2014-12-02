@@ -3,6 +3,7 @@ package de.rub.nds.ssl.analyzer.vnl;
 import de.rub.nds.ssl.analyzer.vnl.fingerprint.TLSFingerprint;
 
 import java.util.List;
+import java.util.Set;
 
 public interface FingerprintReporter {
     /**
@@ -10,7 +11,7 @@ public interface FingerprintReporter {
      */
 	public void reportChange(SessionIdentifier sessionIdentifier,
                              TLSFingerprint fingerprint,
-                             List<TLSFingerprint> previousFingerprints);
+                             Set<TLSFingerprint> previousFingerprints);
 
     /**
      * An occurrence of a {@link SessionIdentifier} and {@link TLSFingerprint} we have already seen

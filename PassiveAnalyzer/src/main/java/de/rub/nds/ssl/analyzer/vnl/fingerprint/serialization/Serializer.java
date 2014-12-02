@@ -1,5 +1,7 @@
 package de.rub.nds.ssl.analyzer.vnl.fingerprint.serialization;
 
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.SetMultimap;
 import de.rub.nds.ssl.analyzer.vnl.SessionIdentifier;
 import de.rub.nds.ssl.analyzer.vnl.fingerprint.*;
 import de.rub.nds.ssl.stack.Utility;
@@ -202,9 +204,10 @@ public class Serializer {
         return strings;
     }
 
-    public static Map<SessionIdentifier, List<TLSFingerprint>>
+    public static SetMultimap<SessionIdentifier, TLSFingerprint>
     deserialize(BufferedReader reader) throws IOException {
-        Map<SessionIdentifier, List<TLSFingerprint>> fingerprints = new HashMap<>();
+        SetMultimap<SessionIdentifier, TLSFingerprint> fingerprints =
+                HashMultimap.create();
 
         String line;
         SessionIdentifier sid = null;
@@ -275,23 +278,14 @@ public class Serializer {
     private static void commitFingerprint(
             SessionIdentifier sessionId,
             TLSFingerprint tlsFingerprint,
-            Map<SessionIdentifier, List<TLSFingerprint>> fingerprints) {
+            SetMultimap<SessionIdentifier, TLSFingerprint> fingerprints) {
 
         if(sessionId != null && tlsFingerprint != null) {
-            List<TLSFingerprint> fps;
-            if(fingerprints.containsKey(sessionId)) {
-                // append to list of fingerprints belonging to SessionIdentifier
-                fps = fingerprints.get(sessionId);
-                if(! fps.contains(tlsFingerprint)) {
-                    fps.add(tlsFingerprint);
-                } else {
-                    logger.warn("Duplicate fingerprint in file for " + sessionId);
-                    logger.trace("fingerprint: " + tlsFingerprint);
-                }
+            if (fingerprints.containsEntry(sessionId, tlsFingerprint)) {
+                logger.warn("Duplicate fingerprint in file for " + sessionId);
+                logger.trace("fingerprint: " + tlsFingerprint);
             } else {
-                fps = new ArrayList<>(1);
-                fps.add(tlsFingerprint);
-                fingerprints.put(sessionId, fps);
+                fingerprints.put(sessionId, tlsFingerprint);
             }
         }
     }
