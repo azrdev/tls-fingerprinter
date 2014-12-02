@@ -1,6 +1,7 @@
 package de.rub.nds.ssl.analyzer.vnl.fingerprint;
 
 import de.rub.nds.ssl.analyzer.vnl.Connection;
+import de.rub.nds.ssl.analyzer.vnl.fingerprint.serialization.SerializationException;
 import de.rub.nds.ssl.analyzer.vnl.fingerprint.serialization.Serializer;
 import de.rub.nds.ssl.stack.Utility;
 import de.rub.nds.ssl.stack.protocols.commons.ECipherSuite;
@@ -104,7 +105,11 @@ public class ServerHelloFingerprint extends Fingerprint {
         bytes = Utility.hexToBytes(signs[2].trim());
         addSign("compression-method", ECompressionMethod.getCompressionMethod(bytes[0]));
 
-        addSign("session-id-empty", Serializer.deserializeBoolean(signs[3]));
+        try {
+            addSign("session-id-empty", Serializer.deserializeBoolean(signs[3]));
+        } catch (SerializationException e) {
+            // omit sign
+        }
 
         List<Id> extensionLayout = Serializer.deserializeList(signs[4].trim());
         if(extensionLayout != null)

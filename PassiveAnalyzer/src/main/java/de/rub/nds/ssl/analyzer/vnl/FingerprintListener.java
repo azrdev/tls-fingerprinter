@@ -161,7 +161,7 @@ public class FingerprintListener {
             this.fingerprints = fingerprints;
         } else {
             for (Map.Entry<SessionIdentifier, TLSFingerprint> e : fingerprints.entries()) {
-                if (this.fingerprints.put(e.getKey(), e.getValue())) {
+                if (! this.fingerprints.put(e.getKey(), e.getValue())) {
                     logger.warn("fingerprint in file already known: " + e.getKey());
                     logger.trace("fingerprint: " + e.getValue());
                 }

@@ -2,6 +2,7 @@ package de.rub.nds.ssl.analyzer.vnl.fingerprint;
 
 import com.google.common.base.Joiner;
 import de.rub.nds.ssl.analyzer.vnl.MessageContainer;
+import de.rub.nds.ssl.analyzer.vnl.fingerprint.serialization.SerializationException;
 import de.rub.nds.ssl.analyzer.vnl.fingerprint.serialization.Serializer;
 import de.rub.nds.ssl.stack.protocols.ARecordFrame;
 import de.rub.nds.ssl.stack.protocols.alert.Alert;
@@ -239,7 +240,11 @@ public class HandshakeFingerprint extends Fingerprint {
 
         if(signs.length < 2)
             return;
-        addSign("session-ids-match", Serializer.deserializeBoolean(signs[1]));
+        try {
+            addSign("session-ids-match", Serializer.deserializeBoolean(signs[1]));
+        } catch (SerializationException e) {
+            // omit sign
+        }
 
         if(signs.length < 3)
             return;

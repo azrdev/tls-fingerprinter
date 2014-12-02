@@ -17,6 +17,8 @@ import de.rub.nds.virtualnetworklayer.p0f.signature.MTUSignature;
 import de.rub.nds.virtualnetworklayer.p0f.signature.TCPSignature;
 import org.apache.log4j.Logger;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.lang.IllegalArgumentException;
@@ -40,7 +42,7 @@ public class Serializer {
      * <br>
      * <b>NOTE</b>: never put Object[] as sign value, or things will break!
      */
-    public static String serializeSign(Object sign) {
+    public static String serializeSign(@Nullable Object sign) {
         if(sign == null)
             return "";
 
@@ -76,7 +78,7 @@ public class Serializer {
 
     public static final String LIST_DELIMITER = ",";
 
-    private static String serializeList(Collection collection) {
+    private static String serializeList(@Nonnull Collection collection) {
         if(collection.isEmpty())
             return LIST_DELIMITER;
 
@@ -94,7 +96,7 @@ public class Serializer {
         return sb.toString();
     }
 
-    private static String serializeList(Object[] arr) {
+    private static String serializeList(@Nonnull Object[] arr) {
         return serializeList(Arrays.asList(arr));
     }
 
@@ -103,14 +105,14 @@ public class Serializer {
         return session.serialize() + tlsFingerprint.serialize();
     }
 
-    public static String serialize(TLSFingerprint fp) {
+    public static String serialize(@Nonnull TLSFingerprint fp) {
         return serializeHandshake(fp.getHandshakeSignature())
                 + serializeServerHello(fp.getServerHelloSignature())
                 + serializeServerTcp(fp.getServerTcpSignature())
                 + serializeServerMtu(fp.getServerMtuSignature());
     }
 
-    public static String serializeHandshake(Fingerprint handshakeSignature) {
+    public static String serializeHandshake(@Nullable Fingerprint handshakeSignature) {
         if(handshakeSignature == null)
             return "";
 
@@ -118,7 +120,7 @@ public class Serializer {
                 handshakeSignature.serialize());
     }
 
-    public static String serializeClientHello(Fingerprint clientHelloSignature) {
+    public static String serializeClientHello(@Nullable Fingerprint clientHelloSignature) {
         if(clientHelloSignature == null) {
             return "";
         }
@@ -127,7 +129,7 @@ public class Serializer {
                 clientHelloSignature.serialize());
     }
 
-    public static String serializeServerHello(Fingerprint serverHelloSignature) {
+    public static String serializeServerHello(@Nullable Fingerprint serverHelloSignature) {
         if(serverHelloSignature == null) {
             return "";
         }
@@ -136,7 +138,7 @@ public class Serializer {
                 serverHelloSignature.serialize());
     }
 
-    public static String serializeServerTcp(
+    public static String serializeServerTcp(@Nullable
             de.rub.nds.virtualnetworklayer.fingerprint.Fingerprint.Signature sig) {
         if(sig == null)
             return "";
@@ -145,7 +147,7 @@ public class Serializer {
                 TCPSignature.writeToString(sig));
     }
 
-    public static String serializeServerMtu(
+    public static String serializeServerMtu(@Nullable
             de.rub.nds.virtualnetworklayer.fingerprint.Fingerprint.Signature sig) {
         if(sig == null)
             return "";
@@ -155,7 +157,7 @@ public class Serializer {
     }
 
     public static HandshakeFingerprint.MessageTypes
-    deserializeMessageTypes(String serialized) {
+    deserializeMessageTypes(@Nonnull String serialized) {
         final String[] types = serialized.split("-", 2);
         final Id contentType = new Id(Utility.hexToBytes(types[0]));
         if(types.length > 1) {
@@ -169,13 +171,14 @@ public class Serializer {
             return new HandshakeFingerprint.MessageType(contentType);
     }
 
-    public static Boolean deserializeBoolean(String serialized) {
+    public static Boolean deserializeBoolean(@Nonnull String serialized)
+            throws SerializationException {
         final String trimmed = serialized.trim().toLowerCase();
         if(trimmed.equals("true"))
             return true;
         if(trimmed.equals("false"))
             return false;
-        return null;
+        throw new SerializationException("No boolean value: " + trimmed);
     }
 
     /**
@@ -183,9 +186,9 @@ public class Serializer {
      * @return null if serialized was empty, else a list of Ids without nulls
      * @throws IllegalArgumentException If there is an unparseable char in any Id
      */
-    public static List<Id> deserializeList(String serialized) {
+    public static List<Id> deserializeList(@Nonnull String serialized) {
         if(serialized.isEmpty())
-            return null;
+            return null; //TODO: return empty list  / throw
         List<Id> bytes = new ArrayList<>(serialized.length());
         for(String item : serialized.split(LIST_DELIMITER, -1)) {
             if(item.isEmpty())
@@ -196,7 +199,7 @@ public class Serializer {
         return bytes;
     }
 
-    public static List<String> deserializeStringList(String serialized) {
+    public static List<String> deserializeStringList(@Nonnull String serialized) {
         List<String> strings = new ArrayList<>(serialized.length());
         for(String item : serialized.split(LIST_DELIMITER, -1)) {
             strings.add(item.trim());
@@ -205,7 +208,7 @@ public class Serializer {
     }
 
     public static SetMultimap<SessionIdentifier, TLSFingerprint>
-    deserialize(BufferedReader reader) throws IOException {
+    deserialize(@Nonnull BufferedReader reader) throws IOException {
         SetMultimap<SessionIdentifier, TLSFingerprint> fingerprints =
                 HashMultimap.create();
 
@@ -276,9 +279,9 @@ public class Serializer {
      * helper for {@link #deserialize(java.io.BufferedReader)}
      */
     private static void commitFingerprint(
-            SessionIdentifier sessionId,
-            TLSFingerprint tlsFingerprint,
-            SetMultimap<SessionIdentifier, TLSFingerprint> fingerprints) {
+            @Nullable SessionIdentifier sessionId,
+            @Nullable TLSFingerprint tlsFingerprint,
+            @Nonnull SetMultimap<SessionIdentifier, TLSFingerprint> fingerprints) {
 
         if(sessionId != null && tlsFingerprint != null) {
             if (fingerprints.containsEntry(sessionId, tlsFingerprint)) {

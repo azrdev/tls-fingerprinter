@@ -32,7 +32,9 @@ public class ResumptionFingerprintGuesser implements FingerprintReporter {
     }
 
     @Override
-    public void reportChange(SessionIdentifier sessionIdentifier, TLSFingerprint fingerprint, Set<TLSFingerprint> previousFingerprints) {
+    public void reportChange(SessionIdentifier sessionIdentifier,
+                             TLSFingerprint fingerprint,
+                             Set<TLSFingerprint> previousFingerprints) {
         //nothing
     }
 
@@ -59,10 +61,12 @@ public class ResumptionFingerprintGuesser implements FingerprintReporter {
 
     public static class GuessedResumptionFingerprint extends TLSFingerprint {
         public GuessedResumptionFingerprint(TLSFingerprint original) {
-            super(new GuessedHandshakeFingerprint(original.getHandshakeSignature()),
-                  new GuessedServerHelloFingerprint(original.getServerHelloSignature()),
-                    original.getServerTcpSignature(),
-                    original.getServerMtuSignature());
+            super(original.getHandshakeSignature() == null? null:
+                            new GuessedHandshakeFingerprint(original.getHandshakeSignature()),
+                  original.getServerHelloSignature() == null? null :
+                          new GuessedServerHelloFingerprint(original.getServerHelloSignature()),
+                  original.getServerTcpSignature(),
+                  original.getServerMtuSignature());
         }
     }
 
