@@ -41,7 +41,6 @@ public class ClientHelloFingerprint extends Fingerprint {
             throw new NotMatchingException();
 
         addSign("version", clientHello.getProtocolVersion());
-        addSign("session-id-empty", clientHello.getSessionID().isEmpty());
 
         //TODO: make fuzzy
         addSign("compression-method-list",
@@ -82,7 +81,6 @@ public class ClientHelloFingerprint extends Fingerprint {
     @Override
     public List<String> serializationSigns() {
         return Arrays.asList("version",
-                "session-id-empty",
                 "compression-method-list",
                 "cipher-suite-list",
                 "extensions-layout",
@@ -103,34 +101,32 @@ public class ClientHelloFingerprint extends Fingerprint {
         bytes = Utility.hexToBytes(signs[0].trim());
         addSign("version", EProtocolVersion.getProtocolVersion(bytes));
 
-        addSign("session-id-empty", Serializer.deserializeBoolean(signs[1]));
-
-        List<Id> compressionMethods = Serializer.deserializeList(signs[2].trim());
+        List<Id> compressionMethods = Serializer.deserializeList(signs[1].trim());
         addSign("compression-method-list", compressionMethods);
 
-        List<Id> cipherSuites = Serializer.deserializeList(signs[3].trim());
+        List<Id> cipherSuites = Serializer.deserializeList(signs[2].trim());
         addSign("cipher-suite-list", cipherSuites);
 
-        List<Id> extensionLayout = Serializer.deserializeList(signs[4].trim());
+        List<Id> extensionLayout = Serializer.deserializeList(signs[3].trim());
         if(extensionLayout != null)
             addSign("extensions-layout", extensionLayout);
 
-        if(signs.length < 6)
+        if(signs.length < 5)
             return;
-        List<Id> supportedPointFormats = Serializer.deserializeList(signs[5].trim());
+        List<Id> supportedPointFormats = Serializer.deserializeList(signs[4].trim());
         if(supportedPointFormats != null)
             addSign("supported-point-formats", supportedPointFormats);
 
-        if(signs.length < 7)
+        if(signs.length < 6)
             return;
-        List<Id> supportedCurves = Serializer.deserializeList(signs[6].trim());
+        List<Id> supportedCurves = Serializer.deserializeList(signs[5].trim());
         if(supportedCurves != null)
             addSign("supported-curves", supportedCurves);
 
-        if(signs.length < 8)
+        if(signs.length < 7)
             return;
         try {
-            final String sign = signs[7].trim();
+            final String sign = signs[6].trim();
             if(!sign.isEmpty())
                 addSign("renegotiation-info-length",
                         Util.readBoundedInteger(sign, 0, 255));

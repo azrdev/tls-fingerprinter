@@ -73,9 +73,6 @@ public class ResumptionFingerprintGuesser implements FingerprintReporter {
         public GuessedClientHelloFingerprint(ClientHelloFingerprint original) {
             super(original); // copy
 
-            // overwrite signs
-            signs.put("session-id-empty", false);
-
             //FIXME: ClientHello.extensionsLayout - multiple variants, dep. on original?
             Object sign = signs.get("extensions-layout");
             if(sign instanceof List) {

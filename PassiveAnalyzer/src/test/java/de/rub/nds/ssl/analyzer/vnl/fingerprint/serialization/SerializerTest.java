@@ -47,13 +47,13 @@ public class SerializerTest {
         Fingerprint chf = new ClientHelloFingerprint("");
     }
 
-    private static final String ch_TLS1_complete = "0301:true:00:c02b,c02f,009e,c00a,c009,c013,c014,c007,c011,0033,0032,0039,009c,002f,0035,000a,0005,0004:0000,ff01,000a,000b,0023,3374,0010,7550,0005,0012,000d:00:0017,0018,0019:0";
-    private static final String ch_ssl3 = "0300:false:00:00ff,009e,0033,0032,0039,009c,002f,0035,000a,0005,0004::::";
+    private static final String ch_TLS1_complete = "0301:00:c02b,c02f,009e,c00a,c009,c013,c014,c007,c011,0033,0032,0039,009c,002f,0035,000a,0005,0004:0000,ff01,000a,000b,0023,3374,0010,7550,0005,0012,000d:00:0017,0018,0019:0";
+    private static final String ch_ssl3 = "0300:00:00ff,009e,0033,0032,0039,009c,002f,0035,000a,0005,0004::::";
 
     @Test
     public void clientHelloFingerprintTLS1_1() {
         final Fingerprint chf = new ClientHelloFingerprint(ch_TLS1_complete);
-        assertEquals(8, chf.getSigns().size());
+        assertEquals(7, chf.getSigns().size());
 
         final String serialized = chf.serialize();
         assertEquals(ch_TLS1_complete, serialized);
@@ -63,7 +63,7 @@ public class SerializerTest {
     @Test
     public void clientHelloFingerprintSSL3() {
         final Fingerprint chf = new ClientHelloFingerprint(ch_ssl3);
-        assertEquals(4, chf.getSigns().size());
+        assertEquals(3, chf.getSigns().size());
 
         final String serialized = chf.serialize();
         assertEquals(ch_ssl3, serialized);
