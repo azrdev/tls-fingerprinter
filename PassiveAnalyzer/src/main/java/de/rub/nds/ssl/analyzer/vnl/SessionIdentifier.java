@@ -1,5 +1,6 @@
 package de.rub.nds.ssl.analyzer.vnl;
 
+import com.google.common.net.InetAddresses;
 import de.rub.nds.ssl.analyzer.vnl.fingerprint.ClientHelloFingerprint;
 import de.rub.nds.ssl.analyzer.vnl.fingerprint.Fingerprint;
 import de.rub.nds.ssl.analyzer.vnl.fingerprint.serialization.Serializer;
@@ -56,7 +57,7 @@ public class SessionIdentifier {
             throw new IllegalArgumentException();
 
         if(parts.length == 3) {
-            final byte[] serverIPAddress = Util.ipAddressFromString(parts[0]);
+            final byte[] serverIPAddress = InetAddresses.forString(parts[0]).getAddress();
             int serverTcpPort = Util.readBoundedInteger(parts[1], 0, 65536);
             serverHostName = parts[2];
 
