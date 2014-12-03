@@ -1,5 +1,6 @@
 package de.rub.nds.ssl.stack.protocols.handshake;
 
+import de.rub.nds.ssl.stack.exceptions.NoServerNameException;
 import de.rub.nds.ssl.stack.protocols.commons.ECipherSuite;
 import de.rub.nds.ssl.stack.protocols.commons.EProtocolVersion;
 import de.rub.nds.ssl.stack.protocols.handshake.datatypes.*;
@@ -480,7 +481,11 @@ public final class ClientHello extends AHandshakeRecord {
         this.cipherSuites = new CipherSuites(tmp);
     }
 
-    public String getHostName() {
+    /**
+     * @return The first requested hostname if a servername extension was found
+     * @throws NoServerNameException
+     */
+    public String getHostName() throws NoServerNameException {
         if (extensions != null) {
             for (AExtension e : extensions.getExtensions()) {
                 if (e.getExtensionType() == EExtensionType.SERVER_NAME) {
@@ -489,7 +494,7 @@ public final class ClientHello extends AHandshakeRecord {
                 }
             }
         }
-        return null;
+        throw new NoServerNameException();
     }
 
 }

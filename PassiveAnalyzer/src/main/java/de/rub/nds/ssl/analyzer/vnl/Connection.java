@@ -1,6 +1,7 @@
 package de.rub.nds.ssl.analyzer.vnl;
 
 import de.rub.nds.ssl.analyzer.vnl.fingerprint.ClientHelloFingerprint;
+import de.rub.nds.ssl.stack.exceptions.NoServerNameException;
 import de.rub.nds.ssl.stack.protocols.ARecordFrame;
 import de.rub.nds.ssl.stack.protocols.handshake.ClientHello;
 import de.rub.nds.ssl.stack.protocols.handshake.ServerHello;
@@ -17,6 +18,7 @@ import de.rub.nds.virtualnetworklayer.packet.PcapPacket;
 import de.rub.nds.virtualnetworklayer.packet.header.Header;
 import de.rub.nds.virtualnetworklayer.packet.header.internet.Ip;
 import de.rub.nds.virtualnetworklayer.packet.header.transport.TcpHeader;
+import de.rub.nds.virtualnetworklayer.util.formatter.IpFormatter;
 import org.apache.log4j.Logger;
 
 import java.util.Arrays;
@@ -203,9 +205,14 @@ public class Connection {
 
     private SessionIdentifier extractSessionIdentifier(ClientHello clientHello,
                                                        PcapPacket packet) {
-        SessionIdentifier sid = new SessionIdentifier();
-        sid.setServerHostName(clientHello.getHostName());
-        sid.setClientHelloSignature(new ClientHelloFingerprint(clientHello));
-        return sid;
+        String hostName;
+        try {
+            hostName = clientHello.getHostName();
+        } catch (NoServerNameException e) {
+            // if no hostname found, assume SSL3 / no virtualhosts, and use IP
+            hostName = IpFormatter.toString(packet.getSession().getDestinationAddress());
+        }
+
+        return new SessionIdentifier(hostName, new ClientHelloFingerprint(clientHello));
     }
 }

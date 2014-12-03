@@ -44,6 +44,8 @@ public class SessionIdentifier {
                 clientHelloSignature != null;
     }
 
+    public static final String NO_HOSTNAME = "*";
+
     /**
      * deserialize a SessionIdentifier object, see {@link SessionIdentifier#serialize()}
      */
@@ -62,8 +64,11 @@ public class SessionIdentifier {
             logger.debug(String.format("unused for host %s: read server IP: %s, port %d",
                     serverHostName, IpFormatter.toString(serverIPAddress), serverTcpPort));
         }
-        if(parts.length == 1)
+        if(parts.length == 1) {
+            if(NO_HOSTNAME.equals(parts[0]))
+                serverHostName = null;
             serverHostName = parts[0];
+        }
     }
 
     @Override
@@ -98,15 +103,18 @@ public class SessionIdentifier {
 
     @Override
     public String toString() {
-        return String.format("Connection to %s. ClientHello:\n%s",
+        return String.format("Connection to %s, ClientHello:\n%s",
                 serverHostName,
                 clientHelloSignature);
     }
 
     public String serialize() {
         StringBuilder sb = new StringBuilder();
-        if(serverHostName != null)
+        if(serverHostName != null) {
             sb.append(serverHostName);
+        } else {
+            sb.append(NO_HOSTNAME);
+        }
         sb.append("\n");
         sb.append(Serializer.serializeClientHello(clientHelloSignature));
 
