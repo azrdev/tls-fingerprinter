@@ -201,9 +201,7 @@ final public class HandshakeEnumeration extends ARecordFrame {
                 NoSuchMethodException ex) {
             throw new IllegalArgumentException("could not decode handshake message " + ex);
         } catch(InvocationTargetException ex) {
-            // InvocationTargetException happens with ClientKeyExchange message -
-            // TODO why and when? (CM)
-            logger.debug(ex, ex);
+            //TODO: InvocationTargetException(KeyExchangeAlgorithm null) happens with ClientKeyExchange message - debug why
             throw new IllegalArgumentException(
                     "could not decode handshake message " + ex.getCause());
         }
