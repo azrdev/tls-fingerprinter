@@ -51,7 +51,10 @@ public class ResumptionFingerprintGuesser implements FingerprintReporter {
 
     @Override
     public void reportNew(SessionIdentifier sessionIdentifier, TLSFingerprint tlsFingerprint) {
-        TLSFingerprint resumptionGuess = new GuessedResumptionFingerprint(tlsFingerprint);
+        if(tlsFingerprint instanceof GuessedResumptionFingerprint)
+            return;
+
+        final TLSFingerprint resumptionGuess = new GuessedResumptionFingerprint(tlsFingerprint);
 
         if(listener != null) {
             logger.debug("now reporting guessed fingerprint");
