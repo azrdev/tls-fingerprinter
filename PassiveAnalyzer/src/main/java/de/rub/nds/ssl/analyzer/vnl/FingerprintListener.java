@@ -1,6 +1,8 @@
 package de.rub.nds.ssl.analyzer.vnl;
 
 import com.google.common.collect.HashMultimap;
+import com.google.common.collect.ImmutableCollection;
+import com.google.common.collect.ImmutableSetMultimap;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Multimaps;
 import com.google.common.collect.SetMultimap;
@@ -167,5 +169,9 @@ public class FingerprintListener {
                 }
             }
         }
+    }
+
+    public ImmutableSetMultimap<SessionIdentifier, TLSFingerprint> getFingerprints() {
+        return ImmutableSetMultimap.copyOf(fingerprints);
     }
 }

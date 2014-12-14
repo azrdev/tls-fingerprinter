@@ -3,6 +3,7 @@ package de.rub.nds.ssl.analyzer.vnl;
 import java.io.File;
 import java.util.List;
 
+import de.rub.nds.ssl.analyzer.vnl.gui.MainWindow;
 import de.rub.nds.virtualnetworklayer.connection.pcap.ConnectionHandler;
 import de.rub.nds.virtualnetworklayer.p0f.P0fFile;
 import de.rub.nds.virtualnetworklayer.pcap.Pcap;
@@ -11,6 +12,8 @@ import net.sourceforge.argparse4j.inf.ArgumentParser;
 import net.sourceforge.argparse4j.inf.ArgumentParserException;
 import net.sourceforge.argparse4j.inf.Namespace;
 import org.apache.log4j.Logger;
+
+import javax.swing.*;
 
 import static net.sourceforge.argparse4j.impl.Arguments.storeFalse;
 import static net.sourceforge.argparse4j.impl.Arguments.storeTrue;
@@ -102,6 +105,7 @@ public class PassiveSslReporter {
         argParser.addArgument("--open-stdin", "-s").action(storeTrue())
                 .help("Open standard input as capture, after processing all input files.\n" +
                       "Use i.e. with dumpcap -w - | java ... -s");
+        argParser.addArgument("--graphical", "-g").action(storeTrue()).help("Start GUI");
         argParser.addArgument("--save-captures").action(storeTrue())
                 .help("Write .pcap dumps of handshakes");
         argParser.addArgument("--guess-session-resumption").action(storeTrue())
@@ -130,6 +134,10 @@ public class PassiveSslReporter {
                 parsedArgs.getBoolean("save_captures"),
                 parsedArgs.getBoolean("guess_session_resumption"));
 
+        if(parsedArgs.getBoolean("graphical")) {
+            new MainWindow(psr.handler.getFingerprintListener());
+        }
+
         Thread monitorThread = psr.startMonitorThread();
         try {
             for (String string : (List<String>) parsedArgs.get("inputFile")) {
@@ -153,7 +161,6 @@ public class PassiveSslReporter {
         } finally {
             monitorThread.interrupt();
         }
-		System.exit(0);
 	}
 
 }

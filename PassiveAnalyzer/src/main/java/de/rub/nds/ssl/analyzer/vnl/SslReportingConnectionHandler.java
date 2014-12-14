@@ -272,4 +272,8 @@ public final class SslReportingConnectionHandler extends ConnectionHandler {
     public void setPcap(Pcap pcap) {
         this.pcap = pcap;
     }
+
+    public FingerprintListener getFingerprintListener() {
+        return fingerprintListener;
+    }
 }
