@@ -2,7 +2,7 @@
 <form xmlns="http://www.intellij.com/uidesigner/form/" version="1" bind-to-class="de.rub.nds.ssl.analyzer.vnl.gui.MainWindow">
   <tabbedpane id="9846f" binding="tabPane">
     <constraints>
-      <xy x="20" y="20" width="500" height="400"/>
+      <xy x="20" y="20" width="699" height="491"/>
     </constraints>
     <properties/>
     <border type="none"/>
@@ -14,21 +14,36 @@
         <properties/>
         <border type="none"/>
         <children>
-          <grid id="98c87" layout-manager="BorderLayout" hgap="0" vgap="0">
+          <grid id="98c87" layout-manager="FlowLayout" hgap="5" vgap="1" flow-align="1">
             <constraints border-constraint="North"/>
             <properties/>
             <border type="none"/>
             <children>
               <component id="1839c" class="javax.swing.JCheckBox" binding="showNewFingerprintsCheckBox" default-binding="true">
-                <constraints border-constraint="West"/>
+                <constraints/>
                 <properties>
-                  <text value="show new fingerprints"/>
+                  <selected value="true"/>
+                  <text value="show &amp;new fingerprints"/>
                 </properties>
               </component>
               <component id="13251" class="javax.swing.JCheckBox" binding="showFingerprintUpdatesCheckBox" default-binding="true">
-                <constraints border-constraint="Center"/>
+                <constraints/>
                 <properties>
-                  <text value="show fingerprint updates"/>
+                  <selected value="true"/>
+                  <text value="show fingerprint &amp;updates"/>
+                </properties>
+              </component>
+              <component id="add7d" class="javax.swing.JCheckBox" binding="showGuessedFingerprintsCheckBox" default-binding="true">
+                <constraints/>
+                <properties>
+                  <selected value="true"/>
+                  <text value="show &amp;Guessed Fingerprints"/>
+                </properties>
+              </component>
+              <component id="5ece2" class="javax.swing.JButton" binding="flushReportsButton" default-binding="true">
+                <constraints/>
+                <properties>
+                  <text value="&amp;Flush Reports"/>
                 </properties>
               </component>
             </children>
@@ -38,7 +53,7 @@
             <properties/>
             <border type="none"/>
             <children>
-              <component id="a0176" class="javax.swing.JList" binding="fingerprintReporterList">
+              <component id="28b2e" class="javax.swing.JTable" binding="fingerprintReportsTable">
                 <constraints/>
                 <properties/>
               </component>
@@ -81,7 +96,8 @@
               <component id="2ba92" class="javax.swing.JLabel">
                 <constraints border-constraint="West"/>
                 <properties>
-                  <text value="Log Level"/>
+                  <labelFor value="741cc"/>
+                  <text value="Log &amp;Level"/>
                 </properties>
               </component>
               <component id="741cc" class="javax.swing.JComboBox" binding="logLevelCB" custom-create="true">

@@ -32,6 +32,7 @@ public class FingerprintStorageModel {
     public static TreeModel getModel(FingerprintListener backend) {
         final DefaultMutableTreeNode root = new DefaultMutableTreeNode("root");
 
+        //TODO: asynchronous load
         final ImmutableSetMultimap<SessionIdentifier, TLSFingerprint> fingerprints =
                 backend.getFingerprints();
         for (SessionIdentifier sesId : fingerprints.keys()) {

@@ -82,6 +82,7 @@ public class MessageListModel extends AbstractTableModel {
 
         MessageListAppender() {
             setThreshold(Logger.getRootLogger().getLevel());
+            //TODO: load older log messages
         }
 
         /** {@inheritDoc} */
