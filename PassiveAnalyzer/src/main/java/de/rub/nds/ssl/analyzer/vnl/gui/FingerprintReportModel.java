@@ -1,5 +1,6 @@
 package de.rub.nds.ssl.analyzer.vnl.gui;
 
+import com.google.common.collect.ImmutableSet;
 import de.rub.nds.ssl.analyzer.vnl.FingerprintListener;
 import de.rub.nds.ssl.analyzer.vnl.FingerprintReporter;
 import de.rub.nds.ssl.analyzer.vnl.SessionIdentifier;
@@ -69,9 +70,11 @@ public class FingerprintReportModel
             return "Guess";
         }
     }
-    private static class ChangedReport extends Report {
-        final Set<TLSFingerprint> previousFingerprints;
-        ChangedReport(SessionIdentifier sessionIdentifier, TLSFingerprint tlsFingerprint, Set<TLSFingerprint> previousFingerprints) {
+    static class ChangedReport extends Report {
+        final ImmutableSet<TLSFingerprint> previousFingerprints;
+        ChangedReport(SessionIdentifier sessionIdentifier,
+                      TLSFingerprint tlsFingerprint,
+                      ImmutableSet<TLSFingerprint> previousFingerprints) {
             super(sessionIdentifier, tlsFingerprint);
             this.previousFingerprints = previousFingerprints;
         }
@@ -133,8 +136,11 @@ public class FingerprintReportModel
     // FingerprintReporter interface
 
     @Override
-    public void reportChange(SessionIdentifier sessionIdentifier, TLSFingerprint fingerprint, Set<TLSFingerprint> previousFingerprints) {
-        addReport(new ChangedReport(sessionIdentifier, fingerprint, previousFingerprints));
+    public void reportChange(SessionIdentifier sessionIdentifier,
+                             TLSFingerprint fingerprint,
+                             Set<TLSFingerprint> previousFingerprints) {
+        addReport(new ChangedReport(sessionIdentifier, fingerprint,
+                ImmutableSet.copyOf(previousFingerprints)));
     }
 
     @Override

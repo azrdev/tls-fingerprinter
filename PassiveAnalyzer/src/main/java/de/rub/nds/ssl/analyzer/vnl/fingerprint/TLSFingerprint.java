@@ -1,11 +1,18 @@
 package de.rub.nds.ssl.analyzer.vnl.fingerprint;
 
+import com.google.common.base.Joiner;
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.SetMultimap;
 import de.rub.nds.ssl.analyzer.vnl.Connection;
 import de.rub.nds.ssl.analyzer.vnl.fingerprint.serialization.Serializer;
 import de.rub.nds.virtualnetworklayer.fingerprint.MtuFingerprint;
 import de.rub.nds.virtualnetworklayer.fingerprint.TcpFingerprint;
 import org.apache.log4j.Logger;
 
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -132,37 +139,57 @@ public class TLSFingerprint {
      * @return a String representation of everything that has changed w.r.t. other
      * @param otherName text to represent other
      */
-    public String difference(TLSFingerprint other, String otherName) {
-        StringBuilder sb = new StringBuilder(
-                getClass().getSimpleName() + " difference to " + otherName + ":\n");
+    public String differenceString(TLSFingerprint other, String otherName) {
+        return getClass().getSimpleName() + " difference to " + otherName + ":\n" +
+                Joiner.on("\n").join(difference(other));
+    }
 
+    /**
+     * @return List of Strings describing all the changed signs w.r.t. <code>other</code>
+     */
+    public List<String> difference(TLSFingerprint other) {
+        List<String> differences = new LinkedList<>();
+
+        for(Map.Entry<String, SignatureDifference.SignDifference> difference :
+                differenceMap(other).entries()) {
+            differences.add(difference.getKey() + "." + difference.getValue());
+        }
+
+
+        return differences;
+    }
+
+    public SetMultimap<String, SignatureDifference.SignDifference>
+    differenceMap(TLSFingerprint other) {
+        SetMultimap<String, SignatureDifference.SignDifference> differences =
+                HashMultimap.create();
         Set<SignatureDifference.SignDifference> differenceSet;
 
         differenceSet = SignatureDifference.fromGenericFingerprints(handshakeSignature,
                 other.getHandshakeSignature()).getDifferences();
         for(SignatureDifference.SignDifference d : differenceSet) {
-            sb.append("Handshake.").append(d).append("\n");
+            differences.put("Handshake", d);
         }
 
         differenceSet = SignatureDifference.fromGenericFingerprints(serverHelloSignature,
                 other.getServerHelloSignature()).getDifferences();
         for(SignatureDifference.SignDifference d : differenceSet) {
-            sb.append("ServerHello.").append(d).append("\n");
+            differences.put("ServerHello", d);
         }
 
         differenceSet = SignatureDifference.fromVnlFingerprints(serverTcpSignature,
                 other.getServerTcpSignature()).getDifferences();
         for(SignatureDifference.SignDifference d : differenceSet) {
-            sb.append("ServerTCP.").append(d).append("\n");
+            differences.put("ServerTCP", d);
         }
 
         differenceSet = SignatureDifference.fromVnlFingerprints(serverMtuSignature,
                 other.getServerMtuSignature()).getDifferences();
         for(SignatureDifference.SignDifference d : differenceSet) {
-            sb.append("ServerMTU.").append(d).append("\n");
+            differences.put("ServerMTU", d);
         }
 
-        return sb.toString();
+        return differences;
     }
 
     public String serialize() {

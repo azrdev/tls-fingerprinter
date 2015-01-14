@@ -21,7 +21,7 @@ public class LoggingFingerprintReporter implements FingerprintReporter {
         int i = 0;
         for (TLSFingerprint previous : previousFingerprints) {
             ++i;
-            logger.info(fingerprint.difference(previous,
+            logger.info(fingerprint.differenceString(previous,
                     String.format("previous #%d", i)));
         }
 	}

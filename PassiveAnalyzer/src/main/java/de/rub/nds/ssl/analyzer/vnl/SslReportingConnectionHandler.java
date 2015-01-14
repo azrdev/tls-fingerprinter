@@ -72,7 +72,7 @@ public final class SslReportingConnectionHandler extends ConnectionHandler {
     /**
      * @see #setFingerprintReporting(boolean, Path, Path, Path, boolean, boolean, boolean)
      */
-    public void setFingerprintReporting(boolean log,
+    void setFingerprintReporting(boolean log,
                                         boolean saveFingerprintsToFile,
                                         boolean writeCaptures,
                                         boolean guessResumptionFingerprints) {
@@ -94,13 +94,14 @@ public final class SslReportingConnectionHandler extends ConnectionHandler {
      *                                     changed fingerprint
      * @param guessResumptionFingerprints Enable {@link ResumptionFingerprintGuesser}
      */
-    public void setFingerprintReporting(boolean log,
+    void setFingerprintReporting(boolean log,
                                         Path saveToFileNew,
                                         Path saveToFileChanged,
                                         Path saveToFileGuessed,
                                         final boolean writeCaptureOnNewFingerprint,
                                         final boolean writeCaptureOnChangedFingerprint,
                                         boolean guessResumptionFingerprints) {
+        //TODO: this also removes all other reporters (e.g. from UI)
         fingerprintListener.clearFingerprintReporters();
 
         if(log)

@@ -3,12 +3,10 @@ package de.rub.nds.ssl.analyzer.vnl.gui;
 import de.rub.nds.ssl.analyzer.vnl.FingerprintListener;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
-import org.apache.log4j.spi.LoggingEvent;
 
 import javax.swing.*;
 import javax.swing.event.MouseInputAdapter;
 import javax.swing.table.DefaultTableCellRenderer;
-import javax.swing.tree.DefaultTreeModel;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
@@ -114,11 +112,11 @@ public class MainWindow extends JFrame {
         // setup logView
         messageListModel = new MessageListModel();
         logView.setModel(messageListModel);
-        logView.setAutoResizeMode(JTable.AUTO_RESIZE_LAST_COLUMN);
-        logView.getColumnModel().getColumn(0).setPreferredWidth(120);
+        logView.getColumnModel().getColumn(0).setPreferredWidth(140);
         logView.getColumnModel().getColumn(1).setPreferredWidth(50);
-        logView.getColumnModel().getColumn(2).setPreferredWidth(80);
+        logView.getColumnModel().getColumn(2).setPreferredWidth(380);
         logView.getColumnModel().getColumn(3).setPreferredWidth(400);
+        logView.setAutoResizeMode(JTable.AUTO_RESIZE_LAST_COLUMN);
         Logger.getRootLogger().addAppender(messageListModel.getAppender());
         // setup logLevel
         logLevelCB.setSelectedItem(messageListModel.getAppender().getThreshold());
@@ -135,6 +133,6 @@ public class MainWindow extends JFrame {
     }
 
     private void createUIComponents() {
-        logLevelCB = new JComboBox<>(new Level[]{ALL, TRACE, DEBUG, INFO, WARN, FATAL});
+        logLevelCB = new JComboBox<>(new Level[]{ALL, TRACE, DEBUG, INFO, WARN, Level.ERROR, FATAL});
     }
 }

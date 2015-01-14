@@ -79,6 +79,12 @@ public class SignatureDifference {
 
 
     public abstract class SignDifference {
+        public String getName() {
+            return name;
+        }
+        public abstract Object getLeft();
+        public abstract Object getRight();
+
         protected String name;
 
         @Override public abstract String toString();
@@ -93,6 +99,16 @@ public class SignatureDifference {
         public SignDifferenceOnlyLeft(String name, Object leftSign) {
             this.name = name;
             this.leftSign = leftSign;
+        }
+
+        @Override
+        public Object getLeft() {
+            return leftSign;
+        }
+
+        @Override
+        public Object getRight() {
+            return null;
         }
 
         @Override
@@ -113,6 +129,16 @@ public class SignatureDifference {
         }
 
         @Override
+        public Object getLeft() {
+            return null;
+        }
+
+        @Override
+        public Object getRight() {
+            return rightSign;
+        }
+
+        @Override
         public String toString() {
             return name + " only on right side: " + rightSign;
         }
@@ -129,6 +155,16 @@ public class SignatureDifference {
             this.name = name;
             this.leftSign = leftSign;
             this.rightSign = rightSign;
+        }
+
+        @Override
+        public Object getLeft() {
+            return leftSign;
+        }
+
+        @Override
+        public Object getRight() {
+            return rightSign;
         }
 
         @Override
