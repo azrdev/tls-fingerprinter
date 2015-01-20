@@ -14,7 +14,7 @@ import java.util.List;
  * @author jBiegert azrdev@qrdn.de
  */
 public class MessageListModel extends AbstractTableModel {
-    private MessageListAppender appender;
+    private final MessageListAppender appender = new MessageListAppender();
 
     private enum Columns {
         DATE("Date"),
@@ -32,9 +32,6 @@ public class MessageListModel extends AbstractTableModel {
      * @return The singleton Appender instance belonging to this MessageListModel
      */
     public AppenderSkeleton getAppender() {
-        if(appender == null)
-            appender = new MessageListAppender();
-
         return appender;
     }
 
@@ -47,7 +44,7 @@ public class MessageListModel extends AbstractTableModel {
 
     @Override
     public int getRowCount() {
-        return appender == null? 0 : appender.size();
+        return appender.size();
     }
 
     @Override
@@ -57,8 +54,6 @@ public class MessageListModel extends AbstractTableModel {
 
     @Override
     public Object getValueAt(int row, int column) {
-        if(appender == null)
-            return null;
         if(0 > row || row >= appender.size())
             return null;
 
