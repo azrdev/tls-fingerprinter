@@ -8,6 +8,7 @@ import de.rub.nds.ssl.analyzer.vnl.fingerprint.TLSFingerprint;
 import org.apache.log4j.Logger;
 
 import javax.annotation.Nonnull;
+import javax.swing.*;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeModel;
@@ -33,7 +34,6 @@ public class FingerprintStorageModel {
 
         final DefaultTreeModel model = new DefaultTreeModel(root);
 
-        //FIXME: this calls the model, but not from the event-dispatching thread
         backend.addFingerprintReporter(new FingerprintReporter() {
             @Override
             public void reportChange(SessionIdentifier sessionIdentifier, TLSFingerprint fingerprint, Set<TLSFingerprint> previousFingerprints) {
@@ -55,59 +55,78 @@ public class FingerprintStorageModel {
             }
         });
 
-        //TODO: asynchronous load
         final ImmutableSetMultimap<SessionIdentifier, TLSFingerprint> fingerprints =
                 backend.getFingerprints();
-        for (SessionIdentifier sesId : fingerprints.keys()) {
-            addNode(model, sesId, fingerprints.get(sesId).asList(), true);
-        }
+        final Thread thread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                for (SessionIdentifier sesId : fingerprints.keys()) {
+                    addNodes(model, sesId, fingerprints.get(sesId).asList(), true);
+                }
+                SwingUtilities.invokeLater(new Runnable() {
+                    @Override
+                    public void run() {
+                        model.reload();
+                    }
+                });
+            }
+        });
+        thread.setDaemon(true);
+        thread.run();
 
         return model;
     }
 
     /**
-     * single-fingerprint overload for {@link #addNode(DefaultTreeModel, SessionIdentifier, List, boolean)}
+     * single-fingerprint overload for {@link #addNodes(DefaultTreeModel, SessionIdentifier, List, boolean)}
      */
     private static void addNode(
             final @Nonnull DefaultTreeModel model,
             final @Nonnull SessionIdentifier sesId,
             final @Nonnull TLSFingerprint fingerprint,
             boolean sessionIdMightExist) {
-        addNode(model, sesId, Arrays.asList(fingerprint), sessionIdMightExist);
+        addNodes(model, sesId, Arrays.asList(fingerprint), sessionIdMightExist);
     }
 
     /**
      * Add nodes for sesId (if not already existing) and fingerprints, to model
-     * @param sessionIdMightExist  If false,
+     * @param nodesMightExist  Iff false, skip the the search for existing nodes.
      */
-    private static void addNode(
+    private static void addNodes(
             final @Nonnull DefaultTreeModel model,
             final @Nonnull SessionIdentifier sesId,
             final @Nonnull List<TLSFingerprint> fingerprints,
-            boolean sessionIdMightExist) {
-        synchronized (Objects.requireNonNull(model)) {
-            final DefaultMutableTreeNode root = (DefaultMutableTreeNode) model.getRoot();
-            if (sessionIdMightExist) {
-                DefaultMutableTreeNode parent = findNodeByUserObject(root, sesId);
-                if (parent == null) {
-                    logger.debug("Could not find tree node for sessionId " + sesId);
-                    parent = FingerprintTreeModel.createNode(sesId);
-                    model.insertNodeInto(parent, root, root.getChildCount());
+            final boolean nodesMightExist) {
+        SwingUtilities.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                final DefaultMutableTreeNode root = (DefaultMutableTreeNode) model.getRoot();
+                if (nodesMightExist) {
+                    DefaultMutableTreeNode parent = findNodeByUserObject(root, sesId);
+                    if (parent == null) {
+                        //logger.debug("Could not find tree node for sessionId " + sesId);
+                        parent = FingerprintTreeModel.createNode(sesId);
+                        model.insertNodeInto(parent, root, root.getChildCount());
+                    }
+                    for (TLSFingerprint fingerprint : fingerprints) {
+                        final DefaultMutableTreeNode fpNode =
+                                findNodeByUserObject(parent, fingerprint);
+                        if(fpNode == null) {
+                            model.insertNodeInto(FingerprintTreeModel.createNode(fingerprint),
+                                    parent, parent.getChildCount());
+                        }
+                    }
+                } else {
+                    final DefaultMutableTreeNode node = FingerprintTreeModel.createNode(sesId);
+                    for (TLSFingerprint fingerprint : fingerprints) {
+                        node.add(FingerprintTreeModel.createNode(fingerprint));
+                    }
+                    model.insertNodeInto(node, root, root.getChildCount());
                 }
-                for (TLSFingerprint fingerprint : fingerprints) {
-                    model.insertNodeInto(FingerprintTreeModel.createNode(fingerprint),
-                            parent, parent.getChildCount());
-                }
-            } else {
-                final DefaultMutableTreeNode node = FingerprintTreeModel.createNode(sesId);
-                for (TLSFingerprint fingerprint : fingerprints) {
-                    node.add(FingerprintTreeModel.createNode(fingerprint));
-                }
-                model.insertNodeInto(node, root, root.getChildCount());
+                //TODO: make insertNodeInto() display the new nodes, then remove this reload() call
+                //model.reload();
             }
-            //TODO: make insertNodeInto() display the new nodes, then remove this reload() call
-            model.reload();
-        }
+        });
     }
 
     private static DefaultMutableTreeNode findNodeByUserObject(

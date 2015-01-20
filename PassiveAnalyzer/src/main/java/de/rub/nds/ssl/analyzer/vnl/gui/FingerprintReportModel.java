@@ -15,6 +15,8 @@ import java.util.List;
 import java.util.Set;
 
 /**
+ * A model for {@link JTable} listing the reports it receives as a {@link FingerprintReporter}.
+ *
  * @author jBiegert azrdev@qrdn.de
  */
 public class FingerprintReportModel
@@ -105,6 +107,9 @@ public class FingerprintReportModel
         return showArtificial;
     }
 
+    //TODO: setShow*() is not really thread-safe
+    //TODO: setShow*() should also filter the list of held records
+
     public void setShowUpdates(boolean showUpdates) {
         this.showUpdates = showUpdates;
     }
@@ -117,17 +122,27 @@ public class FingerprintReportModel
         this.showArtificial = showArtificial;
     }
 
+    /**
+     * Create and Display a {@link FingerprintReportWindow} showing the details of the
+     * indicated record. <b>NOTE</b>: Only call from Event Dispatch Thread!
+     * @param row The index of the report to be shown
+     * @return A reference to the created {@link FingerprintReportWindow}, or null
+     */
     @Nullable
     public JFrame showReportItem(int row) {
         final Report report;
         try {
-            report = reports.get(row);
+            report = reports.get(row); // this is not thread-safe
         } catch(IndexOutOfBoundsException e) {
             return null;
         }
         return new FingerprintReportWindow(report);
     }
 
+    /**
+     * Clear the list of stored records.
+     * <b>NOTE</b>: Only call from Event Dispatch Thread!
+     */
     public void flushReports() {
         reports.clear();
         fireTableDataChanged();
@@ -161,9 +176,14 @@ public class FingerprintReportModel
             addReport(new ArtificialReport(sessionIdentifier, fingerprint));
     }
 
-    private void addReport(Report report) {
-        reports.add(0, report);
-        fireTableRowsInserted(0,0);
+    private void addReport(final Report report) {
+        SwingUtilities.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                reports.add(0, report);
+                fireTableRowsInserted(0, 0);
+            }
+        });
     }
 
     // AbstractTableModel interface

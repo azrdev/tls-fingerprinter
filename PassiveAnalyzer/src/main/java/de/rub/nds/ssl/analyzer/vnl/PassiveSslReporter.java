@@ -128,14 +128,19 @@ public class PassiveSslReporter {
             System.exit(1);
         }
 
-        PassiveSslReporter psr = new PassiveSslReporter();
+        final PassiveSslReporter psr = new PassiveSslReporter();
         psr.handler.setFingerprintReporting(true,
                 parsedArgs.getBoolean("no_save_fingerprints"),
                 parsedArgs.getBoolean("save_captures"),
                 parsedArgs.getBoolean("guess_session_resumption"));
 
         if(parsedArgs.getBoolean("graphical")) {
-            new MainWindow(psr.handler.getFingerprintListener());
+            SwingUtilities.invokeLater(new Runnable() {
+                @Override
+                public void run() {
+                    new MainWindow(psr.handler.getFingerprintListener());
+                }
+            });
         }
 
         Thread monitorThread = psr.startMonitorThread();
