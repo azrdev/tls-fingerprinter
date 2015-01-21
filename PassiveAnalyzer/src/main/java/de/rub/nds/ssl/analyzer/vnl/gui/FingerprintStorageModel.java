@@ -123,8 +123,6 @@ public class FingerprintStorageModel {
                     }
                     model.insertNodeInto(node, root, root.getChildCount());
                 }
-                //TODO: make insertNodeInto() display the new nodes, then remove this reload() call
-                //model.reload();
             }
         });
     }

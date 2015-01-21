@@ -1,6 +1,7 @@
 package de.rub.nds.ssl.analyzer.vnl;
 
 import java.io.File;
+import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 
 import de.rub.nds.ssl.analyzer.vnl.gui.MainWindow;
@@ -135,12 +136,18 @@ public class PassiveSslReporter {
                 parsedArgs.getBoolean("guess_session_resumption"));
 
         if(parsedArgs.getBoolean("graphical")) {
-            SwingUtilities.invokeLater(new Runnable() {
-                @Override
-                public void run() {
-                    new MainWindow(psr.handler.getFingerprintListener());
-                }
-            });
+            try {
+                SwingUtilities.invokeAndWait(new Runnable() {
+                    @Override
+                    public void run() {
+                        new MainWindow(psr.handler.getFingerprintListener());
+                    }
+                });
+            } catch (InterruptedException e) {
+                logger.debug("Error starting GUI: " + e, e);
+            } catch (InvocationTargetException e) {
+                logger.warn("Error starting GUI: " + e, e);
+            }
         }
 
         Thread monitorThread = psr.startMonitorThread();
