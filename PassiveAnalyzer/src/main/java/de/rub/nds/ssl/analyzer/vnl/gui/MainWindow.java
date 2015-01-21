@@ -23,7 +23,8 @@ import static org.apache.log4j.Level.*;
  * @author jBiegert azrdev@qrdn.de
  */
 public class MainWindow extends JFrame {
-    private MessageListModel messageListModel;
+    private final MessageListModel messageListModel = new MessageListModel();
+    private final FingerprintReportModel fingerprintReportsModel;
 
     // ui elements
     private JTabbedPane tabPane;
@@ -47,8 +48,7 @@ public class MainWindow extends JFrame {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
         // setup fingerprint Reports View
-        final FingerprintReportModel fingerprintReportsModel =
-                FingerprintReportModel.getModel(listener);
+        fingerprintReportsModel = FingerprintReportModel.getModel(listener);
         fingerprintReportsTable.setModel(fingerprintReportsModel);
         fingerprintReportsTable.getColumnModel().getColumn(0).setPreferredWidth(120);
         fingerprintReportsTable.getColumnModel().getColumn(1).setPreferredWidth(30);
@@ -56,19 +56,31 @@ public class MainWindow extends JFrame {
         fingerprintReportsTable.setDefaultRenderer(Date.class,
                 new DefaultTableCellRenderer() {
                     final DateFormat format = new SimpleDateFormat("");
+
                     @Override
                     protected void setValue(Object value) {
-                        setText((value instanceof Date)?
-                            format.format((Date) value) : Objects.toString(value));
+                        setText((value instanceof Date) ?
+                                format.format((Date) value) : Objects.toString(value));
 
                     }
                 });
+        fingerprintReportsTable.getInputMap().put(KeyStroke.getKeyStroke("ENTER"), "show-report");
+        fingerprintReportsTable.getActionMap().put("show-report", new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent) {
+                final int modelIndex = fingerprintReportsTable.convertRowIndexToModel(
+                        fingerprintReportsTable.getSelectedRow());
+                showReportItem(modelIndex);
+            }
+        });
         fingerprintReportsTable.addMouseListener(new MouseInputAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
-                if(e.getClickCount() > 1)
-                    fingerprintReportsModel.showReportItem(
-                            fingerprintReportsTable.getSelectedRow());
+                if (e.getClickCount() > 1) {
+                    final int modelIndex = fingerprintReportsTable.convertRowIndexToModel(
+                            fingerprintReportsTable.rowAtPoint(e.getPoint()));
+                    showReportItem(modelIndex);
+                }
             }
         });
         // setup fingerprint Reports Components
@@ -110,7 +122,6 @@ public class MainWindow extends JFrame {
         storedFingerprintTree.setEditable(false);
 
         // setup logView
-        messageListModel = new MessageListModel();
         logView.setModel(messageListModel);
         logView.getColumnModel().getColumn(0).setPreferredWidth(140);
         logView.getColumnModel().getColumn(1).setPreferredWidth(50);
@@ -130,6 +141,13 @@ public class MainWindow extends JFrame {
 
         pack();
         setVisible(true);
+    }
+
+    /**
+     * @see FingerprintReportModel#showReportItem(int)
+     */
+    private void showReportItem(int indexInModel) {
+        fingerprintReportsModel.showReportItem(indexInModel);
     }
 
     private void createUIComponents() {
