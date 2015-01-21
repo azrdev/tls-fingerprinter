@@ -22,11 +22,15 @@ import java.util.Set;
 public class FingerprintReportModel
         extends AbstractTableModel
         implements FingerprintReporter {
-    private boolean showUpdates = true;
-    private boolean showNew = true;
-    private boolean showArtificial = true;
 
     private List<Report> reports = new ArrayList<>();
+
+    public enum ReportType implements Comparable<ReportType> {
+        New,
+        Update,
+        Guess,
+        Change;
+    }
 
     abstract static class Report {
         final Date dateTime;
@@ -39,7 +43,7 @@ public class FingerprintReportModel
             dateTime = new Date();
         }
 
-        public abstract String typeString();
+        public abstract ReportType type();
     }
 
     private static class NewReport extends Report {
@@ -48,8 +52,8 @@ public class FingerprintReportModel
         }
 
         @Override
-        public String typeString() {
-            return "New";
+        public ReportType type() {
+            return ReportType.New;
         }
     }
     private static class UpdateReport extends Report {
@@ -58,8 +62,8 @@ public class FingerprintReportModel
         }
 
         @Override
-        public String typeString() {
-            return "Update";
+        public ReportType type() {
+            return ReportType.Update;
         }
     }
     private static class ArtificialReport extends Report {
@@ -68,8 +72,8 @@ public class FingerprintReportModel
         }
 
         @Override
-        public String typeString() {
-            return "Guess";
+        public ReportType type() {
+            return ReportType.Guess;
         }
     }
     static class ChangedReport extends Report {
@@ -82,8 +86,8 @@ public class FingerprintReportModel
         }
 
         @Override
-        public String typeString() {
-            return "Change";
+        public ReportType type() {
+            return ReportType.Change;
         }
     }
 
@@ -93,33 +97,6 @@ public class FingerprintReportModel
 
     private FingerprintReportModel(FingerprintListener backend) {
         backend.addFingerprintReporter(this);
-    }
-
-    public boolean getShowNew() {
-        return showNew;
-    }
-
-    public boolean getShowUpdates() {
-        return showUpdates;
-    }
-
-    public boolean getShowArtificial() {
-        return showArtificial;
-    }
-
-    //TODO: setShow*() is not really thread-safe
-    //TODO: setShow*() should also filter the list of held records
-
-    public void setShowUpdates(boolean showUpdates) {
-        this.showUpdates = showUpdates;
-    }
-
-    public void setShowNew(boolean showNew) {
-        this.showNew = showNew;
-    }
-
-    public void setShowArtificial(boolean showArtificial) {
-        this.showArtificial = showArtificial;
     }
 
     /**
@@ -160,20 +137,17 @@ public class FingerprintReportModel
 
     @Override
     public void reportUpdate(SessionIdentifier sessionIdentifier, TLSFingerprint fingerprint) {
-        if(showUpdates)
-            addReport(new UpdateReport(sessionIdentifier, fingerprint));
+        addReport(new UpdateReport(sessionIdentifier, fingerprint));
     }
 
     @Override
     public void reportNew(SessionIdentifier sessionIdentifier, TLSFingerprint tlsFingerprint) {
-        if(showNew)
-            addReport(new NewReport(sessionIdentifier, tlsFingerprint));
+        addReport(new NewReport(sessionIdentifier, tlsFingerprint));
     }
 
     @Override
     public void reportArtificial(SessionIdentifier sessionIdentifier, TLSFingerprint fingerprint) {
-        if(showArtificial)
-            addReport(new ArtificialReport(sessionIdentifier, fingerprint));
+        addReport(new ArtificialReport(sessionIdentifier, fingerprint));
     }
 
     private void addReport(final Report report) {
@@ -213,7 +187,7 @@ public class FingerprintReportModel
             case TIME:
                 return report.dateTime;
             case TYPE:
-                return report.typeString();
+                return report.type();
             case SERVER_NAME:
                 return report.sessionIdentifier.getServerHostName();
             case CLIENT_HELLO:
@@ -223,15 +197,22 @@ public class FingerprintReportModel
         }
     }
 
+    @Override
+    public Class<?> getColumnClass(int columnIndex) {
+        return Columns.values()[columnIndex].type;
+    }
+
     private enum Columns {
-        TIME("Time"),
-        TYPE("Type"),
-        SERVER_NAME("Host"),
-        CLIENT_HELLO("Client Hello");
+        TIME("Time", Date.class),
+        TYPE("Type", ReportType.class),
+        SERVER_NAME("Host", String.class),
+        CLIENT_HELLO("Client Hello", String.class);
 
         private String name;
-        private Columns(String name) {
+        private Class<?> type;
+        private Columns(String name, Class<?> type) {
             this.name = name;
+            this.type = type;
         }
     }
 }

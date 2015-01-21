@@ -10,7 +10,6 @@ import javax.swing.tree.DefaultTreeModel;
 import java.awt.*;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
-import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -52,7 +51,7 @@ public class FingerprintReportWindow extends JFrame {
     public FingerprintReportWindow(FingerprintReportModel.Report report) {
         super(String.format("Fingerprint details for %s (%s)(%s)",
                 report.sessionIdentifier.getServerHostName(),
-                report.typeString(),
+                report.type(),
                 report.dateTime));
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
         setContentPane(tabPane);

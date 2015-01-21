@@ -1,11 +1,11 @@
 package de.rub.nds.ssl.analyzer.vnl.gui;
 
 import org.apache.log4j.AppenderSkeleton;
+import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.apache.log4j.spi.LoggingEvent;
 
 import javax.swing.table.AbstractTableModel;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -14,17 +14,19 @@ import java.util.List;
  * @author jBiegert azrdev@qrdn.de
  */
 public class MessageListModel extends AbstractTableModel {
-    private final MessageListAppender appender = new MessageListAppender();
+    private MessageListAppender appender = new MessageListAppender();
 
     private enum Columns {
-        DATE("Date"),
-        LEVEL("LogLevel"),
-        LOGGER("Logger (Class)"),
-        MESSAGE("Message");
+        DATE("Date", Date.class),
+        LEVEL("LogLevel", Level.class),
+        LOGGER("Logger (Class)", String.class),
+        MESSAGE("Message", String.class);
 
         final String name;
-        private Columns(String name) {
+        final Class<?> type;
+        private Columns(String name, Class<?> type) {
             this.name = name;
+            this.type = type;
         }
     }
 
@@ -33,6 +35,10 @@ public class MessageListModel extends AbstractTableModel {
      */
     public AppenderSkeleton getAppender() {
         return appender;
+    }
+
+    public void clear() {
+        appender.clear();
     }
 
     @Override
@@ -53,7 +59,14 @@ public class MessageListModel extends AbstractTableModel {
     }
 
     @Override
+    public Class<?> getColumnClass(int columnIndex) {
+        return Columns.values()[columnIndex].type;
+    }
+
+    @Override
     public Object getValueAt(int row, int column) {
+        if(appender == null)
+            return null;
         if(0 > row || row >= appender.size())
             return null;
 
@@ -62,9 +75,7 @@ public class MessageListModel extends AbstractTableModel {
 
     private Object mapValue(LoggingEvent event, Columns col) {
         switch(col) {
-            case DATE:
-                return new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSXXX")
-                        .format(new Date(event.getTimeStamp()));
+            case DATE: return new Date(event.getTimeStamp());
             case LEVEL: return event.getLevel();
             case LOGGER: return event.getLoggerName();
             case MESSAGE: return event.getMessage();
@@ -83,6 +94,7 @@ public class MessageListModel extends AbstractTableModel {
         /** {@inheritDoc} */
         @Override
         protected void append(LoggingEvent loggingEvent) {
+            //TODO: expire log entries, to avoid the list growing infinitely
             events.add(loggingEvent);
             fireTableRowsInserted(events.size() -1, events.size() -1);
         }
@@ -90,9 +102,7 @@ public class MessageListModel extends AbstractTableModel {
         /** flushes the list, but does not set <code>closed</code> */
         @Override
         public void close() {
-            final int oldSize = events.size();
-            events.clear();
-            fireTableDataChanged();
+            clear();
         }
 
         /** {@inheritDoc} */
@@ -103,6 +113,12 @@ public class MessageListModel extends AbstractTableModel {
 
         public int size() {
             return events.size();
+        }
+
+        /** Flushes the list */
+        public void clear() {
+            events.clear();
+            fireTableDataChanged();
         }
 
         public LoggingEvent event(int index) throws IndexOutOfBoundsException {

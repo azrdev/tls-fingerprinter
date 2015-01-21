@@ -1,5 +1,6 @@
 package de.rub.nds.ssl.analyzer.vnl.gui;
 
+import com.google.common.base.Joiner;
 import de.rub.nds.ssl.analyzer.vnl.FingerprintListener;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
@@ -7,6 +8,8 @@ import org.apache.log4j.Logger;
 import javax.swing.*;
 import javax.swing.event.MouseInputAdapter;
 import javax.swing.table.DefaultTableCellRenderer;
+import javax.swing.table.TableModel;
+import javax.swing.table.TableRowSorter;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
@@ -25,6 +28,8 @@ import static org.apache.log4j.Level.*;
 public class MainWindow extends JFrame {
     private final MessageListModel messageListModel = new MessageListModel();
     private final FingerprintReportModel fingerprintReportsModel;
+    private final TableRowSorter<FingerprintReportModel> fingerprintReportsRowSorter;
+    private final TableRowSorter<MessageListModel> logViewRowSorter;
 
     // ui elements
     private JTabbedPane tabPane;
@@ -39,6 +44,7 @@ public class MainWindow extends JFrame {
 
     private JComboBox<Level> logLevelCB;
     private JTable logView;
+    private JButton flushLogButton;
 
     public MainWindow(FingerprintListener listener) {
         super();
@@ -47,23 +53,27 @@ public class MainWindow extends JFrame {
         setContentPane(tabPane);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-        // setup fingerprint Reports View
+        //// setup fingerprint Reports View
         fingerprintReportsModel = FingerprintReportModel.getModel(listener);
         fingerprintReportsTable.setModel(fingerprintReportsModel);
+        // column sizes
         fingerprintReportsTable.getColumnModel().getColumn(0).setPreferredWidth(120);
         fingerprintReportsTable.getColumnModel().getColumn(1).setPreferredWidth(30);
         fingerprintReportsTable.setAutoResizeMode(JTable.AUTO_RESIZE_LAST_COLUMN);
+        // display date + time
         fingerprintReportsTable.setDefaultRenderer(Date.class,
                 new DefaultTableCellRenderer() {
-                    final DateFormat format = new SimpleDateFormat("");
-
+                    private final DateFormat format = new SimpleDateFormat();
                     @Override
                     protected void setValue(Object value) {
-                        setText((value instanceof Date) ?
-                                format.format((Date) value) : Objects.toString(value));
-
+                        setText(format.format((Date) value));
                     }
                 });
+        // row sorting & filtering
+        fingerprintReportsRowSorter = new TableRowSorter<>(fingerprintReportsModel);
+        fingerprintReportsTable.setRowSorter(fingerprintReportsRowSorter);
+        fingerprintReportsRowSorter.setSortsOnUpdates(true);
+        // show report details on user action
         fingerprintReportsTable.getInputMap().put(KeyStroke.getKeyStroke("ENTER"), "show-report");
         fingerprintReportsTable.getActionMap().put("show-report", new AbstractAction() {
             @Override
@@ -84,30 +94,16 @@ public class MainWindow extends JFrame {
             }
         });
         // setup fingerprint Reports Components
-        showFingerprintUpdatesCheckBox.addItemListener(new ItemListener() {
+        final ItemListener fingerprintCheckBoxListener = new ItemListener() {
             @Override
             public void itemStateChanged(ItemEvent itemEvent) {
-                fingerprintReportsModel.setShowUpdates(
-                        itemEvent.getStateChange() == ItemEvent.SELECTED);
+                updateFingerprintReportsFilter();
             }
-        });
-        showFingerprintUpdatesCheckBox.setSelected(fingerprintReportsModel.getShowUpdates());
-        showNewFingerprintsCheckBox.addItemListener(new ItemListener() {
-            @Override
-            public void itemStateChanged(ItemEvent itemEvent) {
-                fingerprintReportsModel.setShowNew(
-                        itemEvent.getStateChange() == ItemEvent.SELECTED);
-            }
-        });
-        showNewFingerprintsCheckBox.setSelected(fingerprintReportsModel.getShowNew());
-        showGuessedFingerprintsCheckBox.addItemListener(new ItemListener() {
-            @Override
-            public void itemStateChanged(ItemEvent itemEvent) {
-                fingerprintReportsModel.setShowArtificial(
-                        itemEvent.getStateChange() == ItemEvent.SELECTED);
-            }
-        });
-        showGuessedFingerprintsCheckBox.setSelected(fingerprintReportsModel.getShowArtificial());
+        };
+        showFingerprintUpdatesCheckBox.addItemListener(fingerprintCheckBoxListener);
+        showNewFingerprintsCheckBox.addItemListener(fingerprintCheckBoxListener);
+        showGuessedFingerprintsCheckBox.addItemListener(fingerprintCheckBoxListener);
+        updateFingerprintReportsFilter();
         flushReportsButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
@@ -115,32 +111,71 @@ public class MainWindow extends JFrame {
             }
         });
 
-        // setup storedFingerprintTree
+        //// setup storedFingerprintTree
         storedFingerprintTree.setModel(FingerprintStorageModel.getModel(listener));
         storedFingerprintTree.setRootVisible(false);
         storedFingerprintTree.setShowsRootHandles(true);
         storedFingerprintTree.setEditable(false);
 
-        // setup logView
+        //// setup logView
+        Logger.getRootLogger().addAppender(messageListModel.getAppender());
         logView.setModel(messageListModel);
         logView.getColumnModel().getColumn(0).setPreferredWidth(140);
         logView.getColumnModel().getColumn(1).setPreferredWidth(50);
         logView.getColumnModel().getColumn(2).setPreferredWidth(380);
         logView.getColumnModel().getColumn(3).setPreferredWidth(400);
         logView.setAutoResizeMode(JTable.AUTO_RESIZE_LAST_COLUMN);
-        Logger.getRootLogger().addAppender(messageListModel.getAppender());
-        // setup logLevel
+        logView.setDefaultRenderer(Date.class, new DefaultTableCellRenderer() {
+            private final DateFormat f = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSXXX");
+            @Override
+            protected void setValue(Object value) {
+                setText(f.format((Date) value));
+            }
+        });
+        // sorting & filtering
+        logViewRowSorter = new TableRowSorter<>(messageListModel);
+        logView.setRowSorter(logViewRowSorter);
+        // setup logLevel ComboBox
         logLevelCB.setSelectedItem(messageListModel.getAppender().getThreshold());
         logLevelCB.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
-                Level level = (Level) ((JComboBox) actionEvent.getSource()).getSelectedItem();
+                final JComboBox source = (JComboBox) actionEvent.getSource();
+                final Level level = (Level) source.getSelectedItem();
                 messageListModel.getAppender().setThreshold(level);
+                logViewRowSorter.setRowFilter(new RowFilter<MessageListModel, Integer>() {
+                    final int levelColumnIndex = messageListModel.findColumn("LogLevel");
+                    @Override
+                    public boolean include(Entry<? extends MessageListModel, ? extends Integer> entry) {
+                        final Level entryLevel = (Level) entry.getValue(levelColumnIndex);
+                        return entryLevel.isGreaterOrEqual(level);
+                    }
+                });
+            }
+        });
+        flushLogButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent) {
+                messageListModel.clear();
             }
         });
 
         pack();
         setVisible(true);
+    }
+
+    /**
+     * set a filter on {@link #fingerprintReportsRowSorter} according to the state of
+     * the associated CheckBoxes.
+     * @see TableRowSorter#setRowFilter(RowFilter)
+     */
+    private void updateFingerprintReportsFilter() {
+        final String regex = '^' + Joiner.on('|').skipNulls().join("Change",
+                (showNewFingerprintsCheckBox.isSelected()? "New" : null),
+                (showFingerprintUpdatesCheckBox.isSelected()? "Update" : null),
+                (showGuessedFingerprintsCheckBox.isSelected()? "Guess" : null)) + '$';
+        fingerprintReportsRowSorter.setRowFilter(RowFilter.regexFilter(regex,
+                fingerprintReportsModel.findColumn("Type")));
     }
 
     /**

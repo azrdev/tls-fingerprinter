@@ -102,7 +102,15 @@
               </component>
               <component id="741cc" class="javax.swing.JComboBox" binding="logLevelCB" custom-create="true">
                 <constraints border-constraint="Center"/>
-                <properties/>
+                <properties>
+                  <toolTipText value="Log Level filtering is applied to all new messages, i.e. by setting a lower log level you cannot see older messages of that level."/>
+                </properties>
+              </component>
+              <component id="bf68f" class="javax.swing.JButton" binding="flushLogButton">
+                <constraints border-constraint="East"/>
+                <properties>
+                  <text value="&amp;Flush Log View"/>
+                </properties>
               </component>
             </children>
           </grid>
