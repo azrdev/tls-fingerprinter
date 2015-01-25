@@ -57,9 +57,10 @@ public class MainWindow extends JFrame {
         fingerprintReportsModel = FingerprintReportModel.getModel(listener);
         fingerprintReportsTable.setModel(fingerprintReportsModel);
         // column sizes
-        fingerprintReportsTable.getColumnModel().getColumn(0).setPreferredWidth(120);
-        fingerprintReportsTable.getColumnModel().getColumn(1).setPreferredWidth(30);
-        fingerprintReportsTable.setAutoResizeMode(JTable.AUTO_RESIZE_LAST_COLUMN);
+        fingerprintReportsTable.getColumnModel().getColumn(0).setPreferredWidth(100);
+        fingerprintReportsTable.getColumnModel().getColumn(1).setPreferredWidth(50);
+        fingerprintReportsTable.getColumnModel().getColumn(2).setPreferredWidth(225);
+        fingerprintReportsTable.getColumnModel().getColumn(3).setPreferredWidth(1000);
         // display date + time
         fingerprintReportsTable.setDefaultRenderer(Date.class,
                 new DefaultTableCellRenderer() {
@@ -120,11 +121,10 @@ public class MainWindow extends JFrame {
         //// setup logView
         Logger.getRootLogger().addAppender(messageListModel.getAppender());
         logView.setModel(messageListModel);
-        logView.getColumnModel().getColumn(0).setPreferredWidth(140);
-        logView.getColumnModel().getColumn(1).setPreferredWidth(50);
-        logView.getColumnModel().getColumn(2).setPreferredWidth(380);
-        logView.getColumnModel().getColumn(3).setPreferredWidth(400);
-        logView.setAutoResizeMode(JTable.AUTO_RESIZE_LAST_COLUMN);
+        logView.getColumnModel().getColumn(0).setPreferredWidth(160);
+        logView.getColumnModel().getColumn(1).setPreferredWidth(60);
+        logView.getColumnModel().getColumn(2).setPreferredWidth(400);
+        logView.getColumnModel().getColumn(3).setPreferredWidth(700);
         logView.setDefaultRenderer(Date.class, new DefaultTableCellRenderer() {
             private final DateFormat f = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSXXX");
             @Override

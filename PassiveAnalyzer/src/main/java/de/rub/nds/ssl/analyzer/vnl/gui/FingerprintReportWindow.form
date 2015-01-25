@@ -7,7 +7,7 @@
     <properties/>
     <border type="none"/>
     <children>
-      <grid id="84bf6" layout-manager="BorderLayout" hgap="0" vgap="0">
+      <grid id="84bf6" binding="showEndpoint" layout-manager="BorderLayout" hgap="0" vgap="0">
         <constraints>
           <tabbedpane title="Endpoint"/>
         </constraints>
@@ -27,7 +27,7 @@
           </scrollpane>
         </children>
       </grid>
-      <grid id="9c2d1" layout-manager="BorderLayout" hgap="0" vgap="0">
+      <grid id="9c2d1" binding="showFingerprint" layout-manager="BorderLayout" hgap="0" vgap="0">
         <constraints>
           <tabbedpane title="Fingerprint"/>
         </constraints>
@@ -103,7 +103,11 @@
             <children>
               <component id="4d247" class="javax.swing.JTable" binding="previousFingerprintDiffTable">
                 <constraints/>
-                <properties/>
+                <properties>
+                  <autoCreateRowSorter value="true"/>
+                  <autoResizeMode value="0"/>
+                  <fillsViewportHeight value="true"/>
+                </properties>
               </component>
             </children>
           </scrollpane>

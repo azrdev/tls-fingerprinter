@@ -144,9 +144,9 @@ public class PassiveSslReporter {
                     }
                 });
             } catch (InterruptedException e) {
-                logger.debug("Error starting GUI: " + e, e);
+                logger.debug("Could not start GUI: " + e, e);
             } catch (InvocationTargetException e) {
-                logger.warn("Error starting GUI: " + e, e);
+                logger.warn("Could not start GUI: " + e, e);
             }
         }
 

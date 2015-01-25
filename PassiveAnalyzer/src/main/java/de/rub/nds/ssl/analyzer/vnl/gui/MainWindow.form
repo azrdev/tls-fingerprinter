@@ -55,7 +55,10 @@
             <children>
               <component id="28b2e" class="javax.swing.JTable" binding="fingerprintReportsTable">
                 <constraints/>
-                <properties/>
+                <properties>
+                  <autoResizeMode value="0"/>
+                  <fillsViewportHeight value="true"/>
+                </properties>
               </component>
             </children>
           </scrollpane>
@@ -122,6 +125,7 @@
               <component id="db7c3" class="javax.swing.JTable" binding="logView">
                 <constraints/>
                 <properties>
+                  <autoResizeMode value="0"/>
                   <fillsViewportHeight value="true"/>
                 </properties>
               </component>

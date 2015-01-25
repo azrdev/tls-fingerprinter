@@ -24,6 +24,11 @@ import java.util.Map;
 public class FingerprintTreeModel {
     private static final Joiner commaJoiner = Joiner.on(", ").skipNulls();
 
+    /**
+     * @return A {@link DefaultMutableTreeNode} hierarchy representing the
+     * sessionIdentifier, including a sub-node for the {@link ClientHelloFingerprint}
+     * (if present).
+     */
     static DefaultMutableTreeNode createNode(
             @Nonnull SessionIdentifier sessionIdentifier) {
         DefaultMutableTreeNode sesIdNode = new SessionIdentifierTreeNode(sessionIdentifier);
@@ -36,8 +41,7 @@ public class FingerprintTreeModel {
     /**
      * @return A {@link DefaultMutableTreeNode} (hierarchy) representing the fingerprint
      */
-    static DefaultMutableTreeNode createNode(@Nonnull TLSFingerprint
-                                                          tlsFingerprint) {
+    static DefaultMutableTreeNode createNode(@Nonnull TLSFingerprint tlsFingerprint) {
         DefaultMutableTreeNode fpNode = new TlsFingerprintTreeNode(tlsFingerprint);
 
         if(tlsFingerprint.getServerHelloSignature() != null)
@@ -56,17 +60,34 @@ public class FingerprintTreeModel {
         return fpNode;
     }
 
-    private static DefaultMutableTreeNode createNode(
-            @Nonnull Map<String, Object> signs, @Nonnull String description) {
+    /**
+     * @return A {@link DefaultMutableTreeNode} hierarchy representing the fingerprint
+     * (with the given description) and its signs.
+     */
+    private static DefaultMutableTreeNode createNode(@Nonnull Map<String, Object> signs,
+                                                     @Nonnull String description) {
         DefaultMutableTreeNode signsNode = new SignatureTreeNode(description, signs);
         for (Map.Entry<String, Object> entry : signs.entrySet()) {
-            signsNode.add(new DefaultMutableTreeNode(
-                    entry.getKey() + ": " + entry.getValue(), false));
+            signsNode.add(createSignNode(entry.getKey(), entry.getValue()));
         }
         return signsNode;
     }
 
-    static class SessionIdentifierTreeNode extends DefaultMutableTreeNode {
+    private static DefaultMutableTreeNode createSignNode(@Nonnull String name,
+                                                         Object sign) {
+        final DefaultMutableTreeNode signNode =
+                new DefaultMutableTreeNode(name + ": " + sign);
+        if(sign instanceof List) {
+            final List<Object> list = (List<Object>) sign;
+            for(Object o: list) {
+                signNode.add(new DefaultMutableTreeNode(o, false));
+            }
+        } else
+            signNode.setAllowsChildren(false);
+        return signNode;
+    }
+
+    private static class SessionIdentifierTreeNode extends DefaultMutableTreeNode {
         public SessionIdentifierTreeNode(@Nonnull SessionIdentifier sessionIdentifier) {
             super(sessionIdentifier);
         }
@@ -78,11 +99,12 @@ public class FingerprintTreeModel {
             if (chs == null)
                 return sessionIdentifier.getServerHostName();
             else
-                return sessionIdentifier.getServerHostName() + " + ClientHello...";
+                return sessionIdentifier.getServerHostName() +
+                        " + ClientHello (0x" + Integer.toHexString(chs.hashCode()) + ") ...";
         }
     }
 
-    static class TlsFingerprintTreeNode extends DefaultMutableTreeNode {
+    private static class TlsFingerprintTreeNode extends DefaultMutableTreeNode {
         public TlsFingerprintTreeNode(@Nonnull TLSFingerprint fingerprint) {
             super(fingerprint);
         }
@@ -99,12 +121,12 @@ public class FingerprintTreeModel {
                 fpNodeDescription.add("Server TCP");
             if(tlsFingerprint.getServerMtuSignature() != null)
                 fpNodeDescription.add("Server MTU");
-            return String.format("0x%x: ", tlsFingerprint.hashCode()) +
+            return "(0x" + Integer.toHexString(tlsFingerprint.hashCode()) + "): " +
                     commaJoiner.join(fpNodeDescription);
         }
     }
 
-    static class SignatureTreeNode extends DefaultMutableTreeNode {
+    private static class SignatureTreeNode extends DefaultMutableTreeNode {
         private String description;
         public SignatureTreeNode(String description, Map<String, Object> signs) {
             super(signs);

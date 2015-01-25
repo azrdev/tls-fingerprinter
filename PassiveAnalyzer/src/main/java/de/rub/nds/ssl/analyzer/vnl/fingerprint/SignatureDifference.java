@@ -2,6 +2,7 @@ package de.rub.nds.ssl.analyzer.vnl.fingerprint;
 
 import de.rub.nds.virtualnetworklayer.util.Util;
 
+import javax.annotation.Nonnull;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -63,6 +64,7 @@ public class SignatureDifference {
         }
     }
 
+    @Nonnull
     public Set<SignDifference> getDifferences() {
         return differences;
     }

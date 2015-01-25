@@ -24,10 +24,13 @@ public class FingerprintReportWindow extends JFrame {
 
     private JTabbedPane tabPane;
 
+    private JPanel showEndpoint;
     /**
      * view for the {@link SessionIdentifier}. Uses {@link FingerprintTreeModel}.
      */
     private JTree endpointTree;
+
+    private JPanel showFingerprint;
     /**
      * view for the {@link TLSFingerprint}. Uses {@link FingerprintTreeModel}.
      */
@@ -49,12 +52,13 @@ public class FingerprintReportWindow extends JFrame {
     private JTable previousFingerprintDiffTable;
 
     public FingerprintReportWindow(FingerprintReportModel.Report report) {
-        super(String.format("Fingerprint details for %s (%s)(%s)",
+        super(String.format("Fingerprint details for %s (%s) (%s)",
                 report.sessionIdentifier.getServerHostName(),
                 report.type(),
                 report.dateTime));
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
         setContentPane(tabPane);
+        setPreferredSize(new Dimension(800, 640));
 
         // setup endpoint view
         endpointTree.setModel(new DefaultTreeModel(
@@ -68,6 +72,8 @@ public class FingerprintReportWindow extends JFrame {
         if(!(report instanceof FingerprintReportModel.ChangedReport)) {
             tabPane.setEnabledAt(tabPane.indexOfComponent(showPreviousPanel), false);
             tabPane.setEnabledAt(tabPane.indexOfComponent(diffPreviousPanel), false);
+
+            tabPane.setSelectedComponent(showFingerprint);
         } else {
             final List<TLSFingerprint> previousFingerprints =
                     ((FingerprintReportModel.ChangedReport) report).previousFingerprints.asList();
@@ -80,6 +86,9 @@ public class FingerprintReportWindow extends JFrame {
             final FingerprintDiffTableModel fingerprintDiffTableModel =
                     new FingerprintDiffTableModel(report.tlsFingerprint);
             previousFingerprintDiffTable.setModel(fingerprintDiffTableModel);
+            previousFingerprintDiffTable.getColumnModel().getColumn(0).setPreferredWidth(200);
+            previousFingerprintDiffTable.getColumnModel().getColumn(1).setPreferredWidth(500);
+            previousFingerprintDiffTable.getColumnModel().getColumn(2).setPreferredWidth(500);
             final ItemListener comboBoxListener = new ItemListener() {
                 @Override
                 public void itemStateChanged(ItemEvent itemEvent) {
@@ -119,6 +128,8 @@ public class FingerprintReportWindow extends JFrame {
             // un-set selection first, or itemStateChanged() will not be called
             previousFingerprintModel.setSelectedItem(null);
             previousFingerprintModel.setSelectedItem(previousFingerprintModel.getElementAt(0));
+
+            tabPane.setSelectedComponent(diffPreviousPanel);
         }
 
         pack();
