@@ -8,7 +8,6 @@ import org.apache.log4j.Logger;
 import javax.swing.*;
 import javax.swing.event.MouseInputAdapter;
 import javax.swing.table.DefaultTableCellRenderer;
-import javax.swing.table.TableModel;
 import javax.swing.table.TableRowSorter;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -18,7 +17,6 @@ import java.awt.event.MouseEvent;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.Objects;
 
 import static org.apache.log4j.Level.*;
 
@@ -38,12 +36,12 @@ public class MainWindow extends JFrame {
     private JCheckBox showNewFingerprintsCheckBox;
     private JCheckBox showGuessedFingerprintsCheckBox;
     private JButton flushReportsButton;
-    private JTable fingerprintReportsTable;
+    private ToolTippingTable fingerprintReportsTable;
 
     private JTree storedFingerprintTree;
 
     private JComboBox<Level> logLevelCB;
-    private JTable logView;
+    private ToolTippingTable logView;
     private JButton flushLogButton;
 
     public MainWindow(FingerprintListener listener) {
@@ -117,6 +115,8 @@ public class MainWindow extends JFrame {
         storedFingerprintTree.setRootVisible(false);
         storedFingerprintTree.setShowsRootHandles(true);
         storedFingerprintTree.setEditable(false);
+        storedFingerprintTree.setCellRenderer(new TooltippingTreeRenderer());
+        ToolTipManager.sharedInstance().registerComponent(storedFingerprintTree);
 
         //// setup logView
         Logger.getRootLogger().addAppender(messageListModel.getAppender());

@@ -101,13 +101,8 @@
             <properties/>
             <border type="none"/>
             <children>
-              <component id="4d247" class="javax.swing.JTable" binding="previousFingerprintDiffTable">
+              <component id="858f" class="de.rub.nds.ssl.analyzer.vnl.gui.ToolTippingTable" binding="previousFingerprintDiffTable">
                 <constraints/>
-                <properties>
-                  <autoCreateRowSorter value="true"/>
-                  <autoResizeMode value="0"/>
-                  <fillsViewportHeight value="true"/>
-                </properties>
               </component>
             </children>
           </scrollpane>

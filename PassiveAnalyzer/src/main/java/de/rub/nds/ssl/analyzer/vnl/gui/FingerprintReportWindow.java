@@ -49,7 +49,7 @@ public class FingerprintReportWindow extends JFrame {
      * view for the difference to the selected previous {@link TLSFingerprint}. Uses
      * {@link FingerprintDiffTableModel}.
      */
-    private JTable previousFingerprintDiffTable;
+    private ToolTippingTable previousFingerprintDiffTable;
 
     public FingerprintReportWindow(FingerprintReportModel.Report report) {
         super(String.format("Fingerprint details for %s (%s) (%s)",
@@ -63,10 +63,14 @@ public class FingerprintReportWindow extends JFrame {
         // setup endpoint view
         endpointTree.setModel(new DefaultTreeModel(
                 FingerprintTreeModel.createNode(report.sessionIdentifier)));
+        endpointTree.setCellRenderer(new TooltippingTreeRenderer());
+        ToolTipManager.sharedInstance().registerComponent(endpointTree);
         unfoldTree(endpointTree);
         // setup fingerprint view
         fingerprintTree.setModel(new DefaultTreeModel(
                 FingerprintTreeModel.createNode(report.tlsFingerprint)));
+        ToolTipManager.sharedInstance().registerComponent(fingerprintTree);
+        fingerprintTree.setCellRenderer(new TooltippingTreeRenderer());
         unfoldTree(fingerprintTree);
 
         if(!(report instanceof FingerprintReportModel.ChangedReport)) {
@@ -85,6 +89,8 @@ public class FingerprintReportWindow extends JFrame {
             previousFingerprintTree.setModel(null);
             final FingerprintDiffTableModel fingerprintDiffTableModel =
                     new FingerprintDiffTableModel(report.tlsFingerprint);
+            previousFingerprintTree.setCellRenderer(new TooltippingTreeRenderer());
+            ToolTipManager.sharedInstance().registerComponent(previousFingerprintTree);
             previousFingerprintDiffTable.setModel(fingerprintDiffTableModel);
             previousFingerprintDiffTable.getColumnModel().getColumn(0).setPreferredWidth(200);
             previousFingerprintDiffTable.getColumnModel().getColumn(1).setPreferredWidth(500);
