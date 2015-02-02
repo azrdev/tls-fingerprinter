@@ -61,11 +61,6 @@ public final class MessageContainer {
     private List<Integer> fragmentSourceRecords = new LinkedList<>();
 
     /**
-     * Indices of the TCP segment(s) which contained bytes of our TLSPlaintext record
-     */
-    private List<Integer> recordSourceSegments = new LinkedList<>();
-
-    /**
      * Empty constructor.
      */
     public MessageContainer() {
@@ -320,19 +315,5 @@ public final class MessageContainer {
             logger.warn("more than one record source for ARecordFrame: not implemented!");
 
         fragmentSourceRecords.add(recordIndex);
-    }
-
-    /**
-     * Only set after decoding
-     * @return The indices of the TCP segment(s) which contained bytes of our
-     * TLSPlaintext record
-     */
-    public List<Integer> getRecordSourceSegments() {
-        return new ArrayList<>(recordSourceSegments);
-    }
-
-    void setRecordSourceSegments(List<Integer> segmentIndices) {
-        Objects.requireNonNull(segmentIndices);
-        recordSourceSegments = new ArrayList<>(segmentIndices);
     }
 }

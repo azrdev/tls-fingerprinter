@@ -12,13 +12,15 @@ import de.rub.nds.ssl.stack.protocols.handshake.AHandshakeRecord;
 import de.rub.nds.ssl.stack.protocols.handshake.ClientHello;
 import de.rub.nds.ssl.stack.protocols.handshake.ServerHello;
 import de.rub.nds.virtualnetworklayer.connection.pcap.ReassembledPacket;
+import de.rub.nds.virtualnetworklayer.packet.Packet;
 import de.rub.nds.virtualnetworklayer.packet.PcapPacket;
 import org.apache.log4j.Logger;
 
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Objects;
+
+import static de.rub.nds.virtualnetworklayer.packet.Packet.Direction.Response;
 
 /**
  * A fingerprint over the whole handshake, i.e. about order & presence of certain
@@ -205,15 +207,35 @@ public class HandshakeFingerprint extends Fingerprint {
         // sign: tcp-fragment-layout
 
         final List<String> sslFragmentLayout = new LinkedList<>();
-        final List<String> tcpSegmentLayout = new LinkedList<>();
+        final List<String> tcpSegmentLengths = new LinkedList<>();
 
+        final Joiner j = Joiner.on("-");
         for (MessageContainer messageContainer : frameList) {
-            final Joiner j = Joiner.on("-");
             sslFragmentLayout.add(j.join(messageContainer.getFragmentSourceRecords()));
-            tcpSegmentLayout.add(j.join(messageContainer.getRecordSourceSegments()));
+
+            final PcapPacket packet = messageContainer.getPcapPacket();
+            // for each ReassembledPacket
+            if(packet.getDirection() == Response && packet instanceof ReassembledPacket) {
+                // assemble list of all segment Lengths
+                boolean hasShortMiddlePacket = false;
+                final List<Integer> segmentLengths = new LinkedList<>();
+
+                final LinkedList<PcapPacket> packets = ((ReassembledPacket) packet).getFragmentSequence().getPackets();
+                for (int i = 0; i < packets.size(); i++) {
+                    final int length = packets.get(i).getLength();
+                    segmentLengths.add(length);
+                    // check if segment is shorter than previous (except if it's the last)
+                    if (i == 0) continue;
+                    if (length < packets.get(i-1).getLength() && i != (packets.size()-1))
+                        hasShortMiddlePacket = true;
+                }
+                // if a short packet is in the middle, add the lengths-sequence
+                if(hasShortMiddlePacket)
+                    tcpSegmentLengths.add(j.join(segmentLengths));
+            }
         }
         addSign("ssl-fragment-layout", sslFragmentLayout);
-        addSign("tcp-segment-layout", tcpSegmentLayout);
+        addSign("tcp-segment-lengths", tcpSegmentLengths);
     }
 
     @Override
@@ -222,7 +244,7 @@ public class HandshakeFingerprint extends Fingerprint {
                 "message-types",
                 "session-ids-match",
                 "ssl-fragment-layout",
-                "tcp-segment-layout");
+                "tcp-segment-lengths");
     }
 
     @Override
@@ -252,6 +274,6 @@ public class HandshakeFingerprint extends Fingerprint {
 
         if(signs.length < 4)
             return;
-        addSign("tcp-segment-layout", Serializer.deserializeStringList(signs[3]));
+        addSign("tcp-segment-lengths", Serializer.deserializeStringList(signs[3]));
     }
 }
