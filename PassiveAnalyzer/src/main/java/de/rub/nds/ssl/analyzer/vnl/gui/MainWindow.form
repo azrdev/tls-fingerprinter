@@ -14,34 +14,46 @@
         <properties/>
         <border type="none"/>
         <children>
-          <grid id="98c87" layout-manager="FlowLayout" hgap="5" vgap="1" flow-align="1">
+          <grid id="98c87" layout-manager="GridBagLayout">
             <constraints border-constraint="North"/>
             <properties/>
             <border type="none"/>
             <children>
               <component id="1839c" class="javax.swing.JCheckBox" binding="showNewFingerprintsCheckBox" default-binding="true">
-                <constraints/>
+                <constraints>
+                  <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                  <gridbag weightx="0.0" weighty="0.0"/>
+                </constraints>
                 <properties>
                   <selected value="true"/>
-                  <text value="show &amp;new fingerprints"/>
+                  <text value="show &amp;new"/>
                 </properties>
               </component>
               <component id="13251" class="javax.swing.JCheckBox" binding="showFingerprintUpdatesCheckBox" default-binding="true">
-                <constraints/>
+                <constraints>
+                  <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                  <gridbag weightx="0.0" weighty="0.0"/>
+                </constraints>
                 <properties>
                   <selected value="true"/>
-                  <text value="show fingerprint &amp;updates"/>
+                  <text value="show &amp;updates"/>
                 </properties>
               </component>
               <component id="add7d" class="javax.swing.JCheckBox" binding="showGuessedFingerprintsCheckBox" default-binding="true">
-                <constraints/>
+                <constraints>
+                  <grid row="0" column="2" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                  <gridbag weightx="0.0" weighty="0.0"/>
+                </constraints>
                 <properties>
                   <selected value="true"/>
-                  <text value="show &amp;Guessed Fingerprints"/>
+                  <text value="show &amp;guessed"/>
                 </properties>
               </component>
               <component id="5ece2" class="javax.swing.JButton" binding="flushReportsButton" default-binding="true">
-                <constraints/>
+                <constraints>
+                  <grid row="0" column="3" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="4" fill="0" indent="0" use-parent-layout="false"/>
+                  <gridbag weightx="0.0" weighty="0.0"/>
+                </constraints>
                 <properties>
                   <text value="&amp;Flush Reports"/>
                 </properties>
