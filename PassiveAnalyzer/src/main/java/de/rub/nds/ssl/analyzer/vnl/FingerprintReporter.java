@@ -32,4 +32,22 @@ public interface FingerprintReporter {
      */
     public void reportArtificial(SessionIdentifier sessionIdentifier,
                                  TLSFingerprint fingerprint);
+
+    /**
+     * An abstract adapter class for receiving fingerprint reports. The methods in this
+     * class are empty. This class exists as convenience for creating listener objects.
+     */
+    public abstract static class FingerprintReporterAdapter implements FingerprintReporter {
+        @Override
+        public void reportChange(SessionIdentifier sessionIdentifier, TLSFingerprint fingerprint, Set<TLSFingerprint> previousFingerprints) {}
+
+        @Override
+        public void reportUpdate(SessionIdentifier sessionIdentifier, TLSFingerprint fingerprint) {}
+
+        @Override
+        public void reportNew(SessionIdentifier sessionIdentifier, TLSFingerprint tlsFingerprint) {}
+
+        @Override
+        public void reportArtificial(SessionIdentifier sessionIdentifier, TLSFingerprint fingerprint) {}
+    }
 }
