@@ -5,6 +5,8 @@ import de.rub.nds.ssl.analyzer.vnl.fingerprint.ClientHelloFingerprint;
 import de.rub.nds.ssl.analyzer.vnl.fingerprint.Fingerprint;
 import de.rub.nds.ssl.analyzer.vnl.fingerprint.serialization.Serializer;
 import de.rub.nds.ssl.stack.Utility;
+import de.rub.nds.ssl.stack.protocols.handshake.datatypes.SessionId;
+import de.rub.nds.virtualnetworklayer.packet.header.Session;
 import de.rub.nds.virtualnetworklayer.util.Util;
 import de.rub.nds.virtualnetworklayer.util.formatter.IpFormatter;
 import org.apache.log4j.Logger;
@@ -29,6 +31,16 @@ public class SessionIdentifier {
     public SessionIdentifier() {}
 
     /**
+     * deserialize: initializes clientHelloSignature with null
+     */
+    public SessionIdentifier(String serialized) {
+        if(NO_HOSTNAME.equals(serialized.trim()))
+            serverHostName = null;
+        else
+            serverHostName = serialized.trim();
+    }
+
+    /**
      * Initializes all attributes with the given values
      */
     public SessionIdentifier(String serverHostName,
@@ -46,31 +58,6 @@ public class SessionIdentifier {
     }
 
     public static final String NO_HOSTNAME = "*";
-
-    /**
-     * deserialize a SessionIdentifier object, see {@link SessionIdentifier#serialize()}
-     */
-    public SessionIdentifier(String serialized) {
-        String[] parts = serialized.split("\\|");
-
-        if(parts.length == 0)
-            throw new IllegalArgumentException();
-
-        if(parts.length == 3) {
-            final byte[] serverIPAddress = InetAddresses.forString(parts[0]).getAddress();
-            int serverTcpPort = Util.readBoundedInteger(parts[1], 0, 65536);
-            serverHostName = parts[2];
-
-            //TODO: un-support old serialized format with ip and port
-            logger.debug(String.format("unused for host %s: read server IP: %s, port %d",
-                    serverHostName, IpFormatter.toString(serverIPAddress), serverTcpPort));
-        }
-        if(parts.length == 1) {
-            if(NO_HOSTNAME.equals(parts[0]))
-                serverHostName = null;
-            serverHostName = parts[0];
-        }
-    }
 
     @Override
     public boolean equals(Object o) {

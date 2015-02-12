@@ -1,5 +1,6 @@
 package de.rub.nds.ssl.analyzer.vnl.fingerprint;
 
+import de.rub.nds.ssl.analyzer.vnl.fingerprint.serialization.FingerprintSaveFileReader;
 import de.rub.nds.ssl.analyzer.vnl.fingerprint.serialization.Serializer;
 import de.rub.nds.virtualnetworklayer.util.Util;
 
@@ -20,7 +21,7 @@ import java.util.*;
  *
  * @author jBiegert azrdev@qrdn.de
  */
-public abstract class Fingerprint {
+public abstract class Fingerprint<F extends Fingerprint<F>> {
 
     protected Fingerprint() {}
 
@@ -119,5 +120,20 @@ public abstract class Fingerprint {
      */
     public abstract List<String> serializationSigns();
 
-    public abstract void deserialize(String serialized);
+    /**
+     * Read from serialized form. Use {@link #deserialize(List)} instead.
+     * @return this
+     */
+    @Deprecated
+    protected final F deserialize(String serialized) {
+        return deserialize(Arrays.asList(
+                serialized.trim().split(SERIALIZATION_DELIMITER, -1)));
+    }
+
+    /**
+     * Read from serialized form, signs already split.
+     * @return this
+     * @see FingerprintSaveFileReader
+     */
+    protected abstract F deserialize(final List<String> signs);
 }

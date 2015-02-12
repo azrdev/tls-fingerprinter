@@ -192,6 +192,6 @@ public class Connection {
             hostName = IpFormatter.toString(packet.getSession().getDestinationAddress());
         }
 
-        return new SessionIdentifier(hostName, new ClientHelloFingerprint(clientHello));
+        return new SessionIdentifier(hostName, ClientHelloFingerprint.create(clientHello));
     }
 }

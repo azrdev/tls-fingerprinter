@@ -9,7 +9,6 @@ import de.rub.nds.virtualnetworklayer.fingerprint.MtuFingerprint;
 import de.rub.nds.virtualnetworklayer.fingerprint.TcpFingerprint;
 import org.apache.log4j.Logger;
 
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -53,11 +52,11 @@ public class TLSFingerprint {
      */
     public TLSFingerprint(Connection connection) {
         try {
-            serverHelloSignature = new ServerHelloFingerprint(connection);
+            serverHelloSignature = ServerHelloFingerprint.create(connection);
         } catch(RuntimeException e) {
             logger.debug("Error creating ServerHelloFingerprint: " + e);
         }
-        handshakeSignature = new HandshakeFingerprint(connection.getFrameList());
+        handshakeSignature = HandshakeFingerprint.create(connection.getFrameList());
 
         serverTcpSignature = connection.getServerTcpSignature();
         serverMtuSignature = connection.getServerMtuSignature();

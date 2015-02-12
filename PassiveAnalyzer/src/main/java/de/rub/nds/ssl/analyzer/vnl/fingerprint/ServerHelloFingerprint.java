@@ -1,5 +1,6 @@
 package de.rub.nds.ssl.analyzer.vnl.fingerprint;
 
+import com.google.common.base.Joiner;
 import de.rub.nds.ssl.analyzer.vnl.Connection;
 import de.rub.nds.ssl.analyzer.vnl.fingerprint.serialization.SerializationException;
 import de.rub.nds.ssl.analyzer.vnl.fingerprint.serialization.Serializer;
@@ -17,25 +18,21 @@ import de.rub.nds.ssl.stack.protocols.handshake.extensions.datatypes.EExtensionT
 import de.rub.nds.virtualnetworklayer.util.Util;
 import org.apache.log4j.Logger;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class ServerHelloFingerprint extends Fingerprint {
+public class ServerHelloFingerprint extends Fingerprint<ServerHelloFingerprint> {
     private static Logger logger = Logger.getLogger(ServerHelloFingerprint.class);
 
-    /**
-     * Cloning ctor: Create a copy of original
-     */
-    public ServerHelloFingerprint(ServerHelloFingerprint original) {
+    protected ServerHelloFingerprint(ServerHelloFingerprint original) {
         super(original);
     }
 
-    public ServerHelloFingerprint(String serialized) {
-        deserialize(serialized);
+    private ServerHelloFingerprint() {
+        super();
     }
 
-    public ServerHelloFingerprint(Connection connection) {
+    private ServerHelloFingerprint(Connection connection) {
         ServerHello serverHello = connection.getServerHello();
         if(serverHello == null)
             throw new NotMatchingException();
@@ -73,6 +70,24 @@ public class ServerHelloFingerprint extends Fingerprint {
         }
     }
 
+
+    public static ServerHelloFingerprint copy(ServerHelloFingerprint original) {
+        return new ServerHelloFingerprint(original);
+    }
+
+    @Deprecated
+    public static ServerHelloFingerprint deserializeFingerprint(String serialized) {
+        return new ServerHelloFingerprint().deserialize(serialized);
+    }
+
+    public static ServerHelloFingerprint deserializeFingerprint(List<String> signs) {
+        return new ServerHelloFingerprint().deserialize(signs);
+    }
+
+    public static ServerHelloFingerprint create(Connection connection) {
+        return new ServerHelloFingerprint(connection);
+    }
+
     @Override
     public List<String> serializationSigns() {
         return Arrays.asList(
@@ -88,56 +103,56 @@ public class ServerHelloFingerprint extends Fingerprint {
     }
 
     @Override
-    public void deserialize(String serialized) {
-        String[] signs = serialized.trim().split(SERIALIZATION_DELIMITER, -1);
-        if(signs.length < 5) {
+    public ServerHelloFingerprint deserialize(final List<String> signs) {
+        if(signs.size() < 5) {
             throw new IllegalArgumentException("Serialized form of fingerprint invalid: "
-                    + "Wrong sign count " + signs.length);
+                    + "Wrong sign count " + signs.size());
         }
 
         byte[] bytes;
-        bytes = Utility.hexToBytes(signs[0].trim());
+        bytes = Utility.hexToBytes(signs.get(0).trim());
         addSign("version", EProtocolVersion.getProtocolVersion(bytes));
 
-        bytes = Utility.hexToBytes(signs[1].trim());
+        bytes = Utility.hexToBytes(signs.get(1).trim());
         addSign("cipher-suite", ECipherSuite.getCipherSuite(bytes));
 
-        bytes = Utility.hexToBytes(signs[2].trim());
+        bytes = Utility.hexToBytes(signs.get(2).trim());
         addSign("compression-method", ECompressionMethod.getCompressionMethod(bytes[0]));
 
         try {
-            addSign("session-id-empty", Serializer.deserializeBoolean(signs[3]));
+            addSign("session-id-empty", Serializer.deserializeBoolean(signs.get(3)));
         } catch (SerializationException e) {
             // omit sign
         }
 
-        List<Id> extensionLayout = Serializer.deserializeList(signs[4].trim());
+        List<Id> extensionLayout = Serializer.deserializeList(signs.get(4).trim());
         if(extensionLayout != null)
             addSign("extensions-layout", extensionLayout);
 
-        if(signs.length < 6)
-            return;
-        List<Id> supportedPointFormats = Serializer.deserializeList(signs[5].trim());
-        if(supportedPointFormats != null)
-            addSign("supported-point-formats", supportedPointFormats);
-
-        if(signs.length < 7)
-            return;
-        List<Id> supportedCurves = Serializer.deserializeList(signs[6].trim());
-        if(supportedCurves != null)
-            addSign("supported-curves", supportedCurves);
-
-        if(signs.length < 8)
-            return;
-        try {
-            final String sign = signs[7].trim();
-            if(!sign.isEmpty())
-                addSign("renegotiation-info-length",
-                        Util.readBoundedInteger(sign, 0, 255));
-        } catch(NumberFormatException e) {
-            // probably empty
-            logger.debug("Cannot parse renegotiation-info-length. signature: " +
-                    serialized);
+        if(signs.size() >= 6) {
+            List<Id> supportedPointFormats = Serializer.deserializeList(signs.get(5).trim());
+            if (supportedPointFormats != null)
+                addSign("supported-point-formats", supportedPointFormats);
         }
+
+        if(signs.size() >= 7) {
+            List<Id> supportedCurves = Serializer.deserializeList(signs.get(6).trim());
+            if (supportedCurves != null)
+                addSign("supported-curves", supportedCurves);
+        }
+
+        if(signs.size() >= 8) {
+            try {
+                final String sign = signs.get(7).trim();
+                if (!sign.isEmpty())
+                    addSign("renegotiation-info-length",
+                            Util.readBoundedInteger(sign, 0, 255));
+            } catch (NumberFormatException e) {
+                // probably empty
+                logger.debug("Cannot parse renegotiation-info-length. signature: " +
+                        Joiner.on(':').join(signs));
+            }
+        }
+        return this;
     }
 }

@@ -24,8 +24,26 @@ import java.util.List;
  * @author jBiegert azrdev@qrdn.de
  */
 //TODO: also get direction of handshake msgs (e.g. for ChangeCipherSpec not obvious)
-public class HandshakeFingerprint extends Fingerprint {
+public class HandshakeFingerprint extends Fingerprint<HandshakeFingerprint> {
     private static Logger logger = Logger.getLogger(HandshakeFingerprint.class);
+
+
+    public static HandshakeFingerprint create(List<MessageContainer> frameList) {
+        return new HandshakeFingerprint(frameList);
+    }
+
+    public static HandshakeFingerprint copy(HandshakeFingerprint original) {
+        return new HandshakeFingerprint(original);
+    }
+
+    @Deprecated
+    public static HandshakeFingerprint deserializeHandshake(String serialized) {
+        return new HandshakeFingerprint().deserialize(serialized);
+    }
+
+    public static HandshakeFingerprint deserializeHandshake(List<String> signs) {
+        return new HandshakeFingerprint().deserialize(signs);
+    }
 
     /**
      * Represents type of a TLS message: EContentType and (if present)
@@ -107,18 +125,20 @@ public class HandshakeFingerprint extends Fingerprint {
         }
     }
 
-    /**
-     * Cloning ctor: create a copy of original
-     */
-    public HandshakeFingerprint(HandshakeFingerprint original) {
+    protected HandshakeFingerprint() {
+        super();
+    }
+
+    protected HandshakeFingerprint(HandshakeFingerprint original) {
         super(original);
     }
 
-    public HandshakeFingerprint(String serialized) {
+    @Deprecated
+    private HandshakeFingerprint(String serialized) {
         deserialize(serialized);
     }
 
-    public HandshakeFingerprint(List<MessageContainer> frameList) {
+    private HandshakeFingerprint(List<MessageContainer> frameList) {
         // sign: message-types
 
         final List<MessageTypes> messageTypes = new LinkedList<>();
@@ -218,28 +238,25 @@ public class HandshakeFingerprint extends Fingerprint {
     }
 
     @Override
-    public void deserialize(String serialized) {
-        String[] signs = serialized.trim().split(SERIALIZATION_DELIMITER, -1);
-        if(signs.length < 1)
+    protected HandshakeFingerprint deserialize(final List<String> signs) {
+        if(signs.size() < 1)
             throw new IllegalArgumentException("Serialized form of fingerprint invalid: "
-                + "Wrong sign count " + signs.length);
+                + "Wrong sign count " + signs.size());
 
         List<MessageTypes> messageTypes = new LinkedList<>();
-        for(String mt : Serializer.deserializeStringList(signs[0])) {
+        for(String mt : Serializer.deserializeStringList(signs.get(0))) {
             messageTypes.add(Serializer.deserializeMessageTypes(mt));
         }
         addSign("message-types", messageTypes);
 
-        if(signs.length < 2)
-            return;
-        try {
-            addSign("session-ids-match", Serializer.deserializeBoolean(signs[1]));
-        } catch (SerializationException e) {
-            // omit sign
-        }
+        if(signs.size() >= 2)
+            try {
+                addSign("session-ids-match", Serializer.deserializeBoolean(signs.get(1)));
+            } catch (SerializationException e) {/* omit sign */}
 
-        if(signs.length < 3)
-            return;
-        addSign("ssl-fragment-layout", Serializer.deserializeStringList(signs[2]));
+        if(signs.size() >= 3)
+            addSign("ssl-fragment-layout", Serializer.deserializeStringList(signs.get(2)));
+
+        return this;
     }
 }

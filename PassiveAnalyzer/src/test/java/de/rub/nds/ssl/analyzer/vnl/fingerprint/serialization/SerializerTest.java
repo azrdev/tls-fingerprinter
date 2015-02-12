@@ -44,7 +44,7 @@ public class SerializerTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void clientHelloFingerprintEmpty() {
-        Fingerprint chf = new ClientHelloFingerprint("");
+        Fingerprint chf = ClientHelloFingerprint.deserializeFingerprint("");
     }
 
     private static final String ch_TLS1_complete = "0301:00:c02b,c02f,009e,c00a,c009,c013,c014,c007,c011,0033,0032,0039,009c,002f,0035,000a,0005,0004:0000,ff01,000a,000b,0023,3374,0010,7550,0005,0012,000d:00:0017,0018,0019:0";
@@ -52,29 +52,29 @@ public class SerializerTest {
 
     @Test
     public void clientHelloFingerprintTLS1_1() {
-        final Fingerprint chf = new ClientHelloFingerprint(ch_TLS1_complete);
+        final Fingerprint chf = ClientHelloFingerprint.deserializeFingerprint(ch_TLS1_complete);
         assertEquals(7, chf.getSigns().size());
 
         final String serialized = chf.serialize();
         assertEquals(ch_TLS1_complete, serialized);
-        assertEquals(chf, new ClientHelloFingerprint(serialized));
+        assertEquals(chf, ClientHelloFingerprint.deserializeFingerprint(serialized));
     }
 
     @Test
     public void clientHelloFingerprintSSL3() {
-        final Fingerprint chf = new ClientHelloFingerprint(ch_ssl3);
+        final Fingerprint chf = ClientHelloFingerprint.deserializeFingerprint(ch_ssl3);
         assertEquals(3, chf.getSigns().size());
 
         final String serialized = chf.serialize();
         assertEquals(ch_ssl3, serialized);
-        assertEquals(chf, new ClientHelloFingerprint(serialized));
+        assertEquals(chf, ClientHelloFingerprint.deserializeFingerprint(serialized));
     }
 
     // test ServerHelloFingerprint
 
     @Test(expected = IllegalArgumentException.class)
     public void serverHelloFingerprintEmpty() {
-        final Fingerprint shf = new ServerHelloFingerprint("");
+        final Fingerprint shf = ServerHelloFingerprint.deserializeFingerprint("");
     }
 
     private static final String sh_TLS1_2_complete = "0303:c02f:00:true:0000,ff01,000b,0023,0005,0010:00,01,02::0";
@@ -84,7 +84,7 @@ public class SerializerTest {
 
     @Test
     public void serverHelloFingerprintTLS1_2_complete() {
-        Fingerprint shf = new ServerHelloFingerprint(sh_TLS1_2_complete);
+        ServerHelloFingerprint shf = ServerHelloFingerprint.deserializeFingerprint(sh_TLS1_2_complete);
         assertEquals(7, shf.getSigns().size());
 
         assertTrue(shf.getSign("extensions-layout") instanceof List);
@@ -93,12 +93,12 @@ public class SerializerTest {
 
         String serialized = shf.serialize();
         assertEquals(sh_TLS1_2_complete, serialized);
-        assertEquals(shf, new ServerHelloFingerprint(serialized));
+        assertEquals(shf, ServerHelloFingerprint.deserializeFingerprint(serialized));
     }
 
     @Test
     public void serverHelloFingerprintTLS1_1_emptyExt() {
-        final Fingerprint shf = new ServerHelloFingerprint(sh_TLS1_1_emptyExt);
+        final ServerHelloFingerprint shf = ServerHelloFingerprint.deserializeFingerprint(sh_TLS1_1_emptyExt);
         assertEquals(5, shf.getSigns().size());
 
         assertTrue(shf.getSign("extensions-layout") instanceof List);
@@ -107,24 +107,24 @@ public class SerializerTest {
 
         final String serialized = shf.serialize();
         assertEquals(sh_TLS1_1_emptyExt, serialized);
-        assertEquals(shf, new ServerHelloFingerprint(serialized));
+        assertEquals(shf, ServerHelloFingerprint.deserializeFingerprint(serialized));
     }
 
     @Test
     public void serverHelloFingerprintTLS1_0_noExt() {
-        final Fingerprint shf = new ServerHelloFingerprint(sh_TLS1_0_noExt);
+        final Fingerprint shf = ServerHelloFingerprint.deserializeFingerprint(sh_TLS1_0_noExt);
         assertEquals(4, shf.getSigns().size());
 
         assertNull(shf.getSign("extensions-layout"));
 
         final String serialized = shf.serialize();
         assertEquals(sh_TLS1_0_noExt, serialized);
-        assertEquals(shf, new ServerHelloFingerprint(serialized));
+        assertEquals(shf, ServerHelloFingerprint.deserializeFingerprint(serialized));
     }
 
     @Test
     public void serverHelloFingerprintSSL3() {
-        final Fingerprint shf = new ServerHelloFingerprint(sh_SSL3);
+        final ServerHelloFingerprint shf = ServerHelloFingerprint.deserializeFingerprint(sh_SSL3);
         assertEquals(6, shf.getSigns().size());
 
         assertTrue(shf.getSign("extensions-layout") instanceof List);
@@ -133,6 +133,6 @@ public class SerializerTest {
 
         final String serialized = shf.serialize();
         assertEquals(sh_SSL3, serialized);
-        assertEquals(shf, new ServerHelloFingerprint(serialized));
+        assertEquals(shf, ServerHelloFingerprint.deserializeFingerprint(serialized));
     }
 }

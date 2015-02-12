@@ -15,6 +15,10 @@ import de.rub.nds.ssl.stack.protocols.handshake.extensions.datatypes.ENamedCurve
 import de.rub.nds.virtualnetworklayer.p0f.Module;
 import de.rub.nds.virtualnetworklayer.p0f.signature.MTUSignature;
 import de.rub.nds.virtualnetworklayer.p0f.signature.TCPSignature;
+import org.antlr.v4.runtime.ANTLRInputStream;
+import org.antlr.v4.runtime.CommonTokenStream;
+import org.antlr.v4.runtime.tree.ParseTree;
+import org.antlr.v4.runtime.tree.ParseTreeWalker;
 import org.apache.log4j.Logger;
 
 import javax.annotation.Nonnull;
@@ -116,8 +120,7 @@ public class Serializer {
         if(handshakeSignature == null)
             return "";
 
-        return String.format("\t%s: %s\n", FingerprintId.Handshake.id,
-                handshakeSignature.serialize());
+        return String.format("\tHandshake: %s\n", handshakeSignature.serialize());
     }
 
     public static String serializeClientHello(@Nullable Fingerprint clientHelloSignature) {
@@ -125,8 +128,7 @@ public class Serializer {
             return "";
         }
 
-        return String.format("\t%s: %s\n", FingerprintId.ClientHello.id,
-                clientHelloSignature.serialize());
+        return String.format("\tClientHello: %s\n", clientHelloSignature.serialize());
     }
 
     public static String serializeServerHello(@Nullable Fingerprint serverHelloSignature) {
@@ -134,8 +136,7 @@ public class Serializer {
             return "";
         }
 
-        return String.format("\t%s: %s\n", FingerprintId.ServerHello.id,
-                serverHelloSignature.serialize());
+        return String.format("\tServerHello: %s\n", serverHelloSignature.serialize());
     }
 
     public static String serializeServerTcp(@Nullable
@@ -143,8 +144,7 @@ public class Serializer {
         if(sig == null)
             return "";
 
-        return String.format("\t%s: %s\n", FingerprintId.ServerTcp.id,
-                TCPSignature.writeToString(sig));
+        return String.format("\tServerTCP: %s\n", TCPSignature.writeToString(sig));
     }
 
     public static String serializeServerMtu(@Nullable
@@ -152,8 +152,7 @@ public class Serializer {
         if(sig == null)
             return "";
 
-        return String.format("\t%s: %s\n", FingerprintId.ServerMtu.id,
-                MTUSignature.writeToString(sig));
+        return String.format("\tServerMTU: %s\n", MTUSignature.writeToString(sig));
     }
 
     public static HandshakeFingerprint.MessageTypes
@@ -209,105 +208,16 @@ public class Serializer {
 
     public static SetMultimap<SessionIdentifier, TLSFingerprint>
     deserialize(@Nonnull BufferedReader reader) throws IOException {
-        SetMultimap<SessionIdentifier, TLSFingerprint> fingerprints =
-                HashMultimap.create();
+        final FingerprintSaveFileParser parser =
+                new FingerprintSaveFileParser(
+                    new CommonTokenStream(
+                        new FingerprintSaveFileLexer(
+                                new ANTLRInputStream(reader))));
 
-        String line;
-        SessionIdentifier sid = null;
-        ClientHelloFingerprint clientHelloSignature = null;
-        ServerHelloFingerprint serverHelloSignature = null;
-        HandshakeFingerprint handshakeSignature = null;
-        TCPSignature serverTcpSignature = null;
-        MTUSignature serverMtuSignature = null;
+        final ParseTree tree = parser.file();
+        final FingerprintSaveFileReader fpReader = new FingerprintSaveFileReader(parser);
+        new ParseTreeWalker().walk(fpReader, tree);
 
-        while((line = reader.readLine()) != null) {
-            final String line_trimmed = line.trim();
-
-            if(line_trimmed.startsWith("#"))
-                continue;
-            if(line_trimmed.isEmpty())
-                continue;
-
-            if(line.startsWith("\t")) {
-                try {
-                    String[] split = line.trim().split("\\s", 2);
-
-                    if (FingerprintId.ClientHello.isAtStart(split[0])) {
-                        clientHelloSignature = new ClientHelloFingerprint(split[1]);
-                        if(sid != null) sid.setClientHelloSignature(clientHelloSignature);
-                    } else if (FingerprintId.ServerHello.isAtStart(split[0])) {
-                        serverHelloSignature = new ServerHelloFingerprint(split[1]);
-                    } else if (FingerprintId.ServerTcp.isAtStart(split[0])) {
-                        serverTcpSignature = new TCPSignature(split[1], Module.Direction.Response);
-                    } else if (FingerprintId.ServerMtu.isAtStart(split[0])) {
-                        serverMtuSignature = new MTUSignature(split[1]);
-                    } else if (FingerprintId.Handshake.isAtStart(split[0])) {
-                        handshakeSignature = new HandshakeFingerprint(split[1]);
-                    } else {
-                        logger.debug("Unrecognized signature: " + line);
-                    }
-                } catch(IllegalArgumentException ex) {
-                    logger.debug("Error reading signature: " + ex + " - " + line);
-                }
-            } else {
-                commitFingerprint(sid, new TLSFingerprint(handshakeSignature,
-                        serverHelloSignature, serverTcpSignature, serverMtuSignature),
-                        fingerprints);
-                clientHelloSignature = null;
-                serverHelloSignature = null;
-                serverTcpSignature = null;
-                serverMtuSignature = null;
-                handshakeSignature = null;
-
-                try {
-                    sid = new SessionIdentifier(line);
-                } catch(IllegalArgumentException e) {
-                    logger.debug("Error reading SessionIdentifier: " + e, e);
-                    sid = null;
-                }
-            }
-        }
-
-        commitFingerprint(sid, new TLSFingerprint(handshakeSignature,
-                serverHelloSignature, serverTcpSignature, serverMtuSignature),
-                fingerprints);
-
-        return fingerprints;
-    }
-
-    /**
-     * helper for {@link #deserialize(java.io.BufferedReader)}
-     */
-    private static void commitFingerprint(
-            @Nullable SessionIdentifier sessionId,
-            @Nullable TLSFingerprint tlsFingerprint,
-            @Nonnull SetMultimap<SessionIdentifier, TLSFingerprint> fingerprints) {
-
-        if(sessionId != null && tlsFingerprint != null) {
-            if (fingerprints.containsEntry(sessionId, tlsFingerprint)) {
-                logger.warn("Duplicate fingerprint in file for " + sessionId);
-                logger.trace("fingerprint: " + tlsFingerprint);
-            } else {
-                fingerprints.put(sessionId, tlsFingerprint);
-            }
-        }
-    }
-
-    private enum FingerprintId {
-        ClientHello("ClientHello"),
-        ServerHello("ServerHello"),
-        ServerTcp("ServerTCP"),
-        ServerMtu("ServerMTU"),
-        Handshake("Handshake");
-
-        public final String id;
-        private final Pattern pattern;
-        FingerprintId(String id) {
-            this.id = id;
-            pattern = Pattern.compile(id, Pattern.LITERAL | Pattern.CASE_INSENSITIVE);
-        }
-        public boolean isAtStart(CharSequence input) {
-            return pattern.matcher(input).lookingAt();
-        }
+        return fpReader.getFingerprints();
     }
 }

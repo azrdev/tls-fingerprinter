@@ -3,6 +3,8 @@ package de.rub.nds.virtualnetworklayer.p0f.signature;
 import de.rub.nds.virtualnetworklayer.fingerprint.Fingerprint;
 import de.rub.nds.virtualnetworklayer.util.Util;
 
+import java.util.List;
+
 /**
  * Property format: mtu
  *
@@ -11,7 +13,18 @@ import de.rub.nds.virtualnetworklayer.util.Util;
  */
 public class MTUSignature extends Fingerprint.Signature {
 
+    public MTUSignature(final List<String> signs) {
+        if(signs.size() > 1)
+            throw new IllegalArgumentException("Too many signs: " + signs);
+        if(signs.size() > 0)
+            readFromString(signs.get(0));
+    }
+
     public MTUSignature(String value) {
+        readFromString(value);
+    }
+
+    private void readFromString(String value) {
         try {
             addSign("mtu", Util.readBoundedInteger(value.trim(), 0, 65535));
         } catch(NumberFormatException e) {

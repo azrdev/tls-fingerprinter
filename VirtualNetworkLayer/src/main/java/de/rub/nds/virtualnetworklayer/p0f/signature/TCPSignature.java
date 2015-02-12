@@ -10,6 +10,7 @@ import de.rub.nds.virtualnetworklayer.packet.header.transport.TcpHeader;
 import de.rub.nds.virtualnetworklayer.util.Util;
 import org.apache.log4j.Logger;
 
+import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -63,36 +64,52 @@ public class TCPSignature extends Fingerprint.Signature {
     private List<TcpHeader.Option> optionsLayout;
 
     private void readFromString(String value) {
-        String[] parts = value.trim().split(SIGN_DELIMITER);
+        readFromString(Arrays.asList(value.trim().split(SIGN_DELIMITER)));
+    }
 
-        Version version = Util.readEnum(Version.class, parts[0]);
+    private void readFromString(final List<String> signs) {
+        Version version = Util.readEnum(Version.class, signs.get(0));
         if (version != Version.Any) {
             addSign("version", version.getInteger());
         }
 
-        addSign("timeToLive", new TimeToLive(parts[1]));
-        addSign("optionsLength", Util.readBoundedInteger(parts[2], 0, 255));
+        addSign("timeToLive", new TimeToLive(signs.get(1)));
+        addSign("optionsLength", Util.readBoundedInteger(signs.get(2), 0, 255));
 
-        if (parts[3].charAt(0) != '*') {
-            addSign("maximumSegmentSize", Util.readBoundedInteger(parts[3], 0, 65535));
+        if (signs.get(3).charAt(0) != '*') {
+            addSign("maximumSegmentSize", Util.readBoundedInteger(signs.get(3), 0, 65535));
         }
 
-        readWindow(parts[4]);
-        readOptions(parts[5]);
-        readQuirks(parts[6]);
+        readWindow(signs.get(4));
+        readOptions(signs.get(5));
+        readQuirks(signs.get(6));
 
-        PayloadClass payloadClass = Util.readEnum(PayloadClass.class, parts[7]);
+        PayloadClass payloadClass = Util.readEnum(PayloadClass.class, signs.get(7));
         if (payloadClass != PayloadClass.Any) {
             addSign("payloadClass", payloadClass);
         }
     }
 
-    public TCPSignature(String value) {
-        readFromString(value);
+    /**
+     * Parse serialized form
+     */
+    public TCPSignature(String serialized) {
+        readFromString(serialized);
     }
 
-    public TCPSignature(String value, Module.Direction direction) {
-        readFromString(value);
+    /**
+     * Parse serialized form and set sign direction
+     */
+    public TCPSignature(String serialized, Module.Direction direction) {
+        readFromString(serialized);
+        addSign("direction", direction.getMapping());
+    }
+
+    /**
+     * Parse serialized form, already split, and set sign direction
+     */
+    public TCPSignature(List<String> signs, Module.Direction direction) {
+        readFromString(signs);
         addSign("direction", direction.getMapping());
     }
 
