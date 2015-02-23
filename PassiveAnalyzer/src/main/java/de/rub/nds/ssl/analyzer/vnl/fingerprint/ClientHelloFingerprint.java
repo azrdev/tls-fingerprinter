@@ -9,7 +9,6 @@ import de.rub.nds.ssl.stack.protocols.commons.Id;
 import de.rub.nds.ssl.stack.protocols.handshake.ClientHello;
 import de.rub.nds.ssl.stack.protocols.handshake.datatypes.Extensions;
 import de.rub.nds.ssl.stack.protocols.handshake.extensions.EllipticCurves;
-import de.rub.nds.ssl.stack.protocols.handshake.extensions.RenegotiationInfo;
 import de.rub.nds.ssl.stack.protocols.handshake.extensions.SupportedPointFormats;
 import de.rub.nds.ssl.stack.protocols.handshake.extensions.datatypes.EExtensionType;
 import de.rub.nds.virtualnetworklayer.util.Util;
@@ -84,13 +83,6 @@ public class ClientHelloFingerprint extends Fingerprint<ClientHelloFingerprint> 
         if(supportedCurves != null) {
             addSign("supported-curves", supportedCurves.getRawSupportedCurves());
         }
-
-        RenegotiationInfo renegotiationInfo =
-                extensions.getExtension(EExtensionType.RENEGOTIATION_INFO);
-        if(renegotiationInfo != null) {
-            addSign("renegotiation-info-length",
-                    renegotiationInfo.getRenegotiatedConnection().length);
-        }
     }
 
     @Override
@@ -100,8 +92,7 @@ public class ClientHelloFingerprint extends Fingerprint<ClientHelloFingerprint> 
                 "cipher-suite-list",
                 "extensions-layout",
                 "supported-point-formats",
-                "supported-curves",
-                "renegotiation-info-length");
+                "supported-curves");
     }
 
     public ClientHelloFingerprint deserialize(final List<String> signs)
@@ -137,18 +128,6 @@ public class ClientHelloFingerprint extends Fingerprint<ClientHelloFingerprint> 
                 addSign("supported-curves", supportedCurves);
         }
 
-        if(signs.size() >= 7) {
-            try {
-                final String sign = signs.get(6).trim();
-                if (!sign.isEmpty())
-                    addSign("renegotiation-info-length",
-                            Util.readBoundedInteger(sign, 0, 255));
-            } catch (NumberFormatException e) {
-                // probably empty
-                logger.debug("Cannot parse renegotiation-info-length. signature: " +
-                        Joiner.on(':').join(signs));
-            }
-        }
         return this;
     }
 }

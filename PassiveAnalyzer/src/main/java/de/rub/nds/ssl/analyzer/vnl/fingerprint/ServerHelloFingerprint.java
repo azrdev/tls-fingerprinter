@@ -11,8 +11,6 @@ import de.rub.nds.ssl.stack.protocols.commons.EProtocolVersion;
 import de.rub.nds.ssl.stack.protocols.commons.Id;
 import de.rub.nds.ssl.stack.protocols.handshake.ServerHello;
 import de.rub.nds.ssl.stack.protocols.handshake.datatypes.Extensions;
-import de.rub.nds.ssl.stack.protocols.handshake.extensions.EllipticCurves;
-import de.rub.nds.ssl.stack.protocols.handshake.extensions.RenegotiationInfo;
 import de.rub.nds.ssl.stack.protocols.handshake.extensions.SupportedPointFormats;
 import de.rub.nds.ssl.stack.protocols.handshake.extensions.datatypes.EExtensionType;
 import de.rub.nds.virtualnetworklayer.util.Util;
@@ -55,19 +53,6 @@ public class ServerHelloFingerprint extends Fingerprint<ServerHelloFingerprint> 
             addSign("supported-point-formats",
                     supportedPointFormats.getRawPointFormats());
         }
-
-        EllipticCurves supportedCurves =
-                extensions.getExtension(EExtensionType.ELLIPTIC_CURVES);
-        if(supportedCurves != null) {
-            addSign("supported-curves", supportedCurves.getRawSupportedCurves());
-        }
-
-        RenegotiationInfo renegotiationInfo =
-                extensions.getExtension(EExtensionType.RENEGOTIATION_INFO);
-        if(renegotiationInfo != null) {
-            addSign("renegotiation-info-length",
-                    renegotiationInfo.getRenegotiatedConnection().length);
-        }
     }
 
 
@@ -96,9 +81,7 @@ public class ServerHelloFingerprint extends Fingerprint<ServerHelloFingerprint> 
                 "compression-method",
                 "session-id-empty",
                 "extensions-layout",
-                "supported-point-formats",
-                "supported-curves",
-                "renegotiation-info-length"
+                "supported-point-formats"
         );
     }
 
@@ -135,24 +118,6 @@ public class ServerHelloFingerprint extends Fingerprint<ServerHelloFingerprint> 
                 addSign("supported-point-formats", supportedPointFormats);
         }
 
-        if(signs.size() >= 7) {
-            List<Id> supportedCurves = Serializer.deserializeList(signs.get(6).trim());
-            if (supportedCurves != null)
-                addSign("supported-curves", supportedCurves);
-        }
-
-        if(signs.size() >= 8) {
-            try {
-                final String sign = signs.get(7).trim();
-                if (!sign.isEmpty())
-                    addSign("renegotiation-info-length",
-                            Util.readBoundedInteger(sign, 0, 255));
-            } catch (NumberFormatException e) {
-                // probably empty
-                logger.debug("Cannot parse renegotiation-info-length. signature: " +
-                        Joiner.on(':').join(signs));
-            }
-        }
         return this;
     }
 }

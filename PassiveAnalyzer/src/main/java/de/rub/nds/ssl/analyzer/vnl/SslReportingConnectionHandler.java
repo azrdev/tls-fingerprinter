@@ -150,9 +150,9 @@ public final class SslReportingConnectionHandler extends ConnectionHandler {
             fingerprintListener.addFingerprintReporter(
                     new ResumptionFingerprintGuesser(fingerprintListener));
     }
-    
+
     public void printStats() {
-    	logger.info(fingerprintListener.toString());
+        logger.info(fingerprintListener.toString());
     }
 
     /**
