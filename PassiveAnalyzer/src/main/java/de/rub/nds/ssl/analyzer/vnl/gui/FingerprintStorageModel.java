@@ -3,6 +3,7 @@ package de.rub.nds.ssl.analyzer.vnl.gui;
 import com.google.common.collect.ImmutableSetMultimap;
 import de.rub.nds.ssl.analyzer.vnl.FingerprintListener;
 import de.rub.nds.ssl.analyzer.vnl.FingerprintReporter;
+import de.rub.nds.ssl.analyzer.vnl.FingerprintReporter.FingerprintReporterAdapter;
 import de.rub.nds.ssl.analyzer.vnl.SessionIdentifier;
 import de.rub.nds.ssl.analyzer.vnl.fingerprint.TLSFingerprint;
 import org.apache.log4j.Logger;
@@ -34,14 +35,10 @@ public class FingerprintStorageModel {
 
         final DefaultTreeModel model = new DefaultTreeModel(root);
 
-        backend.addFingerprintReporter(new FingerprintReporter() {
+        backend.addFingerprintReporter(new FingerprintReporterAdapter() {
             @Override
             public void reportChange(SessionIdentifier sessionIdentifier, TLSFingerprint fingerprint, Set<TLSFingerprint> previousFingerprints) {
                 addNode(model, sessionIdentifier, fingerprint, true);
-            }
-
-            @Override
-            public void reportUpdate(SessionIdentifier sessionIdentifier, TLSFingerprint fingerprint) {
             }
 
             @Override

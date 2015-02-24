@@ -1,6 +1,6 @@
 package de.rub.nds.ssl.analyzer.vnl.fingerprint.serialization;
 
-import de.rub.nds.ssl.analyzer.vnl.FingerprintReporter;
+import de.rub.nds.ssl.analyzer.vnl.FingerprintReporter.FingerprintReporterAdapter;
 import de.rub.nds.ssl.analyzer.vnl.SessionIdentifier;
 import de.rub.nds.ssl.analyzer.vnl.fingerprint.TLSFingerprint;
 import org.apache.log4j.Logger;
@@ -20,7 +20,7 @@ import java.util.Set;
  *
  * @author jBiegert azrdev@qrdn.de
  */
-public class SavefileFingerprintReporter implements FingerprintReporter {
+public class SavefileFingerprintReporter extends FingerprintReporterAdapter {
     private static Logger logger = Logger.getLogger(SavefileFingerprintReporter.class);
     private PrintWriter newFpWriter;
     private PrintWriter changedFpWriter;
@@ -80,12 +80,6 @@ public class SavefileFingerprintReporter implements FingerprintReporter {
                              TLSFingerprint fingerprint,
                              Set<TLSFingerprint> previousFingerprints) {
         changedFpWriter.println(Serializer.serialize(sessionIdentifier, fingerprint));
-    }
-
-    @Override
-    public void reportUpdate(SessionIdentifier sessionIdentifier,
-                             TLSFingerprint fingerprint) {
-        //nothing
     }
 
     @Override

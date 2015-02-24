@@ -9,6 +9,7 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 
 import com.google.common.base.Joiner;
+import de.rub.nds.ssl.analyzer.vnl.FingerprintReporter.FingerprintReporterAdapter;
 import de.rub.nds.ssl.analyzer.vnl.fingerprint.*;
 import de.rub.nds.ssl.analyzer.vnl.fingerprint.serialization.SavefileFingerprintReporter;
 import de.rub.nds.virtualnetworklayer.connection.pcap.ConnectionHandler;
@@ -127,18 +128,12 @@ public final class SslReportingConnectionHandler extends ConnectionHandler {
             try {
                 Files.createDirectories(Paths.get(captureDir));
 
-                fingerprintListener.addFingerprintReporter(new FingerprintReporter() {
+                fingerprintListener.addFingerprintReporter(new FingerprintReporterAdapter() {
                     @Override
                     public void reportChange(SessionIdentifier sessionIdentifier, TLSFingerprint fingerprint, Set<TLSFingerprint> previousFingerprints) {
                         if (writeCaptureOnChangedFingerprint)
                             writeCapture("changed");
                     }
-
-                    @Override
-                    public void reportUpdate(SessionIdentifier s, TLSFingerprint t) {}
-
-                    @Override
-                    public void reportArtificial(SessionIdentifier s, TLSFingerprint t) {}
 
                     @Override
                     public void reportNew(SessionIdentifier sessionIdentifier, TLSFingerprint tlsFingerprint) {

@@ -1,16 +1,20 @@
 package de.rub.nds.ssl.analyzer.vnl;
 
-import de.rub.nds.ssl.analyzer.vnl.fingerprint.ClientHelloFingerprint;
 import de.rub.nds.ssl.analyzer.vnl.fingerprint.HandshakeFingerprint;
 import de.rub.nds.ssl.analyzer.vnl.fingerprint.ServerHelloFingerprint;
 import de.rub.nds.ssl.analyzer.vnl.fingerprint.TLSFingerprint;
 import de.rub.nds.ssl.stack.protocols.commons.Id;
+import de.rub.nds.virtualnetworklayer.fingerprint.Fingerprint;
 import org.apache.log4j.Logger;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
+
+import static de.rub.nds.ssl.analyzer.vnl.FingerprintReporter.*;
 
 /**
  * Listens for fingerprints of "normal" handshakes and guesses how the fingerprints of
@@ -19,7 +23,7 @@ import java.util.Set;
  * fingerprints.
  * @author jBiegert azrdev@qrdn.de
  */
-public class ResumptionFingerprintGuesser implements FingerprintReporter {
+public class ResumptionFingerprintGuesser extends FingerprintReporterAdapter {
     private static final Logger logger = Logger.getLogger(ResumptionFingerprintGuesser.class);
 
     private FingerprintListener listener;
@@ -32,29 +36,15 @@ public class ResumptionFingerprintGuesser implements FingerprintReporter {
     }
 
     @Override
-    public void reportChange(SessionIdentifier sessionIdentifier,
-                             TLSFingerprint fingerprint,
-                             Set<TLSFingerprint> previousFingerprints) {
-        //nothing
-    }
-
-    @Override
-    public void reportUpdate(SessionIdentifier sessionIdentifier, TLSFingerprint fingerprint) {
-        //nothing
-        //TODO: check if fingerprint == not-guessed resumption, and remove guess ?
-    }
-
-    @Override
-    public void reportArtificial(SessionIdentifier sessionIdentifier, TLSFingerprint fingerprint) {
-        // nothing
-    }
-
-    @Override
     public void reportNew(SessionIdentifier sessionIdentifier, TLSFingerprint tlsFingerprint) {
-        if(tlsFingerprint instanceof GuessedResumptionFingerprint)
+        if(tlsFingerprint instanceof GuessedResumptionFingerprint) {
+            //shouldn't happen
+            logger.warn("guessed fingerprint seen in reportNew(). sessionId: " +
+                    sessionIdentifier);
             return;
+        }
 
-        final TLSFingerprint resumptionGuess = new GuessedResumptionFingerprint(tlsFingerprint);
+        final TLSFingerprint resumptionGuess = GuessedResumptionFingerprint.create(tlsFingerprint);
 
         if(listener != null) {
             logger.debug("now reporting guessed fingerprint");
@@ -63,18 +53,38 @@ public class ResumptionFingerprintGuesser implements FingerprintReporter {
     }
 
     public static class GuessedResumptionFingerprint extends TLSFingerprint {
-        public GuessedResumptionFingerprint(TLSFingerprint original) {
-            super(original.getHandshakeSignature() == null? null:
-                            new GuessedHandshakeFingerprint(original.getHandshakeSignature()),
-                  original.getServerHelloSignature() == null? null :
-                          new GuessedServerHelloFingerprint(original.getServerHelloSignature()),
-                  original.getServerTcpSignature(),
-                  original.getServerMtuSignature());
+
+        private GuessedResumptionFingerprint(
+                @Nullable HandshakeFingerprint handshake,
+                @Nullable ServerHelloFingerprint serverHello,
+                @Nullable Fingerprint.Signature serverTcp,
+                @Nullable Fingerprint.Signature serverMtu) {
+            super(handshake, serverHello, serverTcp, serverMtu);
+        }
+
+        public static GuessedResumptionFingerprint create(@Nonnull TLSFingerprint original) {
+
+            GuessedHandshakeFingerprint handshakeFingerprint = null;
+            if(original.getHandshakeSignature() != null)
+                handshakeFingerprint =
+                        GuessedHandshakeFingerprint.create(original.getHandshakeSignature());
+
+            GuessedServerHelloFingerprint serverHelloFingerprint = null;
+            if (original.getServerHelloSignature() != null)
+                serverHelloFingerprint =
+                        GuessedServerHelloFingerprint.create(original.getServerHelloSignature());
+
+            return new GuessedResumptionFingerprint(
+                    handshakeFingerprint,
+                    serverHelloFingerprint,
+                    original.getServerTcpSignature(),
+                    original.getServerMtuSignature());
         }
     }
 
     public static class GuessedHandshakeFingerprint extends HandshakeFingerprint {
-        public static final List<MessageTypes> MESSAGE_TYPES =
+        /** the "message-types" sign contents to be assumed for every resumption */
+        private static final List<MessageTypes> MESSAGE_TYPES =
                 Arrays.asList(new MessageTypes[]{
                     new MessageTypeSubtype(new Id((byte) 0x16), new Id((byte) 0x01)),
                     new MessageTypeSubtype(new Id((byte) 0x16), new Id((byte) 0x02)),
@@ -82,17 +92,21 @@ public class ResumptionFingerprintGuesser implements FingerprintReporter {
                     new MessageType(new Id((byte) 0x14))
                 });
 
-        public GuessedHandshakeFingerprint(HandshakeFingerprint original) {
+        private GuessedHandshakeFingerprint(@Nonnull HandshakeFingerprint original) {
             super(original); // copy
 
             // overwrite signs
             signs.put("message-types", MESSAGE_TYPES);
             signs.put("session-ids-match", true);
         }
+
+        public static GuessedHandshakeFingerprint create(@Nonnull HandshakeFingerprint original) {
+            return new GuessedHandshakeFingerprint(original);
+        }
     }
 
     public static class GuessedServerHelloFingerprint extends ServerHelloFingerprint {
-        public GuessedServerHelloFingerprint(ServerHelloFingerprint original) {
+        private GuessedServerHelloFingerprint(@Nonnull ServerHelloFingerprint original) {
             super(original); // copy
 
             // overwrite signs
@@ -108,6 +122,10 @@ public class ResumptionFingerprintGuesser implements FingerprintReporter {
             } else if(sign != null) {
                 logger.warn("ServerHello.extensions-layout not a list: " + sign);
             }
+        }
+
+        public static GuessedServerHelloFingerprint create(@Nonnull ServerHelloFingerprint original) {
+            return new GuessedServerHelloFingerprint(original);
         }
     }
 }
