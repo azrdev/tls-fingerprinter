@@ -84,7 +84,8 @@ public class MessageListModel extends AbstractTableModel {
     }
 
     class MessageListAppender extends AppenderSkeleton {
-        private List<LoggingEvent> events = new ArrayList<>(10000);
+        private static final int MAX = 10000;
+        private List<LoggingEvent> events = new ArrayList<>(MAX +1);
 
         MessageListAppender() {
             setThreshold(Logger.getRootLogger().getLevel());
@@ -94,9 +95,23 @@ public class MessageListModel extends AbstractTableModel {
         /** {@inheritDoc} */
         @Override
         protected void append(LoggingEvent loggingEvent) {
-            //TODO: expire log entries, to avoid the list growing infinitely
             events.add(loggingEvent);
             fireTableRowsInserted(events.size() -1, events.size() -1);
+
+            truncate();
+        }
+
+        /**
+         * expire log entries, to avoid the list growing infinitely
+         * TODO: replace by using a RingBuffer (with random access)
+         */
+        private boolean truncate() {
+            if(events.size() <= MAX)
+                return false;
+
+            events = new ArrayList<>(events.subList(events.size() / 2, events.size()));
+            ((ArrayList) events).ensureCapacity(MAX);
+            return true;
         }
 
         /** flushes the list, but does not set <code>closed</code> */
