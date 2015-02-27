@@ -29,16 +29,6 @@ public class FingerprintListener {
      */
     private final Collection<FingerprintReporter> reporters = new LinkedList<>();
 
-    //statistics / counts
-    private int fingerprintsNew;
-    private int fingerprintsUpdates;
-    private int fingerprintsChanges;
-    private int fingerprintsArtificial;
-
-    public FingerprintListener() {
-        this.fingerprintsChanges = 0;
-    }
-
     public boolean addFingerprintReporter(FingerprintReporter fr) {
         synchronized (reporters) {
             return reporters.add(fr);
@@ -62,6 +52,7 @@ public class FingerprintListener {
      * Insert a given fingerprint into the database, bypassing normal "report"
      * notifications. Use when guessing fingerprints.
      * @return False if the tlsFingerprint was already known, true otherwise.
+     * @see FingerprintReporter#reportArtificial(SessionIdentifier, TLSFingerprint)
      */
     boolean insertFingerprint(SessionIdentifier sessionId, TLSFingerprint tlsFingerprint) {
         if (fingerprints.containsEntry(sessionId, tlsFingerprint)) {
@@ -101,7 +92,6 @@ public class FingerprintListener {
             for (FingerprintReporter fingerprintReporter : reporters) {
                 fingerprintReporter.reportNew(sessionIdentifier, tlsFingerprint);
             }
-            ++fingerprintsNew;
         }
     }
 
@@ -114,7 +104,6 @@ public class FingerprintListener {
             for (FingerprintReporter fingerprintReporter : reporters) {
                 fingerprintReporter.reportUpdate(sessionIdentifier, tlsFingerprint);
             }
-            ++fingerprintsUpdates;
         }
     }
 
@@ -130,7 +119,6 @@ public class FingerprintListener {
                         tlsFingerprint,
                         previousFingerprints);
             }
-            ++fingerprintsChanges;
         }
     }
     /**
@@ -142,25 +130,17 @@ public class FingerprintListener {
             for (FingerprintReporter fingerprintReporter : reporters) {
                 fingerprintReporter.reportArtificial(sessionIdentifier, tlsFingerprint);
             }
-            ++fingerprintsArtificial;
         }
     }
 
     public String toString() {
-        return String.format(
-                "Endpoints: %d; Fingerprints: New %d, Updates %d, Changes %d, Generated %d",
-                fingerprints.size(),
-                fingerprintsNew,
-                fingerprintsUpdates,
-                fingerprintsChanges,
-                fingerprintsArtificial);
-        //TODO: detailed statistics, here or (completely) elsewhere (in reporter?)
+        return fingerprints.size() + " known endpoints; " +
+                reporters.size() + " attached reporters";
     }
 
     /**
      * read all fingerprints in saveFile to the internal store.
      * <p>
-     * <b>NOTE</b>: currently this overrides everything already in the internal store
      * @param overrideExisting Clear the currently known fingerprints before loading
      * @throws IOException
      */
@@ -183,6 +163,9 @@ public class FingerprintListener {
                 }
             }
         }
+
+        logger.info("load fingerprints done. " +
+                "New # of known endpoints: " + fingerprints.size());
     }
 
     public ImmutableSetMultimap<SessionIdentifier, TLSFingerprint> getFingerprints() {

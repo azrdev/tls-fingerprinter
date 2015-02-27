@@ -66,7 +66,6 @@ public final class SslReportingConnectionHandler extends ConnectionHandler {
             } catch (IOException e) {
                 logger.warn("Could not load fingerprint save file: " + e);
             }
-            printStats();
         }
     }
 
@@ -104,6 +103,8 @@ public final class SslReportingConnectionHandler extends ConnectionHandler {
                                         boolean guessResumptionFingerprints) {
         //TODO: this also removes all other reporters (e.g. from UI)
         fingerprintListener.clearFingerprintReporters();
+
+        fingerprintListener.addFingerprintReporter(FingerprintStatistics.instance());
 
         if(log)
             fingerprintListener.addFingerprintReporter(new LoggingFingerprintReporter());
@@ -152,7 +153,7 @@ public final class SslReportingConnectionHandler extends ConnectionHandler {
     }
 
     public void printStats() {
-        logger.info(fingerprintListener.toString());
+        FingerprintStatistics.instance().routineLogging();
     }
 
     /**
