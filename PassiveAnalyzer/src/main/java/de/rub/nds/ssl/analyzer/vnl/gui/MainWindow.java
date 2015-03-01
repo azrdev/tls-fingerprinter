@@ -62,8 +62,10 @@ public class MainWindow extends JFrame {
     private ToolTippingTable logView;
     private JButton flushLogButton;
 
-    private ChartPanel reportChart;
-    private ChartPanel previousCountChart;
+    private EnhancedChartPanel reportChart;
+    private EnhancedChartPanel previousCountChart;
+    private EnhancedChartPanel changedSignsCountChart;
+    private EnhancedChartPanel signsCountChart;
 
     public MainWindow(FingerprintListener listener) {
         super();
@@ -151,12 +153,13 @@ public class MainWindow extends JFrame {
         /* setup statistics */
         reportChart.setChart(statisticsModel.getReportsChart());
         previousCountChart.setChart(statisticsModel.getPreviousCountChart());
+        changedSignsCountChart.setChart(statisticsModel.getChangedSignsCountChart());
+        signsCountChart.setChart(statisticsModel.getSignsCountChart());
 
-        final Dimension minimal = new Dimension(0, 0);
         final Dimension preferred = new Dimension(getWidth() / 2, getHeight() / 2);
-        for (ChartPanel chart : Arrays.asList(reportChart, previousCountChart)) {
+        for (ChartPanel chart : Arrays.asList(reportChart, previousCountChart,
+                changedSignsCountChart, signsCountChart)) {
             chart.setPreferredSize(preferred);
-            chart.setMinimumSize(minimal); // allow hiding via SplitPane
         }
 
         /* setup logView */
@@ -241,8 +244,6 @@ public class MainWindow extends JFrame {
 
     private void createUIComponents() {
         logLevelCB = new JComboBox<>(new Level[]{ALL, TRACE, DEBUG, INFO, WARN, Level.ERROR, FATAL});
-        reportChart = new ChartPanel(null);
-        previousCountChart = new ChartPanel(null);
     }
 
     /**

@@ -32,7 +32,7 @@ public class FingerprintStatistics extends Observable implements FingerprintRepo
     // changed statistics
 
     //TODO: move to SignatureDifference
-    private class SignIdentifier {
+    public class SignIdentifier {
         private final String signature;
         private final String sign;
 
@@ -44,6 +44,14 @@ public class FingerprintStatistics extends Observable implements FingerprintRepo
         @Override
         public String toString() {
             return signature + "." + sign;
+        }
+
+        public String getSignature() {
+            return signature;
+        }
+
+        public String getSign() {
+            return sign;
         }
 
         @Override
@@ -69,6 +77,11 @@ public class FingerprintStatistics extends Observable implements FingerprintRepo
 
     /** Distribution: "# of previous Fingerprints" -> count of changed reports */
     private Multiset<Integer> changedPreviousCounts = HashMultiset.create();
+
+    //FIXME: normalize these by "# of previous Fingerprints"
+
+    /** Distribution: "# of signs in diff to previous fingerprint" -> count of "previous" fingerprints */
+    private Multiset<Integer> diffSize = HashMultiset.create();
 
     /** Distribution: sign -> count of occurrences in all changed reports */
     private Multiset<SignIdentifier> changedSignCounts = HashMultiset.create();
@@ -114,25 +127,22 @@ public class FingerprintStatistics extends Observable implements FingerprintRepo
      * @return Total count of "previous" fingerprints seen in all changed reports
      */
     public int getDiffsToPreviousCount() {
-        return changedPreviousCounts.size();
+        return diffSize.size();
     }
 
     /**
      * @return Average count of "previous" fingerprints seen in changed reports
      */
-    public double getDiffsToPreviousAverage() {
-        /*
-        double mean = 0;
+    public double getDiffsToPreviousAverage() { //XXX
+        int weightedSum = 0;
         for (Multiset.Entry<Integer> entry : changedPreviousCounts.entrySet()) {
-            mean += entry.getElement() * entry.getCount();
+            weightedSum += entry.getElement() * entry.getCount();
         }
-        return mean;
-        */
-        return getDiffsToPreviousCount() / (double) getReportCount(ReportType.Change);
+        return weightedSum / (double) changedPreviousCounts.size();
     }
 
     /**
-     * @return Distribution number of "previous" fingerprints -> count of "changed" reports
+     * @return Distribution: number of "previous" fingerprints -> count of "changed" reports
      */
     public ImmutableMultiset<Integer> getDiffsToPreviousDistribution() {
         return ImmutableMultiset.copyOf(changedPreviousCounts);
@@ -149,14 +159,21 @@ public class FingerprintStatistics extends Observable implements FingerprintRepo
      * @return Average count of signs seen in any diff to a "previous" fingerprint
      */
     public double getChangedSignsAverage() {
-        return (double) getChangedSignsCount() / getDiffsToPreviousCount();
+        return getChangedSignsCount() / (double) getDiffsToPreviousCount();
+    }
+
+    /**
+     * @return Distribution: Number of signs in diff -> count of "previous" fingerprints
+     */
+    public ImmutableMultiset<Integer> getDiffSizeDistribution() {
+        return ImmutableMultiset.copyOf(diffSize);
     }
 
     /**
      * @return Total count of "previous" fingerprints differing in only one sign to the "changed" fingerprint
      */
     public int getOnlyOneChangedSignCount() {
-        return changedSignCounts.count(1);
+        return diffSize.count(1);
     }
 
     //TODO: stats about  sign diffs / only on one side
@@ -183,6 +200,7 @@ public class FingerprintStatistics extends Observable implements FingerprintRepo
         for (TLSFingerprint previousFingerprint : previousFingerprints) {
             final SetMultimap<String, SignatureDifference.SignDifference> differenceMap =
                     fingerprint.differenceMap(previousFingerprint);
+            diffSize.add(differenceMap.size());
             for (Map.Entry<String, SignatureDifference.SignDifference> difference :
                     differenceMap.entries()) {
                 final SignatureDifference.SignDifference value = difference.getValue();

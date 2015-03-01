@@ -103,25 +103,58 @@
         <properties/>
         <border type="none"/>
         <children>
-          <splitpane id="cb1a5">
+          <splitpane id="48567">
             <constraints border-constraint="Center"/>
             <properties>
+              <orientation value="1"/>
               <resizeWeight value="0.5"/>
             </properties>
             <border type="none"/>
             <children>
-              <component id="bc42" class="org.jfree.chart.ChartPanel" binding="reportChart" custom-create="true">
+              <splitpane id="cb1a5">
                 <constraints>
                   <splitpane position="left"/>
                 </constraints>
-                <properties/>
-              </component>
-              <component id="3c5b2" class="org.jfree.chart.ChartPanel" binding="previousCountChart" custom-create="true">
+                <properties>
+                  <orientation value="0"/>
+                  <resizeWeight value="0.5"/>
+                </properties>
+                <border type="none"/>
+                <children>
+                  <component id="8963d" class="de.rub.nds.ssl.analyzer.vnl.gui.EnhancedChartPanel" binding="reportChart">
+                    <constraints>
+                      <splitpane position="left"/>
+                    </constraints>
+                  </component>
+                  <component id="969dd" class="de.rub.nds.ssl.analyzer.vnl.gui.EnhancedChartPanel" binding="changedSignsCountChart">
+                    <constraints>
+                      <splitpane position="right"/>
+                    </constraints>
+                  </component>
+                </children>
+              </splitpane>
+              <splitpane id="e8bc3">
                 <constraints>
                   <splitpane position="right"/>
                 </constraints>
-                <properties/>
-              </component>
+                <properties>
+                  <orientation value="0"/>
+                  <resizeWeight value="0.4"/>
+                </properties>
+                <border type="none"/>
+                <children>
+                  <component id="6ad29" class="de.rub.nds.ssl.analyzer.vnl.gui.EnhancedChartPanel" binding="signsCountChart">
+                    <constraints>
+                      <splitpane position="right"/>
+                    </constraints>
+                  </component>
+                  <component id="ac8a4" class="de.rub.nds.ssl.analyzer.vnl.gui.EnhancedChartPanel" binding="previousCountChart">
+                    <constraints>
+                      <splitpane position="left"/>
+                    </constraints>
+                  </component>
+                </children>
+              </splitpane>
             </children>
           </splitpane>
         </children>
