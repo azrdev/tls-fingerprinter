@@ -96,6 +96,36 @@
           </scrollpane>
         </children>
       </grid>
+      <grid id="18983" layout-manager="BorderLayout" hgap="0" vgap="0">
+        <constraints>
+          <tabbedpane title="Statistics"/>
+        </constraints>
+        <properties/>
+        <border type="none"/>
+        <children>
+          <splitpane id="cb1a5">
+            <constraints border-constraint="Center"/>
+            <properties>
+              <resizeWeight value="0.5"/>
+            </properties>
+            <border type="none"/>
+            <children>
+              <component id="bc42" class="org.jfree.chart.ChartPanel" binding="reportChart" custom-create="true">
+                <constraints>
+                  <splitpane position="left"/>
+                </constraints>
+                <properties/>
+              </component>
+              <component id="3c5b2" class="org.jfree.chart.ChartPanel" binding="previousCountChart" custom-create="true">
+                <constraints>
+                  <splitpane position="right"/>
+                </constraints>
+                <properties/>
+              </component>
+            </children>
+          </splitpane>
+        </children>
+      </grid>
       <grid id="7a18e" layout-manager="BorderLayout" hgap="0" vgap="0">
         <constraints>
           <tabbedpane title="Log"/>

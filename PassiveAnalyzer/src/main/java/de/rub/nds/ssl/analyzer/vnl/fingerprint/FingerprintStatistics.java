@@ -13,6 +13,7 @@ import java.text.DecimalFormat;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Observable;
 import java.util.Set;
 
 /**
@@ -20,7 +21,7 @@ import java.util.Set;
  *
  * @author jBiegert azrdev@qrdn.de
  */
-public class FingerprintStatistics implements FingerprintReporter {
+public class FingerprintStatistics extends Observable implements FingerprintReporter {
     private static Logger logger = Logger.getLogger(FingerprintStatistics.class);
     private static final DecimalFormat percent = new DecimalFormat( "#0.0%" );
 
@@ -131,10 +132,10 @@ public class FingerprintStatistics implements FingerprintReporter {
     }
 
     /**
-     * @return Number of "changed" reports with only one "previous" fingerprint
+     * @return Distribution number of "previous" fingerprints -> count of "changed" reports
      */
-    public int getOnlyOnePreviousCount() {
-        return changedPreviousCounts.count(1);
+    public ImmutableMultiset<Integer> getDiffsToPreviousDistribution() {
+        return ImmutableMultiset.copyOf(changedPreviousCounts);
     }
 
     /**
@@ -189,21 +190,25 @@ public class FingerprintStatistics implements FingerprintReporter {
                         new SignIdentifier(difference.getKey(), value.getName()));
             }
         }
+        setChanged(); notifyObservers("Change");
     }
 
     @Override
     public void reportUpdate(SessionIdentifier sessionIdentifier, TLSFingerprint fingerprint) {
         reportCounts.add(ReportType.Update);
+        setChanged(); notifyObservers();
     }
 
     @Override
     public void reportNew(SessionIdentifier sessionIdentifier, TLSFingerprint tlsFingerprint) {
         reportCounts.add(ReportType.New);
+        setChanged(); notifyObservers();
     }
 
     @Override
     public void reportArtificial(SessionIdentifier sessionIdentifier, TLSFingerprint fingerprint) {
         reportCounts.add(ReportType.Generated);
+        setChanged(); notifyObservers();
     }
 
     // singleton

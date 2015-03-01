@@ -4,15 +4,18 @@ import com.google.common.base.Joiner;
 import de.rub.nds.ssl.analyzer.vnl.FingerprintListener;
 import de.rub.nds.ssl.analyzer.vnl.FingerprintReporter.FingerprintReporterAdapter;
 import de.rub.nds.ssl.analyzer.vnl.SessionIdentifier;
+import de.rub.nds.ssl.analyzer.vnl.fingerprint.FingerprintStatistics;
 import de.rub.nds.ssl.analyzer.vnl.fingerprint.TLSFingerprint;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
+import org.jfree.chart.ChartPanel;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.event.MouseInputAdapter;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableRowSorter;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
@@ -22,6 +25,7 @@ import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.Set;
 
@@ -40,6 +44,8 @@ public class MainWindow extends JFrame {
     private final FingerprintReportModel fingerprintReportsModel;
     private final TableRowSorter<FingerprintReportModel> fingerprintReportsRowSorter;
     private final TableRowSorter<MessageListModel> logViewRowSorter;
+    private final StatisticsModel statisticsModel =
+            new StatisticsModel(FingerprintStatistics.instance());
 
     // ui elements
     private JTabbedPane tabPane;
@@ -55,6 +61,9 @@ public class MainWindow extends JFrame {
     private JComboBox<Level> logLevelCB;
     private ToolTippingTable logView;
     private JButton flushLogButton;
+
+    private ChartPanel reportChart;
+    private ChartPanel previousCountChart;
 
     public MainWindow(FingerprintListener listener) {
         super();
@@ -72,7 +81,7 @@ public class MainWindow extends JFrame {
             // TrayIcon will already warn, just ignore here
         }
 
-        //// setup fingerprint Reports View
+        /* setup fingerprint Reports View */
         fingerprintReportsModel = FingerprintReportModel.getModel(listener);
         fingerprintReportsTable.setModel(fingerprintReportsModel);
         // column sizes
@@ -131,7 +140,7 @@ public class MainWindow extends JFrame {
             }
         });
 
-        //// setup storedFingerprintTree
+        /* setup storedFingerprintTree */
         storedFingerprintTree.setModel(FingerprintStorageModel.getModel(listener));
         storedFingerprintTree.setRootVisible(false);
         storedFingerprintTree.setShowsRootHandles(true);
@@ -139,7 +148,18 @@ public class MainWindow extends JFrame {
         storedFingerprintTree.setCellRenderer(new TooltippingTreeRenderer());
         ToolTipManager.sharedInstance().registerComponent(storedFingerprintTree);
 
-        //// setup logView
+        /* setup statistics */
+        reportChart.setChart(statisticsModel.getReportsChart());
+        previousCountChart.setChart(statisticsModel.getPreviousCountChart());
+
+        final Dimension minimal = new Dimension(0, 0);
+        final Dimension preferred = new Dimension(getWidth() / 2, getHeight() / 2);
+        for (ChartPanel chart : Arrays.asList(reportChart, previousCountChart)) {
+            chart.setPreferredSize(preferred);
+            chart.setMinimumSize(minimal); // allow hiding via SplitPane
+        }
+
+        /* setup logView */
         Logger.getRootLogger().addAppender(messageListModel.getAppender());
         logView.setModel(messageListModel);
         logView.getColumnModel().getColumn(0).setPreferredWidth(160);
@@ -148,6 +168,7 @@ public class MainWindow extends JFrame {
         logView.getColumnModel().getColumn(3).setPreferredWidth(700);
         logView.setDefaultRenderer(Date.class, new DefaultTableCellRenderer() {
             private final DateFormat f = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSXXX");
+
             @Override
             protected void setValue(Object value) {
                 setText(f.format((Date) value));
@@ -166,6 +187,7 @@ public class MainWindow extends JFrame {
                 messageListModel.getAppender().setThreshold(level);
                 logViewRowSorter.setRowFilter(new RowFilter<MessageListModel, Integer>() {
                     final int levelColumnIndex = messageListModel.findColumn("LogLevel");
+
                     @Override
                     public boolean include(Entry<? extends MessageListModel, ? extends Integer> entry) {
                         final Level entryLevel = (Level) entry.getValue(levelColumnIndex);
@@ -181,7 +203,7 @@ public class MainWindow extends JFrame {
             }
         });
 
-        // trayIcon
+        /* trayIcon */
         listener.addFingerprintReporter(new FingerprintReporterAdapter() {
             @Override
             public void reportChange(SessionIdentifier sessionIdentifier,
@@ -219,6 +241,8 @@ public class MainWindow extends JFrame {
 
     private void createUIComponents() {
         logLevelCB = new JComboBox<>(new Level[]{ALL, TRACE, DEBUG, INFO, WARN, Level.ERROR, FATAL});
+        reportChart = new ChartPanel(null);
+        previousCountChart = new ChartPanel(null);
     }
 
     /**
