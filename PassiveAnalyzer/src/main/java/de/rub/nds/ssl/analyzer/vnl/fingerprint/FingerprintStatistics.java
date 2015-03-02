@@ -9,6 +9,7 @@ import de.rub.nds.ssl.analyzer.vnl.FingerprintReporter;
 import de.rub.nds.ssl.analyzer.vnl.SessionIdentifier;
 import org.apache.log4j.Logger;
 
+import java.io.Serializable;
 import java.text.DecimalFormat;
 import java.util.Map;
 import java.util.Objects;
@@ -20,10 +21,13 @@ import java.util.Set;
  *
  * @author jBiegert azrdev@qrdn.de
  */
-//TODO: persistent stats over multiple runs
-public class FingerprintStatistics extends Observable implements FingerprintReporter {
-    private static Logger logger = Logger.getLogger(FingerprintStatistics.class);
+public final class FingerprintStatistics
+        extends Observable
+        implements FingerprintReporter, Serializable {
+    public static final long serialVersionUID = 1L;
     private static final DecimalFormat percent = new DecimalFormat( "#0.0%" );
+
+    private static final Logger logger = Logger.getLogger(FingerprintStatistics.class);
 
     // report counts
     public static enum ReportType { New, Update, Change, Generated }
@@ -32,11 +36,11 @@ public class FingerprintStatistics extends Observable implements FingerprintRepo
     // changed statistics
 
     //TODO: move to SignatureDifference
-    public static class SignIdentifier {
+    public static class SignIdentifier implements Serializable {
         private final String signature;
         private final String sign;
 
-        private SignIdentifier(String signature, String sign) {
+        public SignIdentifier(String signature, String sign) {
             this.signature = Objects.requireNonNull(signature);
             this.sign = Objects.requireNonNull(sign);
         }
@@ -215,17 +219,5 @@ public class FingerprintStatistics extends Observable implements FingerprintRepo
     public void reportArtificial(SessionIdentifier sessionIdentifier, TLSFingerprint fingerprint) {
         reportCounts.add(ReportType.Generated);
         setChanged(); notifyObservers();
-    }
-
-    // singleton
-
-    private FingerprintStatistics() {}
-
-    private static FingerprintStatistics instance;
-
-    public static FingerprintStatistics instance() {
-        if(instance == null)
-            instance = new FingerprintStatistics();
-        return instance;
     }
 }

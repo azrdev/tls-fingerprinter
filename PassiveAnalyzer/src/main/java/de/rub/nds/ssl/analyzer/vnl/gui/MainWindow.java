@@ -44,8 +44,7 @@ public class MainWindow extends JFrame {
     private final FingerprintReportModel fingerprintReportsModel;
     private final TableRowSorter<FingerprintReportModel> fingerprintReportsRowSorter;
     private final TableRowSorter<MessageListModel> logViewRowSorter;
-    private final StatisticsModel statisticsModel =
-            new StatisticsModel(FingerprintStatistics.instance());
+    private final StatisticsModel statisticsModel;
 
     // ui elements
     private JTabbedPane tabPane;
@@ -67,7 +66,7 @@ public class MainWindow extends JFrame {
     private EnhancedChartPanel changedSignsCountChart;
     private EnhancedChartPanel signsCountChart;
 
-    public MainWindow(FingerprintListener listener) {
+    public MainWindow(FingerprintListener listener, FingerprintStatistics statistics) {
         super();
         // setup JFrame
         setTitle("TLS Fingerprinter");
@@ -151,6 +150,7 @@ public class MainWindow extends JFrame {
         ToolTipManager.sharedInstance().registerComponent(storedFingerprintTree);
 
         /* setup statistics */
+        statisticsModel = new StatisticsModel(statistics);
         reportChart.setChart(statisticsModel.getReportsChart());
         previousCountChart.setChart(statisticsModel.getPreviousCountChart());
         changedSignsCountChart.setChart(statisticsModel.getChangedSignsCountChart());

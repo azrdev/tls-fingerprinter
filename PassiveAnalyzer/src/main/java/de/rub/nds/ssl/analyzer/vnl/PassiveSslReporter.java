@@ -135,6 +135,12 @@ public class PassiveSslReporter {
         }
 
         final PassiveSslReporter psr = new PassiveSslReporter();
+        Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
+            @Override
+            public void run() {
+                psr.handler.saveStatistics();
+            }
+        }));
         psr.handler.setFingerprintReporting(true,
                 parsedArgs.getBoolean("no_save_fingerprints"),
                 parsedArgs.getBoolean("save_captures"),

@@ -66,7 +66,7 @@ public class StatisticsModel implements Observer {
     private final TotalTitle signCountTotal = new TotalTitle();
 
     public StatisticsModel(FingerprintStatistics statistics) {
-        this.statistics = statistics;
+        this.statistics = Objects.requireNonNull(statistics);
         statistics.addObserver(this);
 
         ChartFactory.setChartTheme(StandardChartTheme.createLegacyTheme());

@@ -1,7 +1,12 @@
 package de.rub.nds.ssl.analyzer.vnl;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -39,19 +44,18 @@ public final class SslReportingConnectionHandler extends ConnectionHandler {
 	}
 
     private static final String appDataDir =
-            System.getProperty("user.home") + File.separator
-                    + ".ssl-reporter" + File.separator;
+            System.getProperty("user.home") + File.separator + ".ssl-reporter" + File.separator;
 
     private final Path fingerprintsNewDb = Paths.get(appDataDir + "fingerprints_new");
-    private final Path fingerprintsChangedDb =
-            Paths.get(appDataDir + "fingerprints_changed");
-    private final Path fingerprintsGuessedDb =
-            Paths.get(appDataDir + "fingerprints_guessed");
+    private final Path fingerprintsChangedDb = Paths.get(appDataDir + "fingerprints_changed");
+    private final Path fingerprintsGuessedDb = Paths.get(appDataDir + "fingerprints_guessed");
 
-    private final String captureDir = appDataDir + File.separator +
-            "captures" + File.separator;
+    private final String captureDir = appDataDir + File.separator + "captures" + File.separator;
+
+    private static final String statisticsFile = appDataDir + "statistics.ser";
 
     private FingerprintListener fingerprintListener = new FingerprintListener();
+    private FingerprintStatistics statistics = new FingerprintStatistics();
 
     private Set<SocketSession> reportedSessions = new HashSet<>();
 
@@ -59,7 +63,26 @@ public final class SslReportingConnectionHandler extends ConnectionHandler {
     private Pcap pcap = null;
 
     public SslReportingConnectionHandler() {
-        for(Path fpDb : Arrays.asList(
+        try {
+            Files.createDirectories(Paths.get(appDataDir));
+        } catch (IOException e) {
+            logger.warn("Could not mkdir " + appDataDir + " : " + e);
+        }
+        // de-serialize statistics
+        ObjectInputStream os = null;
+        try {
+            os = new ObjectInputStream(new FileInputStream(statisticsFile));
+            statistics = (FingerprintStatistics) os.readObject();
+        } catch (IOException|ClassNotFoundException|ClassCastException e) {
+            logger.warn("Could not read statistics file: " + e, e);
+        } finally {
+            try {
+                os.close();
+            } catch (IOException|NullPointerException e) { /**/ }
+        }
+
+        // de-serialize fingerprints in  save files
+        for (Path fpDb : Arrays.asList(
                 fingerprintsNewDb, fingerprintsChangedDb, fingerprintsGuessedDb)) {
             try {
                 fingerprintListener.loadFingerprintSaveFile(fpDb, false);
@@ -104,7 +127,7 @@ public final class SslReportingConnectionHandler extends ConnectionHandler {
         //TODO: this also removes all other reporters (e.g. from UI)
         fingerprintListener.clearFingerprintReporters();
 
-        fingerprintListener.addFingerprintReporter(FingerprintStatistics.instance());
+        fingerprintListener.addFingerprintReporter(statistics);
 
         if(log)
             fingerprintListener.addFingerprintReporter(new LoggingFingerprintReporter());
@@ -131,13 +154,16 @@ public final class SslReportingConnectionHandler extends ConnectionHandler {
 
                 fingerprintListener.addFingerprintReporter(new FingerprintReporterAdapter() {
                     @Override
-                    public void reportChange(SessionIdentifier sessionIdentifier, TLSFingerprint fingerprint, Set<TLSFingerprint> previousFingerprints) {
+                    public void reportChange(SessionIdentifier sessionIdentifier,
+                                             TLSFingerprint fingerprint,
+                                             Set<TLSFingerprint> previousFingerprints) {
                         if (writeCaptureOnChangedFingerprint)
                             writeCapture("changed");
                     }
 
                     @Override
-                    public void reportNew(SessionIdentifier sessionIdentifier, TLSFingerprint tlsFingerprint) {
+                    public void reportNew(SessionIdentifier sessionIdentifier,
+                                          TLSFingerprint tlsFingerprint) {
                         if (writeCaptureOnNewFingerprint)
                             writeCapture("new");
                     }
@@ -153,7 +179,7 @@ public final class SslReportingConnectionHandler extends ConnectionHandler {
     }
 
     public void printStats() {
-        FingerprintStatistics.instance().routineLogging();
+        statistics.routineLogging();
     }
 
     /**
@@ -272,5 +298,18 @@ public final class SslReportingConnectionHandler extends ConnectionHandler {
 
     public FingerprintListener getFingerprintListener() {
         return fingerprintListener;
+    }
+
+    public FingerprintStatistics getFingerprintStatistics() {
+        return statistics;
+    }
+
+    public void saveStatistics() {
+        try {
+            ObjectOutputStream os = new ObjectOutputStream(new FileOutputStream(statisticsFile));
+            os.writeObject(statistics);
+        } catch (IOException e) {
+            logger.error("Could not write statistics: " + e, e);
+        }
     }
 }
