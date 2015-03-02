@@ -21,18 +21,19 @@ import java.util.Set;
  *
  * @author jBiegert azrdev@qrdn.de
  */
+//TODO: persistent stats over multiple runs
 public class FingerprintStatistics extends Observable implements FingerprintReporter {
     private static Logger logger = Logger.getLogger(FingerprintStatistics.class);
     private static final DecimalFormat percent = new DecimalFormat( "#0.0%" );
 
     // report counts
-    public enum ReportType { New, Update, Change, Generated };
+    public static enum ReportType { New, Update, Change, Generated };
     private Multiset<ReportType> reportCounts = HashMultiset.create(ReportType.values().length);
 
     // changed statistics
 
     //TODO: move to SignatureDifference
-    public class SignIdentifier {
+    public static class SignIdentifier {
         private final String signature;
         private final String sign;
 
@@ -76,12 +77,12 @@ public class FingerprintStatistics extends Observable implements FingerprintRepo
     }
 
     /** Distribution: "# of previous Fingerprints" -> count of changed reports */
-    private Multiset<Integer> changedPreviousCounts = HashMultiset.create();
+    private Multiset<Number> changedPreviousCounts = HashMultiset.create();
 
     //FIXME: normalize these by "# of previous Fingerprints"
 
     /** Distribution: "# of signs in diff to previous fingerprint" -> count of "previous" fingerprints */
-    private Multiset<Integer> diffSize = HashMultiset.create();
+    private Multiset<Number> diffSize = HashMultiset.create();
 
     /** Distribution: sign -> count of occurrences in all changed reports */
     private Multiset<SignIdentifier> changedSignCounts = HashMultiset.create();
@@ -112,78 +113,66 @@ public class FingerprintStatistics extends Observable implements FingerprintRepo
     /**
      * @return Total number of reports seen so far.
      */
-    public int getReportCount() {
+    public Number getReportCount() {
         return reportCounts.size();
     }
 
     /**
      * @return Number of reports seen so far for given type.
      */
-    public int getReportCount(final ReportType type) {
+    public Number getReportCount(final ReportType type) {
         return reportCounts.count(type);
     }
 
     /**
      * @return Total count of "previous" fingerprints seen in all changed reports
      */
-    public int getDiffsToPreviousCount() {
+    public Number getDiffsToPreviousCount() {
         return diffSize.size();
     }
 
     /**
      * @return Average count of "previous" fingerprints seen in changed reports
      */
-    public double getDiffsToPreviousAverage() { //XXX
-        int weightedSum = 0;
-        for (Multiset.Entry<Integer> entry : changedPreviousCounts.entrySet()) {
-            weightedSum += entry.getElement() * entry.getCount();
-        }
-        return weightedSum / (double) changedPreviousCounts.size();
+    public Number getDiffsToPreviousAverage() {
+        return getDiffsToPreviousCount().doubleValue() / changedPreviousCounts.size();
     }
 
     /**
      * @return Distribution: number of "previous" fingerprints -> count of "changed" reports
      */
-    public ImmutableMultiset<Integer> getDiffsToPreviousDistribution() {
+    public ImmutableMultiset<Number> getDiffsToPreviousDistribution() {
         return ImmutableMultiset.copyOf(changedPreviousCounts);
     }
 
     /**
      * @return Total count of signs seen in all diffs to "previous" fingerprints
      */
-    public int getChangedSignsCount() {
+    public Number getChangedSignsCount() {
         return changedSignCounts.size();
     }
 
     /**
      * @return Average count of signs seen in any diff to a "previous" fingerprint
      */
-    public double getChangedSignsAverage() {
-        return getChangedSignsCount() / (double) getDiffsToPreviousCount();
+    public Number getChangedSignsAverage() {
+        return getChangedSignsCount().doubleValue() / getDiffsToPreviousCount().doubleValue();
     }
 
     /**
      * @return Distribution: Number of signs in diff -> count of "previous" fingerprints
      */
-    public ImmutableMultiset<Integer> getDiffSizeDistribution() {
+    public ImmutableMultiset<Number> getDiffSizeDistribution() {
         return ImmutableMultiset.copyOf(diffSize);
     }
 
-    /**
-     * @return Total count of "previous" fingerprints differing in only one sign to the "changed" fingerprint
-     */
-    public int getOnlyOneChangedSignCount() {
-        return diffSize.count(1);
-    }
-
-    //TODO: stats about  sign diffs / only on one side
+    //TODO: stats about diff type: sign value / only on one side
 
     /**
      * @return The differing signs and how often they have been seen in any diff to a
      * "previous" fingerprint, ordered by that count
-     * @param number Limit result to that many signs. May still be less
      */
-    public ImmutableMultiset<SignIdentifier> getMostCommonChangedSigns(final int number) {
+    public ImmutableMultiset<SignIdentifier> getMostCommonChangedSigns() {
         return Multisets.copyHighestCountFirst(changedSignCounts);
     }
 

@@ -6,6 +6,8 @@ import org.jfree.chart.ChartFactory;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.StandardChartTheme;
 import org.jfree.chart.axis.NumberAxis;
+import org.jfree.chart.block.BlockContainer;
+import org.jfree.chart.block.EmptyBlock;
 import org.jfree.chart.labels.ItemLabelAnchor;
 import org.jfree.chart.labels.ItemLabelPosition;
 import org.jfree.chart.labels.StandardCategoryItemLabelGenerator;
@@ -15,29 +17,35 @@ import org.jfree.chart.plot.ValueMarker;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.category.BarRenderer;
 import org.jfree.chart.renderer.xy.XYItemRenderer;
+import org.jfree.chart.title.CompositeTitle;
+import org.jfree.chart.title.TextTitle;
+import org.jfree.chart.title.Title;
 import org.jfree.data.DataUtilities;
 import org.jfree.data.category.CategoryDataset;
 import org.jfree.data.category.DefaultCategoryDataset;
-import org.jfree.data.general.DatasetUtilities;
 import org.jfree.data.xy.XYBarDataset;
 import org.jfree.data.xy.XYDataset;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 import org.jfree.ui.RectangleAnchor;
+import org.jfree.ui.RectangleEdge;
 import org.jfree.ui.TextAnchor;
 
+import javax.annotation.Nonnull;
 import java.awt.*;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
-import java.util.*;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
+import java.util.Observable;
+import java.util.Observer;
 
 import static de.rub.nds.ssl.analyzer.vnl.fingerprint.FingerprintStatistics.ReportType.*;
 
 /**
  * @author jBiegert azrdev@qrdn.de
  */
-//TODO: "total" insets
 public class StatisticsModel implements Observer {
     private final FingerprintStatistics statistics;
 
@@ -51,17 +59,28 @@ public class StatisticsModel implements Observer {
     private final ValueMarker diffSizeAverageMarker = new AverageMarker(0);
     private DefaultCategoryDataset signsCountDataset = new DefaultCategoryDataset();
 
+    // TotalTitles
+    private final TotalTitle reportsTotal = new TotalTitle();
+    private final TotalTitle changedTotal = new TotalTitle();
+    private final TotalTitle previousCountTotal = new TotalTitle();
+    private final TotalTitle signCountTotal = new TotalTitle();
+
     public StatisticsModel(FingerprintStatistics statistics) {
         this.statistics = statistics;
         statistics.addObserver(this);
 
         ChartFactory.setChartTheme(StandardChartTheme.createLegacyTheme());
+
+        reportsDataset.addValue(null, "Count", "New");
+        reportsDataset.addValue(null, "Count", "Update");
     }
 
     public JFreeChart getReportsChart() {
         final JFreeChart chart = ChartFactory.createBarChart(
-                "All Fingerprint Reports", "Reports", "Count", reportsDataset,
+                null, "Reports", "Count", reportsDataset,
                 PlotOrientation.VERTICAL, false, true, false);
+        chart.addSubtitle(assembleGraphTotalTitle(
+                "All Fingerprint Reports", reportsTotal));
         chart.getCategoryPlot().setRenderer(new SimpleBarChartRenderer(
                 Arrays.asList(newColor, updateColor, guessColor, changeColor)));
         return chart;
@@ -69,10 +88,12 @@ public class StatisticsModel implements Observer {
 
     public JFreeChart getPreviousCountChart() {
         final JFreeChart chart = ChartFactory.createXYBarChart(
-                "Previous fingerprints per change report", "# Previous fingerprints",
-                false, "Changed Report Count",
+                null, "# Previous fingerprints", false, "Changed Report Count",
                 new XYBarDataset(new XYSeriesCollection(previousCountSeries), 1),
                 PlotOrientation.VERTICAL, false, true, false);
+        chart.addSubtitle(assembleGraphTotalTitle(
+                        "Previous fingerprints per change report",
+                        changedTotal));
         XYPlot plot = chart.getXYPlot();
         plot.addDomainMarker(previousCountAverageMarker);
         plot.getDomainAxis().setStandardTickUnits(NumberAxis.createIntegerTickUnits());
@@ -86,10 +107,12 @@ public class StatisticsModel implements Observer {
 
     public JFreeChart getChangedSignsCountChart() {
         final JFreeChart chart = ChartFactory.createXYBarChart(
-                "Diff sizes", "# of signs in diff", false,
+                null, "# of signs in diff", false,
                 "Count of previous fingerprints",
                 new XYBarDataset(new XYSeriesCollection(diffSizeSeries), 1),
                 PlotOrientation.VERTICAL, false, true, false);
+        chart.addSubtitle(assembleGraphTotalTitle(
+                "Diff sizes", previousCountTotal));
         final XYPlot plot = chart.getXYPlot();
         plot.addDomainMarker(diffSizeAverageMarker);
         plot.getDomainAxis().setStandardTickUnits(NumberAxis.createIntegerTickUnits());
@@ -103,8 +126,10 @@ public class StatisticsModel implements Observer {
 
     public JFreeChart getSignsCountChart() {
         final JFreeChart chart = ChartFactory.createBarChart(
-                "Signs in all changed reports", null, "Count", signsCountDataset,
+                null, null, "Count", signsCountDataset,
                 PlotOrientation.HORIZONTAL, false, true, false);
+        chart.addSubtitle(assembleGraphTotalTitle(
+                "Signs in all changed reports", signCountTotal));
         final BarRenderer renderer = (BarRenderer) chart.getCategoryPlot().getRenderer();
         renderer.setBaseItemLabelGenerator(new PercentageBarLabelGenerator());
         renderer.setBaseItemLabelsVisible(true);
@@ -117,6 +142,7 @@ public class StatisticsModel implements Observer {
 
     @Override
     public void update(Observable observable, Object o) {
+        reportsTotal.setTotal(statistics.getReportCount());
         reportsDataset.setValue(statistics.getReportCount(New), "Count", "New");
         reportsDataset.setValue(statistics.getReportCount(Update), "Count", "Update");
         reportsDataset.setValue(statistics.getReportCount(Generated), "Count", "Guess");
@@ -125,22 +151,25 @@ public class StatisticsModel implements Observer {
         if(! Objects.equals(o, "Change"))
             return;
 
-        for (final Multiset.Entry<Integer> entry :
+        changedTotal.setTotal(statistics.getDiffsToPreviousDistribution().size());
+        for (final Multiset.Entry<Number> entry :
                 statistics.getDiffsToPreviousDistribution().entrySet()) {
-            previousCountSeries.addOrUpdate((Number) entry.getElement(), entry.getCount());
+            previousCountSeries.addOrUpdate(entry.getElement(), entry.getCount());
         }
-        previousCountAverageMarker.setValue(statistics.getDiffsToPreviousAverage());
+        previousCountAverageMarker.setValue(statistics.getDiffsToPreviousAverage().doubleValue());
 
-        for (final Multiset.Entry<Integer> entry :
+        previousCountTotal.setTotal(statistics.getDiffSizeDistribution().size());
+        for (final Multiset.Entry<Number> entry :
                 statistics.getDiffSizeDistribution().entrySet()) {
-            diffSizeSeries.addOrUpdate((Number) entry.getElement(), entry.getCount());
+            diffSizeSeries.addOrUpdate(entry.getElement(), entry.getCount());
         }
-        diffSizeAverageMarker.setValue(statistics.getChangedSignsAverage());
+        diffSizeAverageMarker.setValue(statistics.getChangedSignsAverage().doubleValue());
 
+        signCountTotal.setTotal(statistics.getChangedSignsCount());
         // clear the dataset beforehand, there is no other way to do sorting by value
         signsCountDataset.clear();
         for (final Multiset.Entry<FingerprintStatistics.SignIdentifier> entry :
-                statistics.getMostCommonChangedSigns(Integer.MAX_VALUE).entrySet()) {
+                statistics.getMostCommonChangedSigns().entrySet()) {
             signsCountDataset.setValue(entry.getCount(), "Count", entry.getElement().toString());
         }
     }
@@ -246,5 +275,31 @@ public class StatisticsModel implements Observer {
                 sum += y.doubleValue();
         }
         return sum;
+    }
+
+    /**
+     * @return A {@link Title} to use as Char subtitle, including the titleText and a
+     * {@link TotalTitle }
+     * @see JFreeChart#addSubtitle(Title)
+     */
+    private static Title assembleGraphTotalTitle(final String titleText,
+                                                 final TotalTitle total) {
+        final TextTitle title = new TextTitle(titleText, JFreeChart.DEFAULT_TITLE_FONT);
+        final BlockContainer container = new BlockContainer();
+        container.add(title, RectangleEdge.LEFT);
+        container.add(new EmptyBlock(2000, 0));
+        container.add(total, RectangleEdge.RIGHT);
+        final CompositeTitle composite = new CompositeTitle(container);
+        composite.setPosition(RectangleEdge.TOP);
+        return composite;
+    }
+
+    /** A {@link Title} displaying a "Total" number */
+    private static class TotalTitle extends TextTitle {
+        private NumberFormat numberFormat = NumberFormat.getInstance();
+
+        public void setTotal(@Nonnull Number total) {
+            setText("Total: " + numberFormat.format(total));
+        }
     }
 }
