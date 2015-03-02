@@ -2,7 +2,6 @@ package de.rub.nds.ssl.analyzer.vnl.gui;
 
 import com.google.common.collect.ImmutableSetMultimap;
 import de.rub.nds.ssl.analyzer.vnl.FingerprintListener;
-import de.rub.nds.ssl.analyzer.vnl.FingerprintReporter;
 import de.rub.nds.ssl.analyzer.vnl.FingerprintReporter.FingerprintReporterAdapter;
 import de.rub.nds.ssl.analyzer.vnl.SessionIdentifier;
 import de.rub.nds.ssl.analyzer.vnl.fingerprint.TLSFingerprint;
@@ -27,7 +26,7 @@ import java.util.Set;
  * @see DefaultTreeModel
  * @see DefaultMutableTreeNode
  */
-public class FingerprintStorageModel {
+public abstract class FingerprintStorageModel {
     private static final Logger logger = Logger.getLogger(FingerprintStorageModel.class);
 
     public static TreeModel getModel(FingerprintListener backend) {

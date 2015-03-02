@@ -21,7 +21,7 @@ import java.util.Map;
  * @see DefaultMutableTreeNode
  * @see DefaultTreeModel
  */
-public class FingerprintTreeModel {
+public abstract class FingerprintTreeModel {
     private static final Joiner commaJoiner = Joiner.on(", ").skipNulls();
 
     /**

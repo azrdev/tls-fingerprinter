@@ -10,7 +10,6 @@ import de.rub.nds.ssl.analyzer.vnl.SessionIdentifier;
 import org.apache.log4j.Logger;
 
 import java.text.DecimalFormat;
-import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Observable;
@@ -27,7 +26,7 @@ public class FingerprintStatistics extends Observable implements FingerprintRepo
     private static final DecimalFormat percent = new DecimalFormat( "#0.0%" );
 
     // report counts
-    public static enum ReportType { New, Update, Change, Generated };
+    public static enum ReportType { New, Update, Change, Generated }
     private Multiset<ReportType> reportCounts = HashMultiset.create(ReportType.values().length);
 
     // changed statistics

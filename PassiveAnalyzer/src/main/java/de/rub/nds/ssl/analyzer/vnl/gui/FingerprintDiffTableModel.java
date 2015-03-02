@@ -1,9 +1,5 @@
 package de.rub.nds.ssl.analyzer.vnl.gui;
 
-import com.google.common.collect.Ordering;
-import com.google.common.collect.SetMultimap;
-import com.google.common.collect.SortedSetMultimap;
-import com.google.common.collect.TreeMultimap;
 import de.rub.nds.ssl.analyzer.vnl.fingerprint.SignatureDifference;
 import de.rub.nds.ssl.analyzer.vnl.fingerprint.TLSFingerprint;
 import org.apache.log4j.Logger;
@@ -11,7 +7,6 @@ import org.apache.log4j.Logger;
 import javax.swing.*;
 import javax.swing.table.AbstractTableModel;
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
