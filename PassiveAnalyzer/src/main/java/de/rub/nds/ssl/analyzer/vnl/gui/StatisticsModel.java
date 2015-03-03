@@ -73,6 +73,8 @@ public class StatisticsModel implements Observer {
 
         reportsDataset.addValue(null, "Count", "New");
         reportsDataset.addValue(null, "Count", "Update");
+
+        update(null, "Change");
     }
 
     public JFreeChart getReportsChart() {
