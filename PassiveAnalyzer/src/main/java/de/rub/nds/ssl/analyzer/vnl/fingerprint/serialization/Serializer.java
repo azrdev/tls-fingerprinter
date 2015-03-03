@@ -1,6 +1,5 @@
 package de.rub.nds.ssl.analyzer.vnl.fingerprint.serialization;
 
-import com.google.common.collect.HashMultimap;
 import com.google.common.collect.SetMultimap;
 import de.rub.nds.ssl.analyzer.vnl.SessionIdentifier;
 import de.rub.nds.ssl.analyzer.vnl.fingerprint.*;
@@ -12,7 +11,6 @@ import de.rub.nds.ssl.stack.protocols.commons.Id;
 import de.rub.nds.ssl.stack.protocols.handshake.extensions.datatypes.EECPointFormat;
 import de.rub.nds.ssl.stack.protocols.handshake.extensions.datatypes.EExtensionType;
 import de.rub.nds.ssl.stack.protocols.handshake.extensions.datatypes.ENamedCurve;
-import de.rub.nds.virtualnetworklayer.p0f.Module;
 import de.rub.nds.virtualnetworklayer.p0f.signature.MTUSignature;
 import de.rub.nds.virtualnetworklayer.p0f.signature.TCPSignature;
 import org.antlr.v4.runtime.ANTLRInputStream;
@@ -27,7 +25,6 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.lang.IllegalArgumentException;
 import java.util.*;
-import java.util.regex.Pattern;
 
 /**
  * Utility to serialize {@link Fingerprint}s.

@@ -101,7 +101,7 @@
             <properties/>
             <border type="none"/>
             <children>
-              <component id="858f" class="de.rub.nds.ssl.analyzer.vnl.gui.ToolTippingTable" binding="previousFingerprintDiffTable">
+              <component id="858f" class="de.rub.nds.ssl.analyzer.vnl.gui.components.ToolTippingTable" binding="previousFingerprintDiffTable">
                 <constraints/>
               </component>
             </children>

@@ -2,6 +2,8 @@ package de.rub.nds.ssl.analyzer.vnl.gui;
 
 import de.rub.nds.ssl.analyzer.vnl.SessionIdentifier;
 import de.rub.nds.ssl.analyzer.vnl.fingerprint.TLSFingerprint;
+import de.rub.nds.ssl.analyzer.vnl.gui.components.ToolTippingTable;
+import de.rub.nds.ssl.analyzer.vnl.gui.components.TooltippingTreeRenderer;
 import org.apache.log4j.Logger;
 
 import javax.annotation.Nonnull;

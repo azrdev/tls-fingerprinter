@@ -29,7 +29,7 @@ public class FingerprintReportModel
         New,
         Update,
         Guess,
-        Change;
+        Change
     }
 
     abstract static class Report {

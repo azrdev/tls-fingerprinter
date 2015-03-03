@@ -1,17 +1,8 @@
 package de.rub.nds.ssl.analyzer.vnl;
 
-import com.google.common.net.InetAddresses;
 import de.rub.nds.ssl.analyzer.vnl.fingerprint.ClientHelloFingerprint;
-import de.rub.nds.ssl.analyzer.vnl.fingerprint.Fingerprint;
 import de.rub.nds.ssl.analyzer.vnl.fingerprint.serialization.Serializer;
-import de.rub.nds.ssl.stack.Utility;
-import de.rub.nds.ssl.stack.protocols.handshake.datatypes.SessionId;
-import de.rub.nds.virtualnetworklayer.packet.header.Session;
-import de.rub.nds.virtualnetworklayer.util.Util;
-import de.rub.nds.virtualnetworklayer.util.formatter.IpFormatter;
 import org.apache.log4j.Logger;
-
-import java.util.Arrays;
 
 /**
  * Set of attributes defining a unique connection to some server, e.g. corresponding to a

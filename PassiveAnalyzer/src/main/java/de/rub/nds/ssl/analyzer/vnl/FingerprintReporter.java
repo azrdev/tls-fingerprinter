@@ -2,7 +2,6 @@ package de.rub.nds.ssl.analyzer.vnl;
 
 import de.rub.nds.ssl.analyzer.vnl.fingerprint.TLSFingerprint;
 
-import java.util.List;
 import java.util.Set;
 
 public interface FingerprintReporter {

@@ -1,5 +1,6 @@
-package de.rub.nds.ssl.analyzer.vnl.gui;
+package de.rub.nds.ssl.analyzer.vnl.gui.components;
 
+import de.rub.nds.ssl.analyzer.vnl.gui.StatisticsModel;
 import org.jfree.chart.ChartPanel;
 
 import java.awt.*;

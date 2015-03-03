@@ -2,7 +2,7 @@ Filters traffic (using pcap) for SSL/TLS connections, and fingerprints the other
 
 Call for parameter description:
 
-    java -jar Passiveanalyzer....jar --help
+    java -jar PassiveAnalyzer....jar --help
 
 # TODO
 

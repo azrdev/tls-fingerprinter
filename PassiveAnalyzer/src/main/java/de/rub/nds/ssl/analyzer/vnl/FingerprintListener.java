@@ -1,12 +1,8 @@
 package de.rub.nds.ssl.analyzer.vnl;
 
 import com.google.common.collect.HashMultimap;
-import com.google.common.collect.ImmutableCollection;
 import com.google.common.collect.ImmutableSetMultimap;
-import com.google.common.collect.Multimap;
-import com.google.common.collect.Multimaps;
 import com.google.common.collect.SetMultimap;
-import com.google.common.collect.SortedSetMultimap;
 import de.rub.nds.ssl.analyzer.vnl.fingerprint.TLSFingerprint;
 import de.rub.nds.ssl.analyzer.vnl.fingerprint.serialization.Serializer;
 import org.apache.log4j.Logger;

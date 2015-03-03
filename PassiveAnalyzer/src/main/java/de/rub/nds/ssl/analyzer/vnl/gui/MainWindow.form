@@ -65,7 +65,7 @@
             <properties/>
             <border type="none"/>
             <children>
-              <component id="4f3f8" class="de.rub.nds.ssl.analyzer.vnl.gui.ToolTippingTable" binding="fingerprintReportsTable">
+              <component id="4f3f8" class="de.rub.nds.ssl.analyzer.vnl.gui.components.ToolTippingTable" binding="fingerprintReportsTable">
                 <constraints/>
                 <properties>
                   <autoResizeMode value="0"/>
@@ -121,12 +121,12 @@
                 </properties>
                 <border type="none"/>
                 <children>
-                  <component id="8963d" class="de.rub.nds.ssl.analyzer.vnl.gui.EnhancedChartPanel" binding="reportChart">
+                  <component id="8963d" class="de.rub.nds.ssl.analyzer.vnl.gui.components.EnhancedChartPanel" binding="reportChart">
                     <constraints>
                       <splitpane position="left"/>
                     </constraints>
                   </component>
-                  <component id="969dd" class="de.rub.nds.ssl.analyzer.vnl.gui.EnhancedChartPanel" binding="changedSignsCountChart">
+                  <component id="969dd" class="de.rub.nds.ssl.analyzer.vnl.gui.components.EnhancedChartPanel" binding="changedSignsCountChart">
                     <constraints>
                       <splitpane position="right"/>
                     </constraints>
@@ -143,12 +143,12 @@
                 </properties>
                 <border type="none"/>
                 <children>
-                  <component id="6ad29" class="de.rub.nds.ssl.analyzer.vnl.gui.EnhancedChartPanel" binding="signsCountChart">
+                  <component id="6ad29" class="de.rub.nds.ssl.analyzer.vnl.gui.components.EnhancedChartPanel" binding="signsCountChart">
                     <constraints>
                       <splitpane position="right"/>
                     </constraints>
                   </component>
-                  <component id="ac8a4" class="de.rub.nds.ssl.analyzer.vnl.gui.EnhancedChartPanel" binding="previousCountChart">
+                  <component id="ac8a4" class="de.rub.nds.ssl.analyzer.vnl.gui.components.EnhancedChartPanel" binding="previousCountChart">
                     <constraints>
                       <splitpane position="left"/>
                     </constraints>
@@ -197,7 +197,7 @@
             <properties/>
             <border type="none"/>
             <children>
-              <component id="27298" class="de.rub.nds.ssl.analyzer.vnl.gui.ToolTippingTable" binding="logView">
+              <component id="27298" class="de.rub.nds.ssl.analyzer.vnl.gui.components.ToolTippingTable" binding="logView">
                 <constraints/>
                 <properties>
                   <autoResizeMode value="0"/>

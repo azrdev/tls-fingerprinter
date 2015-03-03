@@ -1,4 +1,4 @@
-package de.rub.nds.ssl.analyzer.vnl.gui;
+package de.rub.nds.ssl.analyzer.vnl.gui.components;
 
 import com.google.common.html.HtmlEscapers;
 
@@ -24,7 +24,7 @@ public class TooltippingTreeRenderer extends DefaultTreeCellRenderer {
             setToolTipText("<html>" +
                     HtmlEscapers.htmlEscaper().escape(raw).replace("\n", "<br>") +
                     "</html>");
-        } catch(ArrayIndexOutOfBoundsException|NullPointerException ignored) {}
+        } catch(IndexOutOfBoundsException|NullPointerException ignored) {}
 
         return this;
     }

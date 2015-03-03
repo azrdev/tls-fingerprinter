@@ -1,7 +1,8 @@
-package de.rub.nds.ssl.analyzer.vnl.gui;
+package de.rub.nds.ssl.analyzer.vnl.gui.components;
 
 import com.google.common.html.HtmlEscapers;
 
+import javax.annotation.Nonnull;
 import javax.swing.*;
 import java.awt.Point;
 import java.awt.event.MouseEvent;
@@ -15,7 +16,7 @@ import java.util.Objects;
  */
 public class ToolTippingTable extends JTable {
     @Override
-    public String getToolTipText(MouseEvent event) {
+    public String getToolTipText(@Nonnull MouseEvent event) {
         final Point p = event.getPoint();
         final int rowIndex = rowAtPoint(p);
         final int colIndex = columnAtPoint(p);
@@ -25,7 +26,7 @@ public class ToolTippingTable extends JTable {
             return "<html>" +
                     HtmlEscapers.htmlEscaper().escape(raw).replace("\n", "<br>") +
                     "</html>";
-        } catch(ArrayIndexOutOfBoundsException|NullPointerException e) {
+        } catch(IndexOutOfBoundsException|NullPointerException e) {
             return "";
         }
     }

@@ -6,6 +6,9 @@ import de.rub.nds.ssl.analyzer.vnl.FingerprintReporter.FingerprintReporterAdapte
 import de.rub.nds.ssl.analyzer.vnl.SessionIdentifier;
 import de.rub.nds.ssl.analyzer.vnl.fingerprint.FingerprintStatistics;
 import de.rub.nds.ssl.analyzer.vnl.fingerprint.TLSFingerprint;
+import de.rub.nds.ssl.analyzer.vnl.gui.components.EnhancedChartPanel;
+import de.rub.nds.ssl.analyzer.vnl.gui.components.ToolTippingTable;
+import de.rub.nds.ssl.analyzer.vnl.gui.components.TooltippingTreeRenderer;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.jfree.chart.ChartPanel;

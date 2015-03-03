@@ -1,6 +1,5 @@
 package de.rub.nds.ssl.analyzer.vnl.fingerprint;
 
-import com.google.common.base.Joiner;
 import de.rub.nds.ssl.analyzer.vnl.Connection;
 import de.rub.nds.ssl.analyzer.vnl.fingerprint.serialization.SerializationException;
 import de.rub.nds.ssl.analyzer.vnl.fingerprint.serialization.Serializer;
@@ -13,7 +12,6 @@ import de.rub.nds.ssl.stack.protocols.handshake.ServerHello;
 import de.rub.nds.ssl.stack.protocols.handshake.datatypes.Extensions;
 import de.rub.nds.ssl.stack.protocols.handshake.extensions.SupportedPointFormats;
 import de.rub.nds.ssl.stack.protocols.handshake.extensions.datatypes.EExtensionType;
-import de.rub.nds.virtualnetworklayer.util.Util;
 import org.apache.log4j.Logger;
 
 import java.util.Arrays;

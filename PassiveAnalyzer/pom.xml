@@ -9,7 +9,6 @@
         <version>1.0-SNAPSHOT</version>
     </parent>
 
-    <groupId>de.rub.nds</groupId>
     <artifactId>PassiveAnalyzer</artifactId>
     <version>1.0-SNAPSHOT</version>
     <name>Passive SSL Analyzer</name>
@@ -33,22 +32,26 @@
                         </goals>
                         <configuration>
                             <minimizeJar>true</minimizeJar>
+                            <!-- TODO: tell shade what specifically is needed in these packages -->
                             <filters>
                                 <filter>
                                     <artifact>log4j:log4j</artifact>
                                     <includes>
+                                        <!-- shade would throw out everything of log4j -->
                                         <include>**</include>
                                     </includes>
                                 </filter>
                                 <filter>
                                     <artifact>org.jfree:jfreechart</artifact>
                                     <includes>
+                                        <!-- JFreeChartResources would be missing to JFreeChart -->
                                         <include>**</include>
                                     </includes>
                                 </filter>
                                 <filter>
                                     <artifact>org.jfree:jcommon</artifact>
                                     <includes>
+                                        <!-- JCommonResources would be missing to JFreeChart -->
                                         <include>**</include>
                                     </includes>
                                 </filter>
