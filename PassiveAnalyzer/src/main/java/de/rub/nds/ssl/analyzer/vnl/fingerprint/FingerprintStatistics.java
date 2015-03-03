@@ -11,6 +11,7 @@ import org.apache.log4j.Logger;
 
 import java.io.Serializable;
 import java.text.DecimalFormat;
+import java.text.NumberFormat;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Observable;
@@ -21,6 +22,7 @@ import java.util.Set;
  *
  * @author jBiegert azrdev@qrdn.de
  */
+//TODO: maybe use an outside-readable serialization instead of Serializable/JOS
 public final class FingerprintStatistics
         extends Observable
         implements FingerprintReporter, Serializable {
@@ -99,25 +101,35 @@ public final class FingerprintStatistics
     public void log(boolean verbose) {
         logger.info(toString());
         if(verbose) {
-            StringBuilder sb = new StringBuilder("Detailed statistics\n");
-            sb.append("report counts: ").append(reportCounts.toString()).append("\n");
-            sb.append("#previous fingerprints -> changed report count: ")
-                    .append(changedPreviousCounts.toString()).append("\n");
+            final NumberFormat frac = new DecimalFormat("#");
+            frac.setMaximumFractionDigits(2);
+            StringBuilder sb = new StringBuilder("Detailed statistics: \n");
+
+            sb.append("previous[] size -> changed report count: ")
+                    .append("Total ").append(changedPreviousCounts.size()).append(" ")
+                    .append(getDiffsToPreviousDistribution().toString()).append(" \n");
+            sb.append("Average count of previous fingerprints seen per changed report: ")
+                    .append(frac.format(getDiffsToPreviousAverage())).append(" \n");
             sb.append("diff size -> previous fingerprint count: ")
-                    .append(diffSize.toString()).append("\n");
-            sb.append("sign counts: ").append(changedSignCounts.toString()).append("\n");
+                    .append("Total ").append(diffSize.size()).append(" ")
+                    .append(getDiffSizeDistribution().toString()).append(" \n");
+            sb.append("Average count of signs seen per diff to any previous fingerprint: ")
+                    .append(frac.format(getChangedSignsAverage())).append(" \n");
+            sb.append("sign counts: ")
+                    .append("Total ").append(changedSignCounts.size()).append(" ")
+                    .append(getMostCommonChangedSigns().toString()).append(" \n");
             logger.info(sb.toString());
         }
     }
 
     @Override
     public String toString() {
-        StringBuilder sb = new StringBuilder("Fingerprint Reports: ");
+        StringBuilder sb = new StringBuilder("Fingerprint Reports - Total: ");
+        sb.append(getReportCount()).append(", ");
         for (ReportType type : ReportType.values()) {
-            final int count = reportCounts.count(type);
-            sb.append(type.toString()).append(": ").append(count);
-            sb.append(" (");
-            sb.append(percent.format((double)count / reportCounts.size()));
+            final Number count = getReportCount(type);
+            sb.append(type.toString()).append(": ").append(count).append(" (");
+            sb.append(percent.format(count.doubleValue() / reportCounts.size()));
             sb.append("), ");
         }
         sb.setLength(sb.length() -2);
