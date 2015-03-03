@@ -33,6 +33,8 @@ import static org.apache.log4j.Level.*;
 public class MainWindow extends JFrame {
     private final TrayIcon trayIcon = new TrayIcon();
 
+    private boolean showMessages = true;
+
     // ui backend
     private final MessageListModel messageListModel = new MessageListModel();
     private final FingerprintReportModel fingerprintReportsModel;
@@ -185,7 +187,8 @@ public class MainWindow extends JFrame {
             public void reportChange(SessionIdentifier sessionIdentifier,
                                      TLSFingerprint fingerprint,
                                      Set<TLSFingerprint> previousFingerprints) {
-                trayIcon.displayChangedAlert(sessionIdentifier.getServerHostName());
+                if(showMessages)
+                    trayIcon.displayChangedAlert(sessionIdentifier.getServerHostName());
             }
         });
 
@@ -216,5 +219,19 @@ public class MainWindow extends JFrame {
 
     private void createUIComponents() {
         logLevelCB = new JComboBox<>(new Level[]{ALL, TRACE, DEBUG, INFO, WARN, Level.ERROR, FATAL});
+    }
+
+    /**
+     * @return If messages should be displayed (on tray icon)
+     */
+    public boolean getShowMessages() {
+        return showMessages;
+    }
+
+    /**
+     * Set if messages should be displayed (on tray icon)
+     */
+    public void setShowMessages(boolean showMessages) {
+        this.showMessages = showMessages;
     }
 }

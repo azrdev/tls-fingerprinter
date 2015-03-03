@@ -56,6 +56,7 @@ public class TrayIcon {
         return menu;
     }
 
+    //TODO: merge subsequent messages
     public void displayChangedAlert(final String host) {
         icon.displayMessage(
                 "Fingerprint changed for " + host,

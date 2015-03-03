@@ -95,7 +95,8 @@ public class PassiveSslReporter {
 	 * a live capture is started.
 	 */
 	public static void main(String[] args) {
-        Namespace parsedArgs = null;
+
+        final Namespace parsedArgs;
         ArgumentParser argParser = ArgumentParsers
                 .newArgumentParser("TLS Fingerprinter")
                 .defaultHelp(true)
@@ -107,6 +108,8 @@ public class PassiveSslReporter {
                 .help("Open standard input as capture, after processing all input files.\n" +
                       "Use i.e. with dumpcap -w - | java ... -s");
         argParser.addArgument("--graphical", "-g").action(storeTrue()).help("Start GUI");
+        argParser.addArgument("--no-display-messages").action(storeTrue())
+                .help("Don't show \"changed alert\" popup messages on the tray icon");
         argParser.addArgument("--save-captures").action(storeTrue())
                 .help("Write .pcap dumps of handshakes");
         argParser.addArgument("--guess-session-resumption").action(storeTrue())
@@ -114,13 +117,15 @@ public class PassiveSslReporter {
         argParser.addArgument("--no-save-fingerprints").action(storeFalse())
                 .help("Do not store fingerprints to files in ~/.ssl-reporter");
         argParser.addArgument("inputFile").nargs("*").help("Input .pcap files to read");
+        Namespace _parsedArgs = null;
         try {
-            parsedArgs = argParser.parseArgs(args);
+            _parsedArgs = argParser.parseArgs(args);
         } catch (ArgumentParserException e) {
             argParser.handleError(e);
             logger.error(e);
             System.exit(1);
         }
+        parsedArgs = _parsedArgs;
 
         if(parsedArgs.getList("inputFile").isEmpty() &&
                 !parsedArgs.getBoolean("open_stdin") &&
@@ -140,7 +145,11 @@ public class PassiveSslReporter {
                 SwingUtilities.invokeAndWait(new Runnable() {
                     @Override
                     public void run() {
-                        new MainWindow(psr.handler.getFingerprintListener());
+                        final MainWindow window = new MainWindow(
+                                psr.handler.getFingerprintListener(),
+                                psr.handler.getFingerprintStatistics());
+                        if(parsedArgs.getBoolean("no_display_messages"))
+                            window.setShowMessages(false);
                     }
                 });
             } catch (InterruptedException e) {

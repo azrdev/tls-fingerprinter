@@ -128,7 +128,6 @@ public final class ServerNameList extends AExtension {
 
         // extract each name
         while(pointer + ENameType.LENGTH_ENCODED <= rawNames.length) {
-            //TODO: this duplicates AServerName.decode()
             ENameType nameType = null;
             int extractedLength;
             int namePointer = 0;
