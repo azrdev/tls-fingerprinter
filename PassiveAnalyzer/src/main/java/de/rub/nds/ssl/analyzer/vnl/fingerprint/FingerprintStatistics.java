@@ -92,8 +92,22 @@ public final class FingerprintStatistics
 
     // export / display / output statistics
 
-    public void routineLogging() {
+    /**
+     * Write statistics to log.
+     * @param verbose Include all captured values
+     */
+    public void log(boolean verbose) {
         logger.info(toString());
+        if(verbose) {
+            StringBuilder sb = new StringBuilder("Detailed statistics\n");
+            sb.append("report counts: ").append(reportCounts.toString()).append("\n");
+            sb.append("#previous fingerprints -> changed report count: ")
+                    .append(changedPreviousCounts.toString()).append("\n");
+            sb.append("diff size -> previous fingerprint count: ")
+                    .append(diffSize.toString()).append("\n");
+            sb.append("sign counts: ").append(changedSignCounts.toString()).append("\n");
+            logger.info(sb.toString());
+        }
     }
 
     @Override

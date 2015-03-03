@@ -77,13 +77,13 @@ public class PassiveSslReporter {
             public void run() {
                 while(true) {
                     try {
-                        handler.printStats();
+                        handler.printStats(false);
                         Thread.sleep(5000);
                     } catch (InterruptedException e) {
                         break;
                     }
                 }
-                handler.printStats();
+                handler.printStats(true);
             }
         });
         t.start();

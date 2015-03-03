@@ -2,7 +2,6 @@ package de.rub.nds.ssl.analyzer.vnl;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -68,6 +67,7 @@ public final class SslReportingConnectionHandler extends ConnectionHandler {
         } catch (IOException e) {
             logger.warn("Could not mkdir " + appDataDir + " : " + e);
         }
+
         // de-serialize statistics
         ObjectInputStream os = null;
         try {
@@ -80,6 +80,8 @@ public final class SslReportingConnectionHandler extends ConnectionHandler {
                 os.close();
             } catch (IOException|NullPointerException e) { /**/ }
         }
+        logger.info("Successfully read statistics file");
+        statistics.log(true);
 
         // de-serialize fingerprints in  save files
         for (Path fpDb : Arrays.asList(
@@ -178,8 +180,8 @@ public final class SslReportingConnectionHandler extends ConnectionHandler {
                     new ResumptionFingerprintGuesser(fingerprintListener));
     }
 
-    public void printStats() {
-        statistics.routineLogging();
+    public void printStats(boolean verbose) {
+        statistics.log(verbose);
     }
 
     /**
@@ -310,6 +312,8 @@ public final class SslReportingConnectionHandler extends ConnectionHandler {
             os.writeObject(statistics);
         } catch (IOException e) {
             logger.error("Could not write statistics: " + e, e);
+            return;
         }
+        logger.info("Successfully wrote statistics to " + statisticsFile);
     }
 }
