@@ -41,6 +41,18 @@
                                     </includes>
                                 </filter>
                                 <filter>
+                                    <artifact>org.jfree:jfreechart</artifact>
+                                    <includes>
+                                        <include>**</include>
+                                    </includes>
+                                </filter>
+                                <filter>
+                                    <artifact>org.jfree:jcommon</artifact>
+                                    <includes>
+                                        <include>**</include>
+                                    </includes>
+                                </filter>
+                                <filter>
                                     <artifact>${project.groupId}:VirtualNetworkLayer</artifact>
                                     <includes>
                                         <include>**</include>
