@@ -99,8 +99,7 @@ public class PassiveSslReporter {
         final Namespace parsedArgs;
         ArgumentParser argParser = ArgumentParsers
                 .newArgumentParser("TLS Fingerprinter")
-                .defaultHelp(true)
-                .epilog("At least one of --open-live, --open-stdin or inputFiles is needed.");
+                .defaultHelp(true);
         argParser.addArgument("--open-live", "-l").action(storeTrue())
                 .help("Open a live capture after processing all input files" +
                       " (and possibly stdin).");
@@ -130,8 +129,10 @@ public class PassiveSslReporter {
         if(parsedArgs.getList("inputFile").isEmpty() &&
                 !parsedArgs.getBoolean("open_stdin") &&
                 !parsedArgs.getBoolean("open_live")) {
-            argParser.printHelp();
-            System.exit(1);
+            System.out.println(
+                    "No pcap input specified. The application will only process the " +
+                    "stored data (saved fingerprints, statistics) and then exit, or " +
+                    "show them in the GUI.\n Use --help for usage instructions.");
         }
 
         final PassiveSslReporter psr = new PassiveSslReporter();
