@@ -26,6 +26,7 @@ import java.util.Set;
  * @see DefaultTreeModel
  * @see DefaultMutableTreeNode
  */
+//FIXME: slow, sometimes doesn't show anything
 public abstract class FingerprintStorageModel {
     private static final Logger logger = Logger.getLogger(FingerprintStorageModel.class);
 

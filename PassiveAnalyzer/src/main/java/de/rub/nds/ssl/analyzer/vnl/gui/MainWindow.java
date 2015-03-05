@@ -35,8 +35,11 @@ import java.util.Set;
 import static org.apache.log4j.Level.*;
 
 /**
+ * The "TLS Fingerprinter" GUI
+ *
  * @author jBiegert azrdev@qrdn.de
  */
+//TODO: user help: chart interaction, report opening
 public class MainWindow extends JFrame {
     private final TrayIcon trayIcon = new TrayIcon();
 

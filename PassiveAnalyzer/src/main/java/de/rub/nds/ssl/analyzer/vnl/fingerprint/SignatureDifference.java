@@ -33,6 +33,7 @@ public class SignatureDifference {
         if(left != null) leftSigns = left.getSigns();
         if(right != null) rightSigns = right.getSigns();
 
+        //TODO: this ignores fuzzyness
         return new SignatureDifference(leftSigns, rightSigns);
     }
 

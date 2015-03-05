@@ -70,6 +70,7 @@ public class FingerprintListener {
             // A new different fingerprint for this SessionIdentifier
             reportFingerprintChange(sessionIdentifier, tlsFingerprint,
                     fingerprints.get(sessionIdentifier));
+            //TODO: make configurable if changed fingerprints should be added to store
             fingerprints.put(sessionIdentifier, tlsFingerprint);
         }
         else {

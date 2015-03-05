@@ -20,22 +20,18 @@ import java.util.Set;
  * @author jBiegert azrdev@qrdn.de
  */
 public class TLSFingerprint {
-    private static Logger logger = Logger.getLogger(TLSFingerprint.class);
+    private static final Logger logger = Logger.getLogger(TLSFingerprint.class);
 
     // static Fingerprint instances for signature creation
     private static TcpFingerprint serverTcpFingerprint = new TcpFingerprint();
     private static MtuFingerprint serverMtuFingerprint = new MtuFingerprint();
 
     // non-static Signature instances
-
     private HandshakeFingerprint handshakeSignature;
     private ServerHelloFingerprint serverHelloSignature;
     private de.rub.nds.virtualnetworklayer.fingerprint.Fingerprint.Signature serverTcpSignature;
     private de.rub.nds.virtualnetworklayer.fingerprint.Fingerprint.Signature serverMtuSignature;
 
-    /**
-     * initialize all signatures with null
-     */
     public <T extends de.rub.nds.virtualnetworklayer.fingerprint.Fingerprint>
     TLSFingerprint(HandshakeFingerprint handshakeSignature,
                    ServerHelloFingerprint serverHelloSignature,
