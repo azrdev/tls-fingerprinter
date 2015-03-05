@@ -41,6 +41,9 @@ public class TLSFingerprint {
         this.serverHelloSignature = serverHelloSignature;
         this.serverTcpSignature = serverTcpSignature;
         this.serverMtuSignature = serverMtuSignature;
+
+        if(serverTcpSignature != null) serverTcpSignature.setFuzzy(true);
+        if(serverMtuSignature != null) serverMtuSignature.setFuzzy(true);
     }
 
     /**
@@ -56,6 +59,8 @@ public class TLSFingerprint {
 
         serverTcpSignature = connection.getServerTcpSignature();
         serverMtuSignature = connection.getServerMtuSignature();
+        if(serverTcpSignature != null) serverTcpSignature.setFuzzy(true);
+        if(serverMtuSignature != null) serverMtuSignature.setFuzzy(true);
     }
 
     public HandshakeFingerprint getHandshakeSignature() {
