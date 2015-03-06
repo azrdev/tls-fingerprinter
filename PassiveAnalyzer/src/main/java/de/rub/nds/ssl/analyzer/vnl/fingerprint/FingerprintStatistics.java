@@ -4,7 +4,6 @@ import com.google.common.collect.HashMultiset;
 import com.google.common.collect.ImmutableMultiset;
 import com.google.common.collect.Multiset;
 import com.google.common.collect.Multisets;
-import com.google.common.collect.SetMultimap;
 import de.rub.nds.ssl.analyzer.vnl.FingerprintReporter;
 import de.rub.nds.ssl.analyzer.vnl.SessionIdentifier;
 import org.apache.log4j.Logger;
@@ -12,8 +11,6 @@ import org.apache.log4j.Logger;
 import java.io.Serializable;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
-import java.util.Map;
-import java.util.Objects;
 import java.util.Observable;
 import java.util.Set;
 
@@ -37,50 +34,6 @@ public final class FingerprintStatistics
 
     // changed statistics
 
-    //TODO: move to SignatureDifference
-    public static class SignIdentifier implements Serializable {
-        private final String signature;
-        private final String sign;
-
-        public SignIdentifier(String signature, String sign) {
-            this.signature = Objects.requireNonNull(signature);
-            this.sign = Objects.requireNonNull(sign);
-        }
-
-        @Override
-        public String toString() {
-            return signature + "." + sign;
-        }
-
-        public String getSignature() {
-            return signature;
-        }
-
-        public String getSign() {
-            return sign;
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
-
-            SignIdentifier that = (SignIdentifier) o;
-
-            if (!sign.equals(that.sign)) return false;
-            if (!signature.equals(that.signature)) return false;
-
-            return true;
-        }
-
-        @Override
-        public int hashCode() {
-            int result = signature.hashCode();
-            result = 31 * result + sign.hashCode();
-            return result;
-        }
-    }
-
     /** Distribution: "# of previous Fingerprints" -> count of changed reports */
     private Multiset<Number> changedPreviousCounts = HashMultiset.create();
 
@@ -90,7 +43,7 @@ public final class FingerprintStatistics
     private Multiset<Number> diffSize = HashMultiset.create();
 
     /** Distribution: sign -> count of occurrences in all changed reports */
-    private Multiset<SignIdentifier> changedSignCounts = HashMultiset.create();
+    private Multiset<SignatureDifference.SignIdentifier> changedSignCounts = HashMultiset.create();
 
     // export / display / output statistics
 
@@ -201,7 +154,7 @@ public final class FingerprintStatistics
      * @return The differing signs and how often they have been seen in any diff to a
      * "previous" fingerprint, ordered by that count
      */
-    public ImmutableMultiset<SignIdentifier> getMostCommonChangedSigns() {
+    public ImmutableMultiset<SignatureDifference.SignIdentifier> getMostCommonChangedSigns() {
         return Multisets.copyHighestCountFirst(changedSignCounts);
     }
 
@@ -216,14 +169,11 @@ public final class FingerprintStatistics
         changedPreviousCounts.add(previousFingerprints.size());
 
         for (TLSFingerprint previousFingerprint : previousFingerprints) {
-            final SetMultimap<String, SignatureDifference.SignDifference> differenceMap =
-                    fingerprint.differenceMap(previousFingerprint);
-            diffSize.add(differenceMap.size());
-            for (Map.Entry<String, SignatureDifference.SignDifference> difference :
-                    differenceMap.entries()) {
-                final SignatureDifference.SignDifference value = difference.getValue();
-                changedSignCounts.add(
-                        new SignIdentifier(difference.getKey(), value.getName()));
+            final Set<SignatureDifference.SignDifference> differences =
+                    fingerprint.difference(previousFingerprint);
+            diffSize.add(differences.size());
+            for (SignatureDifference.SignDifference difference : differences) {
+                changedSignCounts.add(difference.getName());
             }
         }
         setChanged(); notifyObservers("Change");

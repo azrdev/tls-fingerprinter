@@ -2,6 +2,7 @@ package de.rub.nds.ssl.analyzer.vnl.gui;
 
 import com.google.common.collect.Multiset;
 import de.rub.nds.ssl.analyzer.vnl.fingerprint.FingerprintStatistics;
+import de.rub.nds.ssl.analyzer.vnl.fingerprint.SignatureDifference;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.StandardChartTheme;
@@ -170,7 +171,7 @@ public class StatisticsModel implements Observer {
         signCountTotal.setTotal(statistics.getChangedSignsCount());
         // clear the dataset beforehand, there is no other way to do sorting by value
         signsCountDataset.clear();
-        for (final Multiset.Entry<FingerprintStatistics.SignIdentifier> entry :
+        for (final Multiset.Entry<SignatureDifference.SignIdentifier> entry :
                 statistics.getMostCommonChangedSigns().entrySet()) {
             signsCountDataset.setValue(entry.getCount(), "Count", entry.getElement().toString());
         }
