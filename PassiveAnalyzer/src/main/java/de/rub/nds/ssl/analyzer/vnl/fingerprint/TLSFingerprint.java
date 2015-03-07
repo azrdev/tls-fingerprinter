@@ -95,14 +95,6 @@ public class TLSFingerprint {
                 !serverHelloSignature.equals(that.serverHelloSignature) :
                 that.serverHelloSignature != null)
             return false;
-        if (serverMtuSignature != null ?
-                !serverMtuSignature.equals(that.serverMtuSignature) :
-                that.serverMtuSignature != null)
-            return false;
-        if (serverTcpSignature != null ?
-                !serverTcpSignature.equals(that.serverTcpSignature) :
-                that.serverTcpSignature != null)
-            return false;
 
         return true;
     }
@@ -115,10 +107,6 @@ public class TLSFingerprint {
                 (handshakeSignature != null ? handshakeSignature.hashCode() : 0);
         result = prime * result +
                 (serverHelloSignature != null ? serverHelloSignature.hashCode() : 0);
-        result = prime * result +
-                (serverTcpSignature != null ? serverTcpSignature.hashCode() : 0);
-        result = prime * result +
-                (serverMtuSignature != null ? serverMtuSignature.hashCode() : 0);
         return result;
     }
 
