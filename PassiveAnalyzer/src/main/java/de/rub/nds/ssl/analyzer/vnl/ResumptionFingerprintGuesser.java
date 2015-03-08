@@ -1,9 +1,12 @@
 package de.rub.nds.ssl.analyzer.vnl;
 
+import com.google.common.collect.Sets;
+import de.rub.nds.ssl.analyzer.vnl.fingerprint.ClientHelloFingerprint;
 import de.rub.nds.ssl.analyzer.vnl.fingerprint.HandshakeFingerprint;
 import de.rub.nds.ssl.analyzer.vnl.fingerprint.ServerHelloFingerprint;
 import de.rub.nds.ssl.analyzer.vnl.fingerprint.TLSFingerprint;
 import de.rub.nds.ssl.stack.protocols.commons.Id;
+import de.rub.nds.ssl.stack.protocols.handshake.extensions.datatypes.EExtensionType;
 import de.rub.nds.virtualnetworklayer.fingerprint.Fingerprint;
 import org.apache.log4j.Logger;
 
@@ -11,7 +14,11 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.ListIterator;
+import java.util.Set;
 
 import static de.rub.nds.ssl.analyzer.vnl.FingerprintReporter.*;
 
@@ -43,11 +50,13 @@ public class ResumptionFingerprintGuesser extends FingerprintReporterAdapter {
             return;
         }
 
-        final TLSFingerprint resumptionGuess = GuessedResumptionFingerprint.create(tlsFingerprint);
+        if(listener == null)
+            return;
 
-        if(listener != null) {
+        for (TLSFingerprint fingerprint :
+                GuessedResumptionFingerprint.create(tlsFingerprint, sessionIdentifier)) {
             logger.debug("now reporting guessed fingerprint");
-            listener.insertFingerprint(sessionIdentifier, resumptionGuess);
+            listener.insertFingerprint(sessionIdentifier, fingerprint);
         }
     }
 
@@ -61,28 +70,40 @@ public class ResumptionFingerprintGuesser extends FingerprintReporterAdapter {
             super(handshake, serverHello, serverTcp, serverMtu);
         }
 
-        public static GuessedResumptionFingerprint create(@Nonnull TLSFingerprint original) {
+        public static List<TLSFingerprint> create(
+                @Nonnull TLSFingerprint original, SessionIdentifier sessionIdentifier) {
 
             GuessedHandshakeFingerprint handshakeFingerprint = null;
             if(original.getHandshakeSignature() != null)
                 handshakeFingerprint =
                         GuessedHandshakeFingerprint.create(original.getHandshakeSignature());
 
-            GuessedServerHelloFingerprint serverHelloFingerprint = null;
-            if (original.getServerHelloSignature() != null)
-                serverHelloFingerprint =
-                        GuessedServerHelloFingerprint.create(original.getServerHelloSignature());
+            List<GuessedServerHelloFingerprint> serverHelloFingerprints = new LinkedList<>();
+            if (original.getServerHelloSignature() != null) {
+                serverHelloFingerprints.add(
+                        GuessedServerHelloFingerprint.create(
+                                original.getServerHelloSignature(),
+                                sessionIdentifier.getClientHelloSignature()));
+                serverHelloFingerprints.add(
+                        GuessedServerHelloFingerprint.createIncludingExtensions(
+                                original.getServerHelloSignature(),
+                                sessionIdentifier.getClientHelloSignature()));
+            }
 
-            return new GuessedResumptionFingerprint(
-                    handshakeFingerprint,
-                    serverHelloFingerprint,
-                    original.getServerTcpSignature(),
-                    original.getServerMtuSignature());
+            LinkedList<TLSFingerprint> guesses = new LinkedList<>();
+            for (GuessedServerHelloFingerprint serverHelloFingerprint : serverHelloFingerprints) {
+                guesses.add(new GuessedResumptionFingerprint(
+                        handshakeFingerprint,
+                        serverHelloFingerprint,
+                        original.getServerTcpSignature(),
+                        original.getServerMtuSignature()));
+            }
+            return guesses;
         }
     }
 
     public static class GuessedHandshakeFingerprint extends HandshakeFingerprint {
-        /** the "message-types" sign contents to be assumed for every resumption */
+        /** the "message-types" sign content to be assumed for every resumption */
         private static final List<MessageTypes> MESSAGE_TYPES =
                 Arrays.asList(new MessageTypes[]{
                     new MessageTypeSubtype(new Id((byte) 0x16), new Id((byte) 0x01)),
@@ -90,12 +111,16 @@ public class ResumptionFingerprintGuesser extends FingerprintReporterAdapter {
                     new MessageType(new Id((byte) 0x14)),
                     new MessageType(new Id((byte) 0x14))
                 });
+        /** the "ssl-fragment-layout" sign content to be assumed for every resumption */
+        private static final List<String> FRAGMENT_LAYOUT =
+                Arrays.asList("0", "0", "1", "1");
 
         private GuessedHandshakeFingerprint(@Nonnull HandshakeFingerprint original) {
             super(original); // copy
 
             // overwrite signs
             signs.put("message-types", MESSAGE_TYPES);
+            signs.put("ssl-fragment-layout", FRAGMENT_LAYOUT);
             signs.put("session-ids-match", true);
         }
 
@@ -105,26 +130,67 @@ public class ResumptionFingerprintGuesser extends FingerprintReporterAdapter {
     }
 
     public static class GuessedServerHelloFingerprint extends ServerHelloFingerprint {
-        private GuessedServerHelloFingerprint(@Nonnull ServerHelloFingerprint original) {
+        private static final Id reneg = new Id(EExtensionType.RENEGOTIATION_INFO.getId());
+        private static final Id npn = new Id(EExtensionType.NEXT_PROTOCOL_NEGOTIATION.getId());
+        private static final Set<Id> KEEP_EXTENSIONS = Sets.newHashSet(
+                new Id(EExtensionType.STATUS_REQUEST.getId()),
+                new Id(EExtensionType.SERVER_NAME.getId()));
+
+        /**
+         * guess a {@link ServerHelloFingerprint}
+         * @param clientHello The corresponding {@link ClientHelloFingerprint}, read only
+         * @param includeExtensions Whether to include some of the extensions from
+         *                          original into the guess
+         */
+        private GuessedServerHelloFingerprint(@Nonnull ServerHelloFingerprint original,
+                                              ClientHelloFingerprint clientHello,
+                                              boolean includeExtensions) {
             super(original); // copy
 
             // overwrite signs
             signs.put("session-id-empty", false);
+            signs.remove("supported-point-formats");
 
-            //FIXME: ServerHello.extensionsLayout - multiple variants, dep. on original?
-            Object sign = signs.get("extensions-layout");
-            if(sign instanceof List) {
-                final List<Id> extensionsLayout = new ArrayList<>((List<Id>) sign);
-                List<Id> newExtensionsLayout = Arrays.asList(
-                        new Id(new byte[]{(byte) 0xff, 0x01}));
+            // assemble extensions-layout
+            boolean clientHasNPN = false;
+            try {
+                final List<Id> clientExtensions = clientHello.getSign("extensions-layout");
+                clientHasNPN = clientExtensions.contains(npn);
+            } catch(ClassCastException|NullPointerException e) {
+                logger.trace("Could not get client hello extensions: " + e);
+            }
+            try {
+                final List<Id> origExtensions = getSign("extensions-layout");
+
+                final List<Id> newExtensionsLayout = new ArrayList<>(origExtensions);
+                for(ListIterator<Id> it = newExtensionsLayout.listIterator(); it.hasNext(); ) {
+                    final Id extension = it.next();
+                    if(reneg.equals(extension))
+                        continue; //keep
+                    if(npn.equals(extension) || clientHasNPN)
+                        continue; //keep
+                    if(includeExtensions && KEEP_EXTENSIONS.contains(extension))
+                        continue; //keep
+                    it.remove(); // don't keep
+                }
+
                 signs.put("extensions-layout", newExtensionsLayout);
-            } else if(sign != null) {
-                logger.warn("ServerHello.extensions-layout not a list: " + sign);
+            } catch (ClassCastException|NullPointerException e) {
+                logger.debug("Could not properly guess extensions-layout: " + e);
+                signs.put("extensions-layout", Collections.emptyList());
             }
         }
 
-        public static GuessedServerHelloFingerprint create(@Nonnull ServerHelloFingerprint original) {
-            return new GuessedServerHelloFingerprint(original);
+        public static GuessedServerHelloFingerprint create(
+                @Nonnull ServerHelloFingerprint original,
+                ClientHelloFingerprint clientHelloSignature) {
+            return new GuessedServerHelloFingerprint(original, clientHelloSignature, false);
+        }
+
+        public static GuessedServerHelloFingerprint createIncludingExtensions(
+                @Nonnull ServerHelloFingerprint original,
+                ClientHelloFingerprint clientHelloSignature) {
+            return new GuessedServerHelloFingerprint(original, clientHelloSignature, true);
         }
     }
 }
