@@ -148,7 +148,9 @@ public class MainWindow extends JFrame {
         });
 
         /* setup storedFingerprintTree */
-        storedFingerprintTree.setModel(FingerprintStorageModel.getModel(listener));
+        final FingerprintStorageModel fingerprintStorageModel = FingerprintStorageModel.create(listener);
+        storedFingerprintTree.setModel(fingerprintStorageModel.getTreeModel());
+        storedFingerprintTree.addTreeWillExpandListener(fingerprintStorageModel);
         storedFingerprintTree.setRootVisible(false);
         storedFingerprintTree.setShowsRootHandles(true);
         storedFingerprintTree.setEditable(false);

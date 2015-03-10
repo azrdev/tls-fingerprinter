@@ -15,6 +15,8 @@ import java.awt.event.ItemListener;
 import java.util.LinkedList;
 import java.util.List;
 
+import static de.rub.nds.ssl.analyzer.vnl.gui.FingerprintTreeModel.*;
+
 /**
  * Window displaying a single fingerprint report (i.e. New/Changed/Updated/Artificial
  * fingerprint).
@@ -64,13 +66,13 @@ public class FingerprintReportWindow extends JFrame {
 
         // setup endpoint view
         endpointTree.setModel(new DefaultTreeModel(
-                FingerprintTreeModel.createNode(report.sessionIdentifier)));
+                SessionIdentifierTreeNode.create(report.sessionIdentifier, false)));
         endpointTree.setCellRenderer(new TooltippingTreeRenderer());
         ToolTipManager.sharedInstance().registerComponent(endpointTree);
         unfoldTree(endpointTree);
         // setup fingerprint view
         fingerprintTree.setModel(new DefaultTreeModel(
-                FingerprintTreeModel.createNode(report.tlsFingerprint)));
+                TlsFingerprintTreeNode.create(report.tlsFingerprint, false)));
         ToolTipManager.sharedInstance().registerComponent(fingerprintTree);
         fingerprintTree.setCellRenderer(new TooltippingTreeRenderer());
         unfoldTree(fingerprintTree);
@@ -107,7 +109,7 @@ public class FingerprintReportWindow extends JFrame {
 
                     // display the fingerprint in the "show" tree
                     previousFingerprintTree.setModel(new DefaultTreeModel(
-                            FingerprintTreeModel.createNode(fingerprint)));
+                            TlsFingerprintTreeNode.create(fingerprint, false)));
                     unfoldTree(previousFingerprintTree);
 
                     // display the fingerprint in the "diff" view
