@@ -153,6 +153,14 @@ public class PassiveSslReporter {
 
         if(parsedArgs.getBoolean("graphical")) {
             try {
+                UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+            } catch (ClassNotFoundException |
+                    IllegalAccessException |
+                    InstantiationException |
+                    UnsupportedLookAndFeelException e) {
+                logger.debug("Could not set System LAF: " + e, e);
+            }
+            try {
                 SwingUtilities.invokeAndWait(new Runnable() {
                     @Override
                     public void run() {
