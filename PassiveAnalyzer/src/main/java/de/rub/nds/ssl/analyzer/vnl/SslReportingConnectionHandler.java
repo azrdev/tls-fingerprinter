@@ -181,6 +181,8 @@ public final class SslReportingConnectionHandler extends ConnectionHandler {
     }
 
     public void printStats(boolean verbose) {
+        if(verbose)
+            fingerprintListener.log();
         statistics.log(verbose);
     }
 

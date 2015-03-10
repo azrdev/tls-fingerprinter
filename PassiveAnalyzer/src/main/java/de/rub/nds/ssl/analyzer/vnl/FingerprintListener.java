@@ -137,8 +137,17 @@ public class FingerprintListener {
     }
 
     public String toString() {
-        return fingerprints.size() + " known endpoints; " +
+        return fingerprints.keySet().size() + " known endpoints; " +
+                fingerprints.size() + " known fingerprints (total);" +
                 reporters.size() + " attached reporters";
+    }
+
+    /**
+     * Write basic statistics to log
+     */
+    public void log() {
+        logger.info(fingerprints.keySet().size() + " known endpoints; " +
+                fingerprints.size() + " known fingerprints (total)");
     }
 
     /**
