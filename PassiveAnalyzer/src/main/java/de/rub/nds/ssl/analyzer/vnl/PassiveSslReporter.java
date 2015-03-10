@@ -12,6 +12,7 @@ import net.sourceforge.argparse4j.ArgumentParsers;
 import net.sourceforge.argparse4j.inf.ArgumentParser;
 import net.sourceforge.argparse4j.inf.ArgumentParserException;
 import net.sourceforge.argparse4j.inf.Namespace;
+import net.sourceforge.argparse4j.internal.HelpScreenException;
 import org.apache.log4j.Logger;
 
 import javax.swing.*;
@@ -119,6 +120,9 @@ public class PassiveSslReporter {
         Namespace _parsedArgs = null;
         try {
             _parsedArgs = argParser.parseArgs(args);
+        } catch (HelpScreenException e) {
+            argParser.handleError(e);
+            System.exit(0);
         } catch (ArgumentParserException e) {
             argParser.handleError(e);
             logger.error(e);
