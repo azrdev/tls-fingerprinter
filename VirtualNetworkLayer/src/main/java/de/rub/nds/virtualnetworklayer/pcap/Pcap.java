@@ -9,11 +9,12 @@ import de.rub.nds.virtualnetworklayer.util.Util;
 import org.bridj.Pointer;
 
 import java.io.File;
-import java.lang.IllegalArgumentException;
 import java.lang.ref.WeakReference;
 import java.net.InetAddress;
-import java.net.UnknownHostException;
+import java.net.NetworkInterface;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Enumeration;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
@@ -482,20 +483,27 @@ public class Pcap {
      * @return found device otherwise default device
      * @see InetAddress#getLocalHost()
      * @see #getDefaultDevice()
-     * @see de.rub.nds.virtualnetworklayer.util.Util#getDefaultRoute()
+     * @see de.rub.nds.virtualnetworklayer.util.Util#getDefaultRoute(String)
      */
     public static Device getLiveDevice(String host) {
         if (liveDevice != null) {
             return liveDevice;
         }
 
-        String defaultRoute = Util.getDefaultRoute();
-        System.err.println("default route is: " + defaultRoute);
+        final NetworkInterface defaultInterface = Util.getDefaultDevice(host);
+        List<byte[]> defaultInterfaceAddresses = new LinkedList<>();
+        final Enumeration<InetAddress> _addresses = defaultInterface.getInetAddresses();
+        while(_addresses.hasMoreElements())
+            defaultInterfaceAddresses.add(_addresses.nextElement().getAddress());
+
+        System.err.println("default route is: " + defaultInterface);
         for (Device device : Pcap.getDevices()) {
-            if (device.getName().equals(defaultRoute)) {
-                return device;
-            } else {
-            	System.err.println("device name " + device.getName() + " does not match");
+            for(final byte[] deviceAddress : device.getAddresses())
+            for(final byte[] defaultInterfaceAddress : defaultInterfaceAddresses) {
+                if (Arrays.equals(deviceAddress, defaultInterfaceAddress)) {
+                    // found a match of "bound" addresses
+                    return device;
+                }
             }
         }
         System.err.println("did not find a matching device");

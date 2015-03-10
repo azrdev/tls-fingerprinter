@@ -2,9 +2,9 @@ package de.rub.nds.virtualnetworklayer.util;
 
 import de.rub.nds.virtualnetworklayer.packet.header.transport.TcpHeader;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
+import java.net.DatagramSocket;
 import java.net.InetAddress;
+import java.net.NetworkInterface;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.util.List;
@@ -87,19 +87,19 @@ public class Util {
     }
     
     public static String getDefaultRoute(String host) {
+        return getDefaultDevice(host).getName();
+    }
 
+    public static NetworkInterface getDefaultDevice(String host) {
         try {
-        	/**
-        	 * This will get the device that routes to 8.8.8.8, which is hopefully
-        	 * the device with the default route.
-        	 */
-            Process result = Runtime.getRuntime().exec(new String[] {"sh", "-c", "ip -4 route get " + host + " | head -n 1 | perl -pe \"s/.*dev (\\S+)\\s*.*/\\$1/\"" });
-
-            BufferedReader reader = new BufferedReader(new InputStreamReader(result.getInputStream()));
-
-            String route = reader.readLine().trim();
-            return route;
-
+            DatagramSocket s = new DatagramSocket();
+            try {
+                s.connect(InetAddress.getByName(host), 0);
+                final NetworkInterface defaultInterface = NetworkInterface.getByInetAddress(s.getLocalAddress());
+                return defaultInterface;
+            } finally {
+                s.close();
+            }
         } catch (Exception e) {
         	e.printStackTrace();
         }
