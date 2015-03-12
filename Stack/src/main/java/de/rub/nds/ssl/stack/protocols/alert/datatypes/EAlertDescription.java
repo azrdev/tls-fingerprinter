@@ -90,6 +90,6 @@ public enum EAlertDescription {
      * @return Alert description
      */
     public static EAlertDescription getAlertDescription(byte desc) {
-        return ID_MAP.get((int) desc);
+        return ID_MAP.get(desc);
     }
 }
