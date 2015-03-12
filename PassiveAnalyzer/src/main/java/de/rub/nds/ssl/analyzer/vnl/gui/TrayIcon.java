@@ -63,4 +63,8 @@ public class TrayIcon {
                 host + " changed its fingerprint",
                 java.awt.TrayIcon.MessageType.WARNING);
     }
+
+    public BufferedImage getImage() {
+        return image;
+    }
 }

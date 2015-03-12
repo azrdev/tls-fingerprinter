@@ -106,14 +106,12 @@ public class FingerprintReportModel
      * @return A reference to the created {@link FingerprintReportWindow}, or null
      */
     @Nullable
-    public JFrame showReportItem(int row) {
-        final Report report;
+    public Report getReport(int row) {
         try {
-            report = reports.get(row); // this is not thread-safe
+            return reports.get(row); // this is not thread-safe
         } catch(IndexOutOfBoundsException e) {
             return null;
         }
-        return new FingerprintReportWindow(report);
     }
 
     /**

@@ -13,7 +13,6 @@ import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.jfree.chart.ChartPanel;
 
-import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.event.MouseInputAdapter;
 import javax.swing.table.DefaultTableCellRenderer;
@@ -24,8 +23,6 @@ import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.awt.event.MouseEvent;
-import java.awt.image.BufferedImage;
-import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
@@ -78,15 +75,7 @@ public class MainWindow extends JFrame {
         setTitle("TLS Fingerprinter");
         setContentPane(tabPane);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-
-        try {
-            final BufferedImage image =
-                    ImageIO.read(TrayIcon.class.getResourceAsStream("logo.png"));
-            setIconImage(image);
-        } catch (IOException |IllegalArgumentException e) {
-            //logger.warn("logo.png not found: " + e);
-            // TrayIcon will already warn, just ignore here
-        }
+        setIconImage(trayIcon.getImage());
 
         /* setup fingerprint Reports View */
         fingerprintReportsModel = FingerprintReportModel.getModel(listener);
@@ -244,10 +233,13 @@ public class MainWindow extends JFrame {
     }
 
     /**
-     * @see FingerprintReportModel#showReportItem(int)
+     * @see FingerprintReportModel#getReport(int)
      */
     private void showReportItem(int indexInModel) {
-        fingerprintReportsModel.showReportItem(indexInModel);
+        final FingerprintReportModel.Report report =
+                fingerprintReportsModel.getReport(indexInModel);
+        final FingerprintReportWindow window = new FingerprintReportWindow(report);
+        window.setIconImage(trayIcon.getImage());
     }
 
     private void createUIComponents() {
