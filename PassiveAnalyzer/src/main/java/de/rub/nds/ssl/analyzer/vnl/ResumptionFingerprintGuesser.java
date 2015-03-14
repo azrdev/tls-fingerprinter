@@ -5,6 +5,7 @@ import de.rub.nds.ssl.analyzer.vnl.fingerprint.ClientHelloFingerprint;
 import de.rub.nds.ssl.analyzer.vnl.fingerprint.HandshakeFingerprint;
 import de.rub.nds.ssl.analyzer.vnl.fingerprint.ServerHelloFingerprint;
 import de.rub.nds.ssl.analyzer.vnl.fingerprint.TLSFingerprint;
+import de.rub.nds.ssl.stack.protocols.commons.EProtocolVersion;
 import de.rub.nds.ssl.stack.protocols.commons.Id;
 import de.rub.nds.ssl.stack.protocols.handshake.extensions.datatypes.EExtensionType;
 import de.rub.nds.virtualnetworklayer.fingerprint.Fingerprint;
@@ -18,15 +19,17 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
+import java.util.Objects;
 import java.util.Set;
 
 import static de.rub.nds.ssl.analyzer.vnl.FingerprintReporter.*;
 
 /**
  * Listens for fingerprints of "normal" handshakes and guesses how the fingerprints of
- * the corresponding session resumption(s) may look like. Can inject the guess back to
- * the {@link FingerprintListener}, so they become part of the "already seen"
- * fingerprints.
+ * the corresponding session resumption(s) may look like, mimicking normal browser &
+ * server behaviour. Can inject the guess back to the {@link FingerprintListener}, so
+ * they become part of the "already seen" fingerprints.
+ *
  * @author jBiegert azrdev@qrdn.de
  */
 public class ResumptionFingerprintGuesser extends FingerprintReporterAdapter {
@@ -53,10 +56,65 @@ public class ResumptionFingerprintGuesser extends FingerprintReporterAdapter {
         if(listener == null)
             return;
 
+        final GuessedSessionIdentifier guessedSessionIdentifier =
+                GuessedSessionIdentifier.create(sessionIdentifier,
+                        tlsFingerprint.getServerHelloSignature());
         for (TLSFingerprint fingerprint :
                 GuessedResumptionFingerprint.create(tlsFingerprint)) {
             logger.debug("now reporting guessed fingerprint");
-            listener.insertFingerprint(sessionIdentifier, fingerprint);
+            listener.insertFingerprint(guessedSessionIdentifier, fingerprint);
+        }
+    }
+
+    public static class GuessedSessionIdentifier extends SessionIdentifier {
+        private GuessedSessionIdentifier(String serverHostName,
+                                         ClientHelloFingerprint clientHelloSignature) {
+            super(serverHostName, clientHelloSignature);
+        }
+
+        public static GuessedSessionIdentifier create(
+                @Nonnull SessionIdentifier original,
+                ServerHelloFingerprint originalServerHelloSignature) {
+            final ClientHelloFingerprint chf = GuessedClientHelloFingerprint.create(
+                    original.getClientHelloSignature(),
+                    originalServerHelloSignature);
+            return new GuessedSessionIdentifier(original.getServerHostName(), chf);
+        }
+    }
+
+    public static class GuessedClientHelloFingerprint extends ClientHelloFingerprint {
+        private static final Id pointFormats = new Id(EExtensionType.EC_POINT_FORMATS.getId());
+
+        private GuessedClientHelloFingerprint(ClientHelloFingerprint original,
+                                              ServerHelloFingerprint originalServerHello) {
+            super(original); //copy
+
+            // overwrite signs
+            boolean originalHandshakeHasTLS1_2 = false;
+
+            final Object messageVersion = originalServerHello.getSign("message-version");
+            if(Objects.equals(messageVersion, EProtocolVersion.TLS_1_2) ||
+                    Objects.equals(messageVersion, EProtocolVersion.TLS_1_3))
+                originalHandshakeHasTLS1_2 = true;
+
+            if(! originalHandshakeHasTLS1_2)
+                signs.remove("supported-point-formats");
+
+            // assemble extensions-layout
+            try {
+                final List<Id> extensions = getSign("extensions-layout");
+                if(! originalHandshakeHasTLS1_2)
+                    extensions.remove(pointFormats);
+                signs.put("extensions-layout", extensions);
+            } catch (ClassCastException|NullPointerException e) {
+                logger.debug("Could not properly guess extensions-layout: " + e);
+                signs.put("extensions-layout", Collections.emptyList());
+            }
+        }
+
+        public static GuessedClientHelloFingerprint create(
+                ClientHelloFingerprint original, ServerHelloFingerprint originalServerHello) {
+            return new GuessedClientHelloFingerprint(original, originalServerHello);
         }
     }
 
