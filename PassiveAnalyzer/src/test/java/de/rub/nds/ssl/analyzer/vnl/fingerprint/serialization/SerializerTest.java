@@ -47,13 +47,18 @@ public class SerializerTest {
         Fingerprint chf = ClientHelloFingerprint.deserializeFingerprint("");
     }
 
-    private static final String ch_TLS1_complete = "0301:00:c02b,c02f,009e,c00a,c009,c013,c014,c007,c011,0033,0032,0039,009c,002f,0035,000a,0005,0004:0000,ff01,000a,000b,0023,3374,0010,7550,0005,0012,000d:00:0017,0018,0019";
-    private static final String ch_ssl3 = "0300:00:00ff,009e,0033,0032,0039,009c,002f,0035,000a,0005,0004:::";
+    private static final String ch_TLS1_complete =
+            "0301:0301:00:" +
+            "c02b,c02f,009e,c00a,c009,c013,c014,c007,c011,0033,0032,0039,009c,002f,0035,000a,0005,0004:" +
+            "0000,ff01,000a,000b,0023,3374,0010,7550,0005,0012,000d:" +
+            "00:0017,0018,0019";
+    private static final String ch_ssl3 =
+            "0300:0300:00:00ff,009e,0033,0032,0039,009c,002f,0035,000a,0005,0004:::";
 
     @Test
     public void clientHelloFingerprintTLS1_1() {
         final Fingerprint chf = ClientHelloFingerprint.deserializeFingerprint(ch_TLS1_complete);
-        assertEquals(6, chf.getSigns().size());
+        assertEquals(7, chf.getSigns().size());
 
         final String serialized = chf.serialize();
         assertEquals(ch_TLS1_complete, serialized);
@@ -63,7 +68,7 @@ public class SerializerTest {
     @Test
     public void clientHelloFingerprintSSL3() {
         final Fingerprint chf = ClientHelloFingerprint.deserializeFingerprint(ch_ssl3);
-        assertEquals(3, chf.getSigns().size());
+        assertEquals(4, chf.getSigns().size());
 
         final String serialized = chf.serialize();
         assertEquals(ch_ssl3, serialized);
@@ -77,15 +82,17 @@ public class SerializerTest {
         final Fingerprint shf = ServerHelloFingerprint.deserializeFingerprint("");
     }
 
-    private static final String sh_TLS1_2_complete = "0303:c02f:00:true:0000,ff01,000b,0023,0005,0010:00,01,02";
-    private static final String sh_TLS1_1_emptyExt = "0302:0005:00:false:,:";
-    private static final String sh_TLS1_0_noExt = "0301:0004:00:false::";
-    private static final String sh_SSL3 = "0300:0033:00:false:ff01:";
+    private static final String sh_TLS1_2_complete =
+            "0303:0300:c02f:00:true:0000,ff01,000b,0023,0005,0010:00,01,02";
+    private static final String sh_TLS1_1_emptyExt =
+            "0302:0300:0005:00:false:,:";
+    private static final String sh_TLS1_0_noExt = "0301:0301:0004:00:false::";
+    private static final String sh_SSL3 = "0300:0300:0033:00:false:ff01:";
 
     @Test
     public void serverHelloFingerprintTLS1_2_complete() {
         ServerHelloFingerprint shf = ServerHelloFingerprint.deserializeFingerprint(sh_TLS1_2_complete);
-        assertEquals(6, shf.getSigns().size());
+        assertEquals(7, shf.getSigns().size());
 
         assertTrue(shf.getSign("extensions-layout") instanceof List);
         List<Id> extensionsLayout = shf.getSign("extensions-layout");
@@ -99,7 +106,7 @@ public class SerializerTest {
     @Test
     public void serverHelloFingerprintTLS1_1_emptyExt() {
         final ServerHelloFingerprint shf = ServerHelloFingerprint.deserializeFingerprint(sh_TLS1_1_emptyExt);
-        assertEquals(5, shf.getSigns().size());
+        assertEquals(6, shf.getSigns().size());
 
         assertTrue(shf.getSign("extensions-layout") instanceof List);
         final List<Id> extensionsLayout = shf.getSign("extensions-layout");
@@ -113,7 +120,7 @@ public class SerializerTest {
     @Test
     public void serverHelloFingerprintTLS1_0_noExt() {
         final Fingerprint shf = ServerHelloFingerprint.deserializeFingerprint(sh_TLS1_0_noExt);
-        assertEquals(4, shf.getSigns().size());
+        assertEquals(5, shf.getSigns().size());
 
         assertNull(shf.getSign("extensions-layout"));
 
@@ -125,7 +132,7 @@ public class SerializerTest {
     @Test
     public void serverHelloFingerprintSSL3() {
         final ServerHelloFingerprint shf = ServerHelloFingerprint.deserializeFingerprint(sh_SSL3);
-        assertEquals(5, shf.getSigns().size());
+        assertEquals(6, shf.getSigns().size());
 
         assertTrue(shf.getSign("extensions-layout") instanceof List);
         final List<Id> extensionsLayout = shf.getSign("extensions-layout");

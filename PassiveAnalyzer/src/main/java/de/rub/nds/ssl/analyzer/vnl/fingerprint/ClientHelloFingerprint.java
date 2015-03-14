@@ -44,7 +44,7 @@ public class ClientHelloFingerprint extends Fingerprint<ClientHelloFingerprint> 
         super();
     }
 
-    private ClientHelloFingerprint(ClientHelloFingerprint original) {
+    protected ClientHelloFingerprint(ClientHelloFingerprint original) {
         super(original);
     }
 
@@ -52,7 +52,8 @@ public class ClientHelloFingerprint extends Fingerprint<ClientHelloFingerprint> 
         if(clientHello == null)
             throw new NotMatchingException();
 
-        addSign("version", clientHello.getProtocolVersion());
+        addSign("version", clientHello.getProtocolVersion()); // record layer
+        addSign("message-version", clientHello.getMessageProtocolVersion()); // handshake message
 
         //TODO: make fuzzy
         addSign("compression-method-list",
@@ -86,6 +87,7 @@ public class ClientHelloFingerprint extends Fingerprint<ClientHelloFingerprint> 
     @Override
     public List<String> serializationSigns() {
         return Arrays.asList("version",
+                "message-version",
                 "compression-method-list",
                 "cipher-suite-list",
                 "extensions-layout",
@@ -104,24 +106,27 @@ public class ClientHelloFingerprint extends Fingerprint<ClientHelloFingerprint> 
         bytes = Utility.hexToBytes(signs.get(0).trim());
         addSign("version", EProtocolVersion.getProtocolVersion(bytes));
 
-        List<Id> compressionMethods = Serializer.deserializeList(signs.get(1).trim());
+        bytes = Utility.hexToBytes(signs.get(1).trim());
+        addSign("message-version", EProtocolVersion.getProtocolVersion(bytes));
+
+        List<Id> compressionMethods = Serializer.deserializeList(signs.get(2).trim());
         addSign("compression-method-list", compressionMethods);
 
-        List<Id> cipherSuites = Serializer.deserializeList(signs.get(2).trim());
+        List<Id> cipherSuites = Serializer.deserializeList(signs.get(3).trim());
         addSign("cipher-suite-list", cipherSuites);
 
-        List<Id> extensionLayout = Serializer.deserializeList(signs.get(3).trim());
+        List<Id> extensionLayout = Serializer.deserializeList(signs.get(4).trim());
         if(extensionLayout != null)
             addSign("extensions-layout", extensionLayout);
 
-        if(signs.size() >= 5) {
-            List<Id> supportedPointFormats = Serializer.deserializeList(signs.get(4).trim());
+        if(signs.size() >= 6) {
+            List<Id> supportedPointFormats = Serializer.deserializeList(signs.get(5).trim());
             if (supportedPointFormats != null)
                 addSign("supported-point-formats", supportedPointFormats);
         }
 
-        if(signs.size() >= 6) {
-            List<Id> supportedCurves = Serializer.deserializeList(signs.get(5).trim());
+        if(signs.size() >= 7) {
+            List<Id> supportedCurves = Serializer.deserializeList(signs.get(6).trim());
             if (supportedCurves != null)
                 addSign("supported-curves", supportedCurves);
         }

@@ -34,6 +34,7 @@ public class ServerHelloFingerprint extends Fingerprint<ServerHelloFingerprint> 
             throw new NotMatchingException();
 
         addSign("version", serverHello.getProtocolVersion());
+        addSign("message-version", serverHello.getMessageProtocolVersion());
         addSign("cipher-suite", serverHello.getCipherSuite());
         addSign("compression-method", serverHello.getCompressionMethod());
         addSign("session-id-empty", serverHello.getSessionID().isEmpty());
@@ -75,6 +76,7 @@ public class ServerHelloFingerprint extends Fingerprint<ServerHelloFingerprint> 
     public List<String> serializationSigns() {
         return Arrays.asList(
                 "version",
+                "message-version",
                 "cipher-suite",
                 "compression-method",
                 "session-id-empty",
@@ -95,23 +97,26 @@ public class ServerHelloFingerprint extends Fingerprint<ServerHelloFingerprint> 
         addSign("version", EProtocolVersion.getProtocolVersion(bytes));
 
         bytes = Utility.hexToBytes(signs.get(1).trim());
-        addSign("cipher-suite", ECipherSuite.getCipherSuite(bytes));
+        addSign("message-version", EProtocolVersion.getProtocolVersion(bytes));
 
         bytes = Utility.hexToBytes(signs.get(2).trim());
+        addSign("cipher-suite", ECipherSuite.getCipherSuite(bytes));
+
+        bytes = Utility.hexToBytes(signs.get(3).trim());
         addSign("compression-method", ECompressionMethod.getCompressionMethod(bytes[0]));
 
         try {
-            addSign("session-id-empty", Serializer.deserializeBoolean(signs.get(3)));
+            addSign("session-id-empty", Serializer.deserializeBoolean(signs.get(4)));
         } catch (SerializationException e) {
             // omit sign
         }
 
-        List<Id> extensionLayout = Serializer.deserializeList(signs.get(4).trim());
+        List<Id> extensionLayout = Serializer.deserializeList(signs.get(5).trim());
         if(extensionLayout != null)
             addSign("extensions-layout", extensionLayout);
 
         if(signs.size() >= 6) {
-            List<Id> supportedPointFormats = Serializer.deserializeList(signs.get(5).trim());
+            List<Id> supportedPointFormats = Serializer.deserializeList(signs.get(6).trim());
             if (supportedPointFormats != null)
                 addSign("supported-point-formats", supportedPointFormats);
         }
