@@ -330,7 +330,7 @@ public final class ServerHello extends AHandshakeRecord {
         // 1. extract protocol version
         tmpBytes = new byte[EProtocolVersion.LENGTH_ENCODED];
         System.arraycopy(payloadCopy, pointer, tmpBytes, 0, tmpBytes.length);
-        setProtocolVersion(tmpBytes);
+        setMessageProtocolVersion(tmpBytes);
         pointer += tmpBytes.length;
 
         // 2. extract random value

@@ -91,7 +91,7 @@ public final class ClientHello extends AHandshakeRecord {
     }
 
     /**
-     * Get the protocol version of this message. This can be but must not be
+     * Get the protocol version of this message. This can be but need not be
      * equal to the one of the record layer.
      *
      * @return The protocol version of this message
@@ -377,7 +377,7 @@ public final class ClientHello extends AHandshakeRecord {
         // 1. extract protocolVersion 
         tmpBytes = new byte[EProtocolVersion.LENGTH_ENCODED];
         System.arraycopy(payloadCopy, pointer, tmpBytes, 0, tmpBytes.length);
-        setProtocolVersion(tmpBytes);
+        setMessageProtocolVersion(tmpBytes);
         pointer += tmpBytes.length;
 
         // 2. extract random part 
