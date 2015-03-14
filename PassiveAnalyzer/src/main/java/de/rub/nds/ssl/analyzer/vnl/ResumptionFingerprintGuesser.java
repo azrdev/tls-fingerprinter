@@ -54,7 +54,7 @@ public class ResumptionFingerprintGuesser extends FingerprintReporterAdapter {
             return;
 
         for (TLSFingerprint fingerprint :
-                GuessedResumptionFingerprint.create(tlsFingerprint, sessionIdentifier)) {
+                GuessedResumptionFingerprint.create(tlsFingerprint)) {
             logger.debug("now reporting guessed fingerprint");
             listener.insertFingerprint(sessionIdentifier, fingerprint);
         }
@@ -70,8 +70,7 @@ public class ResumptionFingerprintGuesser extends FingerprintReporterAdapter {
             super(handshake, serverHello, serverTcp, serverMtu);
         }
 
-        public static List<TLSFingerprint> create(
-                @Nonnull TLSFingerprint original, SessionIdentifier sessionIdentifier) {
+        public static List<TLSFingerprint> create(@Nonnull TLSFingerprint original) {
 
             GuessedHandshakeFingerprint handshakeFingerprint = null;
             if(original.getHandshakeSignature() != null)
@@ -82,12 +81,12 @@ public class ResumptionFingerprintGuesser extends FingerprintReporterAdapter {
             if (original.getServerHelloSignature() != null) {
                 serverHelloFingerprints.add(
                         GuessedServerHelloFingerprint.create(
-                                original.getServerHelloSignature(),
-                                sessionIdentifier.getClientHelloSignature()));
+                                original.getServerHelloSignature()
+                        ));
                 serverHelloFingerprints.add(
                         GuessedServerHelloFingerprint.createIncludingExtensions(
-                                original.getServerHelloSignature(),
-                                sessionIdentifier.getClientHelloSignature()));
+                                original.getServerHelloSignature()
+                        ));
             }
 
             LinkedList<TLSFingerprint> guesses = new LinkedList<>();
@@ -138,12 +137,10 @@ public class ResumptionFingerprintGuesser extends FingerprintReporterAdapter {
 
         /**
          * guess a {@link ServerHelloFingerprint}
-         * @param clientHello The corresponding {@link ClientHelloFingerprint}, read only
          * @param includeExtensions Whether to include some of the extensions from
          *                          original into the guess
          */
         private GuessedServerHelloFingerprint(@Nonnull ServerHelloFingerprint original,
-                                              ClientHelloFingerprint clientHello,
                                               boolean includeExtensions) {
             super(original); // copy
 
@@ -152,13 +149,6 @@ public class ResumptionFingerprintGuesser extends FingerprintReporterAdapter {
             signs.remove("supported-point-formats");
 
             // assemble extensions-layout
-            boolean clientHasNPN = false;
-            try {
-                final List<Id> clientExtensions = clientHello.getSign("extensions-layout");
-                clientHasNPN = clientExtensions.contains(npn);
-            } catch(ClassCastException|NullPointerException e) {
-                logger.trace("Could not get client hello extensions: " + e);
-            }
             try {
                 final List<Id> origExtensions = getSign("extensions-layout");
 
@@ -167,7 +157,7 @@ public class ResumptionFingerprintGuesser extends FingerprintReporterAdapter {
                     final Id extension = it.next();
                     if(reneg.equals(extension))
                         continue; //keep
-                    if(npn.equals(extension) || clientHasNPN)
+                    if(npn.equals(extension))
                         continue; //keep
                     if(includeExtensions && KEEP_EXTENSIONS.contains(extension))
                         continue; //keep
@@ -182,15 +172,13 @@ public class ResumptionFingerprintGuesser extends FingerprintReporterAdapter {
         }
 
         public static GuessedServerHelloFingerprint create(
-                @Nonnull ServerHelloFingerprint original,
-                ClientHelloFingerprint clientHelloSignature) {
-            return new GuessedServerHelloFingerprint(original, clientHelloSignature, false);
+                @Nonnull ServerHelloFingerprint original) {
+            return new GuessedServerHelloFingerprint(original, false);
         }
 
         public static GuessedServerHelloFingerprint createIncludingExtensions(
-                @Nonnull ServerHelloFingerprint original,
-                ClientHelloFingerprint clientHelloSignature) {
-            return new GuessedServerHelloFingerprint(original, clientHelloSignature, true);
+                @Nonnull ServerHelloFingerprint original) {
+            return new GuessedServerHelloFingerprint(original, true);
         }
     }
 }
