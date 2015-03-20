@@ -29,10 +29,6 @@ import static net.sourceforge.argparse4j.impl.Arguments.storeTrue;
 public class PassiveSslReporter {
     private static Logger logger = Logger.getRootLogger();
 	
-	static {
-		ConnectionHandler.registerP0fFile(P0fFile.Embedded);
-	}
-	
 	// Our handler will report on all new packets
 	private SslReportingConnectionHandler handler = new SslReportingConnectionHandler();
     private Pcap pcap;
@@ -97,7 +93,6 @@ public class PassiveSslReporter {
 	 */
 	public static void main(String[] args) {
 
-        final Namespace parsedArgs;
         ArgumentParser argParser = ArgumentParsers
                 .newArgumentParser("TLS Fingerprinter")
                 .defaultHelp(true);
@@ -108,15 +103,22 @@ public class PassiveSslReporter {
                 .help("Open standard input as capture, after processing all input files.\n" +
                       "Use i.e. with dumpcap -w - | java ... -s");
         argParser.addArgument("--graphical", "-g").action(storeTrue()).help("Start GUI");
-        argParser.addArgument("--no-display-messages").action(storeTrue())
-                .help("Don't show \"changed alert\" popup messages on the tray icon");
-        argParser.addArgument("--save-captures").action(storeTrue())
-                .help("Write .pcap dumps of handshakes");
-        argParser.addArgument("--guess-session-resumption").action(storeTrue())
-                .help("Enable guessing of Session Resumption fingerprints.");
-        argParser.addArgument("--no-save-fingerprints").action(storeFalse())
-                .help("Do not store fingerprints to files in ~/.ssl-reporter");
+
+        argParser.addArgument("--display-messages").dest("display_messages")
+                .nargs("?").type(Boolean.class).setDefault(true).metavar("bool")
+                .help("Show \"changed alert\" popup messages on the tray icon. " +
+                        "Only has an effect if --graphical enabled");
+        argParser.addArgument("--save-fingerprints").dest("save_fingerprints")
+                .nargs("?").type(Boolean.class).setDefault(false).metavar("bool")
+                .help("Store fingerprints to ~/.ssl-reporter/");
+        argParser.addArgument("--save-captures").dest("save_captures")
+                .action(storeTrue())
+                .help("Write .pcap dumps of handshakes to ~/.ssl-reporter/captures/");
+        argParser.addArgument("--resumption-guessing").dest("resumption_guessing")
+                .nargs("?").type(Boolean.class).setDefault(true).metavar("bool")
+                .help("Guess Session Resumption fingerprints.");
         argParser.addArgument("inputFile").nargs("*").help("Input .pcap files to read");
+
         Namespace _parsedArgs = null;
         try {
             _parsedArgs = argParser.parseArgs(args);
@@ -128,7 +130,7 @@ public class PassiveSslReporter {
             logger.error(e);
             System.exit(1);
         }
-        parsedArgs = _parsedArgs;
+        final Namespace parsedArgs = _parsedArgs;
 
         if(parsedArgs.getList("inputFile").isEmpty() &&
                 !parsedArgs.getBoolean("open_stdin") &&
@@ -136,7 +138,7 @@ public class PassiveSslReporter {
             System.out.println(
                     "No pcap input specified. The application will only process the " +
                     "stored data (saved fingerprints, statistics) and then exit, or " +
-                    "show them in the GUI.\n Use --help for usage instructions.");
+                    "show them in the GUI.\nUse --help for usage instructions.");
         }
 
         final PassiveSslReporter psr = new PassiveSslReporter();
@@ -147,9 +149,9 @@ public class PassiveSslReporter {
             }
         }));
         psr.handler.setFingerprintReporting(true,
-                parsedArgs.getBoolean("no_save_fingerprints"),
+                parsedArgs.getBoolean("save_fingerprints"),
                 parsedArgs.getBoolean("save_captures"),
-                parsedArgs.getBoolean("guess_session_resumption"));
+                parsedArgs.getBoolean("resumption_guessing"));
 
         if(parsedArgs.getBoolean("graphical")) {
             try {
@@ -167,8 +169,7 @@ public class PassiveSslReporter {
                         final MainWindow window = new MainWindow(
                                 psr.handler.getFingerprintListener(),
                                 psr.handler.getFingerprintStatistics());
-                        if(parsedArgs.getBoolean("no_display_messages"))
-                            window.setShowMessages(false);
+                        window.setShowMessages(parsedArgs.getBoolean("display_messages"));
                     }
                 });
             } catch (InterruptedException e) {

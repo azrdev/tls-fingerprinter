@@ -38,10 +38,6 @@ import org.apache.log4j.Logger;
 public final class SslReportingConnectionHandler extends ConnectionHandler {
     private static Logger logger = Logger.getLogger(SslReportingConnectionHandler.class);
 
-	static {
-		registerP0fFile(P0fFile.Embedded);
-	}
-
     private static final String appDataDir =
             System.getProperty("user.home") + File.separator + ".ssl-reporter" + File.separator;
 
@@ -62,6 +58,7 @@ public final class SslReportingConnectionHandler extends ConnectionHandler {
     private Pcap pcap = null;
 
     public SslReportingConnectionHandler() {
+        registerP0fFile(P0fFile.Embedded);
         try {
             Files.createDirectories(Paths.get(appDataDir));
         } catch (IOException e) {
@@ -92,6 +89,7 @@ public final class SslReportingConnectionHandler extends ConnectionHandler {
                 logger.warn("Could not load fingerprint save file: " + e);
             }
         }
+        fingerprintListener.log();
     }
 
     /**

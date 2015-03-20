@@ -19,7 +19,7 @@ import java.util.Map;
 import java.util.Set;
 
 public class FingerprintListener {
-    private static Logger logger = Logger.getLogger(TLSFingerprint.class);
+    private static Logger logger = Logger.getLogger(FingerprintListener.class);
 
     //TODO: get back insertion-order, store it in TLSFingerprint & use SortedSetMultimap (TreeMultimap) here
     private SetMultimap<SessionIdentifier, TLSFingerprint> fingerprints =
@@ -176,8 +176,8 @@ public class FingerprintListener {
             }
         }
 
-        logger.info("load fingerprints done. " +
-                "New # of known endpoints: " + fingerprints.size());
+        logger.info("loading done. New endpoints: " + fingerprints.keys().size() +
+                " New fingerprints: " + fingerprints.size());
     }
 
     /** @return An unmodifiable view of the stored fingerprints. It is reflecting all
