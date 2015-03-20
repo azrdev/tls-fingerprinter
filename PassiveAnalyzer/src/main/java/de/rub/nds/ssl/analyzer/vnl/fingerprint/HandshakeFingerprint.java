@@ -11,6 +11,7 @@ import de.rub.nds.ssl.stack.protocols.commons.Id;
 import de.rub.nds.ssl.stack.protocols.handshake.AHandshakeRecord;
 import de.rub.nds.ssl.stack.protocols.handshake.ClientHello;
 import de.rub.nds.ssl.stack.protocols.handshake.ServerHello;
+import de.rub.nds.virtualnetworklayer.packet.Packet;
 import org.apache.log4j.Logger;
 
 import java.util.Arrays;
@@ -224,7 +225,9 @@ public class HandshakeFingerprint extends Fingerprint<HandshakeFingerprint> {
 
         final Joiner j = Joiner.on("-");
         for (MessageContainer messageContainer : frameList) {
-            sslFragmentLayout.add(j.join(messageContainer.getFragmentSourceRecords()));
+            // take only replies from server into account
+            if(messageContainer.getPcapPacket().getDirection() == Packet.Direction.Response)
+                sslFragmentLayout.add(j.join(messageContainer.getFragmentSourceRecords()));
         }
         addSign("ssl-fragment-layout", sslFragmentLayout);
     }
