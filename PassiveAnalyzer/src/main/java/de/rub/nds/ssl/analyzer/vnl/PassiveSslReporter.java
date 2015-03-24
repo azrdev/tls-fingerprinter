@@ -109,7 +109,7 @@ public class PassiveSslReporter {
                 .help("Show \"changed alert\" popup messages on the tray icon. " +
                         "Only has an effect if --graphical enabled");
         argParser.addArgument("--save-fingerprints").dest("save_fingerprints")
-                .nargs("?").type(Boolean.class).setDefault(false).metavar("bool")
+                .nargs("?").type(Boolean.class).setDefault(true).metavar("bool")
                 .help("Store fingerprints to ~/.ssl-reporter/");
         argParser.addArgument("--save-captures").dest("save_captures")
                 .action(storeTrue())
