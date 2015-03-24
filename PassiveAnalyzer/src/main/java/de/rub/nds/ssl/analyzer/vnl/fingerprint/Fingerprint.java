@@ -23,14 +23,21 @@ import java.util.*;
  */
 public abstract class Fingerprint<F extends Fingerprint<F>> {
 
-    protected Fingerprint() {}
+    protected Fingerprint() {
+        signs = new HashMap<>();
+    }
 
+    /**
+     * Copy constructor, initialize as copy of original.
+     * <b>NOTE</b>: signs are copied flat, i.e. collections in signs will point to
+     * identical objects. Be careful when modifying!
+     */
     protected Fingerprint(Fingerprint original) {
         Objects.requireNonNull(original);
         this.signs = new HashMap<>(original.getSigns());
     }
 
-    protected Map<String, Object> signs = new HashMap<>();
+    protected Map<String, Object> signs;
 
     /**
      * Add a sign "key" to this Signature

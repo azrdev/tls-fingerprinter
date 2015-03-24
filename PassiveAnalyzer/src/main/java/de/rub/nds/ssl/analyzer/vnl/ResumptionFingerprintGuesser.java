@@ -102,7 +102,8 @@ public class ResumptionFingerprintGuesser extends FingerprintReporterAdapter {
 
             // assemble extensions-layout
             try {
-                final List<Id> extensions = getSign("extensions-layout");
+                final List<Id> origExtensions = getSign("extensions-layout");
+                final List<Id> extensions = new ArrayList<>(origExtensions);
                 if(! originalHandshakeHasTLS1_2)
                     extensions.remove(pointFormats);
                 signs.put("extensions-layout", extensions);
