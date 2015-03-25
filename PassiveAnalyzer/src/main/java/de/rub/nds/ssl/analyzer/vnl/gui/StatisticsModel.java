@@ -140,7 +140,7 @@ public class StatisticsModel implements Observer {
         renderer.setBaseItemLabelGenerator(new PercentageBarLabelGenerator());
         renderer.setBaseItemLabelsVisible(true);
         renderer.setBasePositiveItemLabelPosition(innerItemLabel);
-        renderer.setPositiveItemLabelPositionFallback(innerItemLabel);
+        renderer.setPositiveItemLabelPositionFallback(outerItemLabel);
         renderer.setBaseItemLabelFont(FONT);
         return chart;
     }
@@ -187,13 +187,15 @@ public class StatisticsModel implements Observer {
     private static final Color guessColor = new Color(0xFF, 0xFF, 0x55);
     private static final Color changeColor = new Color(0xFF, 0x55, 0x55);
 
-    private static final Font FONT = new Font("SansSerif", Font.PLAIN, 12);
+    private static final Font FONT = new Font("SansSerif", Font.PLAIN, 14);
 
     private static final ItemLabelPosition innerItemLabel =
             new ItemLabelPosition(ItemLabelAnchor.CENTER, TextAnchor.CENTER);
     private static final ItemLabelPosition innerItemLabelUpright =
             new ItemLabelPosition(ItemLabelAnchor.CENTER, TextAnchor.CENTER,
                     TextAnchor.CENTER, Math.toRadians(-90));
+    private static final ItemLabelPosition outerItemLabel =
+            new ItemLabelPosition(ItemLabelAnchor.OUTSIDE12, TextAnchor.BASELINE_CENTER);
 
     /**
      * A {@link BarRenderer} for bar charts with only one series (i.e., row in the
@@ -208,7 +210,7 @@ public class StatisticsModel implements Observer {
             setBaseItemLabelGenerator(new PercentageBarLabelGenerator());
             setBaseItemLabelsVisible(true);
             setBasePositiveItemLabelPosition(innerItemLabel);
-            setPositiveItemLabelPositionFallback(innerItemLabel);
+            setPositiveItemLabelPositionFallback(outerItemLabel);
         }
 
         @Override
