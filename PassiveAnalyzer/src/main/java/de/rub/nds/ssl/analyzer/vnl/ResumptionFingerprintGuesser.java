@@ -1,12 +1,15 @@
 package de.rub.nds.ssl.analyzer.vnl;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Sets;
 import de.rub.nds.ssl.analyzer.vnl.fingerprint.ClientHelloFingerprint;
 import de.rub.nds.ssl.analyzer.vnl.fingerprint.HandshakeFingerprint;
 import de.rub.nds.ssl.analyzer.vnl.fingerprint.ServerHelloFingerprint;
 import de.rub.nds.ssl.analyzer.vnl.fingerprint.TLSFingerprint;
+import de.rub.nds.ssl.stack.protocols.commons.EContentType;
 import de.rub.nds.ssl.stack.protocols.commons.EProtocolVersion;
 import de.rub.nds.ssl.stack.protocols.commons.Id;
+import de.rub.nds.ssl.stack.protocols.handshake.datatypes.EMessageType;
 import de.rub.nds.ssl.stack.protocols.handshake.extensions.datatypes.EExtensionType;
 import de.rub.nds.virtualnetworklayer.fingerprint.Fingerprint;
 import org.apache.log4j.Logger;
@@ -163,15 +166,16 @@ public class ResumptionFingerprintGuesser extends FingerprintReporterAdapter {
     public static class GuessedHandshakeFingerprint extends HandshakeFingerprint {
         /** the "message-types" sign content to be assumed for every resumption */
         private static final List<MessageTypes> MESSAGE_TYPES =
-                Arrays.asList(new MessageTypes[]{
-                    new MessageTypeSubtype(new Id((byte) 0x16), new Id((byte) 0x01)),
-                    new MessageTypeSubtype(new Id((byte) 0x16), new Id((byte) 0x02)),
-                    new MessageType(new Id((byte) 0x14)),
-                    new MessageType(new Id((byte) 0x14))
-                });
+                ImmutableList.<MessageTypes>of(
+                    new MessageTypeSubtype(new Id(EContentType.HANDSHAKE.getId()),
+                            new Id(EMessageType.CLIENT_HELLO.getId())),
+                    new MessageTypeSubtype(new Id(EContentType.HANDSHAKE.getId()),
+                            new Id(EMessageType.SERVER_HELLO.getId())),
+                    new MessageType(new Id(EContentType.CHANGE_CIPHER_SPEC.getId())),
+                    new MessageType(new Id(EContentType.CHANGE_CIPHER_SPEC.getId()))
+                );
         /** the "ssl-fragment-layout" sign content to be assumed for every resumption */
-        private static final List<String> FRAGMENT_LAYOUT =
-                Arrays.asList("0", "0", "1", "1");
+        private static final List<String> FRAGMENT_LAYOUT = Arrays.asList("0", "1");
 
         private GuessedHandshakeFingerprint(@Nonnull HandshakeFingerprint original) {
             super(original); // copy
@@ -189,7 +193,6 @@ public class ResumptionFingerprintGuesser extends FingerprintReporterAdapter {
 
     public static class GuessedServerHelloFingerprint extends ServerHelloFingerprint {
         private static final Id reneg = new Id(EExtensionType.RENEGOTIATION_INFO.getId());
-        private static final Id npn = new Id(EExtensionType.NEXT_PROTOCOL_NEGOTIATION.getId());
         private static final Set<Id> KEEP_EXTENSIONS = Sets.newHashSet(
                 new Id(EExtensionType.STATUS_REQUEST.getId()),
                 new Id(EExtensionType.SERVER_NAME.getId()));
@@ -215,8 +218,6 @@ public class ResumptionFingerprintGuesser extends FingerprintReporterAdapter {
                 for(ListIterator<Id> it = newExtensionsLayout.listIterator(); it.hasNext(); ) {
                     final Id extension = it.next();
                     if(reneg.equals(extension))
-                        continue; //keep
-                    if(npn.equals(extension))
                         continue; //keep
                     if(includeExtensions && KEEP_EXTENSIONS.contains(extension))
                         continue; //keep
