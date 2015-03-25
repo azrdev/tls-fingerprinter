@@ -9,6 +9,7 @@ import de.rub.nds.virtualnetworklayer.connection.pcap.ConnectionHandler;
 import de.rub.nds.virtualnetworklayer.p0f.P0fFile;
 import de.rub.nds.virtualnetworklayer.pcap.Pcap;
 import net.sourceforge.argparse4j.ArgumentParsers;
+import net.sourceforge.argparse4j.inf.ArgumentGroup;
 import net.sourceforge.argparse4j.inf.ArgumentParser;
 import net.sourceforge.argparse4j.inf.ArgumentParserException;
 import net.sourceforge.argparse4j.inf.Namespace;
@@ -92,32 +93,38 @@ public class PassiveSslReporter {
 	 * a live capture is started.
 	 */
 	public static void main(String[] args) {
+        final String boolVar = "true|false";
 
-        ArgumentParser argParser = ArgumentParsers
+        final ArgumentParser argParser = ArgumentParsers
                 .newArgumentParser("TLS Fingerprinter")
-                .defaultHelp(true);
-        argParser.addArgument("--open-live", "-l").action(storeTrue())
-                .help("Open a live capture after processing all input files" +
-                      " (and possibly stdin).");
-        argParser.addArgument("--open-stdin", "-s").action(storeTrue())
+                .defaultHelp(true)
+                .description("TLS fingerprinting application. " +
+                        "See README for usage details.");
+        final ArgumentGroup captureArgs = argParser.addArgumentGroup("capture sources")
+                .description("Source for traffic analysis. Multiple options may be " +
+                        "specified, or none to only evaluate stored data.");
+        captureArgs.addArgument("--open-live", "-l").action(storeTrue())
+                .help("Open a live capture, after processing all input files and stdin.");
+        captureArgs.addArgument("--open-stdin", "-s").action(storeTrue())
                 .help("Open standard input as capture, after processing all input files.\n" +
-                      "Use i.e. with dumpcap -w - | java ... -s");
+                      "Use e.g. with dumpcap -w - | java ... -s");
+
         argParser.addArgument("--graphical", "-g").action(storeTrue()).help("Start GUI");
 
         argParser.addArgument("--display-messages").dest("display_messages")
-                .nargs("?").type(Boolean.class).setDefault(true).metavar("bool")
+                .nargs("?").type(Boolean.class).setDefault(true).metavar(boolVar)
                 .help("Show \"changed alert\" popup messages on the tray icon. " +
                         "Only has an effect if --graphical enabled");
         argParser.addArgument("--save-fingerprints").dest("save_fingerprints")
-                .nargs("?").type(Boolean.class).setDefault(true).metavar("bool")
+                .nargs("?").type(Boolean.class).setDefault(true).metavar(boolVar)
                 .help("Store fingerprints to ~/.ssl-reporter/");
         argParser.addArgument("--save-captures").dest("save_captures")
                 .action(storeTrue())
                 .help("Write .pcap dumps of handshakes to ~/.ssl-reporter/captures/");
         argParser.addArgument("--resumption-guessing").dest("resumption_guessing")
-                .nargs("?").type(Boolean.class).setDefault(true).metavar("bool")
+                .nargs("?").type(Boolean.class).setDefault(true).metavar(boolVar)
                 .help("Guess Session Resumption fingerprints.");
-        argParser.addArgument("inputFile").nargs("*").help("Input .pcap files to read");
+        captureArgs.addArgument("inputFile").nargs("*").help("Input .pcap files to read");
 
         Namespace _parsedArgs = null;
         try {
