@@ -106,6 +106,7 @@ public class StatisticsModel implements Observer {
         renderer.setBaseItemLabelGenerator(new PercentageXYLabelGenerator());
         renderer.setBasePositiveItemLabelPosition(innerItemLabel);
         renderer.setBasePaint(changeColor); // this is probably overwritten by seriesPaint
+        renderer.setSeriesPaint(0, changeColor);
         renderer.setBaseItemLabelFont(FONT);
         return chart;
     }
@@ -126,6 +127,7 @@ public class StatisticsModel implements Observer {
         renderer.setBaseItemLabelGenerator(new PercentageXYLabelGenerator());
         renderer.setBasePositiveItemLabelPosition(innerItemLabelUpright);
         renderer.setBasePaint(changeColor); // this is probably overwritten by seriesPaint
+        renderer.setSeriesPaint(0, changeColor);
         renderer.setBaseItemLabelFont(FONT);
         return chart;
     }
@@ -141,6 +143,8 @@ public class StatisticsModel implements Observer {
         renderer.setBaseItemLabelsVisible(true);
         renderer.setBasePositiveItemLabelPosition(innerItemLabel);
         renderer.setPositiveItemLabelPositionFallback(outerItemLabel);
+        renderer.setBasePaint(changeColor);
+        renderer.setSeriesPaint(0, changeColor);
         renderer.setBaseItemLabelFont(FONT);
         return chart;
     }
@@ -182,12 +186,12 @@ public class StatisticsModel implements Observer {
     }
 
     // Chart helper(s)
-    private static final Color newColor = new Color(0x55, 0xFF, 0x55);
-    private static final Color updateColor = new Color(0x55, 0x55, 0xFF);
-    private static final Color guessColor = new Color(0xFF, 0xFF, 0x55);
-    private static final Color changeColor = new Color(0xFF, 0x55, 0x55);
+    private static final Color newColor = new Color(201, 212, 0); // tu5b
+    private static final Color updateColor = new Color(0, 131, 204); //tu2b
+    private static final Color guessColor = new Color(253, 202, 0); // tu6b
+    private static final Color changeColor = new Color(230, 0, 26); // tu9b
 
-    private static final Font FONT = new Font("SansSerif", Font.PLAIN, 14);
+    private static final Font FONT = new Font("SansSerif", Font.BOLD, 14);
 
     private static final ItemLabelPosition innerItemLabel =
             new ItemLabelPosition(ItemLabelAnchor.CENTER, TextAnchor.CENTER);
