@@ -58,35 +58,48 @@ public final class SslReportingConnectionHandler extends ConnectionHandler {
     private Pcap pcap = null;
 
     public SslReportingConnectionHandler() {
-        registerP0fFile(P0fFile.Embedded);
-        try {
-            Files.createDirectories(Paths.get(appDataDir));
-        } catch (IOException e) {
-            logger.warn("Could not mkdir " + appDataDir + " : " + e);
-        }
+        this(true);
+    }
 
-        // de-serialize statistics
-        ObjectInputStream os = null;
-        try {
-            os = new ObjectInputStream(new FileInputStream(statisticsFile));
-            statistics = (FingerprintStatistics) os.readObject();
-        } catch (IOException|ClassNotFoundException|ClassCastException e) {
-            logger.warn("Could not read statistics file: " + e, e);
-        } finally {
+    /**
+     * ctor
+     * @param deserialize (default: true) Read stored fingerprints & statistics.
+     */
+    public SslReportingConnectionHandler(boolean deserialize) {
+        registerP0fFile(P0fFile.Embedded);
+
+        if(deserialize) {
             try {
-                os.close();
-            } catch (IOException|NullPointerException e) { /**/ }
+                Files.createDirectories(Paths.get(appDataDir));
+            } catch (IOException e) {
+                logger.warn("Could not mkdir " + appDataDir + " : " + e);
+            }
+
+            // de-serialize statistics
+            ObjectInputStream os = null;
+            try {
+                os = new ObjectInputStream(new FileInputStream(statisticsFile));
+                statistics = (FingerprintStatistics) os.readObject();
+            } catch (IOException | ClassNotFoundException | ClassCastException e) {
+                logger.warn("Could not read statistics file: " + e, e);
+            } finally {
+                try {
+                    os.close();
+                } catch (IOException | NullPointerException e) { /**/ }
+            }
         }
         logger.info("Successfully read statistics file");
         statistics.log(true);
 
-        // de-serialize fingerprints in  save files
-        for (Path fpDb : Arrays.asList(
-                fingerprintsNewDb, fingerprintsChangedDb, fingerprintsGuessedDb)) {
-            try {
-                fingerprintListener.loadFingerprintSaveFile(fpDb, false);
-            } catch (IOException e) {
-                logger.warn("Could not load fingerprint save file: " + e);
+        if(deserialize) {
+            // de-serialize fingerprints in  save files
+            for (Path fpDb : Arrays.asList(
+                    fingerprintsNewDb, fingerprintsChangedDb, fingerprintsGuessedDb)) {
+                try {
+                    fingerprintListener.loadFingerprintSaveFile(fpDb, false);
+                } catch (IOException e) {
+                    logger.warn("Could not load fingerprint save file: " + e);
+                }
             }
         }
         fingerprintListener.log();
@@ -292,7 +305,6 @@ public final class SslReportingConnectionHandler extends ConnectionHandler {
      * Set the {@link Pcap} instance that loops using this handler.
      * <p>
      * <b>This will break when more than one Pcap loops with the same handler</b>
-     * @param pcap
      */
     public void setPcap(Pcap pcap) {
         this.pcap = pcap;
