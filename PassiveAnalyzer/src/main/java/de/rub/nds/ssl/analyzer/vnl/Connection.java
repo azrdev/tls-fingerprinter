@@ -194,4 +194,25 @@ public class Connection {
 
         return new SessionIdentifier(hostName, ClientHelloFingerprint.create(clientHello));
     }
+
+    /**
+     * @return Iff some TCP segments in the PcapConnection were retransmitted
+     */
+    public boolean hasRetransmissions() {
+        return ! trace.getRetransmitted().isEmpty();
+    }
+
+    /**
+     * @return Iff there were fragmented IPv4 packets
+     */
+    public boolean hasIPv4Fragmentation() {
+        // might be optimized by caching
+        for (PcapPacket pcapPacket : trace) {
+            for (Header header : pcapPacket.getHeaders(Headers.Ip4)) {
+                if(header.isFragmented())
+                    return true;
+            }
+        }
+        return false;
+    }
 }

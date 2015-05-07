@@ -11,6 +11,7 @@ import de.rub.nds.virtualnetworklayer.fingerprint.MtuFingerprint;
 import de.rub.nds.virtualnetworklayer.fingerprint.TcpFingerprint;
 import org.apache.log4j.Logger;
 
+import javax.annotation.Nonnull;
 import java.util.Set;
 
 /**
@@ -31,6 +32,10 @@ public class TLSFingerprint {
     private de.rub.nds.virtualnetworklayer.fingerprint.Fingerprint.Signature serverTcpSignature;
     private de.rub.nds.virtualnetworklayer.fingerprint.Fingerprint.Signature serverMtuSignature;
 
+    // additional info, only used (i.e. may be true) for connection-generated fps, not deserialized ones
+    private boolean _hasRetransmissions = false;
+    private boolean _hasIpFragmentation = false;
+
     public <T extends de.rub.nds.virtualnetworklayer.fingerprint.Fingerprint>
     TLSFingerprint(HandshakeFingerprint handshakeSignature,
                    ServerHelloFingerprint serverHelloSignature,
@@ -48,7 +53,10 @@ public class TLSFingerprint {
     /**
      * initialize all signatures from connection
      */
-    public TLSFingerprint(Connection connection) {
+    public TLSFingerprint(@Nonnull Connection connection) {
+        _hasRetransmissions = connection.hasRetransmissions();
+        _hasIpFragmentation = connection.hasIPv4Fragmentation();
+
         try {
             serverHelloSignature = ServerHelloFingerprint.create(connection);
         } catch(RuntimeException e) {
@@ -118,8 +126,15 @@ public class TLSFingerprint {
         sb.append("\nServer Hello: {\n").append(serverHelloSignature).append("\n}");
         sb.append("\nServer TCP: {\n").append(serverTcpSignature).append("\n}");
         sb.append("\nServer MTU: {\n").append(serverMtuSignature).append("\n}");
+        sb.append("\n").append(additionalInfo());
         sb.append("\n}");
         return sb.toString();
+    }
+
+    public @Nonnull String additionalInfo() {
+        return Joiner.on("\n").skipNulls().join(
+                _hasRetransmissions? "some TCP packets were retransmitted" : null,
+                _hasIpFragmentation? "some Ipv4 packets were fragmented" : null);
     }
 
     /**
@@ -162,5 +177,21 @@ public class TLSFingerprint {
 
     public String serialize() {
         return Serializer.serialize(this);
+    }
+
+    /**
+     * Additional info, if generated from connection (and not deserialized)
+     * @return If the connection contained TCP retransmissions
+     */
+    public boolean hasRetransmissions() {
+        return _hasRetransmissions;
+    }
+
+    /**
+     * Additional info, if generated from connection (and not deserialized)
+     * @return If the connection contained fragmented IPv4 packets
+     */
+    public boolean hasIpFragmentation() {
+        return _hasIpFragmentation;
     }
 }

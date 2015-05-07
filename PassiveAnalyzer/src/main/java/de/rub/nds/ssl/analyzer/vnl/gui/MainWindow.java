@@ -83,8 +83,9 @@ public class MainWindow extends JFrame {
         // column sizes
         fingerprintReportsTable.getColumnModel().getColumn(0).setPreferredWidth(100);
         fingerprintReportsTable.getColumnModel().getColumn(1).setPreferredWidth(50);
-        fingerprintReportsTable.getColumnModel().getColumn(2).setPreferredWidth(225);
-        fingerprintReportsTable.getColumnModel().getColumn(3).setPreferredWidth(1000);
+        fingerprintReportsTable.getColumnModel().getColumn(2).setPreferredWidth(20);
+        fingerprintReportsTable.getColumnModel().getColumn(3).setPreferredWidth(225);
+        fingerprintReportsTable.getColumnModel().getColumn(4).setPreferredWidth(1000);
         // display date + time
         fingerprintReportsTable.setDefaultRenderer(Date.class,
                 new DefaultTableCellRenderer() {
@@ -233,7 +234,9 @@ public class MainWindow extends JFrame {
     }
 
     /**
-     * @see FingerprintReportModel#getReport(int)
+     * Create and Display a {@link FingerprintReportWindow} showing the details of the
+     * indicated record.
+     * @param indexInModel The index of the report to be shown
      */
     private void showReportItem(int indexInModel) {
         final FingerprintReportModel.Report report =

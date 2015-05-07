@@ -44,6 +44,10 @@ public class FingerprintReportModel
         }
 
         public abstract ReportType type();
+
+        public String additionalInfo() {
+            return tlsFingerprint.additionalInfo();
+        }
     }
 
     private static class NewReport extends Report {
@@ -99,12 +103,6 @@ public class FingerprintReportModel
         backend.addFingerprintReporter(this);
     }
 
-    /**
-     * Create and Display a {@link FingerprintReportWindow} showing the details of the
-     * indicated record. <b>NOTE</b>: Only call from Event Dispatch Thread!
-     * @param row The index of the report to be shown
-     * @return A reference to the created {@link FingerprintReportWindow}, or null
-     */
     @Nullable
     public Report getReport(int row) {
         try {
@@ -186,6 +184,8 @@ public class FingerprintReportModel
                 return report.dateTime;
             case TYPE:
                 return report.type();
+            case EXTRA:
+                return report.additionalInfo();
             case SERVER_NAME:
                 return report.sessionIdentifier.getServerHostName();
             case CLIENT_HELLO:
@@ -203,6 +203,7 @@ public class FingerprintReportModel
     private enum Columns {
         TIME("Time", Date.class),
         TYPE("Type", ReportType.class),
+        EXTRA("Extra", String.class),
         SERVER_NAME("Host", String.class),
         CLIENT_HELLO("Client Hello", String.class);
 

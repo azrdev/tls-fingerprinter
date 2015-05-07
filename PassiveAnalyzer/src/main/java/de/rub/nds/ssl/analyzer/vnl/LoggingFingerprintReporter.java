@@ -31,6 +31,8 @@ public class LoggingFingerprintReporter implements FingerprintReporter {
 		logger.info(String.format("Saw a Fingerprint again: %s\n%s",
                 sessionIdentifier.toString(),
                 fingerprint.toString()));
+        if(fingerprint.hasIpFragmentation() || fingerprint.hasRetransmissions())
+            logger.warn(fingerprint.additionalInfo());
 	}
 
     @Override

@@ -56,9 +56,11 @@ public class FingerprintReportWindow extends JFrame {
     private ToolTippingTable previousFingerprintDiffTable;
 
     public FingerprintReportWindow(FingerprintReportModel.Report report) {
-        super(String.format("Fingerprint details for %s (%s) (%s)",
+        super(String.format("Fingerprint details for %s (%s) %s%s(%s)",
                 report.sessionIdentifier.getServerHostName(),
                 report.type(),
+                report.tlsFingerprint.hasIpFragmentation()? "IPv4-Fragmented " : "",
+                report.tlsFingerprint.hasRetransmissions()? "TCP-Retransmissions " : "",
                 report.dateTime));
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
         setContentPane(tabPane);
